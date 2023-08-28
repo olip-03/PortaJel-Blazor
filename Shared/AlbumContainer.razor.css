@@ -5,6 +5,11 @@
     white-space: nowrap; /* Prevent items from wrapping */
 }
 
+.menuTitleContainer{
+    display:flex;
+    width: 100%;
+}
+
 .albumContainer {
     width: 160px;
     height: 160px;

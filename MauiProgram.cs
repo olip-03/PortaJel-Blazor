@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using PortaJel_Blazor.Data;
+
 
 namespace PortaJel_Blazor;
 
@@ -21,8 +21,6 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
-
-		builder.Services.AddSingleton<WeatherForecastService>();
 
 		return builder.Build();
 	}
