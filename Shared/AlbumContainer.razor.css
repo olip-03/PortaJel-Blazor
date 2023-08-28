@@ -1,0 +1,38 @@
+﻿/* Style the container */
+.scrollmenu {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap; /* Prevent items from wrapping */
+}
+
+.albumContainer {
+    width: 160px;
+    height: 160px;
+    margin-right: 10px;
+    border-radius: 25px;
+    background-color: darkgrey;
+    flex-shrink: 0;
+    position: relative;
+    animation: shimmer 1.5s infinite linear;
+}
+
+.shimmerBG {
+    animation-duration: 2.2s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-timing-function: linear;
+    background: #ddd;
+    background: linear-gradient(to right, #F6F6F6 8%, #F0F0F0 18%, #F6F6F6 33%);
+    background-size: 1200px 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1200px 0;
+    }
+
+    100% {
+        background-position: 1200px 0;
+    }
+}
