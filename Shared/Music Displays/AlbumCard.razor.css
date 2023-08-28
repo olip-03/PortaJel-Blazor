@@ -1,0 +1,77 @@
+﻿.albumContainer {
+    display: flex;
+    flex-direction: column;
+    height: auto; /* Change height to 'auto' */
+    inline-size: 160px;
+    margin-right: 10px;
+}
+
+p.albumText {
+    font-size: 14px;
+    word-wrap: break-word;
+    color: darkgray;
+    white-space: pre-line; /* Allow text to break onto multiple lines */
+    overflow: hidden; /* Add this line to hide overflow text */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Number of lines to display before ellipsis */
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis; /* Add this line to add ellipsis for long text */
+}
+.albumImage {
+    width: 160px;
+    max-width: 160px;
+    height: 160px;
+    margin-right: 10px;
+    border-radius: 25px;
+    background-color: darkgrey;
+    flex-shrink: 0;
+    position: relative;
+    animation: shimmer 1.5s infinite linear;
+}
+/* style this to fit your needs */
+/* and remove [alt] to apply to all images*/
+img:after {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-weight: 300;
+    opacity: 1;
+    line-height: 2;
+    text-align: center;
+    content: attr(alt);
+
+    animation-duration: 2.2s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-timing-function: linear;
+    background: #ddd;
+    background: linear-gradient(to right, #F6F6F6 8%, #F0F0F0 18%, #F6F6F6 33%);
+    background-size: 1200px 100%;
+    /*    animation: shimmer 1.5s infinite linear;
+*/
+}
+
+.shimmerBG {
+    animation-duration: 2.2s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-timing-function: linear;
+    background: #ddd;
+    background: linear-gradient(to right, #F6F6F6 8%, #F0F0F0 18%, #F6F6F6 33%);
+    background-size: 1200px 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1200px 0;
+    }
+
+    100% {
+        background-position: 1200px 0;
+    }
+}

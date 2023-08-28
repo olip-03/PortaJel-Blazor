@@ -5,10 +5,18 @@
     white-space: nowrap; /* Prevent items from wrapping */
 }
 
-.menuTitleContainer{
-    display:flex;
-    width: 100%;
+.menuTitleContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
+    .menuTitleContainer h3:first-child {
+        flex: 1;
+        text-align: left;
+    }
+    .menuTitleContainer h3:last-child {
+        text-align: right;
+    }
 
 .albumContainer {
     width: 160px;

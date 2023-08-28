@@ -1,0 +1,10 @@
+﻿<div class="albumContainer">
+    <img src="@ImageSrc" class="albumImage shimmerBG" />
+    <p class="albumText">@AlbumName • @ArtistName</p>
+</div>
+
+@code {
+    [Parameter] public string ImageSrc { get; set; } = "/images/cd.svg"; // Set the default image source
+    [Parameter] public string AlbumName { get; set; }
+    [Parameter] public string ArtistName { get; set; }
+}
