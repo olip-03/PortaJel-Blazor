@@ -9,6 +9,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    justify-content: center;
+    text-align: center;
 }
     .menuTitleContainer h3:first-child {
         flex: 1;

@@ -4,8 +4,8 @@ public partial class MainPage : ContentPage
 {
 	public MainPage()
 	{
-		InitializeComponent();
-	}
+        InitializeComponent();
+    }
     protected override void OnHandlerChanged()
     {
         base.OnHandlerChanged();

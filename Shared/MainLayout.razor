@@ -1,14 +1,73 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavManager
 
 <div class="page">
     <main>
-        <div class="top-row px-4">
-            <h3>PortaJel</h3>
-            <a href="https://docs.microsoft.com/aspnet/">About</a>
-        </div>
+        @if (MauiProgram.loginPage)
+        {
+            <div class="centreItems">
+                <div class="login-form">
+                    <h1>PortaJel</h1>
 
-        <article class="content px-4">
-            @Body
-        </article>
+                    <p hidden="@showServerError">The address you have entered is invalid</p>
+                    <input class="login-form" type="text" name="server_address" placeholder="Server Address" required @bind-value="serverAddress">
+                    <input class="login-form" type="text" name="username" placeholder="Username" required @bind-value="username">
+                    <input class="login-form" type="password" name="password" placeholder="Password" required @bind-value="password">
+
+                    <button class="login-form" type="submit" @onclick="Login" id="signin" name="signin">Sign In</button>
+                    <a class="login-form" @onclick="SkipLogin">Skip Login</a>
+                </div>
+            </div>
+
+        }
+        else
+        {
+            <div class="top-row px-4">
+                <a class="top-row-title" href="/">PortaJel</a>
+                <div class="toolbar">
+                    <a href="/favourites">
+                        <img class="toolbar-img" src="/images/favourite.svg" />
+                    </a>
+                    <a href="/search">
+                        <img class="toolbar-img" src="/images/search.svg" />
+                    </a>
+                    <a href="/settings">
+                        <img class="toolbar-img" src="/images/settings.svg" />
+                    </a>
+                </div>
+            </div>
+            @if(!MauiProgram.isConnected)
+            {
+                <div class="offline">
+                    <img class="offline-img" src="/images/clouderror.svg" />
+                    Not Connected
+                </div>
+            }
+
+            <article class="content px-4">
+                @Body
+            </article>
+        }
     </main>
 </div>
+@code
+{
+    string serverAddress;
+    string username;
+    string password;
+
+    private bool showServerError { get; set; } = true;
+    private bool showUserError { get; set; } = false;
+
+    void SkipLogin()
+    {
+        // Breakpoint here never hit
+        MauiProgram.loginPage = false;
+    }
+    async void Login()
+    {
+        showServerError = await MauiProgram.serverConnector.AuthenticateAddressAsync(serverAddress);
+        showUserError = await MauiProgram.serverConnector.AuthenticateUser(username, password);
+        MauiProgram.loginPage = showUserError;
+    }
+}

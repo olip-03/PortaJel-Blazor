@@ -3,25 +3,28 @@
 <div>
     <div class="menuTitleContainer">
         <h3>@Title</h3>
-        <h5>View All</h5>
+        <div style="display: flex;">
+            View All
+            <img src="/images/showgrid.svg" style="margin-left:0.25rem; height: 1.5rem;">
+        </div>
+        
     </div>
 
     <div class="scrollmenu">
-        <AlbumCard ImageSrc="images/cd.svg" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
-        <AlbumCard ImageSrc="test" AlbumName="Absolutely Free" ArtistName="Frank Zappa & The Mothers of Invention"/>
-        <AlbumCard ImageSrc="test" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
-        <AlbumCard ImageSrc="test" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
-        <AlbumCard ImageSrc="test" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
-        <AlbumCard ImageSrc="test" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
-        <AlbumCard ImageSrc="test" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
-        <AlbumCard ImageSrc="test" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
-        <AlbumCard ImageSrc="test" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
-        <AlbumCard ImageSrc="test" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa"/>
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa & The Mothers of Invention" />
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa" />
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa" />
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa" />
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa" />
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa" />
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa" />
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa" />
+        <AlbumCard ImageSrc="null" AlbumName="Absolutely Free" ArtistName="Frank Zappa" />
     </div>
 </div>
 
 @code {
     // Demonstrates how a parent component can supply parameters
-    [Parameter]
-    public string Title { get; set; }
+    [Parameter] public string Title { get; set; }
 }
