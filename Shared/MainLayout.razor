@@ -6,20 +6,22 @@
         @if (MauiProgram.loginPage)
         {
             <div class="centreItems">
-                <div class="login-form">
+                <form class="login-form">
                     <h1>PortaJel</h1>
 
-                    <p hidden="@showServerError">The address you have entered is invalid</p>
-                    <input class="login-form" type="text" name="server_address" placeholder="Server Address" required @bind-value="serverAddress">
-                    <p hidden="@showUserError">The username or password you have entered is invalid</p>
-                    <input class="login-form" type="text" name="username" placeholder="Username" required @bind-value="username">
-                    <input class="login-form" type="password" name="password" placeholder="Password" required @bind-value="password">
+                    <label for="server_address"><b>Server Address</b></label>
+                    <input class="login-form" type="text" name="server_address" required @bind-value="serverAddress">
+
+                    <label for="username"><b>Username</b></label>
+                    <input class="login-form" type="text" name="username" required @bind-value="username">
+
+                    <label for="password"><b>Password</b></label>
+                    <input class="login-form" type="password" name="password" required @bind-value="password">
 
                     <button class="login-form" type="submit" @onclick="Login" id="signin" name="signin">Sign In</button>
                     <a class="login-form" @onclick="SkipLogin">Skip Login</a>
-                </div>
+                </form>
             </div>
-
         }
         else
         {
@@ -58,7 +60,7 @@
     string password;
 
     private bool showServerError { get; set; } = true;
-    private bool showUserError { get; set; } = false;
+    private bool showUserError { get; set; } = true;
 
     void SkipLogin()
     {
