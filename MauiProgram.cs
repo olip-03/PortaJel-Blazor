@@ -33,3 +33,5 @@ public static class MauiProgram
 		return builder.Build();
 	}
 }
+
+// https://github.com/villagra/jellyfin-apiclient-dotnet

@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Net;
-using System.Net.Http.Json;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using Jellyfin.Sdk;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -15,6 +16,19 @@ namespace PortaJel_Blazor.Classes
         public string Address { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+
+        private SdkClientSettings _sdkClientSettings;
+        private ISystemClient _systemClient;
+        private IUserClient _userClient;
+        private IUserViewsClient _userViewsClient;
+
+        HttpClient _httpClient;
+        
+        public ServerConnecter()
+        {
+            _sdkClientSettings = new();
+            _httpClient = new HttpClient();
+        }
 
         public async Task<bool> AuthenticateAddressAsync(string address)
         {
@@ -42,40 +56,65 @@ namespace PortaJel_Blazor.Classes
                 return false;
             }
 
-            using (HttpClient client = new HttpClient())
+            var host = Address;
+            bool validServer = false;
+
+            _sdkClientSettings.BaseUrl = host;
+            _sdkClientSettings.DeviceName = "idk";
+            _sdkClientSettings.DeviceId = "idk-either";
+            _sdkClientSettings.ClientName = "PortaJel";
+            _sdkClientSettings.ClientVersion = "0.01"; // baby steps
+
+            _systemClient = new SystemClient(_sdkClientSettings, _httpClient);
+            try
             {
-                // Set the base URL of the JellyFin Server API
-                client.BaseAddress = new Uri(Address);
+                // Get public system info to verify that the url points to a Jellyfin server.
+                var systemInfo = await _systemClient.GetPublicSystemInfoAsync().ConfigureAwait(false);
+                validServer = true;
+                Console.WriteLine($"Connected to {host}");
+                Console.WriteLine($"Server Name: {systemInfo.ServerName}");
+                Console.WriteLine($"Server Version: {systemInfo.Version}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
 
-                // Prepare the request body
-                var requestBody = new
-                {
-                    Username = username,
-                    Pw = password
-                };
-
+            var validUser = false;
+            _userClient = new UserClient(_sdkClientSettings, _httpClient);
+            UserDto userDto = null!;
+            do
+            {
                 try
                 {
-                    // Send the POST request to authenticate the user
-                    HttpResponseMessage response = await client.PostAsJsonAsync("/Users/AuthenticateByName", requestBody);
+                    Console.WriteLine($"Logging into {_sdkClientSettings.BaseUrl}");
 
-                    // Check if the authentication was successful
-                    if (response.IsSuccessStatusCode)
+                    // Authenticate user.
+                    var authenticationResult = await _userClient.AuthenticateUserByNameAsync(new AuthenticateUserByName
                     {
-                        // Authentication successful
-                        return true;
-                    }
+                        Username = username,
+                        Pw = password
+                    }).ConfigureAwait(false);
+
+                    _sdkClientSettings.AccessToken = authenticationResult.AccessToken;
+                    userDto = authenticationResult.User;
+                    Console.WriteLine("Authentication success.");
+                    Console.WriteLine($"Welcome to Jellyfin - {userDto.Name}");
+                    validUser = true;
                 }
-                catch (Exception ex)
+                catch (UserException ex)
                 {
-                    // Handle any exceptions that occurred during the authentication process
-                    Console.WriteLine($"An error occurred during authentication: {ex.Message}");
+                    await Console.Error.WriteLineAsync("Error authenticating.").ConfigureAwait(false);
+                    await Console.Error.WriteLineAsync(ex.Message).ConfigureAwait(false);
                 }
-
-                // Authentication failed
-                return false;
             }
-        }
+            while (!validUser);
 
+
+            // Authentication failed
+            return validUser;
+        }
     }
+
 }
+
