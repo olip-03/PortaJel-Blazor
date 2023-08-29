@@ -11,6 +11,7 @@
 
                     <p hidden="@showServerError">The address you have entered is invalid</p>
                     <input class="login-form" type="text" name="server_address" placeholder="Server Address" required @bind-value="serverAddress">
+                    <p hidden="@showUserError">The username or password you have entered is invalid</p>
                     <input class="login-form" type="text" name="username" placeholder="Username" required @bind-value="username">
                     <input class="login-form" type="password" name="password" placeholder="Password" required @bind-value="password">
 
@@ -68,6 +69,7 @@
     {
         showServerError = await MauiProgram.serverConnector.AuthenticateAddressAsync(serverAddress);
         showUserError = await MauiProgram.serverConnector.AuthenticateUser(username, password);
-        MauiProgram.loginPage = showUserError;
+
+        MauiProgram.loginPage = !showUserError;
     }
 }

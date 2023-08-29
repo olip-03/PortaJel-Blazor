@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace PortaJel_Blazor.Classes
 {
+    // https://media.olisshittyserver.xyz/api-docs/swagger/index.html
     public class ServerConnecter
     {
         public string Address { get; set; }
@@ -40,27 +42,40 @@ namespace PortaJel_Blazor.Classes
                 return false;
             }
 
-            using (var httpClient = new HttpClient())
+            using (HttpClient client = new HttpClient())
             {
-                httpClient.BaseAddress = new Uri(Address);
+                // Set the base URL of the JellyFin Server API
+                client.BaseAddress = new Uri(Address);
 
-                var content = new FormUrlEncodedContent(new[]
+                // Prepare the request body
+                var requestBody = new
                 {
-                new KeyValuePair<string, string>("Username", username),
-                new KeyValuePair<string, string>("Password", password)
-            });
-            
-                var response = await httpClient.PostAsync("Users/AuthenticateByName", content);
+                    Username = username,
+                    Pw = password
+                };
 
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    return true;
+                    // Send the POST request to authenticate the user
+                    HttpResponseMessage response = await client.PostAsJsonAsync("/Users/AuthenticateByName", requestBody);
+
+                    // Check if the authentication was successful
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Authentication successful
+                        return true;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    return false;
+                    // Handle any exceptions that occurred during the authentication process
+                    Console.WriteLine($"An error occurred during authentication: {ex.Message}");
                 }
+
+                // Authentication failed
+                return false;
             }
         }
+
     }
 }
