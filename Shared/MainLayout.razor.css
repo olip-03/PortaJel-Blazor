@@ -109,8 +109,10 @@ main {
     border-color: darkgrey;
 }
 .login-form button {
-    margin: 2rem;
     width: 100%;
+}
+.login-form a {
+    margin: 1rem;
 }
 .login-form label {
     align-self: flex-start;

@@ -7,10 +7,11 @@ public static class MauiProgram
 {
 	public static bool isConnected = false;
 	public static bool loginPage = true;
+
 	public static ServerConnecter serverConnector;
 	public static MauiApp CreateMauiApp()
 	{
-		serverConnector = new ServerConnecter();
+		serverConnector = new ServerConnecter("device-name", "device-id", "PortaJel", "0.0.1");
 
         // Check connection to server
         isConnected = false;

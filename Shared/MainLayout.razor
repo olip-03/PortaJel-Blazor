@@ -6,21 +6,28 @@
         @if (MauiProgram.loginPage)
         {
             <div class="centreItems">
-                <form class="login-form">
+                <div class="login-form">
                     <h1>PortaJel</h1>
 
                     <label for="server_address"><b>Server Address</b></label>
-                    <input class="login-form" type="text" name="server_address" required @bind-value="serverAddress">
+                    <input class="login-form" type="text" name="server_address" required @bind-value="serverAddress" disabled="@waiting">
 
                     <label for="username"><b>Username</b></label>
-                    <input class="login-form" type="text" name="username" required @bind-value="username">
+                    <input class="login-form" type="text" name="username" required @bind-value="username" disabled="@waiting">
 
                     <label for="password"><b>Password</b></label>
-                    <input class="login-form" type="password" name="password" required @bind-value="password">
+                    <input class="login-form" type="password" name="password" required @bind-value="password" disabled="@waiting">
 
-                    <button class="login-form" type="submit" @onclick="Login" id="signin" name="signin">Sign In</button>
-                    <a class="login-form" @onclick="SkipLogin">Skip Login</a>
-                </form>
+                    <div style="height: 2rem; width: 100%; display:flex; justify-content:center;">
+                        @if (showError)
+                        {
+                            <p>@errorMessage</p>
+                        }
+                    </div>
+
+                    <button class="login-form" type="submit" @onclick="Login" id="signin" name="signin" disabled="@waiting">Sign In</button>
+                    <a class="login-form" @onclick="SkipLogin" disabled="@waiting">Skip Login</a>
+                </div>
             </div>
         }
         else
@@ -55,23 +62,50 @@
 </div>
 @code
 {
-    string serverAddress;
-    string username;
-    string password;
+    private string serverAddress { get; set; }
+    private string username { get; set; }
+    private string password { get; set; }
 
-    private bool showServerError { get; set; } = true;
-    private bool showUserError { get; set; } = true;
+    private bool waiting { get; set; }
+    private bool showError { get; set; }
+    private string errorMessage { get; set; } = "Unspecified error! You should not see this message!";
 
     void SkipLogin()
     {
-        // Breakpoint here never hit
-        MauiProgram.loginPage = false;
+        if(!waiting)
+        {
+            MauiProgram.loginPage = false; 
+        }
     }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
+
     async void Login()
     {
-        showServerError = await MauiProgram.serverConnector.AuthenticateAddressAsync(serverAddress);
-        showUserError = await MauiProgram.serverConnector.AuthenticateUser(username, password);
+        waiting = true;
+        showError = false;
 
-        MauiProgram.loginPage = !showUserError;
+        bool validServer = await MauiProgram.serverConnector.AuthenticateAddressAsync(serverAddress);
+        bool validUser = await MauiProgram.serverConnector.AuthenticateUser(username, password);
+
+        if (!validServer) 
+        { 
+            showError = true; 
+            errorMessage = "Unable to connect to address " + serverAddress; 
+        }
+        if (!validUser && validServer)
+        { 
+            showError = true; 
+            errorMessage = "Username or password is incorrect!"; 
+        }
+
+        // If we get here all checks have passed
+        waiting = false;
+        MauiProgram.loginPage = showError;
+        MauiProgram.isConnected = !showError;
+
+        StateHasChanged();
     }
 }
