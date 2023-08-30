@@ -1,0 +1,64 @@
+﻿/* Styles for the connection boxes */
+.connection-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.connection-details {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.user-profile {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background-color: #3498db; /* Blue background color, you can change this */
+    margin-right: 10px;
+}
+
+.user-profile-name {
+    color: black;
+    font-size: 1.25rem;
+}
+
+.user-profile-connection {
+    color: darkgray;
+    font-size: 1rem;
+}
+/* Styles for the title and add button */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.add-button {
+    padding: 5px 10px;
+    background-color: #2ecc71; /* Green button color, you can change this */
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.remove-button {
+    height: 100%;
+}
+
+.reconnect-button {
+    width: 100%;
+}

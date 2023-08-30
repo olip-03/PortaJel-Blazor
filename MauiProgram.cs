@@ -1,17 +1,44 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Jellyfin.Sdk;
+using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
+using System.Text.Json;
 
 namespace PortaJel_Blazor;
 
 public static class MauiProgram
 {
-	public static bool isConnected = false;
+    private static string mainDir = FileSystem.Current.AppDataDirectory;
+    private static string fileName = "usrdata.bin";
+    private static string filePath = System.IO.Path.Combine(mainDir, fileName);
+
+    public static bool isConnected = false;
 	public static bool loginPage = true;
 
-	public static ServerConnecter serverConnector;
+	public static List<ServerConnecter> servers = new List<ServerConnecter>();
+
 	public static MauiApp CreateMauiApp()
 	{
-		serverConnector = new ServerConnecter("device-name", "device-id", "PortaJel", "0.0.1");
+        // Load servers from file
+        if(File.Exists(filePath))
+        {
+            using (BinaryReader binReader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+            {
+                while (binReader.BaseStream.Position < binReader.BaseStream.Length)
+                {
+                    ServerConnecter serverConnector = new ServerConnecter(Microsoft.Maui.Devices.DeviceInfo.Current.Name, Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString(), "PortaJel", "0.0.1");
+
+                    string url = binReader.ReadString();
+                    string user = binReader.ReadString();
+                    string pass = binReader.ReadString();
+
+                    serverConnector.SetBaseAddress(url);
+                    serverConnector.SetUserDetails(user, pass);
+
+                    servers.Add(serverConnector);
+                }
+            }
+        }
 
         // Check connection to server
         isConnected = false;
@@ -33,6 +60,34 @@ public static class MauiProgram
 
 		return builder.Build();
 	}
+
+	/// <summary>
+	/// Adds a server to the list of avaliable servers, and saves it to the device.
+	/// </summary>
+	/// <param name="server"></param>
+	public static void AddServer(ServerConnecter server)
+	{
+        // Saves the server to file
+        servers.Add(server);
+
+        using (BinaryWriter binWriter = new BinaryWriter(File.Open(filePath, FileMode.Create)))
+        {
+            foreach (var item in servers)
+            {
+                // Write string
+                binWriter.Write(item.GetBaseAddress());
+                binWriter.Write(item.GetUsername());
+                binWriter.Write(item.GetPassword());
+            }
+        }
+    }
+    /// <summary>
+    /// Loads aaalll the fucking data
+    /// </summary>
+    public static void LoadAllData()
+    {
+
+    }
 }
 
 // https://github.com/villagra/jellyfin-apiclient-dotnet

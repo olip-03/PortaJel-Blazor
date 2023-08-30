@@ -1,12 +1,43 @@
-﻿@page "/settings"
+﻿@using PortaJel_Blazor.Classes;
+@using Microsoft.Maui.Controls;
+@page "/settings"
 
 <h3>Settings</h3>
 <hr/>
 
 <!-- Settings for connecting to a Jellyfin server -->
-<h4>Connections</h4>
+<div>
+    <div class="header">
+        <div class="title">Connections</div>
+        <button class="add-button">Add</button>
+    </div>
+
+    @foreach (var item in MauiProgram.servers)
+    {
+        <div class="connection-container">
+            <div class="connection-details">
+                <div class="user-profile">@item.GetProfileImage()</div>
+                <div>
+                    <div class="user-profile-name">@item.GetUsername()</div>
+                    <div class="user-profile-connection">@item.GetBaseAddress()</div>
+                </div>
+            </div>
+            <button class="remove-button" @onclick="DeleteConnection">Remove</button>
+        </div>
+    }
+    @if(!MauiProgram.isConnected)
+    {
+        <button class="reconnect-button">Reconnect</button>
+    }
+
+</div>
 
 
 @code {
     string cacheDir = FileSystem.Current.CacheDirectory;
+
+    private async void DeleteConnection()
+    {
+        bool answer = await App.Current.MainPage.DisplayAlert("Warning?", "This is your only current connection, removing it will not allow you to access online content.", "Cancel", "Delete");
+    }
 }

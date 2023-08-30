@@ -1,4 +1,5 @@
-﻿@page "/"
+﻿@using Jellyfin.Sdk;
+@page "/"
 
 <AlbumContainer Title="Recent" />
 <br />
@@ -24,5 +25,8 @@
 <AlbumContainer Title="Artists" />
 
 @code {
-    
+    protected override async Task OnInitializedAsync()
+    {
+        BaseItemDtoQueryResult albums = await MauiProgram.servers[0].FetchAlbumsAsync();
+    }
 }

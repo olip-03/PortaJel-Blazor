@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavManager
+@using PortaJel_Blazor.Classes;
 
 <div class="page">
     <main>
@@ -70,16 +71,56 @@
     private bool showError { get; set; }
     private string errorMessage { get; set; } = "Unspecified error! You should not see this message!";
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (MauiProgram.servers.Count > 0)
+        {
+            waiting = true;
+
+            foreach (var loadedServer in MauiProgram.servers)
+            {
+                serverAddress = loadedServer.GetBaseAddress();
+                username = loadedServer.GetUsername();
+                password = loadedServer.GetPassword();
+
+                bool urlpass = await loadedServer.AuthenticateAddressAsync();
+                bool usrpass = await loadedServer.AuthenticateUser();
+
+                if(urlpass && usrpass)
+                {
+                    waiting = false;
+
+                    MauiProgram.isConnected = true;
+                    SkipLogin();
+                }
+                else
+                {
+                    waiting = false;
+                    showError = true;
+
+                    NetworkAccess accessType = Connectivity.Current.NetworkAccess;
+                    if (accessType == NetworkAccess.Internet)
+                    {
+                        errorMessage = "One or all of the previous servers failed to authenticate!";
+                    }
+                    else
+                    {
+                        MauiProgram.isConnected = false;
+                        SkipLogin();
+                    }
+                }
+            }
+        }
+    }
+
     void SkipLogin()
     {
         if(!waiting)
         {
             MauiProgram.loginPage = false; 
+            StateHasChanged();
+            return;
         }
-    }
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
     }
 
     async void Login()
@@ -87,8 +128,10 @@
         waiting = true;
         showError = false;
 
-        bool validServer = await MauiProgram.serverConnector.AuthenticateAddressAsync(serverAddress);
-        bool validUser = await MauiProgram.serverConnector.AuthenticateUser(username, password);
+        ServerConnecter serverConnector = new ServerConnecter(DeviceInfo.Current.Name, DeviceInfo.Current.Idiom.ToString(), "PortaJel", "0.0.1");
+
+        bool validServer = await serverConnector.AuthenticateAddressAsync(serverAddress);
+        bool validUser = await serverConnector.AuthenticateUser(username, password);
 
         if (!validServer) 
         { 
@@ -101,10 +144,15 @@
             errorMessage = "Username or password is incorrect!"; 
         }
 
-        // If we get here all checks have passed
         waiting = false;
         MauiProgram.loginPage = showError;
         MauiProgram.isConnected = !showError;
+
+        if(validServer && validUser)
+        {
+            // If this passed, add this server as a valid connection
+            MauiProgram.AddServer(serverConnector);
+        }
 
         StateHasChanged();
     }

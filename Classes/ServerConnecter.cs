@@ -7,20 +7,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Jellyfin.Sdk;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace PortaJel_Blazor.Classes
 {
     // https://media.olisshittyserver.xyz/api-docs/swagger/index.html
+    // /Artists to get all artists 
+    // 
     public class ServerConnecter
     {
-        public string Address { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-
+        private UserDto userDto = null!;
         private SdkClientSettings _sdkClientSettings;
+        private ItemsClient _itemsClient;
         private ISystemClient _systemClient;
         private IUserClient _userClient;
+       
         private IUserViewsClient _userViewsClient;
+
+        private string Username = null;
+        private string StoredPassword = null;
 
         HttpClient _httpClient;
         public ServerConnecter()
@@ -55,6 +60,10 @@ namespace PortaJel_Blazor.Classes
                 return false;
             }
         }
+        public async Task<bool> AuthenticateAddressAsync()
+        {
+            return await AuthenticateAddressAsync(_sdkClientSettings.BaseUrl);
+        }
         public async Task<bool> AuthenticateUser(string username, string password)
         {
             if (_systemClient == null)
@@ -74,7 +83,6 @@ namespace PortaJel_Blazor.Classes
 
             var validUser = false;
             _userClient = new UserClient(_sdkClientSettings, _httpClient);
-            UserDto userDto = null!;
             try
             {
                 // Authenticate user.
@@ -87,6 +95,10 @@ namespace PortaJel_Blazor.Classes
                 _sdkClientSettings.AccessToken = authenticationResult.AccessToken;
                 userDto = authenticationResult.User;
 
+                _itemsClient = new(_sdkClientSettings, _httpClient);
+
+                Username = username;
+                StoredPassword = password;
                 validUser = true;
             }
             catch (Exception)
@@ -95,6 +107,57 @@ namespace PortaJel_Blazor.Classes
             }
 
             return validUser;
+        }
+        public async Task<bool> AuthenticateUser()
+        {
+            return await AuthenticateUser(Username, StoredPassword);
+        }
+        public async Task<BaseItemDtoQueryResult> FetchAlbumsAsync()
+        {
+            // Create a list containing only the "Album" item type
+            List<BaseItemKind> includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+            BaseItemDtoQueryResult albumsResult = null;
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                albumsResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, recursive: true) ;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            return albumsResult;
+        }
+        public void SetBaseAddress(string url)
+        {
+            _sdkClientSettings.BaseUrl = url;
+        }
+        public void SetUserDetails(string username, string password)
+        {
+            Username = username;
+            StoredPassword = password;
+        }
+        public string GetProfileImage()
+        {
+            if(userDto == null)
+            {
+                return null;
+            }
+            return userDto.PrimaryImageTag;
+        }
+        public string GetUsername()
+        {
+            return Username;
+        }
+        public string GetPassword()
+        {
+            return StoredPassword;
+        }
+        public string GetBaseAddress()
+        {
+            return _sdkClientSettings.BaseUrl;
         }
     }
 
