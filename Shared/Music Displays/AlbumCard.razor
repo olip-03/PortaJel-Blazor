@@ -1,10 +1,29 @@
-﻿<div class="albumContainer">
-    <img src="@ImageSrc" class="albumImage shimmerBG" />
-    <p class="albumText">@AlbumName • @ArtistName</p>
+﻿@using PortaJel_Blazor.Data;
+
+<div class="containerImg">
+    <img src="@album.imageSrc" class="albumImage shimmerBG" />
+    <p class="albumText">@album.name • @album.artist</p>
 </div>
 
+<style>
+    .containerImg{
+        display: flex;
+        flex-direction: column;
+        height: auto; /* Change height to 'auto' */
+        inline-size: 160px;
+        margin-right: 10px;
+        background-image: url(@url;)
+    }
+</style>
+
 @code {
-    [Parameter] public string ImageSrc { get; set; } = "/images/cd.svg"; // Set the default image source
-    [Parameter] public string AlbumName { get; set; }
-    [Parameter] public string ArtistName { get; set; }
+    [Parameter] public Album album { get; set; } = new Album();
+    string url = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        url = "https: //media.olisshittyserver.xyz/Items/" + album.id + "/Images/Backdrop?fillHeight=223&fillWidth =223&quality =96&tag =7aeef64886c6623396f620e16dfa1926";
+        StateHasChanged();
+    }
 }

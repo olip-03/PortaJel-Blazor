@@ -17,8 +17,7 @@
         <div class="scrollmenu">
             @foreach (var item in albumData)
             {
-                string imgsrc = "https://media.olisshittyserver.xyz/Items/" + item.id + "/Images/Primary";
-                <AlbumCard ImageSrc="@imgsrc" AlbumName="@item.name" ArtistName="@item.artist" />
+                <AlbumCard album="item" />
             }
             <div class="scrollmenu-showall">
                 <p style="margin: 1rem; color: darkgray;">Show All</p>

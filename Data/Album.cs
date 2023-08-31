@@ -8,10 +8,12 @@ namespace PortaJel_Blazor.Data
 {
     public class Album
     {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string artist { get; set; }
-        public string imageSrc { get; set; }
+        public string id { get; set; } = string.Empty;
+        public string name { get; set; } = string.Empty;
+        public string artist { get; set; } = string.Empty;
+        public string imageSrc { get; set; } = string.Empty;
+        public string imageArtistSrc { get; set; } = string.Empty;
+
         public Song[] songs { get; set; } 
     }
 }
