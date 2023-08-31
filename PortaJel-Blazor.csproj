@@ -60,10 +60,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Data\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <MauiImage Include="wwwroot\images\cd.svg" />
     </ItemGroup>
 

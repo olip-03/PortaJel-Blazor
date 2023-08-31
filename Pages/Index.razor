@@ -1,32 +1,33 @@
 ﻿@using Jellyfin.Sdk;
 @page "/"
 
-<AlbumContainer Title="Recent" />
+<AlbumContainer Title="Recently Played" albumData="@albumData" />
 <br />
 
-<AlbumContainer Title="Albums" />
+<AlbumContainer Title="Most Played" />
 <br />
 
-<AlbumContainer Title="Artists" />
+<AlbumContainer Title="Recently Added" />
 <br />
 
-<AlbumContainer Title="Artists" />
-<br />
-
-<AlbumContainer Title="Artists" />
-<br />
-
-<AlbumContainer Title="Artists" />
-<br />
-
-<AlbumContainer Title="Artists" />
-<br />
-
-<AlbumContainer Title="Artists" />
+<AlbumContainer Title="Random" />
 
 @code {
+    private BaseItemDtoQueryResult albumData { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        BaseItemDtoQueryResult albums = await MauiProgram.servers[0].FetchAlbumsAsync();
+        try
+        {
+            albumData = await MauiProgram.servers[0].FetchAlbumsAsync(_startIndex: 0, _limit: 10);
+
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex);
+            throw;
+        }
+
+        StateHasChanged();
     }
 }

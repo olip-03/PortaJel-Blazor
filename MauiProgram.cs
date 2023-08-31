@@ -84,9 +84,13 @@ public static class MauiProgram
     /// <summary>
     /// Loads aaalll the fucking data
     /// </summary>
-    public static void LoadAllData()
+    public static async Task<bool> LoadAllData()
     {
-
+        await Task.Run(() =>
+        {
+            Thread.Sleep(2000);
+        });
+        return true;
     }
 }
 

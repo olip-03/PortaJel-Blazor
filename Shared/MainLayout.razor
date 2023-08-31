@@ -61,6 +61,7 @@
         }
     </main>
 </div>
+
 @code
 {
     private string serverAddress { get; set; }
@@ -69,6 +70,9 @@
 
     private bool waiting { get; set; }
     private bool showError { get; set; }
+
+    private bool showLoading { get; set; }
+
     private string errorMessage { get; set; } = "Unspecified error! You should not see this message!";
 
     protected override async Task OnInitializedAsync()
@@ -89,6 +93,8 @@
                 if(urlpass && usrpass)
                 {
                     waiting = false;
+
+                    await MauiProgram.LoadAllData();
 
                     MauiProgram.isConnected = true;
                     SkipLogin();
@@ -143,6 +149,8 @@
             showError = true; 
             errorMessage = "Username or password is incorrect!"; 
         }
+
+        await MauiProgram.LoadAllData();
 
         waiting = false;
         MauiProgram.loginPage = showError;

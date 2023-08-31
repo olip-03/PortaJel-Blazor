@@ -112,15 +112,16 @@ namespace PortaJel_Blazor.Classes
         {
             return await AuthenticateUser(Username, StoredPassword);
         }
-        public async Task<BaseItemDtoQueryResult> FetchAlbumsAsync()
+        public async Task<BaseItemDtoQueryResult> FetchAlbumsAsync(int? _startIndex = null, int? _limit = null)
         {
             // Create a list containing only the "Album" item type
-            List<BaseItemKind> includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+
             BaseItemDtoQueryResult albumsResult = null;
             // Call GetItemsAsync with the specified parameters
             try
             {
-                albumsResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, recursive: true) ;
+                albumsResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, recursive: true, startIndex: _startIndex, limit: _limit, includeItemTypes: _includeItemTypes) ;
             }
             catch (Exception ex)
             {
