@@ -1,26 +1,32 @@
 ﻿@using Jellyfin.Sdk;
+@using PortaJel_Blazor.Data;
 @page "/"
 
-<AlbumContainer Title="Recently Played" albumData="@albumData" />
+<AlbumContainer Title="Recently Played" albumData="@recentPlayData" />
+<br />
+@*
+<AlbumContainer Title="Most Played" albumData="@mostPlayData" />
 <br />
 
-<AlbumContainer Title="Most Played" />
+<AlbumContainer Title="Recently Added" albumData="@recentAddedData" />
 <br />
 
-<AlbumContainer Title="Recently Added" />
-<br />
-
-<AlbumContainer Title="Random" />
+<AlbumContainer Title="Random" albumData="@randomData" />*@
 
 @code {
-    private BaseItemDtoQueryResult albumData { get; set; }
+    private Album[] recentPlayData { get; set; }
+    private BaseItemDtoQueryResult mostPlayData { get; set; }
+    private BaseItemDtoQueryResult recentAddedData { get; set; }
+    private BaseItemDtoQueryResult randomData { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            albumData = await MauiProgram.servers[0].FetchAlbumsAsync(_startIndex: 0, _limit: 10);
-
+            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 25);
+            //mostPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 25);
+            //recentAddedData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 25);
+            //randomData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 25);
         }
         catch (Exception ex)
         {

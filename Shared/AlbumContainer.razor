@@ -1,5 +1,6 @@
 ﻿@using Jellyfin.Sdk;
 @using PortaJel_Blazor.Shared.Music_Displays;
+@using PortaJel_Blazor.Data;
 
 @if(albumData != null)
 {
@@ -8,34 +9,20 @@
             <h3>@Title</h3>
             <div style="display: flex;">
                 View All
-                <img src="/images/showgrid.svg" style="margin-left:0.25rem; height: 1.5rem;">
+                <img src="/images/showgrid.svg" class="showall-img">
             </div>
 
         </div>
 
         <div class="scrollmenu">
-
-            @foreach (var item in albumData.Items)
+            @foreach (var item in albumData)
             {
-                try
-                {
-                    if (item.Type != Jellyfin.Sdk.BaseItemKind.MusicAlbum)
-                    {
-                        return;
-                    }
-                    string artist = "";
-                    foreach (var artistName in item.AlbumArtist)
-                    {
-                        artist += artistName + " ";
-                    }
-                    <AlbumCard ImageSrc="null" AlbumName="@item.Name" ArtistName="@item.AlbumArtist" />
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
-
+                string imgsrc = "https://media.olisshittyserver.xyz/Items/" + item.id + "/Images/Primary";
+                <AlbumCard ImageSrc="@imgsrc" AlbumName="@item.name" ArtistName="@item.artist" />
             }
+            <div class="scrollmenu-showall">
+                <p style="margin: 1rem; color: darkgray;">Show All</p>
+            </div>
         </div>
     </div>
 }
@@ -44,5 +31,11 @@
 @code {
     // Demonstrates how a parent component can supply parameters
     [Parameter] public string Title { get; set; }
-    [Parameter] public BaseItemDtoQueryResult albumData { get; set; }
+    [Parameter] public Album[] albumData { get; set; }
+
+    private List<BaseItemKind> acceptedTypes = new List<BaseItemKind>
+    {
+        BaseItemKind.MusicAlbum,
+        BaseItemKind.Audio
+    };
 }
