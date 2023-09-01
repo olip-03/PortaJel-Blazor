@@ -1,8 +1,10 @@
 ﻿@using PortaJel_Blazor.Data;
+@using PortaJel_Blazor.Pages.Views;
+@inject NavigationManager NavigationManager
 
 <div class="containerImg">
-    <img src="@album.imageSrc" class="albumImage shimmerBG" />
-    <p class="albumText">@album.name • @album.artist</p>
+    <img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" />
+    <p class="albumText" @onclick="NavigateToArtist">@album.name • @album.GetArtistName()</p>
 </div>
 
 <style>
@@ -12,18 +14,21 @@
         height: auto; /* Change height to 'auto' */
         inline-size: 160px;
         margin-right: 10px;
-        background-image: url(@url;)
     }
 </style>
 
 @code {
     [Parameter] public Album album { get; set; } = new Album();
-    string url = null;
+    string albumText = null;
 
-    protected override async Task OnInitializedAsync()
+    private async void NavigateToAlbum()
     {
-        
-        url = "https: //media.olisshittyserver.xyz/Items/" + album.id + "/Images/Backdrop?fillHeight=223&fillWidth =223&quality =96&tag =7aeef64886c6623396f620e16dfa1926";
-        StateHasChanged();
+        NavigationManager.NavigateTo($"/AlbumView/{album.id}");
     }
+    private async void NavigateToArtist()
+    {
+        NavigationManager.NavigateTo($"/ArtistView/{album.id}");
+    }
+
+
 }

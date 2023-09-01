@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
+using PortaJel_Blazor.Shared;
 using System.Text.Json;
 
 namespace PortaJel_Blazor;
@@ -15,7 +16,12 @@ public static class MauiProgram
     public static bool isConnected = false;
 	public static bool loginPage = true;
 
-	public static List<ServerConnecter> servers = new List<ServerConnecter>();
+    public static bool contentPage = false;
+    public static string contentTitle = "";
+
+    public static MainLayout mainLayout = null;
+
+    public static List<ServerConnecter> servers = new List<ServerConnecter>();
 
 	public static MauiApp CreateMauiApp()
 	{

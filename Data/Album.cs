@@ -6,14 +6,28 @@ using System.Threading.Tasks;
 
 namespace PortaJel_Blazor.Data
 {
-    public class Album
+    public class Album : IComparable<Album>
     {
         public string id { get; set; } = string.Empty;
         public string name { get; set; } = string.Empty;
-        public string artist { get; set; } = string.Empty;
         public string imageSrc { get; set; } = string.Empty;
-        public string imageArtistSrc { get; set; } = string.Empty;
+        public Artist[] artists { get; set; }
+        public Song[] songs { get; set; }
 
-        public Song[] songs { get; set; } 
+        public string GetArtistName()
+        {
+            if(artists == null)
+            {
+                return string.Empty;
+            }
+            string artistName = string.Join(", ", artists.Select(artist => artist.name));
+            return artistName;
+        }
+
+        public int CompareTo(Album other)
+        {
+            // Compare albums based on their names
+            return string.Compare(id, other.id, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

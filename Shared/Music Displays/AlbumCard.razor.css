@@ -22,7 +22,7 @@ p.albumText {
     max-width: 160px;
     height: 160px;
     margin-right: 10px;
-    border-radius: 25px;
+    border-radius: 0.4rem;
     background-color: darkgrey;
     flex-shrink: 0;
     position: relative;

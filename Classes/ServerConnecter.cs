@@ -117,7 +117,7 @@ namespace PortaJel_Blazor.Classes
         {
             return await AuthenticateUser(Username, StoredPassword);
         }
-        public async Task<Album[]> FetchRecentlyAddedAsync(int? _startIndex = null, int? _limit = null)
+        public async Task<Album[]> FetchRecentlyAddedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false)
         {
             // Create a list containing only the "Album" item type
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
@@ -128,7 +128,7 @@ namespace PortaJel_Blazor.Classes
             // Call GetItemsAsync with the specified parameters
             try
             {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, recursive: true, enableImages: true);
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, recursive: true, enableImages: true, isFavorite: _isFavourite);
             }
             catch (Exception ex)
             {
@@ -145,25 +145,37 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    Album toAdd = new();
-                    toAdd.name = item.Name;
-                    toAdd.artist = item.Artists.FirstOrDefault();
-                    toAdd.id = item.Id.ToString();
-                    toAdd.songs = null; // TODO: Implement songs
+                    Album newAlbum = new();
+                    newAlbum.name = item.Name;
+                    newAlbum.id = item.Id.ToString();
+                    newAlbum.songs = null; // TODO: Implement songs
+
+                    // Fetch Artists
+                    List<Artist> artists = new List<Artist>();
+                    foreach (var artist in item.AlbumArtists)
+                    {
+                        Artist newArist = new Artist();
+                        newArist.id = artist.Id.ToString();
+                        newArist.name = artist.Name;
+
+                        artists.Add(newArist);
+                    }
+                    newAlbum.artists = artists.ToArray();
+
                     if (item.ImageBlurHashes.Primary != null && item.AlbumId != null)
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
                     }
-                    else if(item.ImageBlurHashes.Primary != null)
+                    else if (item.ImageBlurHashes.Primary != null)
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.Id.ToString() + "/Images/Primary";
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.Id.ToString() + "/Images/Primary";
                     }
                     else
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
 
-                    albums.Add(toAdd);
+                    albums.Add(newAlbum);
                 }
                 catch (Exception ex)
                 {
@@ -174,7 +186,76 @@ namespace PortaJel_Blazor.Classes
 
             return albums.ToArray();
         }
-        public async Task<Album[]> FetchRecentlyPlayedAsync(int? _startIndex = null, int? _limit = null)
+        public async Task<Album[]> FetchFavouritesAddedAsync(int? _startIndex = null, int? _limit = null)
+        {
+            // Create a list containing only the "Album" item type
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio };
+            List<String> _sortTypes = new List<string> { "PlayCount" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
+
+            BaseItemDtoQueryResult songResult;
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, recursive: true, enableImages: true, isFavorite: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            List<Album> albums = new List<Album>();
+            if (songResult == null)
+            {
+                return null;
+            }
+            foreach (var item in songResult.Items)
+            {
+                try
+                {
+                    Album newAlbum = new();
+                    newAlbum.name = item.Name;
+                    newAlbum.id = item.Id.ToString();
+                    newAlbum.songs = null; // TODO: Implement songs
+
+                    // Fetch Artists
+                    List<Artist> artists = new List<Artist>();
+                    foreach (var artist in item.AlbumArtists)
+                    {
+                        Artist newArist = new Artist();
+                        newArist.id = artist.Id.ToString();
+                        newArist.name = artist.Name;
+
+                        artists.Add(newArist);
+                    }
+                    newAlbum.artists = artists.ToArray();
+
+                    if (item.ImageBlurHashes.Primary != null && item.AlbumId != null)
+                    {
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
+                    }
+                    else if(item.ImageBlurHashes.Primary != null)
+                    {
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.Id.ToString() + "/Images/Primary";
+                    }
+                    else
+                    {
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
+                    }
+
+                    albums.Add(newAlbum);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+
+            }
+
+            return albums.ToArray();
+        }
+        public async Task<Album[]> FetchRecentlyPlayedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false)
         {
             // Create a list containing only the "Album" item type
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
@@ -186,7 +267,7 @@ namespace PortaJel_Blazor.Classes
             // Call GetItemsAsync with the specified parameters
             try
             {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, filters: _itemFilter, recursive: true, enableImages: true);
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, filters: _itemFilter, recursive: true, enableImages: true, isFavorite: _isFavourite);
             }
             catch (Exception ex)
             {
@@ -201,23 +282,42 @@ namespace PortaJel_Blazor.Classes
             }
             foreach (var item in songResult.Items)
             {
+                // Only collects songs, so we'll need to check to make sure we're only storing info on the album it's from.
                 try
                 {
-                    Album toAdd = new();
-                    toAdd.name = item.Name;
-                    toAdd.artist = item.Artists.FirstOrDefault();
-                    toAdd.id = item.Id.ToString();
-                    toAdd.songs = null; // TODO: Implement songs
-                    if(item.ImageBlurHashes.Primary != null) 
+                    // item.AlbumId = {395f708f-1c7a-cd4b-377d-5c13bd74bfa6}
+
+                    Album newAlbum = new();
+                    newAlbum.name = item.Album;
+                    newAlbum.id = item.AlbumId.ToString();
+                    newAlbum.songs = null; // TODO: Implement songs
+
+                    // Fetch Artists
+                    List<Artist> artists = new List<Artist>();
+                    foreach (var artist in item.AlbumArtists)
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
+                        Artist newArist = new Artist();
+                        newArist.id = artist.Id.ToString();
+                        newArist.name = artist.Name;
+
+                        artists.Add(newArist);
+                    }
+                    newAlbum.artists = artists.ToArray();
+
+                    if (item.ImageBlurHashes.Primary != null) 
+                    {
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
                     }
                     else
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
 
-                    albums.Add(toAdd);
+                    albums.Sort();
+                    if(albums.BinarySearch(newAlbum) < 0)
+                    { // Check that item isnt in the list already
+                        albums.Add(newAlbum);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -268,21 +368,33 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    Album toAdd = new();
-                    toAdd.name = item.Name;
-                    toAdd.artist = item.Artists.FirstOrDefault();
-                    toAdd.id = item.Id.ToString();
-                    toAdd.songs = null; // TODO: Implement songs
+                    Album newAlbum = new();
+                    newAlbum.name = item.Name;
+                    newAlbum.id = item.Id.ToString();
+                    newAlbum.songs = null; // TODO: Implement songs
+
+                    // Fetch Artists
+                    List<Artist> artists = new List<Artist>();
+                    foreach (var artist in item.AlbumArtists)
+                    {
+                        Artist newArist = new Artist();
+                        newArist.id = artist.Id.ToString();
+                        newArist.name = artist.Name;
+
+                        artists.Add(newArist);
+                    }
+                    newAlbum.artists = artists.ToArray();
+
                     if (item.ImageBlurHashes.Primary != null)
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
                     }
                     else
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
 
-                    albums.Add(toAdd);
+                    albums.Add(newAlbum);
                 }
                 catch (Exception ex)
                 {
@@ -332,27 +444,38 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    Album toAdd = new();
-                    toAdd.name = item.Name;
-                    toAdd.artist = item.Artists.FirstOrDefault();
-                    toAdd.id = item.Id.ToString();
-                    toAdd.songs = null; // TODO: Implement songs
+                    Album newAlbum = new();
+                    newAlbum.name = item.Name;
+                    newAlbum.id = item.Id.ToString();
+                    newAlbum.songs = null; // TODO: Implement songs
 
-                    if(item.ImageTags.Count > 0)
+                    // Fetch Artists
+                    List<Artist> artists = new List<Artist>();
+                    foreach (var artist in item.AlbumArtists)
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + toAdd.id + "/Images/Primary";
+                        Artist newArist = new Artist();
+                        newArist.id = artist.Id.ToString();
+                        newArist.name = artist.Name;
+
+                        artists.Add(newArist);
+                    }
+                    newAlbum.artists = artists.ToArray();
+
+                    if (item.ImageTags.Count > 0)
+                    {
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + newAlbum.id + "/Images/Primary";
                     }
                     else if (item.ImageBlurHashes.Primary != null && item.AlbumId != null)
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
                     }
                     else if(item.ArtistItems.First().Id != null)
                     {
-                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
 
 
-                    albums.Add(toAdd);
+                    albums.Add(newAlbum);
                 }
                 catch (Exception ex)
                 {
@@ -363,7 +486,7 @@ namespace PortaJel_Blazor.Classes
 
             return albums.ToArray();
         }
-
+        
         public void SetBaseAddress(string url)
         {
             _sdkClientSettings.BaseUrl = url;

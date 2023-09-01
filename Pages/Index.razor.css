@@ -1,0 +1,78 @@
+﻿/* CSS for the list container */
+.music-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40%, 1fr));
+    gap: 0.45rem;
+    list-style: none;
+    padding: 0;
+}
+
+/* CSS for each list item */
+.music-item {
+    background-color: #f2f2f2;
+    border-radius: 5px;
+    overflow:hidden;
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+    max-height: 80px; /* Adjust as needed */
+}
+
+/* CSS for the album image */
+.album-image {
+    min-width: 3.5rem;
+    min-height: 3.5rem;
+    max-width: 3.5rem;
+    max-height: 3.5rem;
+    margin-right: 0.5rem;
+}
+image-container div {
+    width: 3.5rem;
+    height: 3.5rem;
+    overflow: hidden;
+}
+
+/* CSS for the text content */
+.music-details {
+    color: #555;
+    font-size: 0.8rem;
+    overflow: hidden; /* Hide overflowing content */
+    white-space: normal; /* Allow text to wrap onto multiple lines */
+    text-overflow: ellipsis; /* Add ellipsis for overflowed text */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit the text to 2 lines */
+    -webkit-box-orient: vertical;
+}
+
+/* CSS for the album title */
+.album-title {
+    font-weight: bold;
+    margin: 0;
+}
+
+.artist-name {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+img:after {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-weight: 300;
+    opacity: 1;
+    line-height: 2;
+    text-align: center;
+    content: attr(alt);
+    animation-duration: 2.2s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-timing-function: linear;
+    background: #ddd;
+    background: linear-gradient(to right, #F6F6F6 8%, #F0F0F0 18%, #F6F6F6 33%);
+    background-size: 1200px 100%;
+}

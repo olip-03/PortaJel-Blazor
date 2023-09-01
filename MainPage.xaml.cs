@@ -5,6 +5,7 @@ public partial class MainPage : ContentPage
 	public MainPage()
 	{
         InitializeComponent();
+        NavigationPage.SetHasNavigationBar(this, false);
     }
     protected override void OnHandlerChanged()
     {

@@ -47,6 +47,7 @@
                     </a>
                 </div>
             </div>
+
             @if(!MauiProgram.isConnected)
             {
                 <div class="offline">
@@ -77,6 +78,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        MauiProgram.mainLayout = this;
+
         if (MauiProgram.servers.Count > 0)
         {
             waiting = true;
@@ -162,6 +165,11 @@
             MauiProgram.AddServer(serverConnector);
         }
 
+        StateHasChanged();
+    }
+
+    public void UpdateState()
+    {
         StateHasChanged();
     }
 }

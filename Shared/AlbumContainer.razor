@@ -13,16 +13,23 @@
     </div>
 
     <div class="scrollmenu">
-        @if (albumData != null)
+        @for (int i = 0; i < itemCount; i++)
         {
-            @foreach (var item in albumData)
+            Album showRecord = new();
+
+            if (albumData != null)
             {
-                <AlbumCard album="item" />
+                if(i < albumData.Count())
+                {
+                    showRecord = albumData[i];
+                }
             }
-            <div class="scrollmenu-showall">
-                <p style="margin: 1rem; color: darkgray;">Show All</p>
-            </div>
+
+            <AlbumCard album="showRecord" />
         }
+        <div class="scrollmenu-showall">
+            <p style="margin: 1rem; color: darkgray;">Show All</p>
+        </div>
     </div>
 </div>
 
@@ -31,6 +38,7 @@
     // Demonstrates how a parent component can supply parameters
     [Parameter] public string Title { get; set; }
     [Parameter] public Album[] albumData { get; set; }
+    [Parameter] public int itemCount { get; set; }
 
     private List<BaseItemKind> acceptedTypes = new List<BaseItemKind>
     {

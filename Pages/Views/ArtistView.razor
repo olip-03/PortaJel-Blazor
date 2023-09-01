@@ -1,0 +1,15 @@
+﻿@page "/ArtistView/{artistId}"
+
+<h3>ArtistView</h3>
+<p>@artistId</p>
+
+@code {
+    [Parameter] public string artistId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        MauiProgram.contentPage = true;
+        MauiProgram.contentTitle = "This is an Artist";
+
+        MauiProgram.mainLayout.UpdateState();
+    }
+}

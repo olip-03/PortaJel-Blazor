@@ -2,19 +2,58 @@
 @using PortaJel_Blazor.Data;
 @page "/"
 
-<AlbumContainer Title="Recently Played" albumData="@recentPlayData" />
+<div style="margin-bottom: 2rem">
+    <div class="menuTitleContainer">
+        <h3>Recently Played</h3>
+    </div>
+
+    <ul class="music-list">
+        @for (int i = 0; i < 6; i++)
+        {
+            string imgSrc = null;
+            string artist = "";
+            string name = "";
+
+            if (recentPlayData != null)
+            {
+                if (recentPlayData[i] != null)
+                {
+                    Album item = recentPlayData[i];
+
+                    imgSrc = item.imageSrc;
+                    name = item.name;
+                    artist = " - "+ item.GetArtistName();
+                }
+            }
+
+            <li class="music-item">
+                <div class="image-container">
+                    <img class="album-image" src="@imgSrc" alt="Album 1">
+                </div>
+                <div class="music-details">
+                    <b>@name</b>@artist
+                </div>
+            </li>
+        }
+
+        <!-- Repeat these list items for a total of 8 items -->
+    </ul>
+</div>
+
+<AlbumContainer Title="Favourites" itemCount="20" albumData="@favouritesPlayData" />
 <br />
 
-<AlbumContainer Title="Recently Added" albumData="@recentAddedData" />
+<AlbumContainer Title="Recently Added" itemCount="20" albumData="@recentAddedData" />
 <br />
 
 
-<AlbumContainer Title="Most Played" albumData="@mostPlayData" />
+<AlbumContainer Title="Most Played" itemCount="20" albumData="@mostPlayData" />
 <br />
 
-<AlbumContainer Title="Random" albumData="@randomData" />
+<AlbumContainer Title="Random" itemCount="20" albumData="@randomData" />
 
 @code {
+    private Album[] favouritesPlayData { get; set; }
     private Album[] recentPlayData { get; set; }
     private Album[] mostPlayData { get; set; }
     private Album[] recentAddedData { get; set; }
@@ -22,12 +61,18 @@
 
     protected override async Task OnInitializedAsync()
     {
+        MauiProgram.contentPage = false;
+        MauiProgram.mainLayout.UpdateState();
+
         try
         {
-            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 25);
-            mostPlayData = await MauiProgram.servers[0].FetchMostPlayedAsync(_startIndex: 0, _limit: 25);
-            recentAddedData = await MauiProgram.servers[0].FetchRecentlyAddedAsync(_startIndex: 0, _limit: 25);
-            randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 25);
+            favouritesPlayData = await MauiProgram.servers[0].FetchFavouritesAddedAsync(_startIndex: 0, _limit: 20);
+            mostPlayData = await MauiProgram.servers[0].FetchMostPlayedAsync(_startIndex: 0, _limit: 20);
+            recentAddedData = await MauiProgram.servers[0].FetchRecentlyAddedAsync(_startIndex: 0, _limit: 20);
+            randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 20);
+
+            // Only collects SONGS, need to collect album information as well
+            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 20);
         }
         catch (Exception ex)
         {
