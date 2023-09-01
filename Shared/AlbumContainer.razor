@@ -2,19 +2,19 @@
 @using PortaJel_Blazor.Shared.Music_Displays;
 @using PortaJel_Blazor.Data;
 
-@if(albumData != null)
-{
-    <div>
-        <div class="menuTitleContainer">
-            <h3>@Title</h3>
-            <div style="display: flex;">
-                View All
-                <img src="/images/showgrid.svg" class="showall-img">
-            </div>
-
+<div>
+    <div class="menuTitleContainer">
+        <h3>@Title</h3>
+        <div style="display: flex;">
+            View All
+            <img src="/images/showgrid.svg" class="showall-img">
         </div>
 
-        <div class="scrollmenu">
+    </div>
+
+    <div class="scrollmenu">
+        @if (albumData != null)
+        {
             @foreach (var item in albumData)
             {
                 <AlbumCard album="item" />
@@ -22,9 +22,9 @@
             <div class="scrollmenu-showall">
                 <p style="margin: 1rem; color: darkgray;">Show All</p>
             </div>
-        </div>
+        }
     </div>
-}
+</div>
 
 
 @code {

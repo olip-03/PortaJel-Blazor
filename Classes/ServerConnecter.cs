@@ -228,6 +228,142 @@ namespace PortaJel_Blazor.Classes
 
             return albums.ToArray();
         }
+        public async Task<Album[]> FetchMostPlayedAsync(int? _startIndex = null, int? _limit = null)
+        {
+            //SortBy: 'PlayCount',
+            //SortOrder: 'Descending',
+            //IncludeItemTypes: 'Audio',
+            //Limit: itemsPerRow(),
+            //Recursive: true,
+            //Fields: 'PrimaryImageAspectRatio,AudioInfo',
+            //Filters: 'IsPlayed',
+            //ParentId: parentId,
+            //ImageTypeLimit: 1,
+            //EnableImageTypes: 'Primary,Backdrop,Banner,Thumb',
+            //EnableTotalRecordCount: false
+            // Create a list containing only the "Album" item type
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
+            List<String> _sortTypes = new List<string> { "PlayCount" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
+            List<ItemFilter> _itemFilter = new List<ItemFilter> { ItemFilter.IsPlayed };
+
+            BaseItemDtoQueryResult songResult;
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, filters: _itemFilter, recursive: true, enableImages: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            List<Album> albums = new List<Album>();
+            if (songResult == null)
+            {
+                return null;
+            }
+            foreach (var item in songResult.Items)
+            {
+                try
+                {
+                    Album toAdd = new();
+                    toAdd.name = item.Name;
+                    toAdd.artist = item.Artists.FirstOrDefault();
+                    toAdd.id = item.Id.ToString();
+                    toAdd.songs = null; // TODO: Implement songs
+                    if (item.ImageBlurHashes.Primary != null)
+                    {
+                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
+                    }
+                    else
+                    {
+                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
+                    }
+
+                    albums.Add(toAdd);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+
+            }
+
+            return albums.ToArray();
+        }
+        public async Task<Album[]> FetchRandomAsync(int? _startIndex = null, int? _limit = null)
+        {
+            //SortBy: 'PlayCount',
+            //SortOrder: 'Descending',
+            //IncludeItemTypes: 'Audio',
+            //Limit: itemsPerRow(),
+            //Recursive: true,
+            //Fields: 'PrimaryImageAspectRatio,AudioInfo',
+            //Filters: 'IsPlayed',
+            //ParentId: parentId,
+            //ImageTypeLimit: 1,
+            //EnableImageTypes: 'Primary,Backdrop,Banner,Thumb',
+            //EnableTotalRecordCount: false
+            // Create a list containing only the "Album" item type
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+            List<String> _sortTypes = new List<string> { "Random" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
+
+            BaseItemDtoQueryResult songResult;
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, recursive: true, enableImages: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            List<Album> albums = new List<Album>();
+            if (songResult == null)
+            {
+                return null;
+            }
+            foreach (var item in songResult.Items)
+            {
+                try
+                {
+                    Album toAdd = new();
+                    toAdd.name = item.Name;
+                    toAdd.artist = item.Artists.FirstOrDefault();
+                    toAdd.id = item.Id.ToString();
+                    toAdd.songs = null; // TODO: Implement songs
+
+                    if(item.ImageTags.Count > 0)
+                    {
+                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + toAdd.id + "/Images/Primary";
+                    }
+                    else if (item.ImageBlurHashes.Primary != null && item.AlbumId != null)
+                    {
+                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
+                    }
+                    else if(item.ArtistItems.First().Id != null)
+                    {
+                        toAdd.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
+                    }
+
+
+                    albums.Add(toAdd);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+
+            }
+
+            return albums.ToArray();
+        }
+
         public void SetBaseAddress(string url)
         {
             _sdkClientSettings.BaseUrl = url;

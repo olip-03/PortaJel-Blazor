@@ -8,12 +8,11 @@
 <AlbumContainer Title="Recently Added" albumData="@recentAddedData" />
 <br />
 
-@*
+
 <AlbumContainer Title="Most Played" albumData="@mostPlayData" />
 <br />
 
-
-<AlbumContainer Title="Random" albumData="@randomData" />*@
+<AlbumContainer Title="Random" albumData="@randomData" />
 
 @code {
     private Album[] recentPlayData { get; set; }
@@ -26,9 +25,9 @@
         try
         {
             recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 25);
-            //mostPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 25);
+            mostPlayData = await MauiProgram.servers[0].FetchMostPlayedAsync(_startIndex: 0, _limit: 25);
             recentAddedData = await MauiProgram.servers[0].FetchRecentlyAddedAsync(_startIndex: 0, _limit: 25);
-            //randomData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 25);
+            randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 25);
         }
         catch (Exception ex)
         {
