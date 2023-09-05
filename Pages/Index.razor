@@ -14,15 +14,19 @@
             string artist = "";
             string name = "";
 
+            // NICE NESTING IDIOT HAHAHAH
             if (recentPlayData != null)
             {
-                if (recentPlayData[i] != null)
+                if (i < recentPlayData.Count())
                 {
-                    Album item = recentPlayData[i];
+                    if (recentPlayData[i] != null)
+                    {
+                        Album item = recentPlayData[i];
 
-                    imgSrc = item.imageSrc;
-                    name = item.name;
-                    artist = " - "+ item.GetArtistName();
+                        imgSrc = item.imageSrc;
+                        name = item.name;
+                        artist = " - " + item.GetArtistName();
+                    }
                 }
             }
 
@@ -35,8 +39,6 @@
                 </div>
             </li>
         }
-
-        <!-- Repeat these list items for a total of 8 items -->
     </ul>
 </div>
 
@@ -61,8 +63,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.contentPage = false;
-        MauiProgram.mainLayout.UpdateState();
+        NavigationPage.SetHasNavigationBar(App.Current, true);
 
         try
         {
@@ -72,7 +73,7 @@
             randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 20);
 
             // Only collects SONGS, need to collect album information as well
-            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 20);
+            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 50);
         }
         catch (Exception ex)
         {

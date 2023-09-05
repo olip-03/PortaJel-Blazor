@@ -62,4 +62,8 @@
       <MauiImage Include="wwwroot\images\cd.svg" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Pages\xaml\" />
+    </ItemGroup>
+
 </Project>

@@ -1,5 +1,4 @@
 ﻿@using PortaJel_Blazor.Data;
-@using PortaJel_Blazor.Pages.Views;
 @inject NavigationManager NavigationManager
 
 <div class="containerImg">
@@ -23,6 +22,7 @@
 
     private async void NavigateToAlbum()
     {
+        // await App.Current.MainPage.Navigation.PushModalAsync(new AlbumPage());
         NavigationManager.NavigateTo($"/AlbumView/{album.id}");
     }
     private async void NavigateToArtist()
