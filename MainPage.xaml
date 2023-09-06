@@ -4,9 +4,8 @@
              xmlns:local="clr-namespace:PortaJel_Blazor"
              x:Class="PortaJel_Blazor.MainPage"
              Shell.NavBarIsVisible="False"
-             Shell.TabBarIsVisible="False"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
-
+             Shell.TabBarIsVisible="False">
+    
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />

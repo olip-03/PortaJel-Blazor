@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
+using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Shared;
 using System.Text.Json;
 
@@ -23,7 +24,13 @@ public static class MauiProgram
 
     public static List<ServerConnecter> servers = new List<ServerConnecter>();
 
-	public static MauiApp CreateMauiApp()
+    // Index page cached data
+    public static Album[] favouritesPlayData { get; set; }
+    public static Album[] recentPlayData { get; set; }
+    public static Album[] mostPlayData { get; set; }
+    public static Album[] recentAddedData { get; set; }
+
+    public static MauiApp CreateMauiApp()
 	{
         // Load servers from file
         if(File.Exists(filePath))
@@ -58,9 +65,10 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddTransient<GoBack>();
 
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
+        builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
 

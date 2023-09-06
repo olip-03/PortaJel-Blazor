@@ -1,10 +1,23 @@
 ﻿@using PortaJel_Blazor.Data;
+@using PortaJel_Blazor;
+@using Microsoft.Maui.Controls;
+@using PortaJel_Blazor.Pages;
 @using PortaJel_Blazor.Pages.Views;
 @inject NavigationManager NavigationManager
 
 <div class="containerImg">
     <img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" />
-    <p class="albumText" @onclick="NavigateToArtist">@album.name • @album.GetArtistName()</p>
+    <p class="albumText" @onclick="NavigateToArtist">
+        @if (album.isSong)
+        {
+            <img src="/images/song.svg" />
+        }
+        else
+        {
+            <img src="/images/album.svg" />
+        }
+        @album.name • @album.GetArtistName()
+    </p>
 </div>
 
 <style>
@@ -21,14 +34,14 @@
     [Parameter] public Album album { get; set; } = new Album();
     string albumText = null;
 
-    private async void NavigateToAlbum()
+    private void NavigateToAlbum()
     {
+        MauiProgram.mainLayout.showHeader = false;
         NavigationManager.NavigateTo($"/AlbumView/{album.id}");
     }
-    private async void NavigateToArtist()
+    private void NavigateToArtist()
     {
+        MauiProgram.mainLayout.showHeader = false;
         NavigationManager.NavigateTo($"/ArtistView/{album.id}");
     }
-
-
 }

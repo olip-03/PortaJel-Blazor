@@ -9,6 +9,7 @@ using Jellyfin.Sdk;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PortaJel_Blazor.Data;
+using PortaJel_Blazor.Shared.Music_Displays;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -150,6 +151,11 @@ namespace PortaJel_Blazor.Classes
                     newAlbum.id = item.Id.ToString();
                     newAlbum.songs = null; // TODO: Implement songs
 
+                    if(item.Type != BaseItemKind.MusicAlbum)
+                    {
+                        newAlbum.isSong = true;
+                    }
+
                     // Fetch Artists
                     List<Artist> artists = new List<Artist>();
                     foreach (var artist in item.AlbumArtists)
@@ -218,6 +224,11 @@ namespace PortaJel_Blazor.Classes
                     newAlbum.name = item.Name;
                     newAlbum.id = item.Id.ToString();
                     newAlbum.songs = null; // TODO: Implement songs
+
+                    if (item.Type != BaseItemKind.MusicAlbum)
+                    {
+                        newAlbum.isSong = true;
+                    }
 
                     // Fetch Artists
                     List<Artist> artists = new List<Artist>();
@@ -291,6 +302,11 @@ namespace PortaJel_Blazor.Classes
                     newAlbum.name = item.Album;
                     newAlbum.id = item.AlbumId.ToString();
                     newAlbum.songs = null; // TODO: Implement songs
+
+                    if (item.Type != BaseItemKind.MusicAlbum)
+                    {
+                        newAlbum.isSong = true;
+                    }
 
                     // Fetch Artists
                     List<Artist> artists = new List<Artist>();
@@ -373,6 +389,11 @@ namespace PortaJel_Blazor.Classes
                     newAlbum.id = item.Id.ToString();
                     newAlbum.songs = null; // TODO: Implement songs
 
+                    if (item.Type != BaseItemKind.MusicAlbum)
+                    {
+                        newAlbum.isSong = true;
+                    }
+
                     // Fetch Artists
                     List<Artist> artists = new List<Artist>();
                     foreach (var artist in item.AlbumArtists)
@@ -449,6 +470,11 @@ namespace PortaJel_Blazor.Classes
                     newAlbum.id = item.Id.ToString();
                     newAlbum.songs = null; // TODO: Implement songs
 
+                    if (item.Type != BaseItemKind.MusicAlbum)
+                    {
+                        newAlbum.isSong = true;
+                    }
+
                     // Fetch Artists
                     List<Artist> artists = new List<Artist>();
                     foreach (var artist in item.AlbumArtists)
@@ -486,7 +512,12 @@ namespace PortaJel_Blazor.Classes
 
             return albums.ToArray();
         }
-        
+        public async Task<Album> FetchAlbumByIDAsync(string albumId)
+        {
+            Album getAlbum = new Album();
+
+            return getAlbum;
+        }
         public void SetBaseAddress(string url)
         {
             _sdkClientSettings.BaseUrl = url;

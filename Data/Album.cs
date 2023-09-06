@@ -11,6 +11,7 @@ namespace PortaJel_Blazor.Data
         public string id { get; set; } = string.Empty;
         public string name { get; set; } = string.Empty;
         public string imageSrc { get; set; } = string.Empty;
+        public bool isSong { get; set; } = false;
         public Artist[] artists { get; set; }
         public Song[] songs { get; set; }
 

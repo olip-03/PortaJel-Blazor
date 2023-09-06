@@ -5,6 +5,11 @@
     inline-size: 160px;
     margin-right: 10px;
 }
+.albumText img {
+    vertical-align: middle;
+    height: 1rem;
+    margin-right: 0.25rem; /* Adjust this value to control the spacing between the image and text */
+}
 
 p.albumText {
     font-size: 14px;

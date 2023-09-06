@@ -36,7 +36,6 @@ image-container div {
 .music-details {
     color: #555;
     font-size: 0.8rem;
-    overflow: hidden; /* Hide overflowing content */
     white-space: normal; /* Allow text to wrap onto multiple lines */
     text-overflow: ellipsis; /* Add ellipsis for overflowed text */
     display: -webkit-box;
@@ -66,7 +65,21 @@ img:after {
     opacity: 1;
     line-height: 2;
     text-align: center;
-    content: attr(alt);
+    content: none;
+    overflow: hidden;
+    animation-duration: 2.2s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-timing-function: linear;
+    background: #ddd;
+    background: linear-gradient(to right, #F6F6F6 8%, #F0F0F0 18%, #F6F6F6 33%);
+    background-size: 1200px 100%;
+    /*    animation: shimmer 1.5s infinite linear;
+*/
+}
+
+.shimmerBG {
     animation-duration: 2.2s;
     animation-fill-mode: forwards;
     animation-iteration-count: infinite;

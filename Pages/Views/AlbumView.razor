@@ -1,16 +1,27 @@
-﻿@page "/AlbumView/{albumId}"
+﻿@using PortaJel_Blazor.Data;
+@page "/AlbumView/{albumId}"
 
-<h3>AlbumView</h3>
+<img src="" class="albumImage" />
 <p>@albumId</p>
 
 @code {
     [Parameter] public string albumId { get; set; }
+
+    private Album album { get; set; } 
+
     protected override async Task OnInitializedAsync()
     {
         MauiProgram.contentPage = true;
         MauiProgram.contentTitle = "This is an Album";
 
+        MauiProgram.mainLayout.showHeader = false;
+
         MauiProgram.mainLayout.UpdateState();
+    }
+
+    private void GoBack()
+    {
+        // goBack.GoBackInTime();
     }
 }
 

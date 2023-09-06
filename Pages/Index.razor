@@ -1,42 +1,43 @@
 ﻿@using Jellyfin.Sdk;
 @using PortaJel_Blazor.Data;
 @page "/"
+@page "/index"
 
 <div style="margin-bottom: 2rem">
-    <div class="menuTitleContainer">
-        <h3>Recently Played</h3>
-    </div>
+    <h3>Recently Played</h3>
 
     <ul class="music-list">
         @for (int i = 0; i < 6; i++)
         {
-            string imgSrc = null;
+            string imgSrc = "/images/cd.svg";
             string artist = "";
             string name = "";
 
+            // More excellent, excellent nesting :)
             if (recentPlayData != null)
             {
-                if (recentPlayData[i] != null)
+                if (i < recentPlayData.Count())
                 {
-                    Album item = recentPlayData[i];
+                    if (recentPlayData[i] != null)
+                    {
+                        Album item = recentPlayData[i];
 
-                    imgSrc = item.imageSrc;
-                    name = item.name;
-                    artist = " - "+ item.GetArtistName();
+                        imgSrc = item.imageSrc;
+                        name = item.name;
+                        artist = " - " + item.GetArtistName();
+
+                        <li class="music-item">
+                            <div class="image-container">
+                                <img class="album-image" src="@imgSrc" alt="Album 1">
+                            </div>
+                            <div class="music-details">
+                                <b>@name</b>@artist
+                            </div>
+                        </li>
+                    }
                 }
             }
-
-            <li class="music-item">
-                <div class="image-container">
-                    <img class="album-image" src="@imgSrc" alt="Album 1">
-                </div>
-                <div class="music-details">
-                    <b>@name</b>@artist
-                </div>
-            </li>
         }
-
-        <!-- Repeat these list items for a total of 8 items -->
     </ul>
 </div>
 
@@ -61,23 +62,36 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.contentPage = false;
-        MauiProgram.mainLayout.UpdateState();
+        // Load all the stored fucking data
+        favouritesPlayData = MauiProgram.favouritesPlayData;
+        recentPlayData = MauiProgram.recentPlayData;
+        mostPlayData = MauiProgram.mostPlayData;
+        recentAddedData = MauiProgram.recentAddedData;
 
+        MauiProgram.mainLayout.pageTitle = "PortaJel";
+        MauiProgram.mainLayout.showHeader = true;
+
+        // Update all the stored fucking data
         try
         {
             favouritesPlayData = await MauiProgram.servers[0].FetchFavouritesAddedAsync(_startIndex: 0, _limit: 20);
+            MauiProgram.favouritesPlayData = favouritesPlayData;
+
             mostPlayData = await MauiProgram.servers[0].FetchMostPlayedAsync(_startIndex: 0, _limit: 20);
+            MauiProgram.mostPlayData = mostPlayData;
+
             recentAddedData = await MauiProgram.servers[0].FetchRecentlyAddedAsync(_startIndex: 0, _limit: 20);
+            MauiProgram.recentAddedData = recentAddedData;
+
             randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 20);
 
             // Only collects SONGS, need to collect album information as well
-            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 20);
+            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 50);
+            MauiProgram.recentPlayData = recentPlayData;
         }
         catch (Exception ex)
         {
             Console.Write(ex);
-            throw;
         }
 
         StateHasChanged();

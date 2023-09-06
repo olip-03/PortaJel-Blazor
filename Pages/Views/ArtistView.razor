@@ -1,7 +1,9 @@
 ﻿@page "/ArtistView/{artistId}"
 
-<h3>ArtistView</h3>
-<p>@artistId</p>
+<div class="centerItems">
+    <h3>ArtistView</h3>
+    <p>@artistId</p>
+</div>
 
 @code {
     [Parameter] public string artistId { get; set; }
@@ -9,6 +11,8 @@
     {
         MauiProgram.contentPage = true;
         MauiProgram.contentTitle = "This is an Artist";
+
+        MauiProgram.mainLayout.showHeader = false;
 
         MauiProgram.mainLayout.UpdateState();
     }

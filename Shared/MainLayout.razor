@@ -33,38 +33,66 @@
         }
         else
         {
-            <div class="top-row px-4">
-                <a class="top-row-title" href="/">PortaJel</a>
-                <div class="toolbar">
-                    <a href="/favourites">
-                        <img class="toolbar-img" src="/images/favourite.svg" />
-                    </a>
-                    <a href="/search">
-                        <img class="toolbar-img" src="/images/search.svg" />
-                    </a>
-                    <a href="/settings">
+            @if (_showHeader)
+            {
+                <div class="content px-4 toolbar">
+                    <h1>@pageTitle</h1>
+                    <a @onclick="NavigateSettings">
                         <img class="toolbar-img" src="/images/settings.svg" />
                     </a>
                 </div>
-            </div>
+            }
 
-            @if(!MauiProgram.isConnected)
+            <article class="content px-4 padd-bottom">
+                @Body
+            </article>
+
+            @if (!MauiProgram.isConnected)
             {
                 <div class="offline">
                     <img class="offline-img" src="/images/clouderror.svg" />
                     Not Connected
                 </div>
             }
-
-            <article class="content px-4">
-                @Body
-            </article>
+            <div class="top-row px-4">
+                <a @onclick="NavigateHome">
+                    <img class="toolbar-img" src="/images/home.svg" />
+                </a>
+                <a @onclick="NavigateSearch">
+                    <img class="toolbar-img" src="/images/search.svg" />
+                </a>
+                <a @onclick="NavigateFavourites">
+                    <img class="toolbar-img" src="/images/favourite.svg" />
+                </a>
+            </div>
         }
     </main>
 </div>
 
 @code
 {
+    public string pageTitle
+    {
+        get { return _pageTitle; }
+        set
+        {
+            _pageTitle = value;
+            StateHasChanged();
+        }
+    }
+    public bool showHeader
+    {
+        get { return _showHeader; }
+        set
+        {
+            _showHeader = value;
+            StateHasChanged();
+        }
+    }
+
+    private string _pageTitle = "PortaJel";
+    private bool _showHeader = true;
+
     private string serverAddress { get; set; }
     private string username { get; set; }
     private string password { get; set; }
@@ -171,5 +199,29 @@
     public void UpdateState()
     {
         StateHasChanged();
+    }
+    public void NavigateHome()
+    {
+        showHeader = true;
+        pageTitle = "PortaJel";
+        NavManager.NavigateTo("/");
+    }
+    public void NavigateSearch()
+    {
+        showHeader = true;
+        pageTitle = "Search";
+        NavManager.NavigateTo("/search");
+    }
+    public void NavigateFavourites()
+    {
+        showHeader = true;
+        pageTitle = "Favourites";
+        NavManager.NavigateTo("/favourites");
+    }
+    public void NavigateSettings()
+    {
+        showHeader = true;
+        pageTitle = "Settings";
+        NavManager.NavigateTo("/settings");
     }
 }

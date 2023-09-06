@@ -1,0 +1,17 @@
+﻿.albumImage {
+    width: 80vw; /* 80% of the viewport width */
+    height: 80vw; /* 80% of the viewport width */
+    max-width: 20rem;
+    max-height: 20rem;
+    margin: auto; /* Center horizontally */
+    border-radius: 0.4rem;
+    background-color: darkgrey;
+    flex-shrink: 0;
+    position: relative;
+    animation: shimmer 1.5s infinite linear;
+}
+centerItems {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

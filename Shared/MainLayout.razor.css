@@ -5,6 +5,10 @@
     width: 100%;
 }
 
+content {
+    min-height: 100vh;
+}
+
 main {
     flex: 1;
 }
@@ -19,18 +23,21 @@ main {
     padding: 0px;
     color:black;
 }
-
+.padd-bottom {
+    margin-bottom: 5rem;
+}
 .top-row {
-    background-color: #f7f7f7;
+    background: linear-gradient(to top, rgba(255, 255, 255, 1) 25%, rgba(255, 255, 255, 0) 100%);
+    /* linear-gradient( to right, red, red 50%, green 50%, green 100% ); */
     border-bottom: 1px solid #d6d5d5;
-    /*justify-content: flex-end;*/
-    height: 3.5rem;
+    height: 5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 10; /* set lower z-index value */
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    z-index: 10;
 }
 
     .top-row ::deep a, .top-row ::deep .btn-link {
