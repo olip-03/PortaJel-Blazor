@@ -15,6 +15,9 @@
     position: relative;
     animation: shimmer 1.5s infinite linear;
 }
+h5 {
+    color: darkgray;
+}
 centerItems {
     display: flex;
     align-items: center;

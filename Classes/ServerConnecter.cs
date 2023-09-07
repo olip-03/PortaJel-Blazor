@@ -583,11 +583,11 @@ namespace PortaJel_Blazor.Classes
 
             // Set Artist information
             List<Artist> artistList = new List<Artist>();
-            foreach (var artist in getAlbum.artists)
+            foreach (var artist in albumResultItem.AlbumArtists)
             {
                 Artist newArtists = new Artist();
-                newArtists.id = artist.id;
-                newArtists.name = artist.name;
+                newArtists.id = artist.Id.ToString(); // TODO: Change to Guid type
+                newArtists.name = artist.Name;
                 artistList.Add(newArtists);
             }
             getAlbum.artists = artistList.ToArray();
