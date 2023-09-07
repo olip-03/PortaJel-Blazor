@@ -6,10 +6,7 @@
              x:Class="PortaJel_Blazor.MainPage"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
-<<<<<<< HEAD
-    
-=======
->>>>>>> 9db61e6d4a4e0f65aa645f4f807a0f0e7a31b80f
+
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />

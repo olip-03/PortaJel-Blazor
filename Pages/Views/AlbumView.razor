@@ -1,8 +1,27 @@
 ﻿@using PortaJel_Blazor.Data;
 @page "/AlbumView/{albumId}"
 
-<img src="" class="albumImage" />
-<p>@albumId</p>
+<div class="imageContainer">
+    @if(album != null)
+    {
+        <img src="@album.imageSrc" class="albumImage" />
+    }
+    else
+    {
+        <img src="" class="albumImage" />
+    }
+</div>
+
+@if(album!=null)
+{
+    <h1>@album.name</h1>
+    <h3>@album.GetArtistName()</h3>
+
+    foreach (var item in album.songs)
+    {
+        <p>@item.name</p>
+    }
+}
 
 @code {
     [Parameter] public string albumId { get; set; }
@@ -11,12 +30,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.contentPage = true;
-        MauiProgram.contentTitle = "This is an Album";
-
         MauiProgram.mainLayout.showHeader = false;
 
-        MauiProgram.mainLayout.UpdateState();
+        Guid parseId = Guid.Parse(albumId);
+        if (albumId != null)
+        {
+            album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId);
+            StateHasChanged();
+        }
     }
 
     private void GoBack()

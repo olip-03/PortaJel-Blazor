@@ -8,7 +8,7 @@ namespace PortaJel_Blazor.Data
 {
     public class Album : IComparable<Album>
     {
-        public string id { get; set; } = string.Empty;
+        public Guid id { get; set; }
         public string name { get; set; } = string.Empty;
         public string imageSrc { get; set; } = string.Empty;
         public bool isSong { get; set; } = false;
@@ -28,7 +28,7 @@ namespace PortaJel_Blazor.Data
         public int CompareTo(Album other)
         {
             // Compare albums based on their names
-            return string.Compare(id, other.id, StringComparison.OrdinalIgnoreCase);
+            return string.Compare(id.ToString(), other.id.ToString(), StringComparison.OrdinalIgnoreCase);
         }
     }
 }

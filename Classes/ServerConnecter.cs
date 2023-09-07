@@ -148,7 +148,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     Album newAlbum = new();
                     newAlbum.name = item.Name;
-                    newAlbum.id = item.Id.ToString();
+                    newAlbum.id = item.Id;
                     newAlbum.songs = null; // TODO: Implement songs
 
                     if(item.Type != BaseItemKind.MusicAlbum)
@@ -222,7 +222,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     Album newAlbum = new();
                     newAlbum.name = item.Name;
-                    newAlbum.id = item.Id.ToString();
+                    newAlbum.id = item.Id;
                     newAlbum.songs = null; // TODO: Implement songs
 
                     if (item.Type != BaseItemKind.MusicAlbum)
@@ -300,7 +300,7 @@ namespace PortaJel_Blazor.Classes
 
                     Album newAlbum = new();
                     newAlbum.name = item.Album;
-                    newAlbum.id = item.AlbumId.ToString();
+                    newAlbum.id = (Guid)item.AlbumId;
                     newAlbum.songs = null; // TODO: Implement songs
 
                     if (item.Type != BaseItemKind.MusicAlbum)
@@ -386,7 +386,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     Album newAlbum = new();
                     newAlbum.name = item.Name;
-                    newAlbum.id = item.Id.ToString();
+                    newAlbum.id = item.Id;
                     newAlbum.songs = null; // TODO: Implement songs
 
                     if (item.Type != BaseItemKind.MusicAlbum)
@@ -467,7 +467,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     Album newAlbum = new();
                     newAlbum.name = item.Name;
-                    newAlbum.id = item.Id.ToString();
+                    newAlbum.id = item.Id;
                     newAlbum.songs = null; // TODO: Implement songs
 
                     if (item.Type != BaseItemKind.MusicAlbum)
@@ -512,9 +512,85 @@ namespace PortaJel_Blazor.Classes
 
             return albums.ToArray();
         }
-        public async Task<Album> FetchAlbumByIDAsync(string albumId)
+        public async Task<Album> FetchAlbumByIDAsync(Guid albumId)
         {
+            // SortBy: 'SortName',
+            // SortOrder: 'Ascending',
+            // IncludeItemTypes: 'MusicAlbum',
+            // Recursive: true,
+            // Fields: 'PrimaryImageAspectRatio,SortName,BasicSyncInfo',
+            // ImageTypeLimit: 1,
+            // EnableImageTypes: 'Primary,Backdrop,Banner,Thumb',
+            // StartIndex: 0
+            // parentId 
+
             Album getAlbum = new Album();
+
+            List<BaseItemKind> _songItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
+            List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+
+            List<String> _sortTypes = new List<string> { "SortName" };
+            List<Guid> _filterIds = new List<Guid> { albumId };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+
+            BaseItemDtoQueryResult albumResult;
+            BaseItemDtoQueryResult songResult;
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                albumResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _filterIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _albumItemTypes, recursive: true, enableImages: true);
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id,sortBy: _sortTypes ,sortOrder: _sortOrder, includeItemTypes: _songItemTypes, parentId: albumId, recursive: true, enableImages: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            BaseItemDto albumResultItem = albumResult.Items.FirstOrDefault();
+            // Set basic Info
+            getAlbum.name = albumResultItem.Name;
+            getAlbum.id = albumResultItem.Id; 
+            getAlbum.isSong = false;
+
+            // Set image
+            if (albumResultItem.ImageBlurHashes.Primary != null && albumResultItem.AlbumId != null)
+            {
+                getAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + albumResultItem.AlbumId + "/Images/Primary";
+            }
+            else if (albumResultItem.ImageBlurHashes.Primary != null)
+            {
+                getAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + albumResultItem.Id.ToString() + "/Images/Primary";
+            }
+            else
+            {
+                getAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + albumResultItem.ArtistItems.First().Id + "/Images/Primary";
+            }
+
+            // Set Song information
+            List<Song> songList = new List<Song>();
+            foreach (var item in songResult.Items)
+            {
+                Song newSong = new Song();
+
+                newSong.name = item.Name;
+                newSong.artist = item.AlbumArtist;
+                newSong.id = item.Id.ToString(); // TODO: Change to Guid type
+
+                songList.Add(newSong);
+            }
+            getAlbum.songs = songList.ToArray();
+
+            // Set Artist information
+            List<Artist> artistList = new List<Artist>();
+            foreach (var artist in getAlbum.artists)
+            {
+                Artist newArtists = new Artist();
+                newArtists.id = artist.id;
+                newArtists.name = artist.name;
+                artistList.Add(newArtists);
+            }
+            getAlbum.artists = artistList.ToArray();
 
             return getAlbum;
         }

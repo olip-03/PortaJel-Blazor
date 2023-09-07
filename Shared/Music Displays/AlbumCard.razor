@@ -1,11 +1,9 @@
 ﻿@using PortaJel_Blazor.Data;
-<<<<<<< HEAD
 @using PortaJel_Blazor;
 @using Microsoft.Maui.Controls;
 @using PortaJel_Blazor.Pages;
 @using PortaJel_Blazor.Pages.Views;
-=======
->>>>>>> 9db61e6d4a4e0f65aa645f4f807a0f0e7a31b80f
+
 @inject NavigationManager NavigationManager
 
 <div class="containerImg">
@@ -39,16 +37,19 @@
 
     private void NavigateToAlbum()
     {
-<<<<<<< HEAD
-        MauiProgram.mainLayout.showHeader = false;
-=======
-        // await App.Current.MainPage.Navigation.PushModalAsync(new AlbumPage());
->>>>>>> 9db61e6d4a4e0f65aa645f4f807a0f0e7a31b80f
-        NavigationManager.NavigateTo($"/AlbumView/{album.id}");
+        if (album != null)
+        {
+            MauiProgram.mainLayout.showHeader = false;
+
+            NavigationManager.NavigateTo($"/AlbumView/{album.id}");
+        }
     }
     private void NavigateToArtist()
     {
-        MauiProgram.mainLayout.showHeader = false;
-        NavigationManager.NavigateTo($"/ArtistView/{album.id}");
+        if(album != null)
+        {
+            MauiProgram.mainLayout.showHeader = false;
+            NavigationManager.NavigateTo($"/ArtistView/{album.id}");
+        }
     }
 }

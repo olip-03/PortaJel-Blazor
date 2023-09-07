@@ -1,9 +1,14 @@
-﻿.albumImage {
+﻿.imageContainer {
+    display: flex;
+    align-items: center;
+}
+.albumImage {
     width: 80vw; /* 80% of the viewport width */
     height: 80vw; /* 80% of the viewport width */
     max-width: 20rem;
     max-height: 20rem;
     margin: auto; /* Center horizontally */
+    margin-bottom: 1rem;
     border-radius: 0.4rem;
     background-color: darkgrey;
     flex-shrink: 0;
