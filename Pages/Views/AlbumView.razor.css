@@ -15,7 +15,23 @@
     position: relative;
     animation: shimmer 1.5s infinite linear;
 }
-h5 {
+.artistInfo
+{
+    display:flex;
+    align-items:center;
+    text-align: center;
+
+    font-size: 1.25rem;
+    color:darkgray;
+}
+.user-profile {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: #3498db; /* Blue background color, you can change this */
+    margin-right: 10px;
+}
+h3 {
     color: darkgray;
 }
 centerItems {

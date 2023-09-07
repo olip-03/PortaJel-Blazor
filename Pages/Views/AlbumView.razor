@@ -15,12 +15,20 @@
 @if(album!=null)
 {
     <h1>@album.name</h1>
-    <h5>@album.GetArtistName()</h5>
+    <div class="artistInfo">
+        <div class="user-profile">@album.artists.FirstOrDefault().imgSrc</div>
+        @album.GetArtistName()
+    </div>
 
     foreach (var item in album.songs)
     {
-        <p>@item.name</p>
+        <hr />
+        <div>            
+            <p style="margin:0px;">@item.name</p>
+            <p style="margin:0px;color:darkgray">@item.artist</p>
+        </div>
     }
+    <hr />
 }
 
 @code {

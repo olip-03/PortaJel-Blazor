@@ -154,6 +154,10 @@ namespace PortaJel_Blazor.Classes
                     if(item.Type != BaseItemKind.MusicAlbum)
                     {
                         newAlbum.isSong = true;
+                        if (item.AlbumId != null)
+                        {
+                            newAlbum.id = (Guid)item.AlbumId;
+                        }
                     }
 
                     // Fetch Artists
@@ -228,6 +232,10 @@ namespace PortaJel_Blazor.Classes
                     if (item.Type != BaseItemKind.MusicAlbum)
                     {
                         newAlbum.isSong = true;
+                        if (item.AlbumId != null)
+                        {
+                            newAlbum.id = (Guid)item.AlbumId;
+                        }
                     }
 
                     // Fetch Artists
@@ -306,6 +314,10 @@ namespace PortaJel_Blazor.Classes
                     if (item.Type != BaseItemKind.MusicAlbum)
                     {
                         newAlbum.isSong = true;
+                        if (item.AlbumId != null)
+                        {
+                            newAlbum.id = (Guid)item.AlbumId;
+                        }
                     }
 
                     // Fetch Artists
@@ -392,6 +404,10 @@ namespace PortaJel_Blazor.Classes
                     if (item.Type != BaseItemKind.MusicAlbum)
                     {
                         newAlbum.isSong = true;
+                        if(item.AlbumId != null)
+                        {
+                            newAlbum.id = (Guid)item.AlbumId;
+                        }
                     }
 
                     // Fetch Artists
@@ -473,6 +489,10 @@ namespace PortaJel_Blazor.Classes
                     if (item.Type != BaseItemKind.MusicAlbum)
                     {
                         newAlbum.isSong = true;
+                        if (item.AlbumId != null)
+                        {
+                            newAlbum.id = (Guid)item.AlbumId;
+                        }
                     }
 
                     // Fetch Artists

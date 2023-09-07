@@ -10,5 +10,6 @@ namespace PortaJel_Blazor.Data
     {
         public string id { get; set; } = string.Empty;
         public string name { get; set; } = string.Empty;
+        public string imgSrc { get; set; } = string.Empty;
     }
 }
