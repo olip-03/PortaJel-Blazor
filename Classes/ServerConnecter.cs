@@ -184,6 +184,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
+                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
 
                     albums.Add(newAlbum);
                 }
@@ -262,6 +263,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
+                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
 
                     albums.Add(newAlbum);
                 }
@@ -340,6 +342,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
+                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
 
                     albums.Sort();
                     if(albums.BinarySearch(newAlbum) < 0)
@@ -430,6 +433,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
+                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
 
                     albums.Add(newAlbum);
                 }
@@ -519,7 +523,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
-
+                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
 
                     albums.Add(newAlbum);
                 }
@@ -586,6 +590,7 @@ namespace PortaJel_Blazor.Classes
             {
                 getAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + albumResultItem.ArtistItems.First().Id + "/Images/Primary";
             }
+            getAlbum.lowResImageSrc = getAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
 
             // Set Song information
             List<Song> songList = new List<Song>();

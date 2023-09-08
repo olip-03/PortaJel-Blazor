@@ -33,6 +33,9 @@ p.albumText {
     position: relative;
     animation: shimmer 1.5s infinite linear;
 }
+.lowRes {
+    filter: blur(16px);
+}
 /* style this to fit your needs */
 /* and remove [alt] to apply to all images*/
 img:after {

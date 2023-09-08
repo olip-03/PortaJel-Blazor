@@ -1,58 +1,72 @@
 ﻿@using Jellyfin.Sdk;
 @using PortaJel_Blazor.Data;
+@using BlazorAnimate;
+
 @page "/"
 @page "/index"
 
-<div style="margin-bottom: 2rem">
-    <h3>Recently Played</h3>
+@if (loaded)
+{
+    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+        <div style="margin-bottom: 2rem">
+            <h3>Recently Played</h3>
 
-    <ul class="music-list">
-        @for (int i = 0; i < 6; i++)
-        {
-            string imgSrc = "/images/cd.svg";
-            string artist = "";
-            string name = "";
-
-            // More excellent, excellent nesting :)
-            // NICE NESTING IDIOT HAHAHAH
-            if (recentPlayData != null)
-            {
-                if (i < recentPlayData.Count())
+            <ul class="music-list">
+                @for (int i = 0; i < 6; i++)
                 {
-                    if (recentPlayData[i] != null)
+                    string imgSrc = "/images/cd.svg";
+                    string artist = "";
+                    string name = "";
+
+                    itemFadeInDelay += 0.1f;
+
+                    if (recentPlayData != null)
                     {
-                        Album item = recentPlayData[i];
+                        if (i < recentPlayData.Count())
+                        {
+                            if (recentPlayData[i] != null)
+                            {
+                                Album item = recentPlayData[i];
 
-                        imgSrc = item.imageSrc;
-                        name = item.name;
-                        artist = " - " + item.GetArtistName();
+                                imgSrc = item.imageSrc;
+                                name = item.name;
+                                artist = " - " + item.GetArtistName();
 
-                        <li class="music-item">
-                            <div class="image-container">
-                                <img class="album-image" src="@imgSrc" alt="Album 1">
-                            </div>
-                            <div class="music-details">
-                                <b>@name</b>@artist
-                            </div>
-                        </li>
+                                <li class="music-item">
+                                    <div class="image-container">
+                                        <img class="album-image" src="@imgSrc" alt="Album 1">
+                                    </div>
+                                    <div class="music-details">
+                                        <b>@name</b>@artist
+                                    </div>
+                                </li>
+                            }
+                        }
                     }
                 }
-            }
-        }
-    </ul>
-</div>
+            </ul>
+        </div>
+        <AlbumContainer Title="Favourites" itemCount="20" albumData="@favouritesPlayData" />
+        <br />
 
-<AlbumContainer Title="Favourites" itemCount="20" albumData="@favouritesPlayData" />
-<br />
-
-<AlbumContainer Title="Recently Added" itemCount="20" albumData="@recentAddedData" />
-<br />
+        <AlbumContainer Title="Recently Added" itemCount="20" albumData="@recentAddedData" />
+        <br />
 
 
-<AlbumContainer Title="Most Played" itemCount="20" albumData="@mostPlayData" />
-<br />
+        <AlbumContainer Title="Most Played" itemCount="20" albumData="@mostPlayData" />
+        <br />
 
-<AlbumContainer Title="Random" itemCount="20" albumData="@randomData" />
+        <AlbumContainer Title="Random" itemCount="20" albumData="@randomData" />
+    </Animate>
+}
+else
+{
+    // spinny wheel
+    <div id="centerall" class="centreItems">
+        <PortaJel_Blazor.Shared.Resources.Spinner/>
+    </div>
+}
+
 
 @code {
     private Album[] favouritesPlayData { get; set; }
@@ -60,6 +74,10 @@
     private Album[] mostPlayData { get; set; }
     private Album[] recentAddedData { get; set; }
     private Album[] randomData { get; set; }
+
+    private float itemFadeInDelay = 0;
+
+    private bool loaded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,9 +89,13 @@
 
         NavigationPage.SetHasNavigationBar(App.Current, true);
 
-
         MauiProgram.mainLayout.pageTitle = "PortaJel";
         MauiProgram.mainLayout.showHeader = true;
+
+        if (favouritesPlayData != null && recentPlayData != null && mostPlayData != null && recentAddedData != null)
+        {
+            loaded = true;
+        }
 
         // Update all the stored fucking data
         try
@@ -97,6 +119,8 @@
         {
             Console.Write(ex);
         }
+
+        loaded = true;
 
         StateHasChanged();
     }

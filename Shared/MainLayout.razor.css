@@ -5,12 +5,12 @@
     width: 100%;
 }
 
-content {
-    min-height: 100vh;
-}
-
 main {
     flex: 1;
+}
+
+.mainContent{
+    padding-bottom: 5rem;
 }
 
 .sidebar {

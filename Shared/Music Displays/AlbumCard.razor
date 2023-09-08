@@ -7,10 +7,14 @@
 @inject NavigationManager NavigationManager
 
 <div class="containerImg">
-    <img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" />
+    <div class="albumImage shimmerBG ">
+@*        <img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
+        *@<img src="@album.lowResImageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
+    </div>
+
     <p class="albumText" @onclick="NavigateToArtist">
         @if (album.isSong)
-        {
+        { // Show the little song icon 
             <img src="/images/song.svg" />
         }
         else

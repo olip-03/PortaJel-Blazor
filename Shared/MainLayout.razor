@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavManager
 @using PortaJel_Blazor.Classes;
+@using BlazorAnimate;
 
 <div class="page">
     <main>
@@ -43,7 +44,7 @@
                 </div>
             }
 
-            <article class="content px-4 padd-bottom">
+            <article class="mainContent px-4">
                 @Body
             </article>
 
@@ -65,6 +66,9 @@
                     <img class="toolbar-img" src="/images/favourite.svg" />
                 </a>
             </div>
+
+            @* Item Context Menu Flyin *@
+
         }
     </main>
 </div>
