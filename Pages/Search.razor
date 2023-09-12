@@ -1,11 +1,21 @@
 ﻿@page "/search"
-
-<h3>Search</h3>
-<hr/>
-
-<input type="text" id="search" name="search" />
-
+<div>
+    <input type="text" id="search" name="search" @oninput="TextChange"/>
+    <hr />
+    <div class="searchResponse">
+        <p>@changes</p>
+    </div>
+</div>
 
 @code {
+    private int changes = 0;
+    private void TextChange()
+    {
+        changes++;
+    }
 
+    protected override async Task OnInitializedAsync()
+    {
+        MauiProgram.mainLayout.isLoading = false;
+    }
 }

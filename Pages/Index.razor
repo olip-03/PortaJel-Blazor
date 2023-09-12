@@ -5,67 +5,57 @@
 @page "/"
 @page "/index"
 
-@if (loaded)
-{
-    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-        <div style="margin-bottom: 2rem">
-            <h3>Recently Played</h3>
+<Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+    <div style="margin-bottom: 2rem">
+        <h3>Recently Played</h3>
 
-            <ul class="music-list">
-                @for (int i = 0; i < 6; i++)
+        <ul class="music-list">
+            @for (int i = 0; i < 6; i++)
+            {
+                string imgSrc = "/images/cd.svg";
+                string artist = "";
+                string name = "";
+
+                itemFadeInDelay += 0.1f;
+
+                if (recentPlayData != null)
                 {
-                    string imgSrc = "/images/cd.svg";
-                    string artist = "";
-                    string name = "";
-
-                    itemFadeInDelay += 0.1f;
-
-                    if (recentPlayData != null)
+                    if (i < recentPlayData.Count())
                     {
-                        if (i < recentPlayData.Count())
+                        if (recentPlayData[i] != null)
                         {
-                            if (recentPlayData[i] != null)
-                            {
-                                Album item = recentPlayData[i];
+                            Album item = recentPlayData[i];
 
-                                imgSrc = item.imageSrc;
-                                name = item.name;
-                                artist = " - " + item.GetArtistName();
+                            imgSrc = item.imageSrc;
+                            name = item.name;
+                            artist = " - " + item.GetArtistName();
 
-                                <li class="music-item">
-                                    <div class="image-container">
-                                        <img class="album-image" src="@imgSrc" alt="Album 1">
-                                    </div>
-                                    <div class="music-details">
-                                        <b>@name</b>@artist
-                                    </div>
-                                </li>
-                            }
+                            <li class="music-item">
+                                <div class="image-container">
+                                    <img class="album-image" src="@imgSrc" alt="Album 1">
+                                </div>
+                                <div class="music-details">
+                                    <b>@name</b>@artist
+                                </div>
+                            </li>
                         }
                     }
                 }
-            </ul>
-        </div>
-        <AlbumContainer Title="Favourites" itemCount="20" albumData="@favouritesPlayData" />
-        <br />
-
-        <AlbumContainer Title="Recently Added" itemCount="20" albumData="@recentAddedData" />
-        <br />
-
-
-        <AlbumContainer Title="Most Played" itemCount="20" albumData="@mostPlayData" />
-        <br />
-
-        <AlbumContainer Title="Random" itemCount="20" albumData="@randomData" />
-    </Animate>
-}
-else
-{
-    // spinny wheel
-    <div id="centerall" class="centreItems">
-        <PortaJel_Blazor.Shared.Resources.Spinner/>
+            }
+        </ul>
     </div>
-}
+    <AlbumContainer Title="Favourites" itemCount="20" albumData="@favouritesPlayData" />
+    <br />
+
+    <AlbumContainer Title="Recently Added" itemCount="20" albumData="@recentAddedData" />
+    <br />
+
+
+    <AlbumContainer Title="Most Played" itemCount="20" albumData="@mostPlayData" />
+    <br />
+
+    <AlbumContainer Title="Random" itemCount="20" albumData="@randomData" />
+</Animate>
 
 
 @code {
@@ -76,8 +66,6 @@ else
     private Album[] randomData { get; set; }
 
     private float itemFadeInDelay = 0;
-
-    private bool loaded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,7 +82,7 @@ else
 
         if (favouritesPlayData != null && recentPlayData != null && mostPlayData != null && recentAddedData != null)
         {
-            loaded = true;
+            MauiProgram.mainLayout.isLoading = false;
         }
 
         // Update all the stored fucking data
@@ -120,8 +108,7 @@ else
             Console.Write(ex);
         }
 
-        loaded = true;
-
+        MauiProgram.mainLayout.isLoading = false;
         StateHasChanged();
     }
 }

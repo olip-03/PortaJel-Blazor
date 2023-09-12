@@ -1,6 +1,9 @@
-﻿using Jellyfin.Sdk;
+﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Views;
+using Jellyfin.Sdk;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
+using Plugin.Maui.Audio;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Shared;
@@ -23,6 +26,8 @@ public static class MauiProgram
     public static MainLayout mainLayout = null;
 
     public static List<ServerConnecter> servers = new List<ServerConnecter>();
+
+    public static MediaElement mediaElement = null;
 
     // Index page cached data
     public static Album[] favouritesPlayData { get; set; }
@@ -59,13 +64,16 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
-			.ConfigureFonts(fonts =>
+            .UseMauiCommunityToolkitMediaElement()
+            .ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
 
 		builder.Services.AddMauiBlazorWebView();
         builder.Services.AddTransient<GoBack>();
+        builder.Services.AddSingleton(AudioManager.Current);
+        builder.Services.AddSingleton<AppSharedState>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

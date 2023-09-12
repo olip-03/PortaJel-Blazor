@@ -2,6 +2,7 @@
 @inject NavigationManager NavManager
 @using PortaJel_Blazor.Classes;
 @using BlazorAnimate;
+@inject NavigationManager NavigationManager
 
 <div class="page">
     <main>
@@ -45,7 +46,18 @@
             }
 
             <article class="mainContent px-4">
-                @Body
+                @if (loading)
+                { // If the loading flag is engaged, show a fullscreen
+                  // loading page over the top of the container. 
+                    <div class="loadingContainer">
+                        <div>
+                            <PortaJel_Blazor.Shared.Resources.Spinner />
+                        </div>
+                    </div>
+                }
+                <div class="bodyContainer">
+                    @Body
+                </div>
             </article>
 
             @if (!MauiProgram.isConnected)
@@ -93,6 +105,15 @@
             StateHasChanged();
         }
     }
+    public bool isLoading
+    {
+        get { return loading; }
+        set
+        {
+            loading = value;
+            StateHasChanged();
+        }
+    }
 
     private string _pageTitle = "PortaJel";
     private bool _showHeader = true;
@@ -103,6 +124,7 @@
 
     private bool waiting { get; set; }
     private bool showError { get; set; }
+    private bool loading { get; set; } = true;
 
     private bool showLoading { get; set; }
 
@@ -204,28 +226,63 @@
     {
         StateHasChanged();
     }
+
+    private string currentUri = "/";
     public void NavigateHome()
     {
-        showHeader = true;
-        pageTitle = "PortaJel";
-        NavManager.NavigateTo("/");
+        if (currentUri != "/")
+        {
+            isLoading = true;
+            showHeader = true;
+            pageTitle = "PortaJel";
+            currentUri = "/";
+
+            NavManager.NavigateTo(currentUri);
+        }
     }
     public void NavigateSearch()
     {
-        showHeader = true;
-        pageTitle = "Search";
-        NavManager.NavigateTo("/search");
+        if (currentUri != "/search")
+        {
+            isLoading = true;
+            showHeader = true;
+            pageTitle = "Search";
+            currentUri = "/search";
+
+            NavManager.NavigateTo(currentUri);
+        }
     }
     public void NavigateFavourites()
     {
-        showHeader = true;
-        pageTitle = "Favourites";
-        NavManager.NavigateTo("/favourites");
+        if (currentUri != "/favourites")
+        {
+            isLoading = true;
+            showHeader = true;
+            pageTitle = "Favourites";
+            currentUri = "/favourites";
+
+            NavManager.NavigateTo(currentUri);
+        }
     }
     public void NavigateSettings()
     {
-        showHeader = true;
-        pageTitle = "Settings";
-        NavManager.NavigateTo("/settings");
+        if (currentUri != "/settings")
+        {
+            isLoading = true;
+            showHeader = true;
+            pageTitle = "Settings";
+            currentUri = "/settings";
+
+            NavManager.NavigateTo(currentUri);
+        }
+    }
+    public void NavigateAlbum(Guid guid)
+    {
+        NavigationManager.NavigateTo($"/AlbumView/{guid}");
+    }
+    public void NavigateArtist(Guid guid)
+    {
+        NavigationManager.NavigateTo($"/AlbumView/{guid}");
+
     }
 }

@@ -4,5 +4,8 @@
 <hr />
 
 @code {
-
+    protected override async Task OnInitializedAsync()
+    {
+        MauiProgram.mainLayout.isLoading = false;
+    }
 }

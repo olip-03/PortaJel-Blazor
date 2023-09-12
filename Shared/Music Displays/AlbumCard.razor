@@ -43,17 +43,15 @@
     {
         if (album != null)
         {
-            MauiProgram.mainLayout.showHeader = false;
-
-            NavigationManager.NavigateTo($"/AlbumView/{album.id}");
+            MauiProgram.mainLayout.NavigateAlbum(album.id);
         }
     }
     private void NavigateToArtist()
     {
         if(album != null)
         {
-            MauiProgram.mainLayout.showHeader = false;
-            NavigationManager.NavigateTo($"/ArtistView/{album.id}");
+            // TODO: Update to artist ID
+            MauiProgram.mainLayout.NavigateArtist(album.id);
         }
     }
 }
