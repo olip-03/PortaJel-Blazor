@@ -2,7 +2,6 @@
 @inject NavigationManager NavManager
 @using PortaJel_Blazor.Classes;
 @using BlazorAnimate;
-@inject NavigationManager NavigationManager
 
 <div class="page">
     <main>
@@ -278,11 +277,26 @@
     }
     public void NavigateAlbum(Guid guid)
     {
-        NavigationManager.NavigateTo($"/AlbumView/{guid}");
+        if (currentUri != $"/AlbumView/{guid}")
+        {
+            isLoading = true;
+            showHeader = false;
+            pageTitle = "Album View";
+            currentUri = "/settings";
+
+            NavManager.NavigateTo($"/AlbumView/{guid}");
+        }
     }
     public void NavigateArtist(Guid guid)
     {
-        NavigationManager.NavigateTo($"/AlbumView/{guid}");
+        if (currentUri != $"/ArtistView/{guid}")
+        {
+            isLoading = true;
+            showHeader = false;
+            pageTitle = "Artist View";
+            currentUri = $"/ArtistView/{guid}";
 
+            NavManager.NavigateTo($"/ArtistView/{guid}");
+        }
     }
 }

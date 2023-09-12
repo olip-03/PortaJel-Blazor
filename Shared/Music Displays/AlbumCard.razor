@@ -9,7 +9,7 @@
 <div class="containerImg">
     <div class="albumImage shimmerBG ">
 @*        <img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
-        *@<img src="@album.lowResImageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
+        *@<img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
     </div>
 
     <p class="albumText" @onclick="NavigateToArtist">
@@ -37,7 +37,16 @@
 
 @code {
     [Parameter] public Album album { get; set; } = new Album();
+    [Parameter] public int? albumResolutionpx { get; set; } = 160;
     string albumText = null;
+
+    private string albumImg { get; set; } = String.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        albumImg = album.imageSrc;
+        StateHasChanged();
+    }
 
     private void NavigateToAlbum()
     {

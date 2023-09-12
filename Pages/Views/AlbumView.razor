@@ -1,51 +1,61 @@
 ﻿@using PortaJel_Blazor.Data;
+@using BlazorAnimate;
+
 @page "/AlbumView/{albumId}"
 
-<div class="imageContainer">
-    @if(album != null)
-    {
-        <img src="@album.imageSrc" class="albumImage" />
-    }
-    else
-    {
-        <img src="" class="albumImage" />
-    }
-</div>
-
-@if(album!=null)
+@if(loaded)
 {
-    <h1>@album.name</h1>
-    <div class="artistInfo">
-        <div class="user-profile">@album.artists.FirstOrDefault().imgSrc</div>
-        @album.GetArtistName()
+<Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+    <div class="imageContainer">
+        @if (album != null)
+        {
+            <img src="@album.imageSrc" class="albumImage" />
+        }
+        else
+        {
+            <img src="" class="albumImage" />
+        }
     </div>
 
-    foreach (var item in album.songs)
+    @if (album != null)
     {
-        <hr />
-        <div>            
-            <p style="margin:0px;">@item.name</p>
-            <p style="margin:0px;color:darkgray">@item.artist</p>
+        <h1>@album.name</h1>
+        <div class="artistInfo">
+            <div class="user-profile">@album.artists.FirstOrDefault().imgSrc</div>
+            @album.GetArtistName()
         </div>
+
+        foreach (var item in album.songs)
+        {
+            <hr />
+            <div>
+                <p style="margin:0px;">@item.name</p>
+                <p style="margin:0px;color:darkgray">@item.artist</p>
+            </div>
+        }
+        <hr />
     }
-    <hr />
+</Animate>
 }
+
 
 @code {
     [Parameter] public string albumId { get; set; }
 
-    private Album album { get; set; } 
+    private Album album { get; set; }
+    private bool loaded = false;
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.mainLayout.showHeader = false;
-
         Guid parseId = Guid.Parse(albumId);
         if (albumId != null)
         {
             album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId);
-            StateHasChanged();
         }
+
+        loaded = true;
+        MauiProgram.mainLayout.isLoading = false;
+        StateHasChanged();
     }
 
     private void GoBack()

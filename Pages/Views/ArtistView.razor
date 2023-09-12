@@ -9,11 +9,6 @@
     [Parameter] public string artistId { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.contentPage = true;
-        MauiProgram.contentTitle = "This is an Artist";
-
-        MauiProgram.mainLayout.showHeader = false;
-
-        MauiProgram.mainLayout.UpdateState();
+        MauiProgram.mainLayout.isLoading = false;
     }
 }

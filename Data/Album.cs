@@ -31,5 +31,9 @@ namespace PortaJel_Blazor.Data
             // Compare albums based on their names
             return string.Compare(id.ToString(), other.id.ToString(), StringComparison.OrdinalIgnoreCase);
         }
+        public string imageAtResolution(int px)
+        {
+            return imageSrc += $"?fillHeight={px}&fillWidth={px}&quality=96";
+        }
     }
 }
