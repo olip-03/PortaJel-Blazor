@@ -146,7 +146,7 @@
                 bool urlpass = await loadedServer.AuthenticateAddressAsync();
                 bool usrpass = await loadedServer.AuthenticateUser();
 
-                if(urlpass && usrpass)
+                if(usrpass)
                 {
                     waiting = false;
 
@@ -226,7 +226,7 @@
         StateHasChanged();
     }
 
-    private string currentUri = "/";
+    public string currentUri = "/";
     public void NavigateHome()
     {
         if (currentUri != "/")

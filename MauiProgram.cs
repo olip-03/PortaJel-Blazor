@@ -110,7 +110,7 @@ public static class MauiProgram
     {
         await Task.Run(() =>
         {
-            Thread.Sleep(2000);
+            // Thread.Sleep(2000);
         });
         return true;
     }

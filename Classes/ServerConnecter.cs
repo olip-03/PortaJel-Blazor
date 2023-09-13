@@ -24,6 +24,7 @@ namespace PortaJel_Blazor.Classes
         private SdkClientSettings _sdkClientSettings;
         private ItemsClient _itemsClient;
         private ImageClient _imageClient;
+        private SearchClient _searchClient;
         private ISystemClient _systemClient;
         private IUserClient _userClient;
        
@@ -102,6 +103,7 @@ namespace PortaJel_Blazor.Classes
 
                 _itemsClient = new(_sdkClientSettings, _httpClient);
                 _imageClient = new(_sdkClientSettings, _httpClient);
+                _searchClient = new(_sdkClientSettings, _httpClient);
 
                 Username = username;
                 StoredPassword = password;
@@ -618,6 +620,58 @@ namespace PortaJel_Blazor.Classes
             getAlbum.artists = artistList.ToArray();
 
             return getAlbum;
+        }
+        public async Task<Album[]> SearchAsync(string _searchTerm, bool? sorted = false)
+        {
+            if (String.IsNullOrWhiteSpace(_searchTerm))
+            {
+                return null;
+            }
+            List<Album> searchResuls = new List<Album>();
+
+            List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio, BaseItemKind.MusicArtist };
+
+            SearchHintResult searchResult;
+            searchResult = await _searchClient.GetAsync(userId: userDto.Id, searchTerm: _searchTerm, limit: 50, includeItemTypes: _albumItemTypes);
+
+            foreach (var item in searchResult.SearchHints)
+            {
+                try
+                {
+                    Album newAlbum = new();
+                    newAlbum.name = item.Name;
+                    newAlbum.id = item.Id;
+                    newAlbum.songs = null; // TODO: Implement songs
+
+                    // Fetch Artists
+                    List<Artist> artists = new List<Artist>();
+                    foreach (var artist in item.Artists)
+                    {
+                        Artist newArist = new Artist();
+                        newArist.name = artist;
+
+                        artists.Add(newArist);
+                    }
+                    newAlbum.artists = artists.ToArray();
+
+                    newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + newAlbum.id + "/Images/Primary";
+
+                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
+
+                    searchResuls.Add(newAlbum);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            if (sorted == true)
+            {
+                searchResuls.Sort();
+            }
+
+            return searchResuls.ToArray();
         }
         public void SetBaseAddress(string url)
         {

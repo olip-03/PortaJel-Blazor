@@ -6,6 +6,9 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
+        MauiProgram.mainLayout.pageTitle = "Favourites";
+        MauiProgram.mainLayout.currentUri = "/favourites";
+        MauiProgram.mainLayout.showHeader = true;
         MauiProgram.mainLayout.isLoading = false;
     }
 }

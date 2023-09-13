@@ -43,6 +43,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        MauiProgram.mainLayout.pageTitle = "Settings";
+        MauiProgram.mainLayout.currentUri = "/settings";
+        MauiProgram.mainLayout.showHeader = true;
         MauiProgram.mainLayout.isLoading = false;
     }
 }

@@ -9,8 +9,9 @@ main {
     flex: 1;
 }
 
-.mainContent{
+.mainContent {
     padding-bottom: 5rem;
+    padding-top: 2.5rem;
 }
 
 .sidebar {
@@ -93,7 +94,6 @@ main {
 }
 
 .login-form {
-    width: 100%;
     max-width: 25rem;
     max-height: 60rem;
     padding-left: 1rem;
@@ -104,6 +104,13 @@ main {
     align-self: center;
     display: flex;
     flex-direction: column;
+
+    width: 100%; /* Make the search box fill the available width */
+    padding: 10px; /* Add some padding for spacing */
+    border: 2px solid #ccc; /* Add a border for styling */
+    border-radius: 20px; /* Rounded corners */
+    font-size: 16px; /* Set the font size */
+    outline: none; /* Remove the default focus outline */
 }
 .centreItems {
     display: flex;

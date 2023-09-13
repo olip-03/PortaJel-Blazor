@@ -19,9 +19,8 @@
 
     @if (album != null)
     {
-        <h1>@album.name</h1>
+        <h2>@album.name</h2>
         <div class="artistInfo">
-            <div class="user-profile">@album.artists.FirstOrDefault().imgSrc</div>
             @album.GetArtistName()
         </div>
 
@@ -29,8 +28,8 @@
         {
             <hr />
             <div>
-                <p style="margin:0px;">@item.name</p>
-                <p style="margin:0px;color:darkgray">@item.artist</p>
+                <p class="songTitle">@item.name</p>
+                <p class="songArtistTitle">@item.artist</p>
             </div>
         }
         <hr />
@@ -47,6 +46,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        MauiProgram.mainLayout.pageTitle = "Album";
+        MauiProgram.mainLayout.currentUri = $"/AlbumView/{albumId}";
+        MauiProgram.mainLayout.showHeader = false;
+
         Guid parseId = Guid.Parse(albumId);
         if (albumId != null)
         {

@@ -1,21 +1,82 @@
-﻿@page "/search"
+﻿@using PortaJel_Blazor.Data;
+@using BlazorAnimate;
+
+@page "/search"
 <div>
-    <input type="text" id="search" name="search" @oninput="TextChange"/>
+    <input type="text" id="search" name="search" class="searchBox" @oninput="@((e) => TextChange((string)e.Value) )" />
     <hr />
+
     <div class="searchResponse">
-        <p>@changes</p>
+        
+        @if (searchResults != null && !waitingForResult)
+        {
+            foreach (var item in searchResults)
+            {
+                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                    <p>@item.name</p>
+                </Animate>
+
+                itemFadeInDelay += 0.1f;
+            }
+        }
+
     </div>
 </div>
 
 @code {
     private int changes = 0;
-    private void TextChange()
+
+    private string searchQuery;
+    Album[] searchResults = null;
+
+    private bool waitingForResult = false;
+    private float itemFadeInDelay = 0;
+
+    private async void TextChange(string searchFor)
     {
-        changes++;
+        itemFadeInDelay = 0;
+        searchQuery = searchFor;
+
+        if (String.IsNullOrWhiteSpace(searchFor))
+        {
+            searchResults = null;
+            StateHasChanged();
+            return;
+        }
+
+        if (waitingForResult)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        waitingForResult = true;
+
+        searchResults = await MauiProgram.servers[0].SearchAsync(searchFor, sorted: true);
+
+        // Filter and order the elements based on the prefix
+        var elementsWithPrefix = searchResults
+            .Where(item => item.name.StartsWith(searchFor))
+            .ToList();
+        elementsWithPrefix.Sort();
+
+        var elementsWithoutPrefix = searchResults
+            .Where(item => !item.name.StartsWith(searchFor))
+            .ToList();
+
+        // Combine the two lists with the prefix elements at the start
+        elementsWithPrefix.AddRange(elementsWithoutPrefix);
+
+        searchResults = elementsWithPrefix.ToArray();
+
+        waitingForResult = false;
+        StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
     {
+        MauiProgram.mainLayout.pageTitle = "Search";
+        MauiProgram.mainLayout.currentUri = "/search";
         MauiProgram.mainLayout.isLoading = false;
     }
 }

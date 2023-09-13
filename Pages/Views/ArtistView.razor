@@ -9,6 +9,9 @@
     [Parameter] public string artistId { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        MauiProgram.mainLayout.pageTitle = "Artist View";
+        MauiProgram.mainLayout.currentUri = $"/ArtistView/{artistId}";
+        MauiProgram.mainLayout.showHeader = false;
         MauiProgram.mainLayout.isLoading = false;
     }
 }
