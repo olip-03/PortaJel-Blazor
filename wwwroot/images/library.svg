@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+	<defs>
+		<style>
+			.icon-canvas-transparent, .icon-vs-out {
+			fill: #424242; /* Inverted color of #f6f6f6 */
+			}
+			.icon-canvas-transparent {
+			opacity: 0;
+			}
+			.icon-vs-bg {
+			fill: #f0eff1; /* Inverted color of #424242 */
+			}
+		</style>
+	</defs>
+	<title>Library_16x</title>
+	<g id="canvas">
+		<path class="icon-canvas-transparent" d="M16,0V16H0V0Z" />
+	</g>
+	<g id="outline">
+		<path class="icon-vs-out" d="M16,2V15H0V2H5V1h6V2Z" />
+	</g>
+	<g id="iconBg">
+		<path class="icon-vs-bg" d="M11,3V14h4V3Zm3,10H12V12h2Zm0-2H12V10h2Zm0-5H12V4h2ZM6,14h4V2H6ZM7,3H9V4H7Zm0,7H9v1H7Zm0,2H9v1H7ZM1,14H5V3H1ZM2,4H4V6H2Zm0,6H4v1H2Zm0,2H4v1H2Z" />
+	</g>
+</svg>

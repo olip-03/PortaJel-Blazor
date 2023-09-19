@@ -20,15 +20,15 @@
 
 /* CSS for the album image */
 .album-image {
-    min-width: 3.5rem;
-    min-height: 3.5rem;
+    min-width: 3.6rem;
+    min-height: 3.6rem;
     max-width: 3.5rem;
     max-height: 3.5rem;
     margin-right: 0.5rem;
 }
 image-container div {
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3.6rem;
+    height: 3.6rem;
     overflow: hidden;
 }
 
@@ -36,7 +36,7 @@ image-container div {
 .music-details {
     color: #555;
     font-size: 0.8rem;
-    white-space: normal; /* Allow text to wrap onto multiple lines */
+    white-space:pre-line; /* Allow text to wrap onto multiple lines */
     text-overflow: ellipsis; /* Add ellipsis for overflowed text */
     display: -webkit-box;
     -webkit-line-clamp: 3; /* Limit the text to 2 lines */

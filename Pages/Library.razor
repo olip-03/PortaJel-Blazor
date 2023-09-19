@@ -1,0 +1,52 @@
+﻿@page "/library"
+@using PortaJel_Blazor.Data;
+@using PortaJel_Blazor.Shared.Resources;
+@using BlazorAnimate;
+
+<div>
+    <div class="button-container">
+        <div class="filter-button selected">Albums</div>
+        <div class="filter-button">Artists</div>
+        <div class="filter-button">Genres</div>
+        <div class="filter-button">Songs</div>
+        <!-- Add more buttons here as needed -->
+    </div>
+
+    <div class="album-list">
+        @if (isLoading)
+        { // Spinner
+            <Spinner />
+        }
+        else if (data.Length > 0)
+        { // Load information
+            foreach (var item in data)
+            {
+                <div class="album-container">
+                    <img src="album-cover.jpg" alt="Album Cover" class="album-cover">
+                    <div>
+                        <div class="album-name">Album Name</div>
+                        <div class="album-artist">Album Artist</div>
+                    </div>
+                    <div class="favorite-button">Favorite</div>
+                </div>
+            }
+        }
+        else
+        { // something went wrong click here to try again
+
+        }
+    </div>
+</div>
+
+@code {
+    private Album[] data = new Album[50];
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        MauiProgram.mainLayout.pageTitle = "Library";
+        MauiProgram.mainLayout.currentUri = "/library";
+        MauiProgram.mainLayout.showHeader = true;
+        MauiProgram.mainLayout.isLoading = false;
+    }
+}

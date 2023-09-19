@@ -26,13 +26,19 @@
                         {
                             Album item = recentPlayData[i];
 
-                            imgSrc = item.imageSrc;
+                            imgSrc = item.imageSrc + "?fillHeight=256&fillWidth=256&quality=49"; ;
+                            string backgroundImg = item.imageSrc + "?fillHeight=32&fillWidth=32&quality=49";
                             name = item.name;
                             artist = " - " + item.GetArtistName();
+                            string alttxt = name + " by " + item.GetArtistName();
 
                             <li class="music-item">
                                 <div class="image-container">
-                                    <img class="album-image" src="@imgSrc" alt="Album 1">
+                                    <img class="album-image" 
+                                    src="@imgSrc"
+                                    alt="@alttxt" 
+                                    title="@alttxt"
+                                         style=" background: url(@backgroundImg); background-repeat:no-repeat;  background-size:cover" />
                                 </div>
                                 <div class="music-details">
                                     <b>@name</b>@artist
@@ -44,6 +50,8 @@
             }
         </ul>
     </div>
+
+    @* Need to make changes to the way these are done*@
     <AlbumContainer Title="Favourites" itemCount="20" albumData="@favouritesPlayData" />
     <br />
 

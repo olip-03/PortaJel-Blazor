@@ -67,11 +67,18 @@
                 </div>
             }
             <div class="top-row px-4">
+                @* Music player control *@
+                @* TODO: Add music player control here *@
+
+                @* Navigation bar at the bottom of the screen *@
                 <a @onclick="NavigateHome">
                     <img class="toolbar-img" src="/images/home.svg" />
                 </a>
                 <a @onclick="NavigateSearch">
                     <img class="toolbar-img" src="/images/search.svg" />
+                </a>
+                <a @onclick="NavigateLibrary">
+                    <img class="toolbar-img" src="/images/library.svg" />
                 </a>
                 <a @onclick="NavigateFavourites">
                     <img class="toolbar-img" src="/images/favourite.svg" />
@@ -239,11 +246,23 @@
             NavManager.NavigateTo(currentUri);
         }
     }
+    public void NavigateLibrary()
+    {
+        if (currentUri != "/library")
+        {
+            isLoading = true;
+            showHeader = true;
+            pageTitle = "Library";
+            currentUri = "/library";
+
+            NavManager.NavigateTo(currentUri);
+        }
+    }
     public void NavigateSearch()
     {
         if (currentUri != "/search")
         {
-            isLoading = true;
+            isLoading = false; // FALSE here because this page takes no time to load
             showHeader = true;
             pageTitle = "Search";
             currentUri = "/search";

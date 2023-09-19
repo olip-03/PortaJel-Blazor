@@ -1,0 +1,45 @@
+﻿/* Styles for the music player container */
+.music-player {
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+}
+
+/* Styles for the album image */
+.album-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    margin-right: 10px;
+}
+
+/* Styles for song and artist information */
+.song-info {
+    flex-grow: 1;
+}
+
+.song-name {
+    font-weight: bold;
+}
+
+.artist-name {
+    color: gray;
+}
+
+/* Styles for the play and like buttons */
+.control-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.control-button {
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+    cursor: pointer;
+}

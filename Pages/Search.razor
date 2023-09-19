@@ -13,7 +13,14 @@
             foreach (var item in searchResults)
             {
                 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                    <p>@item.name</p>
+                    <div class="album-container">
+                        <img src="@item.lowResImageSrc" alt="Album Cover" class="album-cover" loading="lazy">
+                        <div>
+                            <div class="album-name">@item.name</div>
+                            <div class="album-artist">@item.GetArtistName()</div>
+                        </div>
+                        <div class="favorite-button">Favorite</div>
+                    </div>
                 </Animate>
 
                 itemFadeInDelay += 0.1f;

@@ -645,14 +645,17 @@ namespace PortaJel_Blazor.Classes
 
                     // Fetch Artists
                     List<Artist> artists = new List<Artist>();
-                    foreach (var artist in item.Artists)
+                    if(item.Artists != null)
                     {
-                        Artist newArist = new Artist();
-                        newArist.name = artist;
+                        foreach (var artist in item.Artists)
+                        {
+                            Artist newArist = new Artist();
+                            newArist.name = artist;
 
-                        artists.Add(newArist);
+                            artists.Add(newArist);
+                        }
+                        newAlbum.artists = artists.ToArray();
                     }
-                    newAlbum.artists = artists.ToArray();
 
                     newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + newAlbum.id + "/Images/Primary";
 

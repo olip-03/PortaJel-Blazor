@@ -1,0 +1,64 @@
+﻿/* Container for the buttons with horizontal scroll */
+.button-container {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+/* Style for each button */
+.filter-button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 0px;
+    margin-right: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+    /* Style for the selected button */
+    .filter-button.selected {
+        border-color: #007bff; /* Change to the desired selected color */
+    }
+
+/* Container for the list of albums */
+.album-list {
+    width: 100%;
+}
+
+/* Individual album container */
+.album-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* Style for the album cover image */
+.album-cover {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    margin-right: 10px;
+}
+
+/* Style for the album name */
+.album-name {
+    font-weight: bold;
+}
+
+/* Style for the album artist */
+.album-artist {
+    color: gray;
+}
+
+/* Style for the favorite button */
+.favorite-button {
+    margin-left: auto;
+    cursor: pointer;
+}
