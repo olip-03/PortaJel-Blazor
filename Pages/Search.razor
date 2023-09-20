@@ -14,8 +14,9 @@
             {
                 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
                     <div class="album-container">
-                        <img src="@item.lowResImageSrc" alt="Album Cover" class="album-cover" loading="lazy">
-                        <div>
+                        <PortaJel_Blazor.Shared.Music_Displays.ServerImage album="@item"/>
+@*                        <img src="@item.lowResImageSrc" alt="Album Cover" class="album-cover" >
+*@                        <div>
                             <div class="album-name">@item.name</div>
                             <div class="album-artist">@item.GetArtistName()</div>
                         </div>

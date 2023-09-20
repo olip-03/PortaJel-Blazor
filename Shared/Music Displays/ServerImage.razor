@@ -1,0 +1,73 @@
+﻿@using PortaJel_Blazor.Data;
+@using Jellyfin.Sdk
+@using System.Net;
+
+<style>
+    .album-cover {
+        width: 80px;
+        height: 80px;
+        border-radius: 2px;
+        margin-right: 10px;
+    }
+</style>
+
+<img src="@album.imageSrc" loading="lazy" class="album-cover" />
+
+@code {
+    [Parameter] public Album album { get; set; } = new Album();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            HttpResponseMessage response = await client.GetAsync(album.imageSrc, HttpCompletionOption.ResponseHeadersRead);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return;
+            }
+            else
+            {
+                // This seems to wrok quite okay. I'm going to leave this as is.
+                for (int i = 0; i < 2; i++)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            album.imageSrc = "https://media.olisshittyserver.xyz/Items/" + album.id + "/Images/Backdrop";
+                            HttpResponseMessage backDropCheck = await client.GetAsync(album.imageSrc, HttpCompletionOption.ResponseHeadersRead);
+                            if (backDropCheck.IsSuccessStatusCode)
+                            {
+                                break;
+                            }
+                            break;
+                        case 1:
+                            // get the artist id
+                            if(album.artists == null) { break; }
+                            if (album.artists.Length <= 0) { break; }
+                            BaseItemDtoQueryResult itemResult = await MauiProgram.servers[0].GetArtistClient().GetArtistsAsync(searchTerm: album.artists[0].name);
+                            string idSearch = itemResult.Items.FirstOrDefault().Id.ToString();
+
+                            album.imageSrc = "https://media.olisshittyserver.xyz/Items/" + idSearch + "/Images/Primary";
+                            HttpResponseMessage artistImgCheck = await client.GetAsync(album.imageSrc, HttpCompletionOption.ResponseHeadersRead);
+                            if (artistImgCheck.IsSuccessStatusCode)
+                            {
+                                break;
+                            }
+                            break;
+                        case 2: // should be reached at this point
+                            album.imageSrc = "https://media.olisshittyserver.xyz/Items/" + album.id + "/Images/Backdrop";
+                            HttpResponseMessage secondCheck = await client.GetAsync(album.imageSrc, HttpCompletionOption.ResponseHeadersRead);
+                            if (secondCheck.IsSuccessStatusCode)
+                            {
+                                break;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        StateHasChanged();
+    }
+}

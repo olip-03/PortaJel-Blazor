@@ -22,12 +22,13 @@ namespace PortaJel_Blazor.Classes
     {
         private UserDto userDto = null!;
         private SdkClientSettings _sdkClientSettings;
+        private ArtistsClient _artistsClient;
         private ItemsClient _itemsClient;
         private ImageClient _imageClient;
         private SearchClient _searchClient;
         private ISystemClient _systemClient;
         private IUserClient _userClient;
-       
+
         private IUserViewsClient _userViewsClient;
 
         private string Username = null;
@@ -104,6 +105,7 @@ namespace PortaJel_Blazor.Classes
                 _itemsClient = new(_sdkClientSettings, _httpClient);
                 _imageClient = new(_sdkClientSettings, _httpClient);
                 _searchClient = new(_sdkClientSettings, _httpClient);
+                _artistsClient = new(_sdkClientSettings, _httpClient);
 
                 Username = username;
                 StoredPassword = password;
@@ -153,7 +155,7 @@ namespace PortaJel_Blazor.Classes
                     newAlbum.id = item.Id;
                     newAlbum.songs = null; // TODO: Implement songs
 
-                    if(item.Type != BaseItemKind.MusicAlbum)
+                    if (item.Type != BaseItemKind.MusicAlbum)
                     {
                         newAlbum.isSong = true;
                         if (item.AlbumId != null)
@@ -257,7 +259,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
                     }
-                    else if(item.ImageBlurHashes.Primary != null)
+                    else if (item.ImageBlurHashes.Primary != null)
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.Id.ToString() + "/Images/Primary";
                     }
@@ -275,7 +277,6 @@ namespace PortaJel_Blazor.Classes
                 }
 
             }
-
             return albums.ToArray();
         }
         public async Task<Album[]> FetchRecentlyPlayedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false)
@@ -336,7 +337,7 @@ namespace PortaJel_Blazor.Classes
                     }
                     newAlbum.artists = artists.ToArray();
 
-                    if (item.ImageBlurHashes.Primary != null) 
+                    if (item.ImageBlurHashes.Primary != null)
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
                     }
@@ -347,7 +348,7 @@ namespace PortaJel_Blazor.Classes
                     newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
 
                     albums.Sort();
-                    if(albums.BinarySearch(newAlbum) < 0)
+                    if (albums.BinarySearch(newAlbum) < 0)
                     { // Check that item isnt in the list already
                         albums.Add(newAlbum);
                     }
@@ -409,7 +410,7 @@ namespace PortaJel_Blazor.Classes
                     if (item.Type != BaseItemKind.MusicAlbum)
                     {
                         newAlbum.isSong = true;
-                        if(item.AlbumId != null)
+                        if (item.AlbumId != null)
                         {
                             newAlbum.id = (Guid)item.AlbumId;
                         }
@@ -521,7 +522,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
                     }
-                    else if(item.ArtistItems.First().Id != null)
+                    else if (item.ArtistItems.First().Id != null)
                     {
                         newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
@@ -565,7 +566,7 @@ namespace PortaJel_Blazor.Classes
             try
             {
                 albumResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _filterIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _albumItemTypes, recursive: true, enableImages: true);
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id,sortBy: _sortTypes ,sortOrder: _sortOrder, includeItemTypes: _songItemTypes, parentId: albumId, recursive: true, enableImages: true);
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _songItemTypes, parentId: albumId, recursive: true, enableImages: true);
             }
             catch (Exception ex)
             {
@@ -576,7 +577,7 @@ namespace PortaJel_Blazor.Classes
             BaseItemDto albumResultItem = albumResult.Items.FirstOrDefault();
             // Set basic Info
             getAlbum.name = albumResultItem.Name;
-            getAlbum.id = albumResultItem.Id; 
+            getAlbum.id = albumResultItem.Id;
             getAlbum.isSong = false;
 
             // Set image
@@ -632,20 +633,20 @@ namespace PortaJel_Blazor.Classes
             List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio, BaseItemKind.MusicArtist };
 
             SearchHintResult searchResult;
-            searchResult = await _searchClient.GetAsync(userId: userDto.Id, searchTerm: _searchTerm, limit: 50, includeItemTypes: _albumItemTypes);
+            searchResult = await _searchClient.GetAsync(userId: userDto.Id, searchTerm: _searchTerm, limit: 50, includeItemTypes: _albumItemTypes, includeArtists: true);
 
             foreach (var item in searchResult.SearchHints)
             {
                 try
                 {
                     Album newAlbum = new();
-                    newAlbum.name = item.Name;
+
                     newAlbum.id = item.Id;
                     newAlbum.songs = null; // TODO: Implement songs
 
                     // Fetch Artists
                     List<Artist> artists = new List<Artist>();
-                    if(item.Artists != null)
+                    if (item.Artists != null)
                     {
                         foreach (var artist in item.Artists)
                         {
@@ -657,7 +658,18 @@ namespace PortaJel_Blazor.Classes
                         newAlbum.artists = artists.ToArray();
                     }
 
-                    newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + newAlbum.id + "/Images/Primary";
+                    if (item.AlbumId != Guid.Empty)
+                    { // If this is an album
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId.ToString() + "/Images/Primary";
+                        newAlbum.name = item.Name;
+                        newAlbum.id = item.AlbumId;
+                    }
+                    else
+                    { // If this is a song
+                        newAlbum.name = item.Name;
+                        newAlbum.isSong = true;
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + newAlbum.id + "/Images/Primary";
+                    }
 
                     newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
 
@@ -687,7 +699,7 @@ namespace PortaJel_Blazor.Classes
         }
         public string GetProfileImage()
         {
-            if(userDto == null)
+            if (userDto == null)
             {
                 return null;
             }
@@ -704,6 +716,22 @@ namespace PortaJel_Blazor.Classes
         public string GetBaseAddress()
         {
             return _sdkClientSettings.BaseUrl;
+        }
+        public UserDto GetUserDto()
+        {
+            return userDto;
+        }
+        public ImageClient GetImageClient()
+        {
+            return _imageClient;
+        }
+        public ItemsClient GetItemsClient()
+        {
+            return _itemsClient;
+        }
+        public ArtistsClient GetArtistClient()
+        {
+            return _artistsClient;
         }
     }
 

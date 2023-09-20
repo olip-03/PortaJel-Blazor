@@ -19,10 +19,15 @@
         }
         else if (data.Length > 0)
         { // Load information
-            foreach (var item in data)
+            for (int i = 0; i < data.Length; i++)
             {
+                Album item = new Album();
+                if(data[i] != null)
+                {
+                    item = data[i];
+                }
                 <div class="album-container">
-                    <img src="album-cover.jpg" alt="Album Cover" class="album-cover">
+                    <img src="@item.imageSrc" alt="Album Cover" class="album-cover">
                     <div>
                         <div class="album-name">Album Name</div>
                         <div class="album-artist">Album Artist</div>
@@ -39,7 +44,7 @@
 </div>
 
 @code {
-    private Album[] data = new Album[50];
+    private Album[] data = new Album[5];
     private bool isLoading = false;
 
     protected override async Task OnInitializedAsync()

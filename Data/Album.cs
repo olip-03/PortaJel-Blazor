@@ -29,6 +29,8 @@ namespace PortaJel_Blazor.Data
         public int CompareTo(Album other)
         {
             // Compare albums based on their names
+            if(name == null) { return -1; }
+            if(other.name == null) { return -1; }
             return string.Compare(name.ToString(), other.name.ToString(), StringComparison.OrdinalIgnoreCase);
         }
         public string imageAtResolution(int px)
