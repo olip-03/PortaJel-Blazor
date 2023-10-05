@@ -1,6 +1,51 @@
-﻿@page "/favourites"
+﻿@using PortaJel_Blazor.Data;
+@using PortaJel_Blazor.Shared.Resources;
+@page "/favourites"
+
+<div>
+    <div class="button-container">
+        <div class="filter-button">Playlists</div>
+        <div class="filter-button selected">Albums</div>
+        <div class="filter-button">Artists</div>
+        <div class="filter-button">Songs</div>
+        <!-- Add more buttons here as needed -->
+    </div>
+
+    <div class="album-list">
+        @if (isLoading)
+        { // Spinner
+            <Spinner />
+        }
+        else if (data.Length > 0)
+        { // Load information
+            for (int i = 0; i < data.Length; i++)
+            {
+                Album item = new Album();
+                if(data[i] != null)
+                {
+                    item = data[i];
+                }
+                <div class="album-container">
+                    <img src="@item.imageSrc" alt="Album Cover" class="album-cover">
+                    <div>
+                        <div class="album-name">Album Name</div>
+                        <div class="album-artist">Album Artist</div>
+                    </div>
+                    <div class="favorite-button">Favorite</div>
+                </div>
+            }
+        }
+        else
+        { // something went wrong click here to try again
+
+        }
+    </div>
+</div>
 
 @code {
+    private Album[] data = new Album[20];
+    private bool isLoading = false;
+
     protected override async Task OnInitializedAsync()
     {
         MauiProgram.mainLayout.pageTitle = "Favourites";
