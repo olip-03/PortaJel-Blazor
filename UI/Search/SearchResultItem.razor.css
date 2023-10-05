@@ -1,0 +1,38 @@
+﻿.album-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.album-cover {
+    width: 80px;
+    height: 80px;
+    border-radius: 2px;
+    margin-right: 10px;
+}
+
+/* Style for the album cover image */
+.album-cover {
+    width: 80px;
+    height: 80px;
+    border-radius: 2px;
+    margin-right: 10px;
+}
+
+/* Style for the album name */
+.album-name {
+    font-weight: bold;
+}
+
+/* Style for the album artist */
+.album-artist {
+    color: gray;
+}
+
+/* Style for the favorite button */
+.favorite-button {
+    margin-left: auto;
+    cursor: pointer;
+}

@@ -1,0 +1,25 @@
+﻿@using Microsoft.Maui.Controls;
+
+<div class="music-player" @OnS>
+</div>
+
+@code {
+    [Parameter] public MusicPlayerContainer reference { get; set; }
+
+    public bool isActive { get; set; } = true;
+
+    public bool isPlaying { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        reference = this;
+    }
+    void OnLabelSwiped(SwipedEventArgs e)
+    {
+        // TODO: Response to swipe gesture
+
+        // Check e.Direction
+
+        StateHasChanged();
+    }
+}

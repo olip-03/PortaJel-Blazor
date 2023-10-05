@@ -622,71 +622,109 @@ namespace PortaJel_Blazor.Classes
 
             return getAlbum;
         }
-        public async Task<Album[]> SearchAsync(string _searchTerm, bool? sorted = false)
+        public async Task<Album[]> SearchAsync(string _searchTerm, bool? sorted = false, int? searchLimit = 50)
         {
             if (String.IsNullOrWhiteSpace(_searchTerm))
             {
                 return null;
             }
-            List<Album> searchResuls = new List<Album>();
 
             List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio, BaseItemKind.MusicArtist };
 
             SearchHintResult searchResult;
-            searchResult = await _searchClient.GetAsync(userId: userDto.Id, searchTerm: _searchTerm, limit: 50, includeItemTypes: _albumItemTypes, includeArtists: true);
+            searchResult = await _searchClient.GetAsync(userId: userDto.Id, searchTerm: _searchTerm, limit: searchLimit, includeItemTypes: _albumItemTypes, includeArtists: true);
 
+            if(searchResult.SearchHints.Count() == 0)
+            {
+                return new Album[0];
+            }
+
+            List<Guid> searchedIds = new List<Guid>();
             foreach (var item in searchResult.SearchHints)
+            {
+               searchedIds.Add(item.Id);
+            }
+
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
+
+            BaseItemDtoQueryResult itemsResult;
+            try
+            {
+                itemsResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: searchedIds, sortOrder: _sortOrder, includeItemTypes: _albumItemTypes, limit: searchLimit, recursive: true, enableImages: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            List<Album> albums = new List<Album>();
+            if (searchResult == null)
+            {
+                return null;
+            }
+            foreach (var item in itemsResult.Items)
             {
                 try
                 {
                     Album newAlbum = new();
-
+                    newAlbum.name = item.Name;
                     newAlbum.id = item.Id;
                     newAlbum.songs = null; // TODO: Implement songs
 
+                    if (item.Type != BaseItemKind.MusicAlbum)
+                    {
+                        newAlbum.isSong = true;
+                        if (item.AlbumId != null)
+                        {
+                            newAlbum.id = (Guid)item.AlbumId;
+                        }
+                    }
+
                     // Fetch Artists
                     List<Artist> artists = new List<Artist>();
-                    if (item.Artists != null)
+                    if(item.AlbumArtists != null)
                     {
-                        foreach (var artist in item.Artists)
+                        foreach (var artist in item.AlbumArtists)
                         {
                             Artist newArist = new Artist();
-                            newArist.name = artist;
+                            newArist.id = artist.Id.ToString();
+                            newArist.name = artist.Name;
 
                             artists.Add(newArist);
                         }
                         newAlbum.artists = artists.ToArray();
                     }
 
-                    if (item.AlbumId != Guid.Empty)
-                    { // If this is an album
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId.ToString() + "/Images/Primary";
-                        newAlbum.name = item.Name;
-                        newAlbum.id = item.AlbumId;
+                    if (item.ImageBlurHashes.Primary != null && item.AlbumId != null)
+                    {
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
+                    }
+                    else if (item.ImageBlurHashes.Primary != null)
+                    {
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.Id.ToString() + "/Images/Primary";
                     }
                     else
-                    { // If this is a song
-                        newAlbum.name = item.Name;
-                        newAlbum.isSong = true;
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + newAlbum.id + "/Images/Primary";
+                    {
+                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
                     }
-
                     newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
 
-                    searchResuls.Add(newAlbum);
+                    albums.Add(newAlbum);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                 }
+
             }
 
-            if (sorted == true)
+            if(sorted == true)
             {
-                searchResuls.Sort();
+                albums.Sort();
             }
 
-            return searchResuls.ToArray();
+            return albums.ToArray();
         }
         public void SetBaseAddress(string url)
         {

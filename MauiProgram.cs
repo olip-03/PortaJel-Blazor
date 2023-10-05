@@ -26,6 +26,7 @@ public static class MauiProgram
     public static MainLayout mainLayout = null;
 
     public static List<ServerConnecter> servers = new List<ServerConnecter>();
+    public static DataHandler dataHandler = null;
 
     public static MediaElement mediaElement = null;
 

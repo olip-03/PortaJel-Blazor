@@ -25,25 +25,7 @@
                         if (recentPlayData[i] != null)
                         {
                             Album item = recentPlayData[i];
-
-                            imgSrc = item.imageSrc + "?fillHeight=256&fillWidth=256&quality=49"; ;
-                            string backgroundImg = item.imageSrc + "?fillHeight=32&fillWidth=32&quality=49";
-                            name = item.name;
-                            artist = " - " + item.GetArtistName();
-                            string alttxt = name + " by " + item.GetArtistName();
-
-                            <li class="music-item">
-                                <div class="image-container">
-                                    <img class="album-image" 
-                                    src="@imgSrc"
-                                    alt="@alttxt" 
-                                    title="@alttxt"
-                                         style=" background: url(@backgroundImg); background-repeat:no-repeat;  background-size:cover" />
-                                </div>
-                                <div class="music-details">
-                                    <b>@name</b>@artist
-                                </div>
-                            </li>
+                            <PortaJel_Blazor.UI.Index.AlbumListView album="@item"/>
                         }
                     }
                 }

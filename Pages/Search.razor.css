@@ -26,6 +26,10 @@
     width: 80px;
     height: 80px;
     border-radius: 2px;
+}
+.img-container {
+    width: 80px;
+    height: 80px;
     margin-right: 10px;
 }
 

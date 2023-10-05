@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavManager
 @using PortaJel_Blazor.Classes;
+@using PortaJel_Blazor.UI;
 @using BlazorAnimate;
 
 <div class="page">
@@ -57,7 +58,13 @@
                 <div class="bodyContainer">
                     @Body
                 </div>
+                @if (musicPlayerContainer.isActive)
+                { // If the music player is active, padd the bottom of the page a tiny bit more
+                    <div style="height:4rem;"></div>
+                }
             </article>
+
+
 
             @if (!MauiProgram.isConnected)
             {
@@ -66,25 +73,30 @@
                     Not Connected
                 </div>
             }
-            <div class="top-row px-4">
+            <div class="bottom-panel">
                 @* Music player control *@
-                @* TODO: Add music player control here *@
+                @if (musicPlayerContainer.isActive)
+                {
+                    <MusicPlayerContainer reference="musicPlayerContainer" />
+                }
 
                 @* Navigation bar at the bottom of the screen *@
-                <a @onclick="NavigateHome">
-                    <img class="toolbar-img" src="/images/home.svg" />
-                </a>
-                <a @onclick="NavigateSearch">
-                    <img class="toolbar-img" src="/images/search.svg" />
-                </a>
-                <a @onclick="NavigateLibrary">
-                    <img class="toolbar-img" src="/images/library.svg" />
-                </a>
-                <a @onclick="NavigateFavourites">
-                    <img class="toolbar-img" src="/images/favourite.svg" />
-                </a>
+                <div class="top-row px-4">
+                    <a @onclick="NavigateHome">
+                        <img class="toolbar-img" src="/images/home.svg" />
+                    </a>
+                    <a @onclick="NavigateSearch">
+                        <img class="toolbar-img" src="/images/search.svg" />
+                    </a>
+                    <a @onclick="NavigateLibrary">
+                        <img class="toolbar-img" src="/images/library.svg" />
+                    </a>
+                    <a @onclick="NavigateFavourites">
+                        <img class="toolbar-img" src="/images/favourite.svg" />
+                    </a>
+                </div>
             </div>
-
+            
             @* Item Context Menu Flyin *@
 
         }
@@ -135,6 +147,9 @@
     private bool showLoading { get; set; }
 
     private string errorMessage { get; set; } = "Unspecified error! You should not see this message!";
+
+    private bool showMusicPlayer { get; set; } = true;
+    public MusicPlayerContainer musicPlayerContainer = new MusicPlayerContainer();
 
     protected override async Task OnInitializedAsync()
     {

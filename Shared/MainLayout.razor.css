@@ -31,13 +31,11 @@ main {
     background: linear-gradient(to top, rgba(255, 255, 255, 1) 25%, rgba(255, 255, 255, 0) 100%);
     /* linear-gradient( to right, red, red 50%, green 50%, green 100% ); */
     border-bottom: 1px solid #d6d5d5;
-    height: 5rem;
+    height: 4rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    position: fixed;
     width: 100%;
-    bottom: 0;
     z-index: 20;
 }
 
@@ -60,6 +58,16 @@ main {
         right:0;
     }
 
+.bottom-panel {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    z-index:3;
+}
+
 .toolbar {
     height: 100%;
     display: flex;
@@ -73,7 +81,6 @@ main {
 .toolbar-img {
     height: 30px; /* Set the height of the images to 100% of the toolbar's height */
     width: auto; /* Allow the width to adjust proportionally based on the image's aspect ratio */
-    margin-left: 1rem;
 }
 
 .offline {
@@ -87,7 +94,7 @@ main {
     align-items: center; /* Center vertically */
     position: sticky;
     top: 3.5rem;
-    z-index: 10; /* set lower z-index value */
+    z-index: 3; /* set lower z-index value */
 }
 .offline-img {
     margin-right: 1rem;

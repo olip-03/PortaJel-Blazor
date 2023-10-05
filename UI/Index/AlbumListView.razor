@@ -1,0 +1,30 @@
+﻿@using PortaJel_Blazor.Data;
+
+<li class="music-item" @onclick=NavigateToAlbum>
+    <div class="image-container">
+        <img class="album-image"
+             src="@album.imageSrc"
+    </div>
+    <div class="music-details">
+        <b>@album.name</b> • @album.GetArtistName()
+    </div>
+</li>
+
+@code {
+    [Parameter] public Album album { get; set; } = new Album();
+    private void NavigateToAlbum()
+    {
+        if (album != null)
+        {
+            MauiProgram.mainLayout.NavigateAlbum(album.id);
+        }
+    }
+    private void NavigateToArtist()
+    {
+        if (album != null)
+        {
+            // TODO: Update to artist ID
+            MauiProgram.mainLayout.NavigateArtist(album.id);
+        }
+    }
+}

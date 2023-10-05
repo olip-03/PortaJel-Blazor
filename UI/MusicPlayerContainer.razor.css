@@ -1,0 +1,13 @@
+﻿.music-player {
+    width: auto;
+    margin-left: 1.1rem;
+    margin-right: 1.1rem;
+    height: 4rem;
+    background-color: white;
+    border: solid;
+    border-color: lightgray;
+    border-width: 2px;
+    border-radius: 0.25rem;
+    position: relative; /* Ensure the z-index property works */
+    z-index: 30; /* Set a higher z-index value to bring it above the other buttons */
+}

@@ -1,0 +1,40 @@
+﻿.music-item {
+    background-color: #f2f2f2;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+    max-height: 80px; /* Adjust as needed */
+    user-select: none;
+}
+image-container div {
+    width: 3.6rem;
+    height: 3.6rem;
+    overflow: hidden;
+    user-select: none;
+}
+.album-image {
+    min-width: 3.6rem;
+    min-height: 3.6rem;
+    max-width: 3.5rem;
+    max-height: 3.5rem;
+    margin-right: 0.5rem;
+    user-select: none;
+}
+.music-details {
+    color: #555;
+    font-size: 0.8rem;
+    white-space: pre-line; /* Allow text to wrap onto multiple lines */
+    text-overflow: ellipsis; /* Add ellipsis for overflowed text */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit the text to 2 lines */
+    -webkit-box-orient: vertical;
+    user-select: none;
+}
+div {
+    user-select: none
+}
+b {
+    user-select: none
+}

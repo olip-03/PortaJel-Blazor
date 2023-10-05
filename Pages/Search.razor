@@ -1,40 +1,61 @@
 ﻿@using PortaJel_Blazor.Data;
+@using PortaJel_Blazor.UI.Search;
 @using BlazorAnimate;
 
 @page "/search"
 <div>
     <input type="text" id="search" name="search" class="searchBox" @oninput="@((e) => TextChange((string)e.Value) )" />
     <hr />
+    @if (waitingForResult)
+    {
+        <div class="album-container">
+            <PortaJel_Blazor.Shared.Resources.Spinner/>
+        </div>
 
-    <div class="searchResponse">
-        
-        @if (searchResults != null && !waitingForResult)
-        {
-            foreach (var item in searchResults)
+    }
+    else
+    {
+        <div class="searchResponse">
+            @if (searchResults != null && !waitingForResult)
             {
-                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                    <div class="album-container">
-                        <PortaJel_Blazor.Shared.Music_Displays.ServerImage album="@item"/>
-@*                        <img src="@item.lowResImageSrc" alt="Album Cover" class="album-cover" >
-*@                        <div>
-                            <div class="album-name">@item.name</div>
-                            <div class="album-artist">@item.GetArtistName()</div>
+                foreach (var item in searchResults)
+                {
+                    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                        <div class="album-container">
+                            <div class="img-container">
+                                <img class="album-cover" src="@item.lowResImageSrc" />
+                            </div>
+                            <div>
+                                <div class="album-name">@item.name</div>
+                                <div class="album-artist">@item.GetArtistName()</div>
+                            </div>
+                            <div class="favorite-button">Favorite</div>
                         </div>
-                        <div class="favorite-button">Favorite</div>
-                    </div>
-                </Animate>
+                    </Animate>
 
-                itemFadeInDelay += 0.1f;
+                    itemFadeInDelay += 0.1f;
+                }
+                if (searchResults.Count() == 0)
+                {
+                    <p>Nothing found...</p>
+                }
             }
-        }
+            @*TODO: Add spinny wheel when waiting for results
+                Also need to add a 'nothing found' message and other status codes
+            *@
 
-    </div>
+        </div>
+    }
+
 </div>
 
 @code {
-    private int changes = 0;
+    // https://www.meziantou.net/infinite-scrolling-in-blazor.htm
+    // This is a good resource please implement it 
 
-    private string searchQuery;
+    private string searchQuery = String.Empty;
+    private string queudQuery = String.Empty;
+    private bool queryQueued = false; 
     Album[] searchResults = null;
 
     private bool waitingForResult = false;
@@ -42,43 +63,72 @@
 
     private async void TextChange(string searchFor)
     {
+        if (waitingForResult)
+        {
+            queudQuery = searchFor;
+            queryQueued = true;
+            return;
+        }
+
         itemFadeInDelay = 0;
         searchQuery = searchFor;
 
         if (String.IsNullOrWhiteSpace(searchFor))
         {
             searchResults = null;
-            StateHasChanged();
-            return;
-        }
-
-        if (waitingForResult)
-        {
-            StateHasChanged();
             return;
         }
 
         waitingForResult = true;
 
-        searchResults = await MauiProgram.servers[0].SearchAsync(searchFor, sorted: true);
+        // If there is a queued result 
+        bool recheck = true;
+        while(recheck)
+        {
+            recheck = false; // automatically do not reiterate 
 
-        // Filter and order the elements based on the prefix
-        var elementsWithPrefix = searchResults
-            .Where(item => item.name.StartsWith(searchFor))
-            .ToList();
-        elementsWithPrefix.Sort();
+            searchResults = await MauiProgram.servers[0].SearchAsync(searchFor, sorted: true, searchLimit: 50);
 
-        var elementsWithoutPrefix = searchResults
-            .Where(item => !item.name.StartsWith(searchFor))
-            .ToList();
+            if (searchResults == null)
+            {
+                waitingForResult = false;
+                StateHasChanged();
+                return;
+            }
 
-        // Combine the two lists with the prefix elements at the start
-        elementsWithPrefix.AddRange(elementsWithoutPrefix);
+            // Filter exact matches (case-insensitive and exclude special characters)
+            var exactMatches = searchResults
+                .Where(item => RemoveSpecialCharacters(item.name).Equals(RemoveSpecialCharacters(searchFor), StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-        searchResults = elementsWithPrefix.ToArray();
+            var sortedItems = searchResults
+                .Except(exactMatches)
+                .OrderBy(item => item.name.CompareTo(searchFor))
+                .ToList();
+
+            // Combine exact matches and sorted items
+            var modifiedResults = exactMatches.Concat(sortedItems).ToArray();
+
+            searchResults = modifiedResults;
+
+            if (queryQueued)
+            {
+                recheck = true;
+                searchFor = queudQuery;
+                searchQuery = queudQuery;
+                queryQueued = false;
+            }
+        }
+
 
         waitingForResult = false;
         StateHasChanged();
+    }
+
+    // Helper method to remove special characters from a string
+    private string RemoveSpecialCharacters(string str)
+    {
+        return new string(str.Where(c => Char.IsLetterOrDigit(c) || Char.IsWhiteSpace(c)).ToArray());
     }
 
     protected override async Task OnInitializedAsync()
