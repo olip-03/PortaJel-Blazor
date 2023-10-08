@@ -30,6 +30,16 @@ public static class MauiProgram
 
     public static MediaElement mediaElement = null;
 
+    // Stored data for library page
+    public static int librarySortMethod = 0;
+    public static int libraryItemView = 0;
+    public static bool libraryShowGrid = false;
+
+    // Stored data for favourites page
+    public static int favouritesSortMethod = 0;
+    public static int favouritesItemView = 0;
+    public static bool favouritesShowGrid = false;
+
     // Index page cached data
     public static Album[] favouritesPlayData { get; set; }
     public static Album[] recentPlayData { get; set; }

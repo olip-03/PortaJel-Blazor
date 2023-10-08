@@ -150,47 +150,9 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    Album newAlbum = new();
-                    newAlbum.name = item.Name;
-                    newAlbum.id = item.Id;
-                    newAlbum.songs = null; // TODO: Implement songs
-
-                    if (item.Type != BaseItemKind.MusicAlbum)
-                    {
-                        newAlbum.isSong = true;
-                        if (item.AlbumId != null)
-                        {
-                            newAlbum.id = (Guid)item.AlbumId;
-                        }
-                    }
-
-                    // Fetch Artists
-                    List<Artist> artists = new List<Artist>();
-                    foreach (var artist in item.AlbumArtists)
-                    {
-                        Artist newArist = new Artist();
-                        newArist.id = artist.Id.ToString();
-                        newArist.name = artist.Name;
-
-                        artists.Add(newArist);
-                    }
-                    newAlbum.artists = artists.ToArray();
-
-                    if (item.ImageBlurHashes.Primary != null && item.AlbumId != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
-                    }
-                    else if (item.ImageBlurHashes.Primary != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.Id.ToString() + "/Images/Primary";
-                    }
-                    else
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
-                    }
-                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
-
-                    albums.Add(newAlbum);
+                    Album newItem = AlbumBuilder(item);
+                    // newItem.name = item.Album.ToString();
+                    albums.Add(newItem);
                 }
                 catch (Exception ex)
                 {
@@ -229,47 +191,7 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    Album newAlbum = new();
-                    newAlbum.name = item.Name;
-                    newAlbum.id = item.Id;
-                    newAlbum.songs = null; // TODO: Implement songs
-
-                    if (item.Type != BaseItemKind.MusicAlbum)
-                    {
-                        newAlbum.isSong = true;
-                        if (item.AlbumId != null)
-                        {
-                            newAlbum.id = (Guid)item.AlbumId;
-                        }
-                    }
-
-                    // Fetch Artists
-                    List<Artist> artists = new List<Artist>();
-                    foreach (var artist in item.AlbumArtists)
-                    {
-                        Artist newArist = new Artist();
-                        newArist.id = artist.Id.ToString();
-                        newArist.name = artist.Name;
-
-                        artists.Add(newArist);
-                    }
-                    newAlbum.artists = artists.ToArray();
-
-                    if (item.ImageBlurHashes.Primary != null && item.AlbumId != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
-                    }
-                    else if (item.ImageBlurHashes.Primary != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.Id.ToString() + "/Images/Primary";
-                    }
-                    else
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
-                    }
-                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
-
-                    albums.Add(newAlbum);
+                    albums.Add(AlbumBuilder(item));
                 }
                 catch (Exception ex)
                 {
@@ -311,46 +233,14 @@ namespace PortaJel_Blazor.Classes
                 {
                     // item.AlbumId = {395f708f-1c7a-cd4b-377d-5c13bd74bfa6}
 
-                    Album newAlbum = new();
-                    newAlbum.name = item.Album;
-                    newAlbum.id = (Guid)item.AlbumId;
-                    newAlbum.songs = null; // TODO: Implement songs
-
-                    if (item.Type != BaseItemKind.MusicAlbum)
-                    {
-                        newAlbum.isSong = true;
-                        if (item.AlbumId != null)
-                        {
-                            newAlbum.id = (Guid)item.AlbumId;
-                        }
-                    }
-
-                    // Fetch Artists
-                    List<Artist> artists = new List<Artist>();
-                    foreach (var artist in item.AlbumArtists)
-                    {
-                        Artist newArist = new Artist();
-                        newArist.id = artist.Id.ToString();
-                        newArist.name = artist.Name;
-
-                        artists.Add(newArist);
-                    }
-                    newAlbum.artists = artists.ToArray();
-
-                    if (item.ImageBlurHashes.Primary != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
-                    }
-                    else
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
-                    }
-                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
+                    Album newAlbum = AlbumBuilder(item);
+                    newAlbum.name = item.Album.ToString();
+                    newAlbum.sortMethod = Album.AlbumSortMethod.id;
 
                     albums.Sort();
                     if (albums.BinarySearch(newAlbum) < 0)
                     { // Check that item isnt in the list already
-                        albums.Add(newAlbum);
+                        albums.Add(newAlbum); // TODO: Fix this shit I'm 99% sure i've fucked everything up
                     }
                 }
                 catch (Exception ex)
@@ -402,43 +292,7 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    Album newAlbum = new();
-                    newAlbum.name = item.Name;
-                    newAlbum.id = item.Id;
-                    newAlbum.songs = null; // TODO: Implement songs
-
-                    if (item.Type != BaseItemKind.MusicAlbum)
-                    {
-                        newAlbum.isSong = true;
-                        if (item.AlbumId != null)
-                        {
-                            newAlbum.id = (Guid)item.AlbumId;
-                        }
-                    }
-
-                    // Fetch Artists
-                    List<Artist> artists = new List<Artist>();
-                    foreach (var artist in item.AlbumArtists)
-                    {
-                        Artist newArist = new Artist();
-                        newArist.id = artist.Id.ToString();
-                        newArist.name = artist.Name;
-
-                        artists.Add(newArist);
-                    }
-                    newAlbum.artists = artists.ToArray();
-
-                    if (item.ImageBlurHashes.Primary != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
-                    }
-                    else
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
-                    }
-                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
-
-                    albums.Add(newAlbum);
+                    albums.Add(AlbumBuilder(item));
                 }
                 catch (Exception ex)
                 {
@@ -488,47 +342,7 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    Album newAlbum = new();
-                    newAlbum.name = item.Name;
-                    newAlbum.id = item.Id;
-                    newAlbum.songs = null; // TODO: Implement songs
-
-                    if (item.Type != BaseItemKind.MusicAlbum)
-                    {
-                        newAlbum.isSong = true;
-                        if (item.AlbumId != null)
-                        {
-                            newAlbum.id = (Guid)item.AlbumId;
-                        }
-                    }
-
-                    // Fetch Artists
-                    List<Artist> artists = new List<Artist>();
-                    foreach (var artist in item.AlbumArtists)
-                    {
-                        Artist newArist = new Artist();
-                        newArist.id = artist.Id.ToString();
-                        newArist.name = artist.Name;
-
-                        artists.Add(newArist);
-                    }
-                    newAlbum.artists = artists.ToArray();
-
-                    if (item.ImageTags.Count > 0)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + newAlbum.id + "/Images/Primary";
-                    }
-                    else if (item.ImageBlurHashes.Primary != null && item.AlbumId != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
-                    }
-                    else if (item.ArtistItems.First().Id != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
-                    }
-                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
-
-                    albums.Add(newAlbum);
+                    albums.Add(AlbumBuilder(item));
                 }
                 catch (Exception ex)
                 {
@@ -551,7 +365,7 @@ namespace PortaJel_Blazor.Classes
             // StartIndex: 0
             // parentId 
 
-            Album getAlbum = new Album();
+            
 
             List<BaseItemKind> _songItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
             List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
@@ -575,25 +389,7 @@ namespace PortaJel_Blazor.Classes
             }
 
             BaseItemDto albumResultItem = albumResult.Items.FirstOrDefault();
-            // Set basic Info
-            getAlbum.name = albumResultItem.Name;
-            getAlbum.id = albumResultItem.Id;
-            getAlbum.isSong = false;
-
-            // Set image
-            if (albumResultItem.ImageBlurHashes.Primary != null && albumResultItem.AlbumId != null)
-            {
-                getAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + albumResultItem.AlbumId + "/Images/Primary";
-            }
-            else if (albumResultItem.ImageBlurHashes.Primary != null)
-            {
-                getAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + albumResultItem.Id.ToString() + "/Images/Primary";
-            }
-            else
-            {
-                getAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + albumResultItem.ArtistItems.First().Id + "/Images/Primary";
-            }
-            getAlbum.lowResImageSrc = getAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
+            Album getAlbum = AlbumBuilder(albumResultItem);
 
             // Set Song information
             List<Song> songList = new List<Song>();
@@ -667,50 +463,7 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    Album newAlbum = new();
-                    newAlbum.name = item.Name;
-                    newAlbum.id = item.Id;
-                    newAlbum.songs = null; // TODO: Implement songs
-
-                    if (item.Type != BaseItemKind.MusicAlbum)
-                    {
-                        newAlbum.isSong = true;
-                        if (item.AlbumId != null)
-                        {
-                            newAlbum.id = (Guid)item.AlbumId;
-                        }
-                    }
-
-                    // Fetch Artists
-                    List<Artist> artists = new List<Artist>();
-                    if(item.AlbumArtists != null)
-                    {
-                        foreach (var artist in item.AlbumArtists)
-                        {
-                            Artist newArist = new Artist();
-                            newArist.id = artist.Id.ToString();
-                            newArist.name = artist.Name;
-
-                            artists.Add(newArist);
-                        }
-                        newAlbum.artists = artists.ToArray();
-                    }
-
-                    if (item.ImageBlurHashes.Primary != null && item.AlbumId != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.AlbumId + "/Images/Primary";
-                    }
-                    else if (item.ImageBlurHashes.Primary != null)
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.Id.ToString() + "/Images/Primary";
-                    }
-                    else
-                    {
-                        newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + item.ArtistItems.First().Id + "/Images/Primary";
-                    }
-                    newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
-
-                    albums.Add(newAlbum);
+                    albums.Add(AlbumBuilder(item));
                 }
                 catch (Exception ex)
                 {
@@ -725,6 +478,10 @@ namespace PortaJel_Blazor.Classes
             }
 
             return albums.ToArray();
+        }
+        public async Task<Album[]> GetAlbumsAsync(int? limit = 50)
+        {
+            return new Album[50];
         }
         public void SetBaseAddress(string url)
         {
@@ -770,6 +527,54 @@ namespace PortaJel_Blazor.Classes
         public ArtistsClient GetArtistClient()
         {
             return _artistsClient;
+        }
+        private Album AlbumBuilder(BaseItemDto baseItem)
+        {
+            Album newAlbum = new();
+            newAlbum.name = baseItem.Name;
+            newAlbum.id = baseItem.Id;
+            newAlbum.songs = null; // TODO: Implement songs
+
+            if (baseItem.Type != BaseItemKind.MusicAlbum)
+            {
+                newAlbum.isSong = true;
+                if (baseItem.AlbumId != null)
+                {
+                    newAlbum.id = (Guid)baseItem.AlbumId;
+                }
+            }
+
+            if(baseItem.Type != BaseItemKind.MusicArtist) 
+            {
+                // Fetch Artists
+                List<Artist> artists = new List<Artist>();
+                foreach (var artist in baseItem.AlbumArtists)
+                {
+                    Artist newArist = new Artist();
+                    newArist.id = artist.Id.ToString();
+                    newArist.name = artist.Name;
+
+                    artists.Add(newArist);
+                }
+                newAlbum.artists = artists.ToArray();
+            }
+
+
+            if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
+            {
+                newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + baseItem.AlbumId + "/Images/Primary";
+            }
+            else if (baseItem.ImageBlurHashes.Primary != null)
+            {
+                newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + baseItem.Id.ToString() + "/Images/Primary";
+            }
+            else
+            {
+                newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary";
+            }
+            newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
+
+            return newAlbum;
         }
     }
 

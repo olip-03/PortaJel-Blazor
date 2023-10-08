@@ -1,14 +1,87 @@
 ﻿@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared.Resources;
+@using BlazorAnimate;
 @page "/favourites"
 
 <div>
     <div class="button-container">
-        <div class="filter-button">Playlists</div>
-        <div class="filter-button selected">Albums</div>
-        <div class="filter-button">Artists</div>
-        <div class="filter-button">Songs</div>
+        @* this sucks this suck this sucks this sucks I KNOW this fucking sucks
+            but I am FAR too lazy and tired to implement something with css right
+            now.
+        *@
+        @if (selected == selectable.playlists)
+        {
+            <div class="filter-button selected">Playlists</div>
+        }
+        else
+        {
+            <div class="filter-button" @onclick=SelectPlaylist>Playlists</div>
+        }
+        @if (selected == selectable.albums)
+        {
+            <div class="filter-button selected">Albums</div>
+        }
+        else
+        {
+            <div class="filter-button" @onclick=SelectAlbums>Albums</div>
+        }
+        @if (selected == selectable.artists)
+        {
+            <div class="filter-button selected">Artists</div>
+        }
+        else
+        {
+            <div class="filter-button" @onclick=SelectArtists>Artists</div>
+        }
+        @if (selected == selectable.songs)
+        {
+            <div class="filter-button selected">Songs</div>
+        }
+        else
+        {
+            <div class="filter-button" @onclick=SelectSongs>Songs</div>
+        }
         <!-- Add more buttons here as needed -->
+    </div>
+
+    <div class="tool-container">
+        <div @onclick=ToggleSort>
+            @switch (sort)
+            {
+                case sortMethod.byActivity:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Activity</p>
+                    </Animate>
+                    break;
+                case sortMethod.byArtist:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Artist</p>
+                    </Animate>
+                    break;
+                case sortMethod.byName:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Name</p>
+                    </Animate>
+                    break;
+            }
+        </div>
+        <div @onclick=ToggleView>
+            @if (showGrid)
+            {
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
+                </Animate>
+            }
+            else
+            {
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
+                </Animate>
+            }
+        </div>
     </div>
 
     <div class="album-list">
@@ -18,6 +91,14 @@
         }
         else if (data.Length > 0)
         { // Load information
+            // If playlist, add option to create new
+            @if (selected == selectable.playlists)
+            {
+                Album dummyItem = new Album();
+                dummyItem.imageSrc = "/images/emptyAlbum.png";
+                dummyItem.name = "New Album";
+                <PortaJel_Blazor.UI.Search.SearchResultItem album="@dummyItem" />
+            }
             for (int i = 0; i < data.Length; i++)
             {
                 Album item = new Album();
@@ -25,14 +106,7 @@
                 {
                     item = data[i];
                 }
-                <div class="album-container">
-                    <img src="@item.imageSrc" alt="Album Cover" class="album-cover">
-                    <div>
-                        <div class="album-name">Album Name</div>
-                        <div class="album-artist">Album Artist</div>
-                    </div>
-                    <div class="favorite-button">Favorite</div>
-                </div>
+                <PortaJel_Blazor.UI.Search.SearchResultItem album="@item"/>
             }
         }
         else
@@ -46,11 +120,68 @@
     private Album[] data = new Album[20];
     private bool isLoading = false;
 
+    private bool showGrid = MauiProgram.favouritesShowGrid;
+
+    private enum selectable
+    {
+        albums,
+        artists,
+        songs,
+        playlists
+    }
+    selectable selected = (selectable)Enum.ToObject(typeof(selectable), MauiProgram.favouritesItemView);
+
+    private enum sortMethod
+    {
+        byArtist,
+        byName,
+        byActivity
+    }
+    sortMethod sort = (sortMethod)Enum.ToObject(typeof(sortMethod), MauiProgram.favouritesSortMethod);
+
     protected override async Task OnInitializedAsync()
     {
         MauiProgram.mainLayout.pageTitle = "Favourites";
         MauiProgram.mainLayout.currentUri = "/favourites";
         MauiProgram.mainLayout.showHeader = true;
         MauiProgram.mainLayout.isLoading = false;
+    }
+
+    private void ToggleSort()
+    {
+        if (sort >= sortMethod.byActivity)
+        {
+            sort = 0;
+        }
+        else
+        {
+            sort++;
+        }
+        MauiProgram.favouritesSortMethod = (int)sort;
+    }
+    private void ToggleView()
+    {
+        showGrid = !showGrid; // toggle
+        MauiProgram.favouritesShowGrid = showGrid;
+    }
+    private void SelectAlbums()
+    {
+        selected = selectable.albums;
+        MauiProgram.favouritesItemView = (int)selected;
+    }
+    private void SelectArtists()
+    {
+        selected = selectable.artists;
+        MauiProgram.favouritesItemView = (int)selected;
+    }
+    private void SelectSongs()
+    {
+        selected = selectable.songs;
+        MauiProgram.favouritesItemView = (int)selected;
+    }
+    private void SelectPlaylist()
+    {
+        selected = selectable.playlists;
+        MauiProgram.favouritesItemView = (int)selected;
     }
 }

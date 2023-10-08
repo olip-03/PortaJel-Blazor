@@ -22,6 +22,15 @@
         border-color: #007bff; /* Change to the desired selected color */
     }
 
+/* Style for each button */
+.filter-button {
+
+}
+
+    /* Style for the selected button */
+    .filter-button.selected {
+    }
+
 /* Container for the list of albums */
 .album-list {
     width: 100%;
@@ -32,9 +41,6 @@
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -43,7 +49,11 @@
 .album-cover {
     width: 80px;
     height: 80px;
-    border-radius: 8px;
+    border-radius: 2px;
+}
+.img-container {
+    width: 80px;
+    height: 80px;
     margin-right: 10px;
 }
 
@@ -61,4 +71,27 @@
 .favorite-button {
     margin-left: auto;
     cursor: pointer;
+}
+.tool-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    user-select: none;
+}
+
+.tools-icon {
+    width: 1.75rem;
+    height 1.75rem;
+    user-select: none;
+    cursor: pointer;
+}
+
+.tools-text {
+    margin: 0;
+    padding: 0;
+    display: inline;
+    user-select: none;
+    cursor: pointer;
+    font-size: 1rem;
+    align-self: center;
 }

@@ -91,7 +91,7 @@
             randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 20);
 
             // Only collects SONGS, need to collect album information as well
-            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 50);
+            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 75);
             MauiProgram.recentPlayData = recentPlayData;
         }
         catch (Exception ex)

@@ -49,6 +49,15 @@
     </ItemGroup>
 
     <ItemGroup>
+      <AndroidResource Remove="Pages\xaml\**" />
+      <Compile Remove="Pages\xaml\**" />
+      <Content Remove="Pages\xaml\**" />
+      <EmbeddedResource Remove="Pages\xaml\**" />
+      <MauiXaml Remove="Pages\xaml\**" />
+      <None Remove="Pages\xaml\**" />
+    </ItemGroup>
+
+    <ItemGroup>
       <None Remove="Resources\Images\cd.svg" />
     </ItemGroup>
 
@@ -63,10 +72,6 @@
 
     <ItemGroup>
       <MauiImage Include="wwwroot\images\cd.svg" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Pages\xaml\" />
     </ItemGroup>
 
 </Project>

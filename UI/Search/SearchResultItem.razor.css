@@ -13,14 +13,6 @@
     margin-right: 10px;
 }
 
-/* Style for the album cover image */
-.album-cover {
-    width: 80px;
-    height: 80px;
-    border-radius: 2px;
-    margin-right: 10px;
-}
-
 /* Style for the album name */
 .album-name {
     font-weight: bold;
@@ -35,4 +27,33 @@
 .favorite-button {
     margin-left: auto;
     cursor: pointer;
+}
+
+.grid-album-container {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.grid-album-cover {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 2px;
+}
+.grid-album-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 2px;
+    object-fit: cover;
+}
+.grid-album-name {
+    font-weight: bold;
+}
+.grid-album-artist {
+    color: gray;
 }

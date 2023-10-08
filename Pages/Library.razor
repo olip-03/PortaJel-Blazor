@@ -5,12 +5,93 @@
 
 <div>
     <div class="button-container">
-        <div class="filter-button selected">Albums</div>
-        <div class="filter-button">Artists</div>
-        <div class="filter-button">Genres</div>
-        <div class="filter-button">Songs</div>
+        @* See comments made on Favourites.razor. I do not wish to repeat myself
+        *@
+        @if (selected == selectable.albums)
+        {
+            <div class="filter-button selected">Albums</div>
+        }
+        else
+        {
+            <div class="filter-button" @onclick=SelectAlbums>Albums</div>
+        }
+        @if (selected == selectable.artists)
+        {
+            <div class="filter-button selected">Artists</div>
+        }
+        else
+        {
+            <div class="filter-button" @onclick=SelectArtists>Artists</div>
+        }
+        @if (selected == selectable.songs)
+        {
+            <div class="filter-button selected">Songs</div>
+        }
+        else
+        {
+            <div class="filter-button" @onclick=SelectSongs>Songs</div>
+        }
+        @if (selected == selectable.genres)
+        {
+            <div class="filter-button selected">Genres</div>
+        }
+        else
+        {
+            <div class="filter-button" @onclick=SelectGenres>Genres</div>
+        }
         <!-- Add more buttons here as needed -->
     </div>
+    <div class="tool-container">
+        <div @onclick=ToggleSort>
+            @switch (sort)
+            {
+                case sortMethod.byActivity:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Activity</p>
+                    </Animate>
+                    break;
+                case sortMethod.byArtist:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Artist</p>
+                    </Animate>
+                    break;
+                case sortMethod.byName:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Name</p>
+                    </Animate>
+                    break;
+            }
+        </div>
+        <div @onclick=ToggleView>
+            @if (showGrid)
+            {
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
+                </Animate>
+            }
+            else
+            {
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
+                </Animate>
+            }
+        </div>
+    </div>
+
+    @if (showGrid)
+    {
+        <style>
+            .album-list {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                grid-gap: 20px 10px;
+            }
+        </style>
+    }
 
     <div class="album-list">
         @if (isLoading)
@@ -26,14 +107,7 @@
                 {
                     item = data[i];
                 }
-                <div class="album-container">
-                    <img src="@item.imageSrc" alt="Album Cover" class="album-cover">
-                    <div>
-                        <div class="album-name">Album Name</div>
-                        <div class="album-artist">Album Artist</div>
-                    </div>
-                    <div class="favorite-button">Favorite</div>
-                </div>
+                <PortaJel_Blazor.UI.Search.SearchResultItem album="@item" isGrid=@showGrid />
             }
         }
         else
@@ -47,11 +121,70 @@
     private Album[] data = new Album[20];
     private bool isLoading = false;
 
+    private bool showGrid = MauiProgram.libraryShowGrid;
+
+    private enum selectable
+    {
+        albums,
+        artists,
+        songs,
+        genres
+    }
+    selectable selected = (selectable)Enum.ToObject(typeof(selectable), MauiProgram.libraryItemView);
+
+    private enum sortMethod
+    {
+        byArtist,
+        byName,
+        byActivity
+    }
+    sortMethod sort = (sortMethod)Enum.ToObject(typeof(sortMethod), MauiProgram.librarySortMethod);
+
     protected override async Task OnInitializedAsync()
     {
         MauiProgram.mainLayout.pageTitle = "Library";
         MauiProgram.mainLayout.currentUri = "/library";
         MauiProgram.mainLayout.showHeader = true;
         MauiProgram.mainLayout.isLoading = false;
+
+        data = await MauiProgram.servers[0].GetAlbumsAsync();
+    }
+
+    private void ToggleSort()
+    {
+        if(sort >= sortMethod.byActivity)
+        {
+            sort = 0;
+        }
+        else
+        {
+            sort++;
+        }
+        MauiProgram.librarySortMethod = (int)sort;
+    }
+    private void ToggleView()
+    {
+        showGrid = !showGrid; // toggle
+        MauiProgram.libraryShowGrid = showGrid;
+    }
+    private void SelectAlbums()
+    {
+        selected = selectable.albums;
+        MauiProgram.libraryItemView = (int)selected;
+    }
+    private void SelectArtists()
+    {
+        selected = selectable.artists;
+        MauiProgram.libraryItemView = (int)selected;
+    }
+    private void SelectSongs()
+    {
+        selected = selectable.songs;
+        MauiProgram.libraryItemView = (int)selected;
+    }
+    private void SelectGenres()
+    {
+        selected = selectable.genres;
+        MauiProgram.libraryItemView = (int)selected;
     }
 }
