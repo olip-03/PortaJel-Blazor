@@ -34,6 +34,8 @@ namespace PortaJel_Blazor.Classes
         private string Username = null;
         private string StoredPassword = null;
 
+        private int TotalAlbumRecordCount = -1;
+
         HttpClient _httpClient;
         public ServerConnecter()
         {
@@ -234,8 +236,9 @@ namespace PortaJel_Blazor.Classes
                     // item.AlbumId = {395f708f-1c7a-cd4b-377d-5c13bd74bfa6}
 
                     Album newAlbum = AlbumBuilder(item);
-                    newAlbum.name = item.Album.ToString();
+                    if(item.Album != null) { newAlbum.name = item.Album.ToString(); }
                     newAlbum.sortMethod = Album.AlbumSortMethod.id;
+
 
                     albums.Sort();
                     if (albums.BinarySearch(newAlbum) < 0)
@@ -363,9 +366,7 @@ namespace PortaJel_Blazor.Classes
             // ImageTypeLimit: 1,
             // EnableImageTypes: 'Primary,Backdrop,Banner,Thumb',
             // StartIndex: 0
-            // parentId 
-
-            
+            // parentId             
 
             List<BaseItemKind> _songItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
             List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
@@ -479,9 +480,56 @@ namespace PortaJel_Blazor.Classes
 
             return albums.ToArray();
         }
-        public async Task<Album[]> GetAlbumsAsync(int? limit = 50)
+        public async Task<int> GetTotalAlbumCount()
         {
-            return new Album[50];
+            if(TotalAlbumRecordCount == -1)
+            {
+                List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+                BaseItemDtoQueryResult recordCount;
+                recordCount = await _itemsClient.GetItemsAsync(userId: userDto.Id, includeItemTypes: _includeItemTypes, recursive: true, enableImages: false, enableTotalRecordCount: true);
+
+                return recordCount.TotalRecordCount;
+            }
+            return TotalAlbumRecordCount;
+        }
+        public async Task<Album[]> GetAlbumsAsync(int? limit = 50, int? startFromIndex = 0)
+        {
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+            //List<String> _sortTypes = new List<string> { "Random" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
+
+            BaseItemDtoQueryResult songResult;
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id,  sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                TotalAlbumRecordCount = songResult.TotalRecordCount;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            List<Album> albums = new List<Album>();
+            if (songResult == null)
+            {
+                return null;
+            }
+            foreach (var item in songResult.Items)
+            {
+                try
+                {
+                    albums.Add(AlbumBuilder(item));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+
+            }
+
+            return albums.ToArray();
         }
         public void SetBaseAddress(string url)
         {
@@ -559,20 +607,21 @@ namespace PortaJel_Blazor.Classes
                 newAlbum.artists = artists.ToArray();
             }
 
-
+            // 69c72555-b29b-443d-9a17-01d735bd6f9f
+            // https://media.olisshittyserver.xyz/Items/cc890a31-1449-ec9c-b428-24ec98127fdb/Images/Primary
             if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
             {
-                newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + baseItem.AlbumId + "/Images/Primary";
+                newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
             }
             else if (baseItem.ImageBlurHashes.Primary != null)
             {
-                newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + baseItem.Id.ToString() + "/Images/Primary";
+                newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/Primary?format=jpg";
             }
             else
             {
-                newAlbum.imageSrc = "https://media.olisshittyserver.xyz/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary";
+                newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
             }
-            newAlbum.lowResImageSrc = newAlbum.imageSrc + "?fillHeight=128&fillWidth=128&quality=96";
+            newAlbum.lowResImageSrc = newAlbum.imageSrc + "&fillHeight=128&fillWidth=128&quality=96";
 
             return newAlbum;
         }

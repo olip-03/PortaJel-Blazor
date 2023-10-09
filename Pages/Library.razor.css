@@ -84,3 +84,41 @@
     font-size: 1rem;
     align-self: center;
 }
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    width: 100%;
+}
+
+.pagination-scroll {
+    overflow-x: scroll;
+}
+
+.pagination {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.pagination-item {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+    .pagination-item.active {
+        width: 60px;
+        height: 60px;
+        border-color: blue;
+    }

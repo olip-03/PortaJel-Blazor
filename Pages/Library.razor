@@ -1,6 +1,7 @@
 ﻿@page "/library"
 @using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared.Resources;
+@using PortaJel_Blazor;
 @using BlazorAnimate;
 
 <div>
@@ -81,6 +82,7 @@
         </div>
     </div>
 
+    @* Custom styling for items when grid mode is selected *@
     @if (showGrid)
     {
         <style>
@@ -93,6 +95,7 @@
         </style>
     }
 
+    @* Load actual items *@
     <div class="album-list">
         @if (isLoading)
         { // Spinner
@@ -115,13 +118,41 @@
 
         }
     </div>
+
+    @* Load page numbers *@
+    @if (!isLoading)
+    {
+        <div class="pagination-container">
+            <ul class="pagination">
+                @for (int i = 0; i < pages; i++)
+                {
+                    var tempint = i;
+                    int pageNum = i + 1;
+                    if(i == selectedPage)
+                    {
+                        <li class="pagination-item active" @onclick="() => SelectPage(tempint)">@pageNum</li>
+                    }
+                    else
+                    {
+                        <li class="pagination-item" @onclick="() => SelectPage(tempint)">@pageNum</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
 </div>
 
 @code {
     private Album[] data = new Album[20];
+    private int totalRecordCount = 0;
     private bool isLoading = false;
 
     private bool showGrid = MauiProgram.libraryShowGrid;
+
+    private int itemsPerPage = 100;
+    private int startFromIndex = 0;
+    private int selectedPage = 0;
+    private int pages = 0;
 
     private enum selectable
     {
@@ -147,7 +178,21 @@
         MauiProgram.mainLayout.showHeader = true;
         MauiProgram.mainLayout.isLoading = false;
 
-        data = await MauiProgram.servers[0].GetAlbumsAsync();
+        switch (selected)
+        {
+            case selectable.albums:
+                SelectAlbums();
+                break;
+            case selectable.artists:
+                SelectArtists();
+                break;
+            case selectable.songs:
+                SelectSongs();
+                break;
+            case selectable.genres:
+                SelectGenres();
+                break;
+        }
     }
 
     private void ToggleSort()
@@ -164,27 +209,91 @@
     }
     private void ToggleView()
     {
+        SelectPage(selectedPage);
+
         showGrid = !showGrid; // toggle
         MauiProgram.libraryShowGrid = showGrid;
+
+        StateHasChanged();
     }
-    private void SelectAlbums()
+    private async void SelectAlbums()
     {
+        if(selected != selectable.albums)
+        {
+            startFromIndex = 0;
+        }
+
+        isLoading = true; 
         selected = selectable.albums;
         MauiProgram.libraryItemView = (int)selected;
+
+        // Fetch Album information
+        data = await MauiProgram.servers[0].GetAlbumsAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
+        totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
+        pages = totalRecordCount / itemsPerPage;
+
+        isLoading = false;
+        startFromIndex = 0; 
+        StateHasChanged();
     }
     private void SelectArtists()
     {
+        if(selected != selectable.artists)
+        {
+            startFromIndex = 0;
+        }
+
+        isLoading = true; 
         selected = selectable.artists;
         MauiProgram.libraryItemView = (int)selected;
+
+        isLoading = false; 
     }
     private void SelectSongs()
     {
+        if(selected != selectable.songs)
+        {
+            startFromIndex = 0;
+        }
+
+        isLoading = true; 
         selected = selectable.songs;
         MauiProgram.libraryItemView = (int)selected;
+
+        isLoading = false; 
     }
     private void SelectGenres()
     {
+        if (selected != selectable.genres)
+        {
+            startFromIndex = 0;
+        }
+
+        isLoading = true; 
         selected = selectable.genres;
         MauiProgram.libraryItemView = (int)selected;
+
+        isLoading = false; 
+    }
+    private async void SelectPage(int page)
+    {
+        startFromIndex = itemsPerPage * page;
+        selectedPage = page;
+
+        switch (selected)
+        {
+            case selectable.albums:
+                SelectAlbums();
+                break;
+            case selectable.artists:
+                SelectArtists();
+                break;
+            case selectable.songs:
+                SelectSongs();
+                break;
+            case selectable.genres:
+                SelectGenres();
+                break;
+        }
     }
 }
