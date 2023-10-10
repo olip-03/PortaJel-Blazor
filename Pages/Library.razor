@@ -221,6 +221,7 @@
         if(selected != selectable.albums)
         {
             startFromIndex = 0;
+            selectedPage = 0;
         }
 
         isLoading = true; 
@@ -236,37 +237,54 @@
         startFromIndex = 0; 
         StateHasChanged();
     }
-    private void SelectArtists()
+    private async void SelectArtists()
     {
         if(selected != selectable.artists)
         {
             startFromIndex = 0;
+            selectedPage = 0;
         }
 
         isLoading = true; 
         selected = selectable.artists;
         MauiProgram.libraryItemView = (int)selected;
 
+        // Fetch Artist information
+        data = await MauiProgram.servers[0].GetArtistAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
+        totalRecordCount = await MauiProgram.servers[0].GetTotalArtistCount();
+        pages = totalRecordCount / itemsPerPage;
+
         isLoading = false; 
+        startFromIndex = 0; 
+        StateHasChanged();
     }
     private void SelectSongs()
     {
         if(selected != selectable.songs)
         {
             startFromIndex = 0;
+            selectedPage = 0;
         }
 
         isLoading = true; 
         selected = selectable.songs;
         MauiProgram.libraryItemView = (int)selected;
 
+        // Fetch Artist information
+        Album[] fakeData = new Album[20000];
+        data = fakeData;
+        totalRecordCount = 20000;
+        pages = totalRecordCount / itemsPerPage;
+
         isLoading = false; 
-    }
+        startFromIndex = 0; 
+        StateHasChanged();    }
     private void SelectGenres()
     {
         if (selected != selectable.genres)
         {
             startFromIndex = 0;
+            selectedPage = 0;
         }
 
         isLoading = true; 

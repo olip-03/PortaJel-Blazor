@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -35,6 +36,7 @@ namespace PortaJel_Blazor.Classes
         private string StoredPassword = null;
 
         private int TotalAlbumRecordCount = -1;
+        private int TotalArtistRecordCount = -1;
 
         HttpClient _httpClient;
         public ServerConnecter()
@@ -392,6 +394,11 @@ namespace PortaJel_Blazor.Classes
             BaseItemDto albumResultItem = albumResult.Items.FirstOrDefault();
             Album getAlbum = AlbumBuilder(albumResultItem);
 
+            if(getAlbum == null)
+            {
+                return null;
+            }
+
             // Set Song information
             List<Song> songList = new List<Song>();
             foreach (var item in songResult.Items)
@@ -495,14 +502,14 @@ namespace PortaJel_Blazor.Classes
         public async Task<Album[]> GetAlbumsAsync(int? limit = 50, int? startFromIndex = 0)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
-            //List<String> _sortTypes = new List<string> { "Random" };
+            List<String> _sortTypes = new List<string> { "Album" };
             List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
 
             BaseItemDtoQueryResult songResult;
             // Call GetItemsAsync with the specified parameters
             try
             {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id,  sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
                 TotalAlbumRecordCount = songResult.TotalRecordCount;
             }
             catch (Exception ex)
@@ -530,6 +537,50 @@ namespace PortaJel_Blazor.Classes
             }
 
             return albums.ToArray();
+        }
+        public async Task<int> GetTotalArtistCount()
+        {
+            if (TotalArtistRecordCount == -1)
+            {
+                List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
+                BaseItemDtoQueryResult recordCount;
+                recordCount = await _itemsClient.GetItemsAsync(userId: userDto.Id, includeItemTypes: _includeItemTypes, recursive: true, enableImages: false, enableTotalRecordCount: true);
+
+                return recordCount.TotalRecordCount;
+            }
+            return TotalArtistRecordCount;
+        }
+        public async Task<Album[]> GetArtistAsync(int? limit = 50, int? startFromIndex = 0)
+        {
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
+            List<String> _sortTypes = new List<string> { "Artist" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
+
+            BaseItemDtoQueryResult songResult;
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                TotalArtistRecordCount = songResult.TotalRecordCount;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            List<Album> artists = new List<Album>();
+            if (songResult == null)
+            {
+                return null;
+            }
+            foreach (var item in songResult.Items)
+            {
+                artists.Add(AlbumBuilder(item));
+                Debug.WriteLine("yo");
+            }
+
+            return artists.ToArray();
         }
         public void SetBaseAddress(string url)
         {
@@ -578,6 +629,10 @@ namespace PortaJel_Blazor.Classes
         }
         private Album AlbumBuilder(BaseItemDto baseItem)
         {
+            if(baseItem == null)
+            {
+                return null;
+            }
             Album newAlbum = new();
             newAlbum.name = baseItem.Name;
             newAlbum.id = baseItem.Id;
@@ -609,19 +664,27 @@ namespace PortaJel_Blazor.Classes
 
             // 69c72555-b29b-443d-9a17-01d735bd6f9f
             // https://media.olisshittyserver.xyz/Items/cc890a31-1449-ec9c-b428-24ec98127fdb/Images/Primary
-            if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
+            try
             {
-                newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
+                if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
+                {
+                    newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
+                }
+                else if (baseItem.ImageBlurHashes.Primary != null)
+                {
+                    newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/Primary?format=jpg";
+                }
+                else
+                {
+                    newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
+                }
+                newAlbum.lowResImageSrc = newAlbum.imageSrc + "&fillHeight=128&fillWidth=128&quality=96";
             }
-            else if (baseItem.ImageBlurHashes.Primary != null)
+            catch (Exception)
             {
-                newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/Primary?format=jpg";
+                Debug.WriteLine("Failed to assign image to item ID " + baseItem.Id);
             }
-            else
-            {
-                newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
-            }
-            newAlbum.lowResImageSrc = newAlbum.imageSrc + "&fillHeight=128&fillWidth=128&quality=96";
+
 
             return newAlbum;
         }
