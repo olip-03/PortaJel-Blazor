@@ -123,21 +123,23 @@
     @if (!isLoading)
     {
         <div class="pagination-container">
-            <ul class="pagination">
-                @for (int i = 0; i < pages; i++)
+            @for (int i = 0; i < pages; i++)
+            {
+                var tempint = i;
+                int pageNum = i + 1;
+                if (i == selectedPage)
                 {
-                    var tempint = i;
-                    int pageNum = i + 1;
-                    if(i == selectedPage)
-                    {
-                        <li class="pagination-item active" @onclick="() => SelectPage(tempint)">@pageNum</li>
-                    }
-                    else
-                    {
-                        <li class="pagination-item" @onclick="() => SelectPage(tempint)">@pageNum</li>
-                    }
+                    <li class="pagination-item active"
+                        style="scroll-snap-align: center;
+                               scroll-snap-stop: always;
+                               scroll-snap-type: x mandatory;"
+                    @onclick="() => SelectPage(tempint)">@pageNum</li>
                 }
-            </ul>
+                else
+                {
+                    <li class="pagination-item" @onclick="() => SelectPage(tempint)">@pageNum</li>
+                }
+            }
         </div>
     }
 </div>

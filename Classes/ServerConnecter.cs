@@ -502,8 +502,8 @@ namespace PortaJel_Blazor.Classes
         public async Task<Album[]> GetAlbumsAsync(int? limit = 50, int? startFromIndex = 0)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
-            List<String> _sortTypes = new List<string> { "Album" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
+            List<String> _sortTypes = new List<string> { "SortName" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
 
             BaseItemDtoQueryResult songResult;
             // Call GetItemsAsync with the specified parameters
@@ -553,8 +553,8 @@ namespace PortaJel_Blazor.Classes
         public async Task<Album[]> GetArtistAsync(int? limit = 50, int? startFromIndex = 0)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
-            List<String> _sortTypes = new List<string> { "Artist" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
+            List<String> _sortTypes = new List<string> { "SortName" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
 
             BaseItemDtoQueryResult songResult;
             // Call GetItemsAsync with the specified parameters
