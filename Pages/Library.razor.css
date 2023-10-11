@@ -124,4 +124,25 @@
         width: 60px;
         height: 60px;
         border-color: blue;
+        margin: 0;
     }
+
+.grid-pgnator-container {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: auto 60px auto; /* 1fr for the first and third columns to fill remaining space */
+    overflow-x: hidden;
+    justify-content: unset;
+    width: calc(100vw - 48px); /*Really shit but ehhhhh it works ????? kind of ???? */
+}
+.grid-pgnator-items-l {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    min-width: calc(50vw - 60px);
+}
+.grid-pgnator-items-r {
+    display: flex;
+    align-items: center;
+    min-width: calc(50vw - 60px);
+}

@@ -122,25 +122,43 @@
     @* Load page numbers *@
     @if (!isLoading)
     {
-        <div class="pagination-container">
-            @for (int i = 0; i < pages; i++)
-            {
-                var tempint = i;
-                int pageNum = i + 1;
-                if (i == selectedPage)
-                {
-                    <li class="pagination-item active"
-                        style="scroll-snap-align: center;
-                               scroll-snap-stop: always;
-                               scroll-snap-type: x mandatory;"
-                    @onclick="() => SelectPage(tempint)">@pageNum</li>
+        // Disabling current pagination class as I have another idea for how this could work
+        // TODO: This works however overflow:x does NOT allow for you to scroll to the left.
+        // try to address this at a later stage when it's actually important. Not a priority atm cause
+        // it looks pretty. I've set it to overflow:hidden so the scroll function is gone completely this
+        // just needs to be fixed at some point
+        <div class="grid-pgnator-container">
+            <!-- Items to the left -->
+            <div class="grid-pgnator-items-l">
+                @for (int i = selectedPage; i >= 0; i--)
+                { // operation should be done in revese because flex-direction:row-reverse
+                    if(i != selectedPage)
+                    {
+                        int tempInt = i;
+                        int displayNum = tempInt + 1;
+                        <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
+                    }
                 }
-                else
-                {
-                    <li class="pagination-item" @onclick="() => SelectPage(tempint)">@pageNum</li>
+            </div>
+            <!-- Centered active item -->
+            <div class="grid-pgnator-items">
+                @{
+                    int pgnNumInt = selectedPage;
+                    int displayPgNum = pgnNumInt + 1;
+                    <div class="pagination-item active">@displayPgNum</div>
                 }
-            }
+            </div>
+            <!-- Items to the right -->
+            <div class="grid-pgnator-items-r">
+                @for (int i = selectedPage + 1; i < pages; i++)
+                {
+                    int tempInt = i;
+                    int displayNum = tempInt + 1;
+                    <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
+                }
+            </div>
         </div>
+        <p>Showing @data.Length of @totalRecordCount</p>
     }
 </div>
 
@@ -155,6 +173,9 @@
     private int startFromIndex = 0;
     private int selectedPage = 0;
     private int pages = 0;
+
+    private int lowerPages = 0;
+    private int higherPages = 0;
 
     private enum selectable
     {
@@ -233,7 +254,10 @@
         // Fetch Album information
         data = await MauiProgram.servers[0].GetAlbumsAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
         totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
-        pages = totalRecordCount / itemsPerPage;
+
+        double number = (double)totalRecordCount / (double)itemsPerPage;
+        int roundedNumber = (int)Math.Ceiling(number);
+        pages = roundedNumber;
 
         isLoading = false;
         startFromIndex = 0; 
@@ -254,7 +278,10 @@
         // Fetch Artist information
         data = await MauiProgram.servers[0].GetArtistAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
         totalRecordCount = await MauiProgram.servers[0].GetTotalArtistCount();
-        pages = totalRecordCount / itemsPerPage;
+
+        double number = (double)totalRecordCount / (double)itemsPerPage;
+        int roundedNumber = (int)Math.Ceiling(number);
+        pages = roundedNumber;
 
         isLoading = false; 
         startFromIndex = 0; 
@@ -273,10 +300,12 @@
         MauiProgram.libraryItemView = (int)selected;
 
         // Fetch Artist information
-        Album[] fakeData = new Album[20000];
+        Album[] fakeData = new Album[50];
         data = fakeData;
-        totalRecordCount = 20000;
-        pages = totalRecordCount / itemsPerPage;
+        totalRecordCount = 50;
+        double number = totalRecordCount / itemsPerPage;// or any other number with a decimal
+        int roundedNumber = (int)Math.Ceiling(number);
+        pages = roundedNumber;
 
         isLoading = false; 
         startFromIndex = 0; 
