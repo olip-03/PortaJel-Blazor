@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Jellyfin.Sdk;
 using Microsoft.Extensions.DependencyInjection;
@@ -418,7 +419,7 @@ namespace PortaJel_Blazor.Classes
             foreach (var artist in albumResultItem.AlbumArtists)
             {
                 Artist newArtists = new Artist();
-                newArtists.id = artist.Id.ToString(); // TODO: Change to Guid type
+                newArtists.id = artist.Id; 
                 newArtists.name = artist.Name;
                 artistList.Add(newArtists);
             }
@@ -492,8 +493,24 @@ namespace PortaJel_Blazor.Classes
             if(TotalAlbumRecordCount == -1)
             {
                 List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
-                BaseItemDtoQueryResult recordCount;
-                recordCount = await _itemsClient.GetItemsAsync(userId: userDto.Id, includeItemTypes: _includeItemTypes, recursive: true, enableImages: false, enableTotalRecordCount: true);
+                BaseItemDtoQueryResult recordCount = new BaseItemDtoQueryResult();
+                try
+                {
+                    recordCount = await _itemsClient.GetItemsAsync(userId: userDto.Id, includeItemTypes: _includeItemTypes, recursive: true, enableImages: false, enableTotalRecordCount: true);
+                }
+                catch (Jellyfin.Sdk.ItemsException itemException)
+                {
+                    if (itemException.StatusCode == 401)
+                    {
+                        // UNAUTHORISED
+                        // TODO: Add specific message for this error (what the fuck why are we getting this???)
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+
 
                 return recordCount.TotalRecordCount;
             }
@@ -505,12 +522,20 @@ namespace PortaJel_Blazor.Classes
             List<String> _sortTypes = new List<string> { "SortName" };
             List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
 
-            BaseItemDtoQueryResult songResult;
+            BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
             // Call GetItemsAsync with the specified parameters
             try
-            {
+            {  
                 songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
                 TotalAlbumRecordCount = songResult.TotalRecordCount;
+            }
+            catch (Jellyfin.Sdk.ItemsException itemException)
+            {
+                if(itemException.StatusCode == 401)
+                {
+                    // UNAUTHORISED
+                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
+                }
             }
             catch (Exception ex)
             {
@@ -518,11 +543,10 @@ namespace PortaJel_Blazor.Classes
                 throw;
             }
 
+            if (songResult == null) { return null; }
+            if (songResult.Items == null) { return null; }
+
             List<Album> albums = new List<Album>();
-            if (songResult == null)
-            {
-                return null;
-            }
             foreach (var item in songResult.Items)
             {
                 try
@@ -550,18 +574,26 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalArtistRecordCount;
         }
-        public async Task<Album[]> GetArtistAsync(int? limit = 50, int? startFromIndex = 0)
+        public async Task<Album[]> GetAllArtistsAsync(int? limit = 50, int? startFromIndex = 0)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
             List<String> _sortTypes = new List<string> { "SortName" };
             List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
 
-            BaseItemDtoQueryResult songResult;
+            BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
             // Call GetItemsAsync with the specified parameters
             try
             {
                 songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
                 TotalArtistRecordCount = songResult.TotalRecordCount;
+            }
+            catch (Jellyfin.Sdk.ItemsException itemException)
+            {
+                if (itemException.StatusCode == 401)
+                {
+                    // UNAUTHORISED
+                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
+                }
             }
             catch (Exception ex)
             {
@@ -569,11 +601,11 @@ namespace PortaJel_Blazor.Classes
                 throw;
             }
 
+            // Catch blocks
+            if (songResult == null) { return null; }
+            if (songResult.Items == null) { return null; }
+
             List<Album> artists = new List<Album>();
-            if (songResult == null)
-            {
-                return null;
-            }
             foreach (var item in songResult.Items)
             {
                 artists.Add(AlbumBuilder(item));
@@ -582,6 +614,47 @@ namespace PortaJel_Blazor.Classes
 
             return artists.ToArray();
         }
+        public async Task<Artist> GetArtistAsync(Guid artistId)
+        {
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
+            List<Guid> _searchIds = new List<Guid> { artistId };
+            List<String> _sortTypes = new List<string> { "SortName" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+
+            BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _searchIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                // TotalArtistRecordCount = songResult.TotalRecordCount;
+            }
+            catch (Jellyfin.Sdk.ItemsException itemException)
+            {
+                if (itemException.StatusCode == 401)
+                {
+                    // UNAUTHORISED
+                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            // Catch blocks
+            if (songResult == null) { return null; }
+            if (songResult.Items == null) { return null; }
+
+            Artist returnArtist = new Artist();
+            foreach (var item in songResult.Items)
+            {
+                returnArtist = ArtistBuilder(item);
+            }
+
+            return returnArtist;
+        }
+
         public void SetBaseAddress(string url)
         {
             _sdkClientSettings.BaseUrl = url;
@@ -654,7 +727,7 @@ namespace PortaJel_Blazor.Classes
                 foreach (var artist in baseItem.AlbumArtists)
                 {
                     Artist newArist = new Artist();
-                    newArist.id = artist.Id.ToString();
+                    newArist.id = artist.Id;
                     newArist.name = artist.Name;
 
                     artists.Add(newArist);
@@ -685,8 +758,48 @@ namespace PortaJel_Blazor.Classes
                 Debug.WriteLine("Failed to assign image to item ID " + baseItem.Id);
             }
 
-
             return newAlbum;
+        }
+        private Artist ArtistBuilder(BaseItemDto baseItem)
+        {
+            if (baseItem == null)
+            {
+                return null;
+            }
+            Artist newArtist= new();
+            newArtist.name = baseItem.Name;
+            newArtist.id = baseItem.Id;
+
+            // 69c72555-b29b-443d-9a17-01d735bd6f9f
+            // https://media.olisshittyserver.xyz/Items/cc890a31-1449-ec9c-b428-24ec98127fdb/Images/Primary
+
+            // Set primary image
+            if (baseItem.ImageBlurHashes.Primary != null)
+            {
+                newArtist.imgSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
+            }
+            else
+            {
+                newArtist.imgSrc = "/images/emptyAlbum";
+            }
+
+            // Set background
+            if (baseItem.ImageBlurHashes.Backdrop != null)
+            {
+                newArtist.backgroundImgSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Backdrop?format=jpg";
+            }
+            else if (baseItem.ImageBlurHashes.Primary != null)
+            {
+                newArtist.backgroundImgSrc = newArtist.imgSrc;
+            }
+
+            // Set logo
+            if (baseItem.ImageBlurHashes.Logo != null)
+            {
+                newArtist.logoImgSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Logo?format=jpg";
+            }
+
+            return newArtist;
         }
     }
 

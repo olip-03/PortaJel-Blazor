@@ -1,15 +1,34 @@
-﻿@page "/ArtistView/{artistId}"
+﻿@using PortaJel_Blazor.Data;
+@using BlazorAnimate;
+@page "/ArtistView/{artistId}"
+
+<div>
+    <img src="@artist.imgSrc" class="artistImg" />
+</div>
+
+<div class="backgroundImg">
+    <img src="@artist.backgroundImgSrc" class="backgroundImg" />
+</div>
 
 <div class="centerItems">
-    <h3>ArtistView</h3>
-    <p>@artistId</p>
+    <h3>@artist.name</h3>
 </div>
 
 @code {
     [Parameter] public string artistId { get; set; }
+    private Artist artist { get; set; } = Artist.Empty;
     protected override async Task OnInitializedAsync()
     {
-        // Fetch all user information
+        Guid parseId = Guid.Parse(artistId);
+        if (artistId != null)
+        {
+            artist = await MauiProgram.servers[0].GetArtistAsync(parseId);
+        }
+        else
+        {
+            MauiProgram.mainLayout.NavigateHome();
+            return;
+        }
 
         MauiProgram.mainLayout.pageTitle = "Artist View";
         MauiProgram.mainLayout.currentUri = $"/ArtistView/{artistId}";

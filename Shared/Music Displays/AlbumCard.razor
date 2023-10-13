@@ -57,10 +57,14 @@
     }
     private void NavigateToArtist()
     {
-        if(album != null)
+        if(album == null)
         {
-            // TODO: Update to artist ID
-            MauiProgram.mainLayout.NavigateArtist(album.id);
+            return;
         }
+        if (album.artists.FirstOrDefault() == null)
+        {
+            return;
+        }
+        MauiProgram.mainLayout.NavigateArtist(album.artists.FirstOrDefault().id);
     }
 }

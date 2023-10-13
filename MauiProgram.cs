@@ -48,6 +48,7 @@ public static class MauiProgram
 
     public static MauiApp CreateMauiApp()
 	{
+        // File.Delete(filePath);
         // Load servers from file
         if(File.Exists(filePath))
         {

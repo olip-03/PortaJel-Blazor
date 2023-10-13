@@ -276,7 +276,7 @@
         MauiProgram.libraryItemView = (int)selected;
 
         // Fetch Artist information
-        data = await MauiProgram.servers[0].GetArtistAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
+        data = await MauiProgram.servers[0].GetAllArtistsAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
         totalRecordCount = await MauiProgram.servers[0].GetTotalArtistCount();
 
         double number = (double)totalRecordCount / (double)itemsPerPage;
