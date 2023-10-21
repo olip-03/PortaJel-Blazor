@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -616,16 +617,21 @@ namespace PortaJel_Blazor.Classes
         }
         public async Task<Artist> GetArtistAsync(Guid artistId)
         {
-            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
+            List<BaseItemKind> _includeItemTypesArtist = new List<BaseItemKind> { BaseItemKind.MusicArtist };
+            List<BaseItemKind> _includeItemTypesAlbums = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+
             List<Guid> _searchIds = new List<Guid> { artistId };
             List<String> _sortTypes = new List<string> { "SortName" };
             List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
 
+            BaseItemDtoQueryResult artistInfo = new BaseItemDtoQueryResult();
             BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
+
             // Call GetItemsAsync with the specified parameters
             try
             {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _searchIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                artistInfo = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _searchIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypesArtist, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, parentId: artistId, includeItemTypes: _includeItemTypesAlbums, recursive: true);
                 // TotalArtistRecordCount = songResult.TotalRecordCount;
             }
             catch (Jellyfin.Sdk.ItemsException itemException)
@@ -643,13 +649,19 @@ namespace PortaJel_Blazor.Classes
             }
 
             // Catch blocks
-            if (songResult == null) { return null; }
-            if (songResult.Items == null) { return null; }
+            if (artistInfo == null) { return null; }
+            if (artistInfo.Items == null) { return null; }
 
             Artist returnArtist = new Artist();
-            foreach (var item in songResult.Items)
+            foreach (var item in artistInfo.Items)
             {
                 returnArtist = ArtistBuilder(item);
+                List<Album> albums = new List<Album>();
+                foreach (var album in songResult.Items)
+                {
+                    albums.Add(AlbumBuilder(album));
+                }
+                returnArtist.artistAlbums = albums.ToArray();
             }
 
             return returnArtist;
@@ -796,7 +808,7 @@ namespace PortaJel_Blazor.Classes
             // Set logo
             if (baseItem.ImageBlurHashes.Logo != null)
             {
-                newArtist.logoImgSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Logo?format=jpg";
+                newArtist.logoImgSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Logo";
             }
 
             return newArtist;

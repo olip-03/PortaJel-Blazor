@@ -16,6 +16,7 @@ namespace PortaJel_Blazor.Data
         public Artist[] artists { get; set; }
         public Song[] songs { get; set; }
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;
+        public string serverAddress { get; set; } = string.Empty;
         public enum AlbumSortMethod
         {
             name,
@@ -49,8 +50,8 @@ namespace PortaJel_Blazor.Data
                     resolve = string.Compare(GetArtistName().ToString(), other.GetArtistName().ToString(), StringComparison.OrdinalIgnoreCase);
                     break;
                 case AlbumSortMethod.id:
-                    if (id == null) { return -1; }
-                    if (other.id == null) { return -1; }
+                    if (id == Guid.Empty) { return -1; }
+                    if (other.id == Guid.Empty) { return -1; }
                     resolve = string.Compare(id.ToString(), other.id.ToString(), StringComparison.OrdinalIgnoreCase);
                     break;
                 default:

@@ -24,11 +24,18 @@
                 if(i < albumData.Count())
                 {
                     showRecord = albumData[i];
+                    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                        <AlbumCard album="showRecord" />
+                    </Animate>   
                 }
             }
-            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                <AlbumCard album="showRecord" />
-            </Animate>          
+            else
+            {
+                 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                    <AlbumCard album="showRecord" />
+                </Animate>   
+            }
+       
         }
         <div class="scrollmenu-showall">
             <p style="margin: 1rem; color: darkgray;">Show All</p>

@@ -23,12 +23,14 @@ public static class MauiProgram
     public static bool contentPage = false;
     public static string contentTitle = "";
 
-    public static MainLayout mainLayout = null;
+    public static MainLayout? mainLayout = null;
 
+    // Data for connections 
     public static List<ServerConnecter> servers = new List<ServerConnecter>();
-    public static DataHandler dataHandler = null;
+    public static DataHandler? dataHandler = null;
 
-    public static MediaElement mediaElement = null;
+    // Direct access to the media element
+    public static MediaElement? mediaElement = null;
 
     // Stored data for library page
     public static int librarySortMethod = 0;
@@ -41,13 +43,18 @@ public static class MauiProgram
     public static bool favouritesShowGrid = false;
 
     // Index page cached data
-    public static Album[] favouritesPlayData { get; set; }
-    public static Album[] recentPlayData { get; set; }
-    public static Album[] mostPlayData { get; set; }
-    public static Album[] recentAddedData { get; set; }
+    public static Album[] favouritesPlayData { get; set; } = new Album[0];
+    public static Album[] recentPlayData { get; set; } = new Album[0];
+    public static Album[] mostPlayData { get; set; } = new Album[0];
+    public static Album[] recentAddedData { get; set; } = new Album[0];
 
     public static MauiApp CreateMauiApp()
 	{
+        if(dataHandler == null)
+        {
+            dataHandler = new DataHandler();
+        }
+
         // File.Delete(filePath);
         // Load servers from file
         if(File.Exists(filePath))
@@ -66,6 +73,7 @@ public static class MauiProgram
                     serverConnector.SetUserDetails(user, pass);
 
                     servers.Add(serverConnector);
+                    dataHandler.AddServer(serverConnector);
                 }
             }
         }

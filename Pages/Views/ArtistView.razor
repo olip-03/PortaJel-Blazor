@@ -1,22 +1,191 @@
 ﻿@using PortaJel_Blazor.Data;
 @using BlazorAnimate;
+@inject IJSRuntime JS;
 @page "/ArtistView/{artistId}"
 
-<div>
-    <img src="@artist.imgSrc" class="artistImg" />
-</div>
+    <button class="GoBackButton" @onclick=GoBack>
+        <img src="/images/back.svg" class="">
+    </button>
 
 <div class="backgroundImg">
-    <img src="@artist.backgroundImgSrc" class="backgroundImg" />
+    <div class="backgroundImg" style="background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(255, 255, 255, 1)), url(@backgroundImgUrl)" />
+    <div class="artistImageContainer">
+        <img src="@imgUrl" class="artistImg" />
+        <div class="artistNameContainer">
+            @if (hasLogo)
+            {
+                <img src="@logoUrl" class="logoImg" />
+            }
+            <h1 class="artistName">@artist.name</h1>
+        </div>
+    </div>
 </div>
 
-<div class="centerItems">
-    <h3>@artist.name</h3>
+<!-- Spacer to keep albums and other elemnts from overlapping -->
+<div class="headerSpacer"/>
+
+
+<div>
+    <div class="tool-container">
+        <div @onclick=ToggleSort>
+            @switch (sort)
+            {
+                case sortMethod.byActivity:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Activity</p>
+                    </Animate>
+                    break;
+                case sortMethod.byArtist:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Artist</p>
+                    </Animate>
+                    break;
+                case sortMethod.byName:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Name</p>
+                    </Animate>
+                    break;
+                case sortMethod.byDate:
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                        <p class="tools-text">Date</p>
+                    </Animate>
+                    break;
+            }
+        </div>
+        <div @onclick=ToggleView>
+            @if (showGrid)
+            {
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
+                </Animate>
+            }
+            else
+            {
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
+                </Animate>
+            }
+        </div>
+    </div>
+
+    @* Custom styling for items when grid mode is selected *@
+    @if (showGrid)
+    {
+        <style>
+            .album-list {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                grid-gap: 20px 10px;
+            }
+        </style>
+    }
+
+    @* Load actual items *@
+    <div class="album-list">
+        @if (isLoading)
+        { // Spinner
+            <Spinner />
+        }
+        else if (artistAlbums.Length > 0)
+        { // Load information
+            for (int i = 0; i < artistAlbums.Length; i++)
+            {
+                Album item = new Album();
+                if (artistAlbums[i] != null)
+                {
+                    item = artistAlbums[i];
+                }
+                <PortaJel_Blazor.UI.Search.SearchResultItem album="@item" isGrid=@showGrid />
+            }
+        }
+        else
+        { // something went wrong click here to try again
+
+        }
+    </div>
+
+    @* Load page numbers *@
+    @if (!isLoading)
+    {
+        // Disabling current pagination class as I have another idea for how this could work
+        // TODO: This works however overflow:x does NOT allow for you to scroll to the left.
+        // try to address this at a later stage when it's actually important. Not a priority atm cause
+        // it looks pretty. I've set it to overflow:hidden so the scroll function is gone completely this
+        // just needs to be fixed at some point
+        <div class="grid-pgnator-container">
+            <!-- Items to the left -->
+            <div class="grid-pgnator-items-l">
+                @for (int i = selectedPage; i >= 0; i--)
+                { // operation should be done in revese because flex-direction:row-reverse
+                    if(i != selectedPage)
+                    {
+                        int tempInt = i;
+                        int displayNum = tempInt + 1;
+                        <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
+                    }
+                }
+            </div>
+            <!-- Centered active item -->
+            <div class="grid-pgnator-items">
+                @{
+                    int pgnNumInt = selectedPage;
+                    int displayPgNum = pgnNumInt + 1;
+                    <div class="pagination-item active">@displayPgNum</div>
+                }
+            </div>
+            <!-- Items to the right -->
+            <div class="grid-pgnator-items-r">
+                @for (int i = selectedPage + 1; i < pages; i++)
+                {
+                    int tempInt = i;
+                    int displayNum = tempInt + 1;
+                    <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
+                }
+            </div>
+        </div>
+        <p>Showing @artistAlbums.Length of @totalRecordCount</p>
+    }
 </div>
 
 @code {
     [Parameter] public string artistId { get; set; }
     private Artist artist { get; set; } = Artist.Empty;
+
+
+    private string backgroundImgUrl = string.Empty;
+    private string imgUrl = string.Empty;
+    private string logoUrl = string.Empty;
+    private bool hasLogo = false;
+    
+    // List view stuff
+    public Album[] artistAlbums = new Album[0];
+    private int totalRecordCount = 0;
+    private bool isLoading = false;
+
+    private bool showGrid = false;
+
+    private int itemsPerPage = 100;
+    private int startFromIndex = 0;
+    private int selectedPage = 0;
+    private int pages = 0;
+
+    private int lowerPages = 0;
+    private int higherPages = 0;
+
+    private enum sortMethod
+    {
+        byArtist,
+        byDate,
+        byName,
+        byActivity
+    }
+    sortMethod sort = sortMethod.byDate;
+
     protected override async Task OnInitializedAsync()
     {
         Guid parseId = Guid.Parse(artistId);
@@ -30,9 +199,62 @@
             return;
         }
 
+        int screenWidth = (int)Application.Current.Windows.FirstOrDefault().Width;
+        backgroundImgUrl = artist.backgroundImgAtResolution(screenWidth);
+
+        int imgScale = (int)(Application.Current.Windows.FirstOrDefault().Width * 0.4);
+        imgUrl = artist.imageAtResolution(imgScale);
+
+        artistAlbums = artist.artistAlbums;
+
+        logoUrl = artist.logoImgSrc;
+        if(logoUrl != string.Empty)
+        {
+            hasLogo = true;
+        }
+
         MauiProgram.mainLayout.pageTitle = "Artist View";
         MauiProgram.mainLayout.currentUri = $"/ArtistView/{artistId}";
         MauiProgram.mainLayout.showHeader = false;
         MauiProgram.mainLayout.isLoading = false;
+    }
+    private async void SelectPage(int page)
+    {
+        startFromIndex = itemsPerPage * page;
+        selectedPage = page;
+    }
+    private void ToggleSort()
+    {
+        if (sort >= sortMethod.byActivity)
+        {
+            sort = 0;
+        }
+        else
+        {
+            sort++;
+        }
+        MauiProgram.librarySortMethod = (int)sort;
+    }
+    private void ToggleView()
+    {
+        SelectPage(selectedPage);
+
+        showGrid = !showGrid; // toggle
+        MauiProgram.libraryShowGrid = showGrid;
+
+        StateHasChanged();
+    }
+    private async void GoBack()
+    {
+        MauiProgram.mainLayout.isLoading = true;
+        try
+        {
+            await JS.InvokeAsync<string>("goBack");
+        }
+        catch (Exception ex)
+        {
+            bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
+            MauiProgram.mainLayout.NavigateHome();
+        }
     }
 }

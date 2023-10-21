@@ -3,8 +3,8 @@
     align-items: center;
 }
 .albumImage {
-    width: 80vw; /* 80% of the viewport width */
-    height: 80vw; /* 80% of the viewport width */
+    width: 65vw;
+    height: 65vw;
     max-width: 20rem;
     max-height: 20rem;
     margin: auto; /* Center horizontally */
@@ -52,4 +52,22 @@ hr {
     color: darkgray;
     font-size: 0.8rem;
     margin: 0px;
+}
+.GoBackButton {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    border-radius: 50%;
+    border-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.1);
+    top: 0;
+    left: 0px;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+.GoBackImg {
+    margin:0;
+    padding:0;
+    width: 2rem;
+    height: 2rem;
 }
