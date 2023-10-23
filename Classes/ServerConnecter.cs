@@ -128,7 +128,7 @@ namespace PortaJel_Blazor.Classes
         {
             return await AuthenticateUser(Username, StoredPassword);
         }
-        public async Task<Album[]> FetchRecentlyAddedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false)
+        public async Task<Album[]> FetchRecentlyAddedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false, bool? fetchFullArtist = false)
         {
             // Create a list containing only the "Album" item type
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
@@ -156,9 +156,16 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    Album newItem = AlbumBuilder(item);
-                    // newItem.name = item.Album.ToString();
-                    albums.Add(newItem);
+                    if(fetchFullArtist == true)
+                    {
+                        Album newItem = await AlbumBuilder(item, true);
+                        albums.Add(newItem);
+                    }
+                    else
+                    {
+                        Album newItem = AlbumBuilder(item);
+                        albums.Add(newItem);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -360,7 +367,7 @@ namespace PortaJel_Blazor.Classes
 
             return albums.ToArray();
         }
-        public async Task<Album> FetchAlbumByIDAsync(Guid albumId)
+        public async Task<Album> FetchAlbumByIDAsync(Guid albumId, bool? fetchFullArtist = false)
         {
             // SortBy: 'SortName',
             // SortOrder: 'Ascending',
@@ -394,9 +401,18 @@ namespace PortaJel_Blazor.Classes
             }
 
             BaseItemDto albumResultItem = albumResult.Items.FirstOrDefault();
-            Album getAlbum = AlbumBuilder(albumResultItem);
+            Album getAlbum = null;
 
-            if(getAlbum == null)
+            if (fetchFullArtist == true)
+            {
+                getAlbum = await AlbumBuilder(albumResultItem, true);
+            }
+            else
+            {
+                getAlbum = AlbumBuilder(albumResultItem);
+            }
+
+            if (getAlbum == null)
             {
                 return null;
             }
@@ -417,14 +433,29 @@ namespace PortaJel_Blazor.Classes
 
             // Set Artist information
             List<Artist> artistList = new List<Artist>();
-            foreach (var artist in albumResultItem.AlbumArtists)
+            if (fetchFullArtist == true)
             {
-                Artist newArtists = new Artist();
-                newArtists.id = artist.Id; 
-                newArtists.name = artist.Name;
-                artistList.Add(newArtists);
+                List<Guid> ids = new List<Guid>();
+                foreach (var artist in albumResultItem.AlbumArtists)
+                {
+                    Artist newArtists = new Artist();
+                    newArtists.id = artist.Id;
+                    newArtists.name = artist.Name;
+                    artistList.Add(newArtists);
+                }
             }
-            getAlbum.artists = artistList.ToArray();
+            else
+            {
+                foreach (var artist in albumResultItem.AlbumArtists)
+                {
+                    Artist newArtists = new Artist();
+                    newArtists.id = artist.Id;
+                    newArtists.name = artist.Name;
+                    artistList.Add(newArtists);
+                }
+                getAlbum.artists = artistList.ToArray();
+            }
+
 
             return getAlbum;
         }
@@ -714,6 +745,10 @@ namespace PortaJel_Blazor.Classes
         }
         private Album AlbumBuilder(BaseItemDto baseItem)
         {
+            return AlbumBuilder(baseItem, false).Result;
+        }
+        private async Task<Album> AlbumBuilder(BaseItemDto baseItem, bool fetchFullArtists)
+        {
             if(baseItem == null)
             {
                 return null;
@@ -734,17 +769,46 @@ namespace PortaJel_Blazor.Classes
 
             if(baseItem.Type != BaseItemKind.MusicArtist) 
             {
-                // Fetch Artists
-                List<Artist> artists = new List<Artist>();
-                foreach (var artist in baseItem.AlbumArtists)
+                if (fetchFullArtists == true)
                 {
-                    Artist newArist = new Artist();
-                    newArist.id = artist.Id;
-                    newArist.name = artist.Name;
+                    List<BaseItemKind> _includeItemTypesArtist = new List<BaseItemKind> { BaseItemKind.MusicArtist };
+                    List<Guid> _searchIds = new List<Guid>();
+                    List<String> _sortTypes = new List<string> { "SortName" };
+                    List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+                    BaseItemDtoQueryResult artistFetchRequest = new BaseItemDtoQueryResult();
 
-                    artists.Add(newArist);
+                    foreach (var artist in baseItem.AlbumArtists)
+                    {
+                        _searchIds.Add(artist.Id);
+                    }
+
+                    artistFetchRequest = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _searchIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypesArtist, recursive: true, enableImages: true, enableTotalRecordCount: true);
+
+                    List<Artist> artists = new List<Artist>();
+                    foreach (var artist in artistFetchRequest.Items)
+                    {
+                        Artist newArist = ArtistBuilder(artist);
+                         artists.Add(newArist);
+                    }
+                    newAlbum.artists = artists.ToArray();
                 }
-                newAlbum.artists = artists.ToArray();
+                else
+                {
+                    List<Artist> artists = new List<Artist>();
+
+                    foreach (var artist in baseItem.AlbumArtists)
+                    {
+                        Artist newArist = new Artist();
+                        newArist.id = artist.Id;
+                        newArist.name = artist.Name;
+
+                        artists.Add(newArist);
+                    }
+                    newAlbum.artists = artists.ToArray();
+                }
+                // Fetch Artists
+                // Do need to do another request here
+
             }
 
             // 69c72555-b29b-443d-9a17-01d735bd6f9f
@@ -792,7 +856,7 @@ namespace PortaJel_Blazor.Classes
             }
             else
             {
-                newArtist.imgSrc = "/images/emptyAlbum";
+                newArtist.imgSrc = "/images/emptyAlbum.png";
             }
 
             // Set background

@@ -10,11 +10,11 @@
 <div class="backgroundImg">
     <div class="backgroundImg" style="background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(255, 255, 255, 1)), url(@backgroundImgUrl)" />
     <div class="artistImageContainer">
-        <img src="@imgUrl" class="artistImg" />
+        <img src="@imgUrl" class="artistImg" loading="eager" />
         <div class="artistNameContainer">
             @if (hasLogo)
             {
-                <img src="@logoUrl" class="logoImg" />
+                <img src="@logoUrl" class="logoImg" loading="eager" />
             }
             <h1 class="artistName">@artist.name</h1>
         </div>
@@ -54,7 +54,7 @@
                         <p class="tools-text">Date</p>
                     </Animate>
                     break;
-            }
+            }+
         </div>
         <div @onclick=ToggleView>
             @if (showGrid)
@@ -108,48 +108,6 @@
 
         }
     </div>
-
-    @* Load page numbers *@
-    @if (!isLoading)
-    {
-        // Disabling current pagination class as I have another idea for how this could work
-        // TODO: This works however overflow:x does NOT allow for you to scroll to the left.
-        // try to address this at a later stage when it's actually important. Not a priority atm cause
-        // it looks pretty. I've set it to overflow:hidden so the scroll function is gone completely this
-        // just needs to be fixed at some point
-        <div class="grid-pgnator-container">
-            <!-- Items to the left -->
-            <div class="grid-pgnator-items-l">
-                @for (int i = selectedPage; i >= 0; i--)
-                { // operation should be done in revese because flex-direction:row-reverse
-                    if(i != selectedPage)
-                    {
-                        int tempInt = i;
-                        int displayNum = tempInt + 1;
-                        <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
-                    }
-                }
-            </div>
-            <!-- Centered active item -->
-            <div class="grid-pgnator-items">
-                @{
-                    int pgnNumInt = selectedPage;
-                    int displayPgNum = pgnNumInt + 1;
-                    <div class="pagination-item active">@displayPgNum</div>
-                }
-            </div>
-            <!-- Items to the right -->
-            <div class="grid-pgnator-items-r">
-                @for (int i = selectedPage + 1; i < pages; i++)
-                {
-                    int tempInt = i;
-                    int displayNum = tempInt + 1;
-                    <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
-                }
-            </div>
-        </div>
-        <p>Showing @artistAlbums.Length of @totalRecordCount</p>
-    }
 </div>
 
 @code {

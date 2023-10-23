@@ -4,7 +4,7 @@
 {
     <div class="grid-album-container">
         <div class="grid-album-cover" @onclick=NavigateToAlbum>
-            <img class="grid-album-img" src="@album.imageSrc" />
+            <img class="grid-album-img" src="@album.imageSrc" loading="lazy"/>
         </div>
         <div @onclick=NavigateToAlbum>
             <div class="album-name">@album.name</div>

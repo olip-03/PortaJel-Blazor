@@ -15,14 +15,13 @@
     position: relative;
     animation: shimmer 1.5s infinite linear;
 }
-.artistInfo
-{
-    display:flex;
-    align-items:center;
+.artistInfo {
+    display: flex;
+    align-items: center;
     text-align: center;
-
-    font-size: 1rem;
-    color:darkgray;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: darkgray;
 }
 .user-profile {
     width: 2rem;
@@ -60,8 +59,9 @@ hr {
     border-radius: 50%;
     border-color: rgba(0, 0, 0, 0.2);
     background-color: rgba(0, 0, 0, 0.1);
-    top: 0;
-    left: 0px;
+    top: 1rem;
+    z-index: 50;
+    left: 1rem;
     width: 2.5rem;
     height: 2.5rem;
 }
@@ -70,4 +70,12 @@ hr {
     padding:0;
     width: 2rem;
     height: 2rem;
+}
+.artistInfoImg{
+    border-radius: 50%;
+    max-width: 40px;
+    max-height: 40px;
+    margin-right: 0.25rem;
+
+    aspect-ratio: 1/1;
 }
