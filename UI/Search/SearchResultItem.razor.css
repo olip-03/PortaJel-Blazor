@@ -12,7 +12,13 @@
     border-radius: 2px;
     margin-right: 10px;
 }
-
+.artist-cover {
+    width: 80px;
+    height: 80px;
+    border-radius: 2px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
 /* Style for the album name */
 .album-name {
     font-weight: bold;
@@ -21,6 +27,9 @@
 /* Style for the album artist */
 .album-artist {
     color: gray;
+    text-overflow: ellipsis;
+    max-height: 3rem;
+    overflow: hidden;
 }
 
 /* Style for the favorite button */
@@ -46,6 +55,14 @@
 .grid-album-img {
     width: 100%;
     height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 2px;
+    object-fit: cover;
+}
+.grid-artist-img {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
     aspect-ratio: 1 / 1;
     border-radius: 2px;
     object-fit: cover;

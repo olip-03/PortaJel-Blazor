@@ -1,4 +1,5 @@
-﻿using Plugin.Maui.Audio;
+﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+using Plugin.Maui.Audio;
 using PortaJel_Blazor.Pages;
 
 #if ANDROID
@@ -13,7 +14,7 @@ public partial class MainPage : ContentPage
 	{
         InitializeComponent();
         //NavigationPage.SetHasNavigationBar(this, false);
-
+        
         MauiProgram.mediaElement = mediaElement;
 
 #if ANDROID

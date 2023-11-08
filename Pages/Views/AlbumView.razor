@@ -41,7 +41,7 @@
         @foreach (Artist artist in album.artists)
         {
             <div class="artistInfo" @onclick="() => SelectArtist(artist.id)">
-                <img src="@artist.imgSrc" class="artistInfoImg">
+                <img src="@artist.imageAtResolution(40)" class="artistInfoImg">
                 @artist.name
             </div>
         }

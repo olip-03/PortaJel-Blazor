@@ -1,6 +1,14 @@
 ﻿@using Microsoft.Maui.Controls;
+@inject IJSRuntime JS
 
-<div class="music-player" @OnS>
+<div class="music-player" id="music-player" 
+    @ontouchstart=OnLabelDrag 
+    @onmousedown=OnLabelDrag 
+    @ontouchenter=OnLabelDrag
+    @ontouchend=LabelDragStop
+    @onmouseup=LabelDragStop>
+
+    <p id="dragBegugText">Start dragging to debug</p>
 </div>
 
 @code {
@@ -21,5 +29,13 @@
         // Check e.Direction
 
         StateHasChanged();
+    }
+    async void OnLabelDrag()
+    {
+        await JS.InvokeAsync<string>("dragElement", "music-player");
+    }
+    async void LabelDragStop()
+    {
+        await JS.InvokeAsync<string>("stopDrag");
     }
 }

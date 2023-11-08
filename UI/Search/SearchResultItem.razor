@@ -3,27 +3,56 @@
 @if (isGrid)
 {
     <div class="grid-album-container">
-        <div class="grid-album-cover" @onclick=NavigateToAlbum>
-            <img class="grid-album-img" src="@album.imageSrc" loading="lazy"/>
-        </div>
-        <div @onclick=NavigateToAlbum>
-            <div class="album-name">@album.name</div>
-            <div class="album-artist">@album.GetArtistName()</div>
-        </div>
+        @if(album.isArtist == true)
+        { // this item is an artist
+            <div class="grid-album-cover" @onclick=NavigateToArtist>
+                <img class="grid-artist-img" src="@album.imageSrc" loading="lazy" />
+            </div>
+            <div @onclick=NavigateToArtist>
+                <div class="album-name">@album.name</div>
+                <div class="album-artist">@album.GetArtistName()</div>
+            </div>
+        }
+        else
+        {
+            <div class="grid-album-cover" @onclick=NavigateToAlbum>
+                <img class="grid-album-img" src="@album.imageSrc" loading="lazy" />
+            </div>
+            <div @onclick=NavigateToAlbum>
+                <div class="album-name">@album.name</div>
+                <div class="album-artist">@album.GetArtistName()</div>
+            </div>
+        }
     </div>
 }
 else
 {
-    <div class="album-container">
-        <div class="album-cover" @onclick=NavigateToAlbum>
-            <img class="album-cover" src="@album.imageSrc" />
+    @if (album.isArtist == true)
+    {
+        <div class="album-container">
+            <div class="artist-cover" @onclick=NavigateToArtist>
+                <img class="artist-cover" src="@album.imageSrc" />
+            </div>
+            <div @onclick=NavigateToArtist>
+                <div class="album-name">@album.name</div>
+                <div class="album-artist">@album.GetArtistName()</div>
+            </div>
+            <div class="favorite-button" @onclick=FavouriteItem>Favorite</div>
         </div>
-        <div @onclick=NavigateToAlbum>
-            <div class="album-name">@album.name</div>
-            <div class="album-artist">@album.GetArtistName()</div>
+    }
+    else
+    {
+        <div class="album-container">
+            <div class="album-cover" @onclick=NavigateToAlbum>
+                <img class="album-cover" src="@album.imageSrc" />
+            </div>
+            <div @onclick=NavigateToAlbum>
+                <div class="album-name">@album.name</div>
+                <div class="album-artist">@album.GetArtistName()</div>
+            </div>
+            <div class="favorite-button" @onclick=FavouriteItem>Favorite</div>
         </div>
-        <div class="favorite-button" @onclick=FavouriteItem>Favorite</div>
-    </div>
+    }
 }
 
 @code {
@@ -36,6 +65,14 @@ else
         {
             if(album.id == Guid.Empty) { return; }
             MauiProgram.mainLayout.NavigateAlbum(album.id);
+        }
+    }
+    private void NavigateToArtist()
+    {
+        if (album != null)
+        {
+            if (album.id == Guid.Empty) { return; }
+            MauiProgram.mainLayout.NavigateArtist(album.id);
         }
     }
     private void FavouriteItem()

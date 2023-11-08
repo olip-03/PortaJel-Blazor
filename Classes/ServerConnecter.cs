@@ -504,7 +504,12 @@ namespace PortaJel_Blazor.Classes
             {
                 try
                 {
-                    albums.Add(AlbumBuilder(item));
+                    Album toAdd = AlbumBuilder(item);   
+                    if(item.Type == BaseItemKind.MusicArtist)
+                    {
+                        toAdd.isArtist = true;
+                    }
+                    albums.Add(toAdd);
                 }
                 catch (Exception ex)
                 {
@@ -640,7 +645,9 @@ namespace PortaJel_Blazor.Classes
             List<Album> artists = new List<Album>();
             foreach (var item in songResult.Items)
             {
-                artists.Add(AlbumBuilder(item));
+                Album itemToAdd = AlbumBuilder(item);
+                itemToAdd.isArtist = true;
+                artists.Add(itemToAdd);
                 Debug.WriteLine("yo");
             }
 
