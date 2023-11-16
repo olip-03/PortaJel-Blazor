@@ -6,7 +6,7 @@
         @if(album.isArtist == true)
         { // this item is an artist
             <div class="grid-album-cover" @onclick=NavigateToArtist>
-                <img class="grid-artist-img" src="@album.imageSrc" loading="lazy" />
+                <img class="grid-artist-img" src="@album.imageAtResolution(resolution)" loading="lazy" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@album.name</div>
@@ -16,7 +16,7 @@
         else
         {
             <div class="grid-album-cover" @onclick=NavigateToAlbum>
-                <img class="grid-album-img" src="@album.imageSrc" loading="lazy" />
+                <img class="grid-album-img" src="@album.imageAtResolution(resolution)" loading="lazy" />
             </div>
             <div @onclick=NavigateToAlbum>
                 <div class="album-name">@album.name</div>
@@ -31,7 +31,7 @@ else
     {
         <div class="album-container">
             <div class="artist-cover" @onclick=NavigateToArtist>
-                <img class="artist-cover" src="@album.imageSrc" />
+                <img class="artist-cover" src="@album.imageAtResolution(resolution)" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@album.name</div>
@@ -44,7 +44,7 @@ else
     {
         <div class="album-container">
             <div class="album-cover" @onclick=NavigateToAlbum>
-                <img class="album-cover" src="@album.imageSrc" />
+                <img class="album-cover" src="@album.imageAtResolution(resolution)" />
             </div>
             <div @onclick=NavigateToAlbum>
                 <div class="album-name">@album.name</div>
@@ -58,6 +58,8 @@ else
 @code {
     [Parameter] public Album album { get; set; } = new Album();
     [Parameter] public bool isGrid { get; set; } = false;
+
+    private int resolution = 300;
 
     private void NavigateToAlbum()
     {

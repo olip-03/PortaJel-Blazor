@@ -31,10 +31,9 @@ p.albumText {
     background-color: darkgrey;
     flex-shrink: 0;
     position: relative;
-    animation: shimmer 1.5s infinite linear;
 }
 .lowRes {
-    filter: blur(16px);
+    /*filter: blur(16px);*/
 }
 /* style this to fit your needs */
 /* and remove [alt] to apply to all images*/
@@ -50,36 +49,4 @@ img:after {
     line-height: 2;
     text-align: center;
     content: attr(alt);
-
-    animation-duration: 2.2s;
-    animation-fill-mode: forwards;
-    animation-iteration-count: infinite;
-    animation-name: shimmer;
-    animation-timing-function: linear;
-    background: #ddd;
-    background: linear-gradient(to right, #F6F6F6 8%, #F0F0F0 18%, #F6F6F6 33%);
-    background-size: 1200px 100%;
-    /*    animation: shimmer 1.5s infinite linear;
-*/
-}
-
-.shimmerBG {
-    animation-duration: 2.2s;
-    animation-fill-mode: forwards;
-    animation-iteration-count: infinite;
-    animation-name: shimmer;
-    animation-timing-function: linear;
-    background: #ddd;
-    background: linear-gradient(to right, #F6F6F6 8%, #F0F0F0 18%, #F6F6F6 33%);
-    background-size: 1200px 100%;
-}
-
-@keyframes shimmer {
-    0% {
-        background-position: -1200px 0;
-    }
-
-    100% {
-        background-position: 1200px 0;
-    }
 }

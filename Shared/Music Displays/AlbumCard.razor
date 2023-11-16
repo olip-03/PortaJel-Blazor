@@ -9,7 +9,7 @@
 <div class="containerImg">
     <div class="albumImage shimmerBG ">
 @*        <img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
-        *@<img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
+        *@<img src="@albumImg" class="albumImage shimmerBG" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
     </div>
 
     <p class="albumText" @onclick="NavigateToArtist">
@@ -44,7 +44,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        albumImg = album.imageSrc;
+        albumImg = album.imageAtResolution(256);
         StateHasChanged();
     }
 

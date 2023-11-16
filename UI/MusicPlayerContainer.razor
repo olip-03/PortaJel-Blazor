@@ -1,14 +1,17 @@
 ﻿@using Microsoft.Maui.Controls;
+@using Microsoft.JSInterop
 @inject IJSRuntime JS
 
 <div class="music-player" id="music-player" 
     @ontouchstart=OnLabelDrag 
     @onmousedown=OnLabelDrag 
     @ontouchenter=OnLabelDrag
-    @ontouchend=LabelDragStop
-    @onmouseup=LabelDragStop>
+    @ondragstart=OnLabelDrag>
 
     <p id="dragBegugText">Start dragging to debug</p>
+</div>
+<div class="music-screen" id="music-screen">
+    <button @onclick=ClosePlayer style="width: 100%; height: 50px;">Close</button>
 </div>
 
 @code {
@@ -17,6 +20,7 @@
     public bool isActive { get; set; } = true;
 
     public bool isPlaying { get; set; } = false;
+    public bool isOpen { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -33,9 +37,26 @@
     async void OnLabelDrag()
     {
         await JS.InvokeAsync<string>("dragElement", "music-player");
+        isOpen = true;
     }
-    async void LabelDragStop()
+    public async Task OpenPlayer()
     {
-        await JS.InvokeAsync<string>("stopDrag");
+        MauiProgram.mainLayout.OpenPlayer();
+        isOpen = true;
+    }
+    public async Task ClosePlayer()
+    {
+        MauiProgram.mainLayout.ClosePlayer();
+        isOpen = false;
+    }
+    [JSInvokable("SetPlayerOpen")]
+    public static void SetPlayerOpen()
+    {
+        MauiProgram.mainLayout.musicPlayerContainer.isOpen = true;
+    }
+    [JSInvokable("SetPlayerClosed")]
+    public static void SetPlayerClosed()
+    {
+        MauiProgram.mainLayout.musicPlayerContainer.isOpen = false;
     }
 }

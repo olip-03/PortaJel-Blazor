@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Views;
 using Jellyfin.Sdk;
+using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
 using Plugin.Maui.Audio;
@@ -23,7 +24,7 @@ public static class MauiProgram
     public static bool contentPage = false;
     public static string contentTitle = "";
 
-    public static MainLayout? mainLayout = null;
+    public static MainLayout mainLayout = null;
 
     // Data for connections 
     public static List<ServerConnecter> servers = new List<ServerConnecter>();
@@ -31,6 +32,7 @@ public static class MauiProgram
 
     // Direct access to the media element
     public static MediaElement? mediaElement = null;
+    public static BlazorWebView webView = null;
 
     // Stored data for library page
     public static int librarySortMethod = 0;
@@ -91,9 +93,8 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
-        builder.Services.AddTransient<GoBack>();
         builder.Services.AddSingleton(AudioManager.Current);
-        builder.Services.AddSingleton<AppSharedState>();
+        builder.Services.AddSingleton<JsInteropClasses2, JsInteropClasses2>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

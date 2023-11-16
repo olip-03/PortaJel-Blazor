@@ -16,6 +16,7 @@ public partial class MainPage : ContentPage
         //NavigationPage.SetHasNavigationBar(this, false);
         
         MauiProgram.mediaElement = mediaElement;
+		MauiProgram.webView = blazorWebView;
 
 #if ANDROID
 		// var mediaController = Android.Widget.MediaController.IMediaPlayerControl;

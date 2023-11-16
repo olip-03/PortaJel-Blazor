@@ -1,5 +1,6 @@
 ﻿@using Jellyfin.Sdk;
 @using PortaJel_Blazor.Data;
+@using PortaJel_Blazor.UI.Index;
 @using BlazorAnimate;
 
 @page "/"
@@ -21,7 +22,7 @@
                         if (recentPlayData[i] != null)
                         {
                             Album item = recentPlayData[i];
-                            <PortaJel_Blazor.UI.Index.AlbumListView album="@item"/>
+                            <AlbumListView album="@item"/>
                         }
                     }
                 }

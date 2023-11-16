@@ -39,6 +39,7 @@ namespace PortaJel_Blazor.Classes
 
         private int TotalAlbumRecordCount = -1;
         private int TotalArtistRecordCount = -1;
+        private int TotalSongRecordCount = -1;
 
         HttpClient _httpClient;
         public ServerConnecter()
@@ -652,6 +653,58 @@ namespace PortaJel_Blazor.Classes
             }
 
             return artists.ToArray();
+        }
+        public async Task<int> GetTotalSongCount()
+        {
+            if (TotalSongRecordCount == -1)
+            {
+                List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
+                BaseItemDtoQueryResult recordCount;
+                recordCount = await _itemsClient.GetItemsAsync(userId: userDto.Id, includeItemTypes: _includeItemTypes, recursive: true, enableImages: false, enableTotalRecordCount: true);
+
+                return recordCount.TotalRecordCount;
+            }
+            return TotalSongRecordCount;
+        }
+        public async Task<Album[]> GetAllSongsAsync(int? limit= 50, int? startFromIndex = 0)
+        {
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
+            List<String> _sortTypes = new List<string> { "SortName" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+
+            BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                TotalSongRecordCount = songResult.TotalRecordCount;
+            }
+            catch (Jellyfin.Sdk.ItemsException itemException)
+            {
+                if (itemException.StatusCode == 401)
+                {
+                    // UNAUTHORISED
+                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            // Catch blocks
+            if (songResult == null) { return null; }
+            if (songResult.Items == null) { return null; }
+
+            List<Album> songs = new List<Album>();
+            foreach (var item in songResult.Items)
+            {
+                Album itemToAdd = AlbumBuilder(item);
+                songs.Add(itemToAdd);
+            }
+
+            return songs.ToArray();
         }
         public async Task<Artist> GetArtistAsync(Guid artistId)
         {

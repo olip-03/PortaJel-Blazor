@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavManager
+@inject IJSRuntime JS
 @using PortaJel_Blazor.Classes;
 @using PortaJel_Blazor.UI;
 @using BlazorAnimate;
@@ -63,7 +64,6 @@
                     <div style="height:4rem;"></div>
                 }
             </article>
-
 
 
             @if (!MauiProgram.isConnected)
@@ -332,5 +332,13 @@
 
             NavManager.NavigateTo($"/ArtistView/{guid}");
         }
+    }
+   public async Task OpenPlayer()
+    {
+        await JS.InvokeAsync<string>("dragElement", "open");
+    }
+    public async Task ClosePlayer()
+    {
+        await JS.InvokeAsync<string>("dragElement", "close");
     }
 }

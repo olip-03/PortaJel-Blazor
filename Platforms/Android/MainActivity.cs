@@ -11,14 +11,22 @@ public class MainActivity : MauiAppCompatActivity
 {
     public override bool DispatchKeyEvent(KeyEvent e)
     {
-
         if (e.KeyCode == Keycode.Back)
         {
             if (e.Action == KeyEventActions.Down)
             {
-                // Navigate back request
-                // Check if we should actually be doing this
-                MauiProgram.mainLayout.isLoading = true;
+                // If the music player is open, close it 
+                if (MauiProgram.mainLayout.musicPlayerContainer.isOpen)
+                {
+                    MauiProgram.mainLayout.ClosePlayer();
+                    return false;
+                }
+                else
+                {
+                    // Navigate back request
+                    // Check if we should actually be doing this
+                    MauiProgram.mainLayout.isLoading = true;
+                }
             }
             return base.DispatchKeyEvent(e);
         }
