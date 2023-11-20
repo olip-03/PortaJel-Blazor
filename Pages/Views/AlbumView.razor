@@ -9,7 +9,7 @@
     <button class="GoBackButton" @onclick=GoBack>
         <img src="/images/back.svg" class="">
     </button>
-    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative; z-index: -1;">
         <div class="imageContainer">
             @if (album != null)
             {

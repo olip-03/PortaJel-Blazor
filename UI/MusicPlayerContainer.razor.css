@@ -12,8 +12,10 @@
     margin-left: auto;
     margin-right: auto;
     width: 90vw; /* Need a specific value to work */
-    z-index: 30; /* Set a higher z-index value to bring it above the other buttons */
+    z-index: 51; /* Set a higher z-index value to bring it above the other buttons */
+    display: flex;
 
+    transition-property: top;
     transition-duration: 0.3s;
 }
 .music-screen {
@@ -23,6 +25,39 @@
     width: 100vw;
     background-color: gray;
     opacity: 0%;
-    z-index: 19;
+    z-index: 50;
+    transition-property: top opacity;
     transition-duration: 0.3s;
+}
+
+.miniplayer-img {
+    height: 3rem;
+    width: 3rem;
+    margin-left: 0.5rem;
+    margin-top: auto;
+    margin-bottom: auto;
+    border-radius: 0.2rem;
+    margin-right: 0.5rem;
+}
+.miniplayer-text{
+    width: 100%;
+    height:auto;
+    margin-top:auto;
+    margin-bottom:auto;
+}
+.miniplayer-icon {
+    width: fit-content;
+    display: flex;
+}
+.miniplayer-iconimg{
+    aspect-ratio: 1/1;
+    margin-top: auto;
+    margin-bottom: auto;
+    height: 70%;
+}
+.miniplayer-paragraph {
+    margin: 0px;
+}
+.artistTitle{
+    color:gray;
 }

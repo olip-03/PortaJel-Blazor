@@ -1,8 +1,10 @@
 ﻿.imageContainer {
     display: flex;
     align-items: center;
+    pointer-events: none;
 }
 .albumImage {
+    pointer-events: none;
     width: 65vw;
     height: 65vw;
     max-width: 20rem;
@@ -11,6 +13,7 @@
     margin-bottom: 1rem;
     border-radius: 0.4rem;
     background-color: darkgrey;
+    z-index: -1;
     flex-shrink: 0;
     position: relative;
     animation: shimmer 1.5s infinite linear;
@@ -60,7 +63,6 @@ hr {
     border-color: rgba(0, 0, 0, 0.2);
     background-color: rgba(0, 0, 0, 0.1);
     top: 1rem;
-    z-index: 18;
     left: 1rem;
     width: 2.5rem;
     height: 2.5rem;
