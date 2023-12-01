@@ -80,7 +80,10 @@ function dragElement(itemName) {
         }
         // set the element's new position:
         elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        musicElmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+
+        if ((elmnt.offsetTop - pos2) > 0) {
+            musicElmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        }
         musicElmnt.style.display = "flex";
         musicElmnt.style.zIndex = "29";
         musicElmnt.style.opacity = setVis + "%";

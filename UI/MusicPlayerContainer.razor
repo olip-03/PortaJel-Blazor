@@ -2,6 +2,7 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JS
 
+<!-- Mini Player -->
 <div class="music-player" id="music-player" 
     @ontouchstart=OnLabelDrag 
     @onmousedown=OnLabelDrag 
@@ -20,29 +21,15 @@
     </div>
 </div>
 
+<!-- Full media controller -->
 <div class="music-screen" id="music-screen">
     <div class="music-screen-tools">
         <button class="GoBackButton" @onclick=ClosePlayer>
             <img src="/images/down.svg" class="">
         </button>
-        <div class="dropdown">
-            <button class="GoBackButton ">
-                <img src="/images/more-horiz.svg" class="">
-            </button>
-            <div class="dropdown-item">
-                Item 1
-            </div>
-            <div class="dropdown-item">
-                Item 2
-            </div>
-            <div class="dropdown-item">
-                Item 3
-            </div>
-            <div class="dropdown-item">
-                Item 4
-            </div>
-        </div>
-
+        <button class="GoBackButton ">
+            <img src="/images/more-horiz.svg" class="">
+        </button>
     </div>
 
     <img src="/images/emptyAlbum.png" class="music-screen-img"/>
