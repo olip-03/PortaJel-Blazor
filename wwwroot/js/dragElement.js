@@ -116,6 +116,7 @@ function dragElement(itemName) {
         startTime = -1;
         if (!openElement) {
             // Element is closed
+            enableScroll();
             DotNet.invokeMethodAsync("PortaJel-Blazor", "SetPlayerClosed", "true");
 
             elmnt.style.top = "calc(100vh - 132px)";
@@ -126,6 +127,7 @@ function dragElement(itemName) {
         }
         else {
             // Element is open
+            disableScroll();
             DotNet.invokeMethodAsync("PortaJel-Blazor", "SetPlayerOpen", "true");
 
             elmnt.style.top = "-70px";
@@ -134,6 +136,21 @@ function dragElement(itemName) {
             musicElmnt.style.opacity = "100%";
             musicElmnt.style.zIndex = "29";
         }
+    }
+
+    function disableScroll() {
+        // Get the current page scroll position
+        scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+
+            // if any scroll is attempted, set this to the previous value
+            window.onscroll = function () {
+                window.scrollTo(scrollLeft, scrollTop);
+            };
+    }
+
+    function enableScroll() {
+        window.onscroll = function () { };
     }
 
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
