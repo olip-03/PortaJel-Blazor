@@ -75,10 +75,9 @@
             }
             <div class="bottom-panel">
                 @* Music player control *@
-                @if (musicPlayerContainer.isActive)
-                {
-                    <MusicPlayerContainer reference="musicPlayerContainer" />
-                }
+                <MusicPlayerContainer reference="musicPlayerContainer" />
+
+                <ItemContextMenu reference="itemContextMenu" />
 
                 @* Navigation bar at the bottom of the screen *@
                 <div class="top-row px-4">
@@ -150,6 +149,7 @@
 
     private bool showMusicPlayer { get; set; } = true;
     public MusicPlayerContainer musicPlayerContainer = new MusicPlayerContainer();
+    public ItemContextMenu itemContextMenu = new ItemContextMenu();
 
     protected override async Task OnInitializedAsync()
     {
@@ -333,12 +333,20 @@
             NavManager.NavigateTo($"/ArtistView/{guid}");
         }
     }
-   public async Task OpenPlayer()
+    public async Task OpenPlayer()
     {
         await JS.InvokeAsync<string>("dragElement", "open");
     }
     public async Task ClosePlayer()
     {
         await JS.InvokeAsync<string>("dragElement", "close");
+    }
+    public async Task OpenContextMenu()
+    {
+        await JS.InvokeAsync<string>("contextMenu", "open");
+    }
+    public async Task CloseContextMenu()
+    {
+        await JS.InvokeAsync<string>("contextMenu", "close");
     }
 }

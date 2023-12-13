@@ -27,7 +27,7 @@
         <button class="GoBackButton" @onclick=ClosePlayer>
             <img src="/images/down.svg" class="">
         </button>
-        <button class="GoBackButton ">
+        <button class="GoBackButton" @onclick=OpenContextMenu>
             <img src="/images/more-horiz.svg" class="">
         </button>
     </div>
@@ -86,14 +86,18 @@
     }
     void FavouriteSong()
     {
-        
+
+    }
+    async void OpenContextMenu()
+    {
+        await MauiProgram.mainLayout.OpenContextMenu();   
     }
 
     // Methods for handling the movement and controls of the main media player
     async void OnLabelDrag()
     {
         await JS.InvokeAsync<string>("dragElement", "music-player");
-        isOpen = true;
+        //isOpen = true;
     }
     public async Task OpenPlayer()
     {

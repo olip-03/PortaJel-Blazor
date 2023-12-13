@@ -113,8 +113,8 @@ function dragElement(itemName) {
         }
 
         // Set position
-        elmnt.style.transitionDuration = "0.4s";
-        musicElmnt.style.transitionDuration = "0.4s";
+        elmnt.style.transitionDuration = "0.6s";
+        musicElmnt.style.transitionDuration = "0.6s";
         fistPos = -1;
         startTime = -1;
         if (!openElement) {

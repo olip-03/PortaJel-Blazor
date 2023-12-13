@@ -1,0 +1,27 @@
+﻿.context-menu {
+    position: fixed;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    top: 100vh;
+    opacity: 0%;
+    background-color: white;
+    opacity: 100%;
+    z-index: 100;
+    transition-property: top, opacity;
+    transition-duration: 0.5s;
+    display: flex;
+    flex-direction: column;
+    background: rgb(0,0,0);
+    background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+}
+
+.ItemList{
+    margin-top: auto;
+    width: 100%;
+}
+.Item {
+    width: 100%;
+    margin: 2rem;
+    color: white;
+}

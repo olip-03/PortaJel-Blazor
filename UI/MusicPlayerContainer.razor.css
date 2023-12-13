@@ -15,7 +15,7 @@
     z-index: 51; /* Set a higher z-index value to bring it above the other buttons */
     display: flex;
     transition-property: top, opacity;
-    transition-duration: 0.3s;
+    transition-duration: 1s;
 }
 .music-screen {
     position: fixed;
@@ -26,7 +26,7 @@
     opacity: 0%;
     z-index: 50;
     transition-property: top, opacity;
-    transition-duration: 0.3s;
+    transition-duration: 1s;
 
     display: flex;
     flex-direction: column;
