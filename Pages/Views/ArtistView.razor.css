@@ -42,6 +42,17 @@
     background-size: cover;
     mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
 }
+.artistImgHolder {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -10;
+    background-size: cover;
+}
 .artistLogo {
     width: 80%;
     margin-left:auto;

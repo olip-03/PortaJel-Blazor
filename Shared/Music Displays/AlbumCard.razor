@@ -7,14 +7,14 @@
 @inject NavigationManager NavigationManager
 
 <div class="containerImg">
-    <div class="albumImage shimmerBG ">
-@*        <img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
-        *@<img src="@albumImg" class="albumImage shimmerBG" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
+    <div class="imageHolder">
+        <img src="@backImg" class="albumImage lowRes" />
+        <img src="@albumImg" class="albumImage" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="OpenContextMenu" />
     </div>
 
     <p class="albumText" @onclick="NavigateToArtist">
         @if (album.isSong)
-        { // Show the little song icon 
+        { // Show the little song icon
             <img src="/images/song.svg" />
         }
         else
@@ -26,7 +26,7 @@
 </div>
 
 <style>
-    .containerImg{
+    .containerImg {
         display: flex;
         flex-direction: column;
         height: auto; /* Change height to 'auto' */
@@ -60,7 +60,7 @@
     }
     private void NavigateToArtist()
     {
-        if(album == null)
+        if (album == null)
         {
             return;
         }
@@ -70,8 +70,8 @@
         }
         MauiProgram.mainLayout.NavigateArtist(album.artists.FirstOrDefault().id);
     }
-    private void ShowContextMenu()
+    private async void OpenContextMenu()
     {
-        MauiProgram.mainLayout.itemContextMenu.ShowMenu();
+        await MauiProgram.mainLayout.OpenContextMenu();
     }
 }
