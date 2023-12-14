@@ -7,9 +7,9 @@
 @inject NavigationManager NavigationManager
 
 <div class="containerImg">
-    <div class="imageHolder">
-        <img src="@backImg" class="albumImage lowRes"/>
-        <img src="@albumImg" class="albumImage" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
+    <div class="albumImage shimmerBG ">
+@*        <img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
+        *@<img src="@albumImg" class="albumImage shimmerBG" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
     </div>
 
     <p class="albumText" @onclick="NavigateToArtist">
@@ -69,5 +69,9 @@
             return;
         }
         MauiProgram.mainLayout.NavigateArtist(album.artists.FirstOrDefault().id);
+    }
+    private void ShowContextMenu()
+    {
+        MauiProgram.mainLayout.itemContextMenu.ShowMenu();
     }
 }

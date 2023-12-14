@@ -135,22 +135,12 @@
     {
 
     }
-    void OpenQueue()
-    {
-        queueScreen = true;
-        StateHasChanged();
-    }
-    void ReturnToPlayer()
-    {
-        queueScreen = false;
-        StateHasChanged();
-    }
 
     // Methods for handling the movement and controls of the main media player
     async void OnLabelDrag()
     {
         await JS.InvokeAsync<string>("dragElement", "music-player");
-        isOpen = true;
+        //isOpen = true;
     }
     public async Task OpenPlayer()
     {
