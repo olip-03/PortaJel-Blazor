@@ -25,8 +25,8 @@
     <script src="_framework/blazor.webview.js" autostart="false"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" autostart="true"></script>
     <script src="_content/BlazorAnimate/blazorAnimateInterop.js"></script>
-    <script src="js/dragElement.js"></script>
-    <script src="js/scrolldisable.js"></script>
+    <script src="js/dragElement.js" autostart="true"></script>
+    <script src="js/contextMenu.js" autostart="true"></script>
 
     <script>
         window.goBack = () => {
@@ -34,18 +34,6 @@
         }
     </script>
 
-    <style>
-        /* Hide scrollbar for Chrome, Safari and Opera */
-        body::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* Hide scrollbar for IE, Edge and Firefox */
-        body {
-            -ms-overflow-style: none; /* IE and Edge */
-            scrollbar-width: none; /* Firefox */
-        }
-    </style>
 </body>
 
 </html>

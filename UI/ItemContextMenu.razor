@@ -2,8 +2,41 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JS
 
+@* Please follow instuction below to lock scrolling when required:
+https://css-tricks.com/prevent-page-scrolling-when-a-modal-is-open/ *@
 
+<div class="context-menu" id="context-menu">
+    <div class="ItemList">
+        @foreach (var item in TaskList)
+        {
+            <div class="Item">@item.Key</div>
+        }
+        <div class="Item" @onclick=HideMenu>Close</div>
+    </div>
+</div>
 
 @code {
+    [Parameter] public ItemContextMenu reference { get; set; }
+
+    private string menuPosition = "100vh";
+    private string opacity = "0%";
     private bool isActive = false;
+    private Dictionary<string, Task> TaskList = new();
+
+    public void ClearActions()
+    {
+        TaskList.Clear();
+    }
+    public void AddAction(string name, Task action)
+    {
+        TaskList.Add(name, action);
+    }
+    public async void ShowMenu()
+    {
+        await MauiProgram.mainLayout.OpenContextMenu();
+    }
+    public async void HideMenu()
+    {
+        await MauiProgram.mainLayout.CloseContextMenu();
+    }
 }
