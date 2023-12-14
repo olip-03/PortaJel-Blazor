@@ -757,7 +757,11 @@ namespace PortaJel_Blazor.Classes
 
             return returnArtist;
         }
-
+        public async Task<string[]> GetBase64ImgAsync(Guid[] guids)
+        {
+            string[] images = new string[0];
+            return images;
+        }
         public void SetBaseAddress(string url)
         {
             _sdkClientSettings.BaseUrl = url;
@@ -887,7 +891,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
                 }
-                newAlbum.lowResImageSrc = newAlbum.imageSrc + "&fillHeight=128&fillWidth=128&quality=96";
+                newAlbum.lowResImageSrc = newAlbum.imageSrc;
             }
             catch (Exception)
             {

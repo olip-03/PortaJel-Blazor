@@ -7,9 +7,9 @@
 @inject NavigationManager NavigationManager
 
 <div class="containerImg">
-    <div class="albumImage shimmerBG ">
-@*        <img src="@album.imageSrc" class="albumImage shimmerBG" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
-        *@<img src="@albumImg" class="albumImage shimmerBG" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
+    <div class="imageHolder">
+        <img src="@backImg" class="albumImage lowRes"/>
+        <img src="@albumImg" class="albumImage" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="NavigateToAlbum" />
     </div>
 
     <p class="albumText" @onclick="NavigateToArtist">
@@ -41,10 +41,13 @@
     string albumText = null;
 
     private string albumImg { get; set; } = String.Empty;
+    private string backImg { get; set; } = String.Empty;
+
 
     protected override async Task OnInitializedAsync()
     {
-        albumImg = album.imageAtResolution(256);
+        albumImg = album.imageSrc;
+        backImg = album.imageAtResolution(25);
         StateHasChanged();
     }
 

@@ -23,35 +23,80 @@
 
 <!-- Full media controller -->
 <div class="music-screen" id="music-screen">
-    <div class="music-screen-tools">
-        <button class="GoBackButton" @onclick=ClosePlayer>
-            <img src="/images/down.svg" class="">
-        </button>
-        <button class="GoBackButton ">
-            <img src="/images/more-horiz.svg" class="">
-        </button>
-    </div>
-
-    <img src="/images/emptyAlbum.png" class="music-screen-img"/>
-
-    <div class="music-screen-bottominfo">
-        <h1 class="music-name">Song Title</h1>
-        <p class="artist-name">Artist Name</p>
-
-        <progress class="progress progress1" max="100" value="80"></progress>
-
-        <div class="controls">
-            <button class="btn-small"><!-- Shuffle --><img class="miniplayer-iconimg" src="images/shuffle.svg"/></button>
-            <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/skip-previous.svg" /></button>
-            <button class="btn-large play"><!-- pause play --><img class="miniplayer-iconimg" src="images/play.svg" /></button>
-            <button class="btn-small"><!-- Skip --><img class="miniplayer-iconimg" src="images/skip-next.svg"/></button>
-            <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/repeat-off.svg" /></button>
+    @if(!queueScreen)
+    {
+        <div class="music-screen-tools">
+            <button class="GoBackButton" @onclick=ClosePlayer>
+                <img src="/images/down.svg" class="">
+            </button>
+            <button class="GoBackButton ">
+                <img src="/images/more-horiz.svg" class="">
+            </button>
         </div>
-        <div class="music-screen-nav">
-            <button class="btn-small"><!-- Fav --><img class="miniplayer-iconimg" src="images/heart.svg"></button>
-            <button class="btn-small"><!-- Queue --><img class="miniplayer-iconimg" src="images/queue.svg"></button>
+
+        <img src="/images/emptyAlbum.png" class="music-screen-img" />
+
+        <div class="music-screen-bottominfo">
+            <h1 class="music-name">Song Title</h1>
+            <p class="artist-name">Artist Name</p>
+
+            <progress class="progress progress1" max="100" value="80"></progress>
+
+            <div class="controls">
+                <button class="btn-small"><!-- Shuffle --><img class="miniplayer-iconimg" src="images/shuffle.svg" /></button>
+                <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/skip-previous.svg" /></button>
+                <button class="btn-large play"><!-- pause play --><img class="miniplayer-iconimg" src="images/play.svg" /></button>
+                <button class="btn-small"><!-- Skip --><img class="miniplayer-iconimg" src="images/skip-next.svg" /></button>
+                <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/repeat-off.svg" /></button>
+            </div>
+            <div class="music-screen-nav">
+                <button class="btn-small"><!-- Fav --><img class="miniplayer-iconimg" src="images/heart.svg"></button>
+                <button class="btn-small" @onclick=OpenQueue><!-- Queue --><img class="miniplayer-iconimg" src="images/queue.svg"></button>
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="music-screen-tools">
+            <button class="GoBackButton" @onclick=ReturnToPlayer>
+                <img src="/images/back.svg" class="">
+            </button>
+        </div>
+
+         <div style="overflow:hidden;">
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+                <div>Album Item</div>
+            </div>
+    }
 </div>
 
 @code {
@@ -61,6 +106,8 @@
 
     public bool isPlaying { get; set; } = false;
     public bool isOpen { get; set; } = false;
+
+    public bool queueScreen { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,7 +133,17 @@
     }
     void FavouriteSong()
     {
-        
+
+    }
+    void OpenQueue()
+    {
+        queueScreen = true;
+        StateHasChanged();
+    }
+    void ReturnToPlayer()
+    {
+        queueScreen = false;
+        StateHasChanged();
     }
 
     // Methods for handling the movement and controls of the main media player

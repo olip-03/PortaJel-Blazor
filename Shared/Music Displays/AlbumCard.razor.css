@@ -23,17 +23,28 @@ p.albumText {
     text-overflow: ellipsis; /* Add this line to add ellipsis for long text */
 }
 .albumImage {
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    flex-shrink: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.imageHolder {
+    overflow: hidden;
+    position: relative;
     width: 160px;
     max-width: 160px;
     height: 160px;
-    margin-right: 10px;
     border-radius: 0.4rem;
+    margin-right: 10px;
     background-color: darkgrey;
-    flex-shrink: 0;
-    position: relative;
 }
 .lowRes {
-    /*filter: blur(16px);*/
+    overflow: hidden;
+    filter: blur(15px);
 }
 /* style this to fit your needs */
 /* and remove [alt] to apply to all images*/

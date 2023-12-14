@@ -65,7 +65,8 @@ namespace PortaJel_Blazor.Data
         }
         public string imageAtResolution(int px)
         {
-            return imageSrc += $"?fillHeight={px}&fillWidth={px}&quality=96";
+            string data = imageSrc + $"?fillHeight={px}&fillWidth={px}&quality=96";
+            return data;
         }
     }
 }
