@@ -26,6 +26,16 @@ public static class MauiProgram
 
     public static MainLayout mainLayout = null;
 
+    // Data for context menu
+    public static List<ContextMenuItem> ContextMenuTaskList = new List<ContextMenuItem>();
+    public static bool ShowContextMenuImage = false;
+    public static string ContextMenuImage = String.Empty;
+    public static string ContextMenuMainText = String.Empty;
+    public static string ContextMenuSubText = String.Empty;
+
+    // Data for MusicPlayer
+    public static bool MusicPlayerIsQueueOpen = false;
+
     // Data for connections 
     public static List<ServerConnecter> servers = new List<ServerConnecter>();
     public static DataHandler? dataHandler = null;
@@ -45,10 +55,10 @@ public static class MauiProgram
     public static bool favouritesShowGrid = false;
 
     // Index page cached data
-    public static Album[] favouritesPlayData { get; set; } = new Album[0];
-    public static Album[] recentPlayData { get; set; } = new Album[0];
-    public static Album[] mostPlayData { get; set; } = new Album[0];
-    public static Album[] recentAddedData { get; set; } = new Album[0];
+    public static Album[]? favouritesPlayData { get; set; } = null;
+    public static Album[]? recentPlayData { get; set; } = null;
+    public static Album[]? mostPlayData { get; set; } = null;
+    public static Album[]? recentAddedData { get; set; } = null;
 
     public static MauiApp CreateMauiApp()
 	{

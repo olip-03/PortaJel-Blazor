@@ -10,7 +10,7 @@
     <link href="PortaJel-Blazor.styles.css" rel="stylesheet" />
 </head>
 
-<body>
+<body style="top: 0%;">
 
     <div class="status-bar-safe-area"></div>
 
@@ -27,6 +27,7 @@
     <script src="_content/BlazorAnimate/blazorAnimateInterop.js"></script>
     <script src="js/dragElement.js" autostart="true"></script>
     <script src="js/contextMenu.js" autostart="true"></script>
+    <script src="js/scrolldisable.js" autostart="true"></script>
 
     <script>
         window.goBack = () => {
@@ -44,6 +45,10 @@
         body {
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
+            scroll-behavior: auto !important;
+        }
+        html {
+            scroll-behavior: auto !important;
         }
     </style>
 </body>

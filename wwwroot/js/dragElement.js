@@ -157,5 +157,7 @@ function dragElement(itemName) {
     }
 
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    elmnt.ontouchstart = dragMouseDown;
+    if (elmnt != null) {
+        elmnt.ontouchstart = dragMouseDown;
+    }
 }

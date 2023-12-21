@@ -15,8 +15,6 @@
     <div class="scrollmenu">
         @for (int i = 0; i < itemCount; i++)
         {
-            itemFadeInDelay += 0.1f;
-
             Album showRecord = new();
 
             if (albumData != null)
@@ -24,18 +22,13 @@
                 if(i < albumData.Count())
                 {
                     showRecord = albumData[i];
-                    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                        <AlbumCard album="showRecord" />
-                    </Animate>   
+                    <AlbumCard album="showRecord" />
                 }
             }
             else
             {
-                 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                    <AlbumCard album="showRecord" />
-                </Animate>   
+                <AlbumCard album="showRecord" />
             }
-       
         }
         <div class="scrollmenu-showall">
             <p style="margin: 1rem; color: darkgray;">Show All</p>
@@ -49,8 +42,6 @@
     [Parameter] public string Title { get; set; }
     [Parameter] public Album[] albumData { get; set; }
     [Parameter] public int itemCount { get; set; }
-
-    private float itemFadeInDelay = 0;
 
     private List<BaseItemKind> acceptedTypes = new List<BaseItemKind>
     {

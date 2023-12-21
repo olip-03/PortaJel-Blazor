@@ -37,14 +37,16 @@
                 </div>
             }
             <hr />
+
+            foreach (Artist artist in album.artists)
+            {
+                <div class="artistInfo" @onclick="() => SelectArtist(artist.id)">
+                    <img src="@artist.imageAtResolution(40)" class="artistInfoImg">
+                    @artist.name
+                </div>
+            }
         }
-        @foreach (Artist artist in album.artists)
-        {
-            <div class="artistInfo" @onclick="() => SelectArtist(artist.id)">
-                <img src="@artist.imageAtResolution(40)" class="artistInfoImg">
-                @artist.name
-            </div>
-        }
+
     </Animate>
 }
 

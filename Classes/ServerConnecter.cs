@@ -24,11 +24,14 @@ namespace PortaJel_Blazor.Classes
     public class ServerConnecter
     {
         private UserDto userDto = null!;
+
         private SdkClientSettings _sdkClientSettings;
         private ArtistsClient _artistsClient;
         private ItemsClient _itemsClient;
         private ImageClient _imageClient;
+        private MusicGenresClient _genresClient;
         private SearchClient _searchClient;
+
         private ISystemClient _systemClient;
         private IUserClient _userClient;
 
@@ -40,6 +43,7 @@ namespace PortaJel_Blazor.Classes
         private int TotalAlbumRecordCount = -1;
         private int TotalArtistRecordCount = -1;
         private int TotalSongRecordCount = -1;
+        private int TotalGenreRecordCount = -1;
 
         HttpClient _httpClient;
         public ServerConnecter()
@@ -113,6 +117,7 @@ namespace PortaJel_Blazor.Classes
                 _imageClient = new(_sdkClientSettings, _httpClient);
                 _searchClient = new(_sdkClientSettings, _httpClient);
                 _artistsClient = new(_sdkClientSettings, _httpClient);
+                _genresClient = new(_sdkClientSettings, _httpClient);
 
                 Username = username;
                 StoredPassword = password;
@@ -706,6 +711,58 @@ namespace PortaJel_Blazor.Classes
 
             return songs.ToArray();
         }
+        public async Task<int> GetTotalGenreCount()
+        {
+            if (TotalGenreRecordCount == -1)
+            {
+                List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
+                BaseItemDtoQueryResult recordCount;
+                recordCount = await _genresClient.GetMusicGenresAsync(userId: userDto.Id, includeItemTypes: _includeItemTypes, enableImages: false, enableTotalRecordCount: true);
+
+                return recordCount.TotalRecordCount;
+            }
+            return TotalGenreRecordCount;
+        }
+        public async Task<Album[]> GetAllGenresAsync(int? limit = 50, int? startFromIndex = 0)
+        {
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
+            List<String> _sortTypes = new List<string> { "SortName" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+
+            BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                songResult = await _genresClient.GetMusicGenresAsync(userId: userDto.Id, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, enableTotalRecordCount: true);
+                TotalGenreRecordCount = songResult.TotalRecordCount;
+            }
+            catch (Jellyfin.Sdk.ItemsException itemException)
+            {
+                if (itemException.StatusCode == 401)
+                {
+                    // UNAUTHORISED
+                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            // Catch blocks
+            if (songResult == null) { return null; }
+            if (songResult.Items == null) { return null; }
+
+            List<Album> songs = new List<Album>();
+            foreach (var item in songResult.Items)
+            {
+                Album itemToAdd = await GenreBuilder(item);
+                songs.Add(itemToAdd);
+            }
+
+            return songs.ToArray();
+        }
         public async Task<Artist> GetArtistAsync(Guid artistId)
         {
             List<BaseItemKind> _includeItemTypesArtist = new List<BaseItemKind> { BaseItemKind.MusicArtist };
@@ -941,6 +998,33 @@ namespace PortaJel_Blazor.Classes
 
             return newArtist;
         }
+        private async Task<Album> GenreBuilder(BaseItemDto baseItem)
+        {
+            // TODO: This is just a rehash of the AlbumBuilder to get the page I needed
+            // working really quick. Ideally this'd be redone. 
+            if (baseItem == null)
+            {
+                return null;
+            }
+            Album newAlbum = new();
+            newAlbum.name = baseItem.Name;
+            newAlbum.id = baseItem.Id;
+            newAlbum.songs = null; // TODO: Implement songs
+
+            if (baseItem.Type != BaseItemKind.MusicAlbum)
+            {
+                newAlbum.isSong = true;
+                if (baseItem.AlbumId != null)
+                {
+                    newAlbum.id = (Guid)baseItem.AlbumId;
+                }
+            }
+            
+            // TODO: Implement getting album images for each genre 
+           
+            return newAlbum;
+        }
+
     }
 
 }

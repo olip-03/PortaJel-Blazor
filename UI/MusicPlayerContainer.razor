@@ -24,7 +24,7 @@
 <!-- Full media controller -->
 <div class="music-screen" id="music-screen">
     @if(!queueScreen)
-    {
+    {// Queue Screen HTML
         <div class="music-screen-tools">
             <button class="GoBackButton" @onclick=ClosePlayer>
                 <img src="/images/down.svg" class="">
@@ -56,7 +56,7 @@
         </div>
     }
     else
-    {
+    {// Queue Screen HTML
         <div class="music-screen-tools">
             <button class="GoBackButton" @onclick=ReturnToPlayer>
                 <img src="/images/back.svg" class="">
@@ -64,38 +64,8 @@
         </div>
 
          <div style="overflow:hidden;">
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-                <div>Album Item</div>
-            </div>
+
+         </div>
     }
 </div>
 
@@ -112,6 +82,7 @@
     protected override async Task OnInitializedAsync()
     {
         reference = this;
+        await JS.InvokeAsync<string>("dragElement", "music-player");
     }
     void OnLabelSwiped(SwipedEventArgs e)
     {
@@ -137,11 +108,17 @@
     }
     void OpenQueue()
     {
+        MauiProgram.MusicPlayerIsQueueOpen = true;
         queueScreen = true;
+
+        StateHasChanged();
     }
-    void ReturnToPlayer()
+    public void ReturnToPlayer()
     {
+        MauiProgram.MusicPlayerIsQueueOpen = false;
         queueScreen = false;
+
+        StateHasChanged();
     }
 
     // Methods for handling the movement and controls of the main media player
