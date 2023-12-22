@@ -1,0 +1,94 @@
+﻿@using PortaJel_Blazor.Data;
+@using BlazorAnimate;
+@inject IJSRuntime JS;
+
+@page "/AlbumView/{albumId}"
+
+@if (loaded)
+{
+    <button class="GoBackButton" @onclick=GoBack>
+        <img src="/images/back.svg" class="">
+    </button>
+    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative; z-index: -1;">
+        <div class="imageContainer">
+            @if (album != null)
+            {
+                <img src="@album.imageSrc" class="albumImage" />
+            }
+            else
+            {
+                <img src="" class="albumImage" />
+            }
+        </div>
+
+        @if (album != null)
+        {
+            <h2>@album.name</h2>
+            <div class="artistInfo" @onclick="() => SelectArtist(album.artists.FirstOrDefault().id)">
+                @album.GetArtistName()
+            </div>
+
+            foreach (var item in album.songs)
+            {
+                <hr />
+                <div>
+                    <p class="songTitle">@item.name</p>
+                    <p class="songArtistTitle">@item.artist</p>
+                </div>
+            }
+            <hr />
+
+            foreach (Artist artist in album.artists)
+            {
+                <div class="artistInfo" @onclick="() => SelectArtist(artist.id)">
+                    <img src="@artist.imageAtResolution(40)" class="artistInfoImg">
+                    @artist.name
+                </div>
+            }
+        }
+
+    </Animate>
+}
+
+
+@code {
+    [Parameter] public string albumId { get; set; }
+
+    private Album album { get; set; }
+    private bool loaded = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        MauiProgram.mainLayout.pageTitle = "Album";
+        MauiProgram.mainLayout.currentUri = $"/AlbumView/{albumId}";
+        MauiProgram.mainLayout.showHeader = false;
+
+        Guid parseId = Guid.Parse(albumId);
+        if (albumId != null)
+        {
+            album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist:true);
+        }
+
+        loaded = true;
+        MauiProgram.mainLayout.isLoading = false;
+        StateHasChanged();
+    }
+    private void SelectArtist(Guid artistId)
+    {
+        MauiProgram.mainLayout.NavigateArtist(artistId);
+    }
+    private async void GoBack()
+    {
+        MauiProgram.mainLayout.isLoading = true;
+        try
+        {
+            await JS.InvokeAsync<string>("goBack");
+        }
+        catch (Exception ex)
+        {
+            bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
+            MauiProgram.mainLayout.NavigateHome();
+        }
+    }
+}
+

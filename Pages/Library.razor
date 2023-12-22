@@ -311,7 +311,7 @@
         startFromIndex = 0; 
         StateHasChanged();    
     }
-    private void SelectGenres()
+    private async void SelectGenres()
     {
         if (selected != selectable.genres)
         {
@@ -319,11 +319,21 @@
             selectedPage = 0;
         }
 
-        isLoading = true; 
+        isLoading = true;
         selected = selectable.genres;
         MauiProgram.libraryItemView = (int)selected;
 
+        // Fetch Genre information
+        data = await MauiProgram.servers[0].GetAllGenresAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
+        totalRecordCount = await MauiProgram.servers[0].GetTotalGenreCount();
+
+        double number = totalRecordCount / itemsPerPage;// or any other number with a decimal
+        int roundedNumber = (int)Math.Ceiling(number);
+        pages = roundedNumber;
+
         isLoading = false; 
+        startFromIndex = 0;
+        StateHasChanged();
     }
     private async void SelectPage(int page)
     {

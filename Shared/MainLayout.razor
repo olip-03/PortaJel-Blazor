@@ -336,17 +336,22 @@
     public async Task OpenPlayer()
     {
         await JS.InvokeAsync<string>("dragElement", "open");
+        await JS.InvokeAsync<string>("LockScroll");
     }
     public async Task ClosePlayer()
     {
         await JS.InvokeAsync<string>("dragElement", "close");
+        await JS.InvokeAsync<string>("UnlockScoll");
     }
     public async Task OpenContextMenu()
     {
+        //LockScroll
         await JS.InvokeAsync<string>("contextMenu", "open");
+        await JS.InvokeAsync<string>("LockScroll");
     }
     public async Task CloseContextMenu()
     {
         await JS.InvokeAsync<string>("contextMenu", "close");
+        await JS.InvokeAsync<string>("UnlockScoll");
     }
 }

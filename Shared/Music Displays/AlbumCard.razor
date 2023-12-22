@@ -3,6 +3,7 @@
 @using Microsoft.Maui.Controls;
 @using PortaJel_Blazor.Pages;
 @using PortaJel_Blazor.Pages.Views;
+@using PortaJel_Blazor.Classes;
 
 @inject NavigationManager NavigationManager
 
@@ -72,6 +73,26 @@
     }
     private async void OpenContextMenu()
     {
+        MauiProgram.ContextMenuTaskList.Clear();
+        MauiProgram.ShowContextMenuImage = true;
+        MauiProgram.ContextMenuMainText = album.name;
+        MauiProgram.ContextMenuSubText = album.GetArtistName();
+        MauiProgram.ContextMenuImage = albumImg;
+
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Favourite", "Favourite.png", new Task(() =>
+        {
+
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Playlist", "Favourite.png", new Task(() =>
+        {
+
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("View Artist", "Favourite.png", new Task(() =>
+        {
+            NavigateToArtist();
+        })));
+
         await MauiProgram.mainLayout.OpenContextMenu();
     }
+
 }

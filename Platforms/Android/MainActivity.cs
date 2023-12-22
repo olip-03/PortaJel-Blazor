@@ -18,8 +18,16 @@ public class MainActivity : MauiAppCompatActivity
                 // If the music player is open, close it 
                 if (MauiProgram.mainLayout.musicPlayerContainer.isOpen)
                 {
-                    MauiProgram.mainLayout.ClosePlayer();
-                    return false;
+                    if (MauiProgram.MusicPlayerIsQueueOpen)
+                    {
+                        MauiProgram.mainLayout.musicPlayerContainer.ReturnToPlayer();
+                        return false;
+                    }
+                    else
+                    {
+                        MauiProgram.mainLayout.ClosePlayer();
+                        return false;
+                    }
                 }
                 else
                 {
