@@ -362,3 +362,8 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /App.xaml.cs
+/Pages/Views/AlbumView.razor
+/Pages/Views/AlbumView.razor.css
+/Shared/MainLayout.razor.css
+/UI/MusicPlayerContainer.razor.css
+/wwwroot/js/dragElement.js
