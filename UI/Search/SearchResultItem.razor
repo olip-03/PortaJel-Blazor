@@ -1,11 +1,16 @@
 ﻿@using PortaJel_Blazor.Data;
+@using PortaJel_Blazor;
+@using Microsoft.Maui.Controls;
+@using PortaJel_Blazor.Pages;
+@using PortaJel_Blazor.Pages.Views;
+@using PortaJel_Blazor.Classes;
 
 @if (isGrid)
 {
     <div class="grid-album-container">
         @if(album.isArtist == true)
         { // this item is an artist
-            <div class="grid-album-cover" @onclick=NavigateToArtist>
+            <div class="grid-album-cover" @onclick=NavigateToArtist @oncontextmenu=OpenContextMenu>
                 <img class="grid-artist-img" src="@album.imageAtResolution(resolution)" loading="lazy" />
             </div>
             <div @onclick=NavigateToArtist>
@@ -15,7 +20,7 @@
         }
         else
         {
-            <div class="grid-album-cover" @onclick=NavigateToAlbum>
+            <div class="grid-album-cover" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
                 <img class="grid-album-img" src="@album.imageAtResolution(resolution)" loading="lazy" />
             </div>
             <div @onclick=NavigateToAlbum>
@@ -29,7 +34,7 @@ else
 {
     @if (album.isArtist == true)
     {
-        <div class="album-container">
+        <div class="album-container" @oncontextmenu=OpenContextMenu>
             <div class="artist-cover" @onclick=NavigateToArtist>
                 <img class="artist-cover" src="@album.imageAtResolution(resolution)" />
             </div>
@@ -42,7 +47,7 @@ else
     }
     else
     {
-        <div class="album-container">
+        <div class="album-container" @oncontextmenu=OpenContextMenu>
             <div class="album-cover" @onclick=NavigateToAlbum>
                 <img class="album-cover" src="@album.imageAtResolution(resolution)" />
             </div>
@@ -80,5 +85,28 @@ else
     private void FavouriteItem()
     {
 
+    }
+    private async void OpenContextMenu()
+    {
+        MauiProgram.ContextMenuTaskList.Clear();
+        MauiProgram.ShowContextMenuImage = true;
+        MauiProgram.ContextMenuMainText = album.name;
+        MauiProgram.ContextMenuSubText = album.GetArtistName();
+        MauiProgram.ContextMenuImage = album.imageAtResolution(resolution);
+
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Favourite", "Favourite.png", new Task(() =>
+        {
+
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Playlist", "Favourite.png", new Task(() =>
+        {
+
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("View Artist", "Favourite.png", new Task(() =>
+        {
+            NavigateToArtist();
+        })));
+
+        await MauiProgram.mainLayout.OpenContextMenu();
     }
 }

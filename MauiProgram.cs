@@ -53,6 +53,10 @@ public static class MauiProgram
     public static int favouritesSortMethod = 0;
     public static int favouritesItemView = 0;
     public static bool favouritesShowGrid = false;
+    public static List<Album> favouritePlaylists = new();
+    public static List<Album> favouriteAlbums = new();
+    public static List<Album> favouriteArtist = new();
+    public static List<Album> favouriteSongs = new();
 
     // Index page cached data
     public static Album[]? favouritesPlayData { get; set; } = null;

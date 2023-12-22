@@ -559,7 +559,7 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalAlbumRecordCount;
         }
-        public async Task<Album[]> GetAlbumsAsync(int? limit = 50, int? startFromIndex = 0)
+        public async Task<Album[]> GetAlbumsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
             List<String> _sortTypes = new List<string> { "SortName" };
@@ -569,7 +569,7 @@ namespace PortaJel_Blazor.Classes
             // Call GetItemsAsync with the specified parameters
             try
             {  
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, isFavorite: favourites, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
                 TotalAlbumRecordCount = songResult.TotalRecordCount;
             }
             catch (Jellyfin.Sdk.ItemsException itemException)

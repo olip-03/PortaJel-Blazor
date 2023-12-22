@@ -118,9 +118,18 @@
 
 @code {
     private Album[] data = new Album[20];
+    private int totalRecordCount = 0;
     private bool isLoading = false;
 
     private bool showGrid = MauiProgram.favouritesShowGrid;
+
+    private int itemsPerPage = 100;
+    private int startFromIndex = 0;
+    private int selectedPage = 0;
+    private int pages = 0;
+
+    private int lowerPages = 0;
+    private int higherPages = 0;
 
     private enum selectable
     {
@@ -164,10 +173,37 @@
         showGrid = !showGrid; // toggle
         MauiProgram.favouritesShowGrid = showGrid;
     }
-    private void SelectAlbums()
+    private async void SelectAlbums()
     {
+        if (selected != selectable.albums)
+        {
+            startFromIndex = 0;
+            selectedPage = 0;
+        }
+
+        isLoading = true;
         selected = selectable.albums;
-        MauiProgram.favouritesItemView = (int)selected;
+        MauiProgram.libraryItemView = (int)selected;
+
+        // Fetch Album information
+        if (MauiProgram.favouriteAlbums.Count <= 0)
+        {
+            data = await MauiProgram.servers[0].GetAlbumsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
+            totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
+            MauiProgram.favouriteAlbums = data.ToList();
+        }
+        else
+        {
+            data = MauiProgram.favouriteAlbums.ToArray();
+        }
+
+        double number = (double)totalRecordCount / (double)itemsPerPage;
+        int roundedNumber = (int)Math.Ceiling(number);
+        pages = roundedNumber;
+
+        isLoading = false;
+        startFromIndex = 0;
+        StateHasChanged();
     }
     private void SelectArtists()
     {

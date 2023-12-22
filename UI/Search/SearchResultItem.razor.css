@@ -50,13 +50,13 @@
     width: 100%;
     height: auto;
     aspect-ratio: 1 / 1;
-    border-radius: 2px;
+    border-radius: 0.4rem;
 }
 .grid-album-img {
     width: 100%;
     height: auto;
     aspect-ratio: 1 / 1;
-    border-radius: 2px;
+    border-radius: 0.4rem;
     object-fit: cover;
 }
 .grid-artist-img {
@@ -64,7 +64,7 @@
     height: auto;
     border-radius: 50%;
     aspect-ratio: 1 / 1;
-    border-radius: 2px;
+    border-radius: 0.4rem;
     object-fit: cover;
 }
 .grid-album-name {
