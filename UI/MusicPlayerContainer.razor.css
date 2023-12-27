@@ -1,0 +1,28 @@
+﻿.music-player {
+    height: 4rem;
+    background-color: white;
+    border: solid;
+    border-color: lightgray;
+    border-width: 2px;
+    border-radius: 0.25rem;
+    position: fixed; /* Ensure the z-index property works */
+    top: calc(100vh - 132px);
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90vw; /* Need a specific value to work */
+    z-index: 30; /* Set a higher z-index value to bring it above the other buttons */
+
+    transition-duration: 0.3s;
+}
+.music-screen {
+    position: fixed;
+    top: 90vh;
+    height: 100vh;
+    width: 100vw;
+    background-color: gray;
+    opacity: 0%;
+    z-index: 19;
+    transition-duration: 0.3s;
+}
