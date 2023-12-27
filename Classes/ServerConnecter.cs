@@ -28,6 +28,8 @@ namespace PortaJel_Blazor.Classes
         private SdkClientSettings _sdkClientSettings;
         private ArtistsClient _artistsClient;
         private ItemsClient _itemsClient;
+        private PlaylistsClient _playlistsClient;
+        private PlaylistCreationResult _playlistCreationResult;
         private ImageClient _imageClient;
         private MusicGenresClient _genresClient;
         private SearchClient _searchClient;
@@ -118,6 +120,8 @@ namespace PortaJel_Blazor.Classes
                 _searchClient = new(_sdkClientSettings, _httpClient);
                 _artistsClient = new(_sdkClientSettings, _httpClient);
                 _genresClient = new(_sdkClientSettings, _httpClient);
+                _playlistsClient = new(_sdkClientSettings, _httpClient);
+                _playlistCreationResult = new();
 
                 Username = username;
                 StoredPassword = password;
@@ -617,7 +621,7 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalArtistRecordCount;
         }
-        public async Task<Album[]> GetAllArtistsAsync(int? limit = 50, int? startFromIndex = 0)
+        public async Task<Album[]> GetAllArtistsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
             List<String> _sortTypes = new List<string> { "SortName" };
@@ -627,7 +631,7 @@ namespace PortaJel_Blazor.Classes
             // Call GetItemsAsync with the specified parameters
             try
             {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, isFavorite: favourites, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
                 TotalArtistRecordCount = songResult.TotalRecordCount;
             }
             catch (Jellyfin.Sdk.ItemsException itemException)
@@ -671,7 +675,7 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalSongRecordCount;
         }
-        public async Task<Album[]> GetAllSongsAsync(int? limit= 50, int? startFromIndex = 0)
+        public async Task<Album[]> GetAllSongsAsync(int? limit= 50, int? startFromIndex = 0, bool? favourites = false)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
             List<String> _sortTypes = new List<string> { "SortName" };
@@ -681,7 +685,7 @@ namespace PortaJel_Blazor.Classes
             // Call GetItemsAsync with the specified parameters
             try
             {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, isFavorite: favourites, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
                 TotalSongRecordCount = songResult.TotalRecordCount;
             }
             catch (Jellyfin.Sdk.ItemsException itemException)
@@ -813,6 +817,52 @@ namespace PortaJel_Blazor.Classes
             }
 
             return returnArtist;
+        }
+        public async Task<Album[]> GetPlaylistAsycn(int? limit = 50, int? startFromIndex = 0, bool? favourites = false)
+        {
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+            List<String> _sortTypes = new List<string> { "SortName" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+
+            BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
+            // Call GetItemsAsync with the specified parameters
+            try
+            {
+                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, isFavorite: favourites, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true);
+                TotalAlbumRecordCount = songResult.TotalRecordCount;
+            }
+            catch (Jellyfin.Sdk.ItemsException itemException)
+            {
+                if (itemException.StatusCode == 401)
+                {
+                    // UNAUTHORISED
+                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            if (songResult == null) { return null; }
+            if (songResult.Items == null) { return null; }
+
+            List<Album> albums = new List<Album>();
+            foreach (var item in songResult.Items)
+            {
+                try
+                {
+                    albums.Add(AlbumBuilder(item));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+
+            }
+
+            return albums.ToArray();
         }
         public async Task<string[]> GetBase64ImgAsync(Guid[] guids)
         {
