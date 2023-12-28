@@ -30,6 +30,7 @@ namespace PortaJel_Blazor.Classes
         private ItemsClient _itemsClient;
         private PlaylistsClient _playlistsClient;
         private PlaylistCreationResult _playlistCreationResult;
+        private UserLibraryClient _userLibraryClient; 
         private ImageClient _imageClient;
         private MusicGenresClient _genresClient;
         private SearchClient _searchClient;
@@ -121,6 +122,7 @@ namespace PortaJel_Blazor.Classes
                 _artistsClient = new(_sdkClientSettings, _httpClient);
                 _genresClient = new(_sdkClientSettings, _httpClient);
                 _playlistsClient = new(_sdkClientSettings, _httpClient);
+                _userLibraryClient = new(_sdkClientSettings, _httpClient);
                 _playlistCreationResult = new();
 
                 Username = username;
@@ -838,6 +840,17 @@ namespace PortaJel_Blazor.Classes
             }
 
             return returnArtist;
+        }
+        public async Task FavouriteItem(Guid id, bool setState)
+        {
+            if (setState)
+            {
+                await _userLibraryClient.MarkFavoriteItemAsync(userDto.Id, id);
+            }
+            else
+            {
+                await _userLibraryClient.UnmarkFavoriteItemAsync(userDto.Id, id);
+            }
         }
         public async Task<Album[]> GetPlaylistAsycn(int? limit = 50, int? startFromIndex = 0, bool? favourites = false)
         {

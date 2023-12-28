@@ -36,6 +36,12 @@
 .favorite-button {
     margin-left: auto;
     cursor: pointer;
+    min-width: 80px;
+    height: 80px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    user-select: none;
 }
 .favorite-button-icon {
     aspect-ratio: 1/1;
