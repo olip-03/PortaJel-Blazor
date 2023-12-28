@@ -154,6 +154,23 @@
         MauiProgram.mainLayout.currentUri = "/favourites";
         MauiProgram.mainLayout.showHeader = true;
         MauiProgram.mainLayout.isLoading = false;
+
+        selected = (selectable)Enum.ToObject(typeof(selectable), MauiProgram.favouritesItemView);
+        switch (selected)
+        {
+            case selectable.albums:
+                SelectAlbums();
+                break;
+            case selectable.artists:
+                SelectArtists();
+                break;
+            case selectable.songs:
+                SelectSongs();
+                break;
+            case selectable.playlists:
+                SelectPlaylist();
+                break;
+        }
     }
 
     private void ToggleSort()
@@ -183,7 +200,7 @@
 
         isLoading = true;
         selected = selectable.albums;
-        MauiProgram.libraryItemView = (int)selected;
+        MauiProgram.favouritesItemView = (int)selected;
 
         // Fetch Album information
         if (MauiProgram.favouriteAlbums.Count <= 0)
@@ -205,15 +222,67 @@
         startFromIndex = 0;
         StateHasChanged();
     }
-    private void SelectArtists()
+    private async void SelectArtists()
     {
+        if (selected != selectable.artists)
+        {
+            startFromIndex = 0;
+            selectedPage = 0;
+        }
+
+        isLoading = true;
         selected = selectable.artists;
         MauiProgram.favouritesItemView = (int)selected;
+
+        // Fetch Artist information
+        if (MauiProgram.favouriteArtist.Count <= 0)
+        {
+            data = await MauiProgram.servers[0].GetAllArtistsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
+            totalRecordCount = await MauiProgram.servers[0].GetTotalArtistCount();
+        }
+        else
+        {
+            data = MauiProgram.favouriteArtist.ToArray();
+        }
+
+        double number = (double)totalRecordCount / (double)itemsPerPage;
+        int roundedNumber = (int)Math.Ceiling(number);
+        pages = roundedNumber;
+
+        isLoading = false;
+        startFromIndex = 1;
+        StateHasChanged();
     }
-    private void SelectSongs()
+    private async void SelectSongs()
     {
+        if (selected != selectable.artists)
+        {
+            startFromIndex = 0;
+            selectedPage = 0;
+        }
+
+        isLoading = true;
         selected = selectable.songs;
         MauiProgram.favouritesItemView = (int)selected;
+
+        // Fetch Artist information
+        if (MauiProgram.favouriteSongs.Count <= 0)
+        {
+            data = await MauiProgram.servers[0].GetAllSongsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
+            totalRecordCount = await MauiProgram.servers[0].GetTotalSongCount();
+        }
+        else
+        {
+            data = MauiProgram.favouriteSongs.ToArray();
+        }
+
+        double number = (double)totalRecordCount / (double)itemsPerPage;
+        int roundedNumber = (int)Math.Ceiling(number);
+        pages = roundedNumber;
+
+        isLoading = false;
+        startFromIndex = 1;
+        StateHasChanged();
     }
     private void SelectPlaylist()
     {

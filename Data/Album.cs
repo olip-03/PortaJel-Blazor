@@ -14,6 +14,7 @@ namespace PortaJel_Blazor.Data
         public string lowResImageSrc { get; set; } = "/images/emptyAlbum.png";
         public bool isSong { get; set; } = false;
         public bool isArtist { get; set; } = false;
+        public bool isFavourite { get; set; } = false; 
         public Artist[] artists { get; set; }
         public Song[] songs { get; set; }
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;
