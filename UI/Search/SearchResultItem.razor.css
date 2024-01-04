@@ -36,7 +36,6 @@
 .favorite-button {
     margin-left: auto;
     cursor: pointer;
-    min-width: 80px;
     height: 80px;
     align-items: center;
     display: flex;

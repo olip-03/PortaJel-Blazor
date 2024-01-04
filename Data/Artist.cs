@@ -14,6 +14,7 @@ namespace PortaJel_Blazor.Data
         public string backgroundImgSrc { get; set; } = string.Empty;
         public string logoImgSrc { get; set; } = string.Empty;
         public string description { get; set; } = string.Empty;
+        public bool isFavourite { get; set; } = false;
         public Album[] artistAlbums { get; set; } = new Album[0];
 
         public static Artist Empty = new Artist();

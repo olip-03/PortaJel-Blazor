@@ -16,6 +16,8 @@ namespace PortaJel_Blazor.Data
         public bool isSong { get; set; } = false;
         public bool isArtist { get; set; } = false;
         public bool isFavourite { get; set; } = false; 
+        public string path = string.Empty;
+        public bool isM3u = false;
         public Artist[] artists { get; set; }
         public Song[] songs { get; set; }
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;

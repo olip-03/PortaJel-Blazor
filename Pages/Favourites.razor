@@ -106,7 +106,18 @@
                 {
                     item = data[i];
                 }
-                <PortaJel_Blazor.UI.Search.SearchResultItem album="@item"/>
+
+                @if (item.isM3u)
+                {
+                    if(!MauiProgram.hideM3u)
+                    {
+                        <PortaJel_Blazor.UI.Search.SearchResultItem album="@item" />
+                    }
+                }
+                else
+                {
+                    <PortaJel_Blazor.UI.Search.SearchResultItem album="@item" />
+                }
             }
         }
         else
@@ -203,16 +214,9 @@
         MauiProgram.favouritesItemView = (int)selected;
 
         // Fetch Album information
-        if (MauiProgram.favouriteAlbums.Count <= 0)
-        {
-            data = await MauiProgram.servers[0].GetAlbumsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
-            totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
-            MauiProgram.favouriteAlbums = data.ToList();
-        }
-        else
-        {
-            data = MauiProgram.favouriteAlbums.ToArray();
-        }
+        data = await MauiProgram.servers[0].GetAlbumsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
+        totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
+        MauiProgram.favouriteAlbums = data.ToList();
 
         double number = (double)totalRecordCount / (double)itemsPerPage;
         int roundedNumber = (int)Math.Ceiling(number);
@@ -235,15 +239,9 @@
         MauiProgram.favouritesItemView = (int)selected;
 
         // Fetch Artist information
-        if (MauiProgram.favouriteArtist.Count <= 0)
-        {
-            data = await MauiProgram.servers[0].GetAllArtistsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
-            totalRecordCount = await MauiProgram.servers[0].GetTotalArtistCount();
-        }
-        else
-        {
-            data = MauiProgram.favouriteArtist.ToArray();
-        }
+        data = await MauiProgram.servers[0].GetAllArtistsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
+        totalRecordCount = await MauiProgram.servers[0].GetTotalArtistCount();
+        MauiProgram.favouriteArtist = data.ToList();
 
         double number = (double)totalRecordCount / (double)itemsPerPage;
         int roundedNumber = (int)Math.Ceiling(number);
@@ -255,7 +253,7 @@
     }
     private async void SelectSongs()
     {
-        if (selected != selectable.artists)
+        if (selected != selectable.songs)
         {
             startFromIndex = 0;
             selectedPage = 0;
@@ -265,16 +263,10 @@
         selected = selectable.songs;
         MauiProgram.favouritesItemView = (int)selected;
 
-        // Fetch Artist information
-        if (MauiProgram.favouriteSongs.Count <= 0)
-        {
-            data = await MauiProgram.servers[0].GetAllSongsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
-            totalRecordCount = await MauiProgram.servers[0].GetTotalSongCount();
-        }
-        else
-        {
-            data = MauiProgram.favouriteSongs.ToArray();
-        }
+        // Fetch Song information
+        data = await MauiProgram.servers[0].GetAllSongsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
+        totalRecordCount = await MauiProgram.servers[0].GetTotalSongCount();
+        MauiProgram.favouriteSongs = data.ToList();
 
         double number = (double)totalRecordCount / (double)itemsPerPage;
         int roundedNumber = (int)Math.Ceiling(number);
@@ -284,9 +276,29 @@
         startFromIndex = 1;
         StateHasChanged();
     }
-    private void SelectPlaylist()
+    private async void SelectPlaylist()
     {
+        if (selected != selectable.playlists)
+        {
+            startFromIndex = 0;
+            selectedPage = 0;
+        }
+
+        isLoading = true;
         selected = selectable.playlists;
         MauiProgram.favouritesItemView = (int)selected;
+
+        // Fetch Album information
+        data = await MauiProgram.servers[0].GetPlaylistAsycn(limit: itemsPerPage, startFromIndex: startFromIndex);
+        totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
+        MauiProgram.favouriteAlbums = data.ToList();
+
+        double number = (double)totalRecordCount / (double)itemsPerPage;
+        int roundedNumber = (int)Math.Ceiling(number);
+        pages = roundedNumber;
+
+        isLoading = false;
+        startFromIndex = 0;
+        StateHasChanged();
     }
 }
