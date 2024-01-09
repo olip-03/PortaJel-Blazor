@@ -29,6 +29,12 @@ public class MainActivity : MauiAppCompatActivity
         {
             if (e.Action == KeyEventActions.Down)
             {
+                // If the context menu is open, close it
+                if (MauiProgram.ContextMenuIsOpen)
+                {
+                    MauiProgram.mainLayout.CloseContextMenu();
+                    return false;
+                }                
                 // If the music player is open, close it 
                 if (MauiProgram.MusicPlayerIsOpen)
                 {

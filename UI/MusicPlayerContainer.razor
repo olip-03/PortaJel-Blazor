@@ -46,10 +46,12 @@
 <div class="music-screen" id="music-screen">
     <!-- Music Player -->
     <div class="music-screen-tools">
+        <!-- Back Btn -->
         <button class="GoBackButton" @onclick=ClosePlayer>
             <img src="/images/down.svg" class="">
         </button>
-        <button class="GoBackButton ">
+        <!-- Context Menu Btn -->
+        <button class="GoBackButton">
             <img src="/images/more-horiz.svg" class="">
         </button>
     </div>
@@ -95,32 +97,65 @@
         Display should be none by default. Should overlay the regualar music player when required
     -->
     <div class="music-screen-queue" id="queue-screen">
-        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-            <button class="GoBackButton" @onclick=ReturnToPlayer>
-                <img src="/images/back.svg" class="">
-            </button>
+        <button class="GoBackButton" @onclick=ReturnToPlayer>
+            <img src="/images/back.svg" class="">
+        </button>
 
-            <div class="music-queue-list">
-                @for (int i = 0; i < MauiProgram.mediaService.songQueue.Count(); i++)
+        <div class="music-queue-list">
+            @for (int i = 0; i < MauiProgram.mediaService.songQueue.Count(); i++)
+            {
+                Song song = MauiProgram.mediaService.songQueue.ElementAt(i);
+                if (i == 0)
                 {
-                    Song song = MauiProgram.mediaService.songQueue.ElementAt(i);
-                    if(i == 0)
-                    {
-                        <h5>Now Playing</h5>
-                        <p>@song.name</p>
+                    <h5>Now Playing</h5>
 
-                        <div class="music-queue-controls">
-                            <h5>Next in Queue</h5>
-                            <input type="button" value="Clear Queue" />
+                    <!-- Song Container -->
+                    <div class="music-queue-songcontainer">
+                        <!-- Image -->
+                        <img class="music-queue-songcontainer-img" src="@song.imageSrc">
+                        <!-- Song information -->
+                        <div class="music-queue-songcontainer-artistinfo">
+                            <b>@song.name</b>
+                            <p>@song.artist</p>
                         </div>
-                    }
-                    else
-                    {
-                        <p>@song.name</p>
-                    }
+                        <!-- Context menu button-->
+                        <div class="music-queue-songcontainer-contextmenu">
+                            <img src="/images/more-horiz.svg" class="music-queue-songcontainer-contextmenu-img">
+                        </div>
+                    </div>
+
+                    <div class="music-queue-controls">
+                        <h5>Next in Queue</h5>
+                        <input type="button" value="Clear Queue" />
+                    </div>
                 }
-            </div>
-        </Animate>
+                else
+                {
+                    <!-- Song Container -->
+                    <div class="music-queue-songcontainer">
+                        <!-- Image -->
+                        <img class="music-queue-songcontainer-img" src="@song.imageSrc">
+                        <!-- Song information -->
+                        <div class="music-queue-songcontainer-artistinfo">
+                            <b>@song.name</b>
+                            <p>@song.artist</p>
+                        </div>
+                        <!-- Context menu button-->
+                        <div class="music-queue-songcontainer-contextmenu">
+                            <img src="/images/more-horiz.svg" class="music-queue-songcontainer-contextmenu-img">
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="controls" style="margin-bottom: 1rem;">
+            <button class="btn-small"><!-- Shuffle --><img class="miniplayer-iconimg" src="images/shuffle.svg" /></button>
+            <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/skip-previous.svg" /></button>
+            <button class="btn-large play"><!-- pause play --><img class="miniplayer-iconimg" src="images/play.svg" /></button>
+            <button class="btn-small"><!-- Skip --><img class="miniplayer-iconimg" src="images/skip-next.svg" /></button>
+            <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/repeat-off.svg" /></button>
+        </div>
     </div>
 </div>
 

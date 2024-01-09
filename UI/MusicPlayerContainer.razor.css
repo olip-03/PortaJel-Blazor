@@ -194,3 +194,27 @@
 .music-queue-list::-webkit-scrollbar {
     display: none; /* Safari and Chrome */
 }
+
+.music-queue-songcontainer {
+    height: 3rem;
+    display:flex;
+    margin-bottom: 0.5rem;
+    overflow:hidden;
+}
+.music-queue-songcontainer-img {
+    height: 3rem;
+    width: 3rem;
+    aspect-ratio: 1/1;
+    border-radius: 0.2rem;
+}
+.music-queue-songcontainer-artistinfo{
+    margin-left: 0.5rem;
+}
+.music-queue-songcontainer-contextmenu{
+    margin-left:auto;
+    margin-top:auto;
+    margin-bottom:auto;
+}
+.music-queue-songcontainer-contextmenu-img {
+    height: 1.5rem;
+}

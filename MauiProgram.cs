@@ -29,6 +29,7 @@ public static class MauiProgram
     // Data for context menu
     public static List<ContextMenuItem> ContextMenuTaskList = new List<ContextMenuItem>();
     public static bool ShowContextMenuImage = false;
+    public static bool ContextMenuIsOpen = false;
     public static string ContextMenuImage = String.Empty;
     public static string ContextMenuMainText = String.Empty;
     public static string ContextMenuSubText = String.Empty;
