@@ -13,6 +13,5 @@
                 <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
             </BlazorWebView.RootComponents>
         </BlazorWebView>
-        <toolkit:MediaElement x:Name="mediaElement" ShouldAutoPlay="True" IsVisible="false" ShouldShowPlaybackControls="False"/>
     </Grid>
 </ContentPage>

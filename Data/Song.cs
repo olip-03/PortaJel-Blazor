@@ -12,6 +12,7 @@ namespace PortaJel_Blazor.Data
         public string name { get; set; }
         public string artist { get; set; }
         public int disk { get; set; }
+        public string imageSrc { get;set; }
         public Album album { get; set; }
     }
 }

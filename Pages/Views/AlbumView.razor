@@ -53,7 +53,7 @@
                     <div class="playback-controls-btn">
                         <img class="playback-controls-btn-img" src="/images/shuffle.svg">
                     </div>
-                    <div class="playback-controls-btn playbtn">
+                    <div class="playback-controls-btn playbtn" @onclick=PlayAlbum>
                         <img class="playback-controls-btn-img" src="/images/play.svg">
                     </div>
                 </div>
@@ -123,6 +123,16 @@
     private void FavouriteItem()
     {
         album.isFavourite = !album.isFavourite;
+    }
+    private void PlayAlbum()
+    {
+        MauiProgram.mediaService.songQueue.Clear();
+        foreach (Song song in album.songs)
+        {
+            song.imageSrc = album.imageSrc;
+            MauiProgram.mediaService.songQueue.QueueSong(song);
+        }
+        MauiProgram.mediaService.Play();
     }
 }
 

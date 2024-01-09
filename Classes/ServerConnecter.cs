@@ -920,11 +920,6 @@ namespace PortaJel_Blazor.Classes
 
             return albums.ToArray();
         }
-        public async Task<string[]> GetBase64ImgAsync(Guid[] guids)
-        {
-            string[] images = new string[0];
-            return images;
-        }
         public void SetBaseAddress(string url)
         {
             _sdkClientSettings.BaseUrl = url;
@@ -1111,86 +1106,85 @@ namespace PortaJel_Blazor.Classes
 
             return newArtist;
         }
-        private async Task<Album> GenreBuilder(BaseItemDto baseItem)
+        private Task<Album> GenreBuilder(BaseItemDto baseItem)
         {
             // TODO: This is just a rehash of the AlbumBuilder to get the page I needed
             // working really quick. Ideally this'd be redone. 
-            if (baseItem == null)
+            return Task.Run(() =>
             {
-                return null;
-            }
-            Album newAlbum = new();
-            newAlbum.name = baseItem.Name;
-            newAlbum.id = baseItem.Id;
-            newAlbum.songs = null; // TODO: Implement songs
+                Album newAlbum = new();
+                newAlbum.name = baseItem.Name;
+                newAlbum.id = baseItem.Id;
+                newAlbum.songs = null; // TODO: Implement songs
 
-            if (baseItem.Type != BaseItemKind.MusicAlbum)
-            {
-                newAlbum.isSong = true;
-                if (baseItem.AlbumId != null)
+                if (baseItem.Type != BaseItemKind.MusicAlbum)
                 {
-                    newAlbum.id = (Guid)baseItem.AlbumId;
+                    newAlbum.isSong = true;
+                    if (baseItem.AlbumId != null)
+                    {
+                        newAlbum.id = (Guid)baseItem.AlbumId;
+                    }
                 }
-            }
-            
-            // TODO: Implement getting album images for each genre 
-           
-            return newAlbum;
+
+                // TODO: Implement getting album images for each genre 
+
+                return newAlbum;
+            });
+
         }
         private Album PlaylistBuilder(BaseItemDto baseItem)
         {
             return PlaylistBuilder(baseItem, false).Result;
         }
-        private async Task<Album> PlaylistBuilder(BaseItemDto baseItem, bool fetchFullArtists)
+        private Task<Album> PlaylistBuilder(BaseItemDto baseItem, bool fetchFullArtists)
         {
-            if (baseItem == null)
+            return Task.Run(() =>
             {
-                return null;
-            }
-            Album newAlbum = new();
-            newAlbum.name = baseItem.Name;
-            newAlbum.id = baseItem.Id;
-            newAlbum.songs = null; // TODO: Implement songs
+                Album newAlbum = new();
+                newAlbum.name = baseItem.Name;
+                newAlbum.id = baseItem.Id;
+                newAlbum.songs = null; // TODO: Implement songs
 
-            if (baseItem.Type != BaseItemKind.MusicAlbum)
-            {
-                newAlbum.isSong = true;
-                if (baseItem.AlbumId != null)
+                if (baseItem.Type != BaseItemKind.MusicAlbum)
                 {
-                    newAlbum.id = (Guid)baseItem.AlbumId;
+                    newAlbum.isSong = true;
+                    if (baseItem.AlbumId != null)
+                    {
+                        newAlbum.id = (Guid)baseItem.AlbumId;
+                    }
                 }
-            }
 
-            // Favourite Info
-            if (baseItem.UserData.IsFavorite)
-            {
-                newAlbum.isFavourite = true;
-            }
+                // Favourite Info
+                if (baseItem.UserData.IsFavorite)
+                {
+                    newAlbum.isFavourite = true;
+                }
 
-            // 69c72555-b29b-443d-9a17-01d735bd6f9f
-            // https://media.olisshittyserver.xyz/Items/cc890a31-1449-ec9c-b428-24ec98127fdb/Images/Primary
-            try
-            {
-                if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
+                // 69c72555-b29b-443d-9a17-01d735bd6f9f
+                // https://media.olisshittyserver.xyz/Items/cc890a31-1449-ec9c-b428-24ec98127fdb/Images/Primary
+                try
                 {
-                    newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
+                    if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
+                    {
+                        newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
+                    }
+                    else if (baseItem.ImageBlurHashes.Primary != null)
+                    {
+                        newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/Primary?format=jpg";
+                    }
+                    else
+                    {
+                        newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
+                    }
+                    newAlbum.lowResImageSrc = newAlbum.imageSrc;
                 }
-                else if (baseItem.ImageBlurHashes.Primary != null)
+                catch (Exception)
                 {
-                    newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/Primary?format=jpg";
+                    Debug.WriteLine("Failed to assign image to item ID " + baseItem.Id);
                 }
-                else
-                {
-                    newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
-                }
-                newAlbum.lowResImageSrc = newAlbum.imageSrc;
-            }
-            catch (Exception)
-            {
-                Debug.WriteLine("Failed to assign image to item ID " + baseItem.Id);
-            }
 
-            return newAlbum;
+                return newAlbum;
+            });   
         }
     }
 

@@ -1,5 +1,10 @@
 ﻿@using Microsoft.Maui.Controls;
-@using Microsoft.JSInterop
+@using Microsoft.JSInterop;
+@using BlazorAnimate;
+@using PortaJel_Blazor.Classes;
+@using PortaJel_Blazor.Data;
+@using PortaJel_Blazor.Shared;
+
 @inject IJSRuntime JS
 
 <!-- Mini Player -->
@@ -10,10 +15,25 @@
     @ondragstart=OnLabelDrag
     @onclick=OpenPlayer>
 
-    <img src="/images/emptyAlbum.png" class="miniplayer-img" />
+    @if (MauiProgram.mediaService.songQueue.Count() > 0)
+    {
+        <img src="@MauiProgram.mediaService.songQueue.FirstOrDefault().imageSrc" class="miniplayer-img" id="music-player-img" />
+    }
+    else
+    {
+        <img src="/images/emptyAlbum.png" class="miniplayer-img" id="music-player-img"/>
+    }
     <div class="miniplayer-text">
-        <p class="miniplayer-paragraph">Song title</p>
-        <p class="miniplayer-paragraph artistTitle">Artist name</p>
+        @if (MauiProgram.mediaService.songQueue.Count() > 0)
+        {
+            <p class="miniplayer-paragraph" id="music-player-title">@MauiProgram.mediaService.songQueue.FirstOrDefault().name</p>
+            <p class="miniplayer-paragraph artistTitle" id="music-player-artist">@MauiProgram.mediaService.songQueue.FirstOrDefault().artist</p>
+        }
+        else
+        {
+            <p class="miniplayer-paragraph" id="music-player-title">Song title</p>
+            <p class="miniplayer-paragraph artistTitle" id="music-player-artist">Artist name</p>
+        }
     </div>
 
     <div class="miniplayer-icon">
@@ -24,50 +44,84 @@
 
 <!-- Full media controller -->
 <div class="music-screen" id="music-screen">
-    @if(!queueScreen)
-    {// Queue Screen HTML
-        <div class="music-screen-tools">
-            <button class="GoBackButton" @onclick=ClosePlayer>
-                <img src="/images/down.svg" class="">
-            </button>
-            <button class="GoBackButton ">
-                <img src="/images/more-horiz.svg" class="">
-            </button>
-        </div>
+    <!-- Music Player -->
+    <div class="music-screen-tools">
+        <button class="GoBackButton" @onclick=ClosePlayer>
+            <img src="/images/down.svg" class="">
+        </button>
+        <button class="GoBackButton ">
+            <img src="/images/more-horiz.svg" class="">
+        </button>
+    </div>
 
-        <img src="/images/emptyAlbum.png" class="music-screen-img" />
-
-        <div class="music-screen-bottominfo">
-            <h1 class="music-name">Song Title</h1>
-            <p class="artist-name">Artist Name</p>
-
-            <progress class="progress progress1" max="100" value="80"></progress>
-
-            <div class="controls">
-                <button class="btn-small"><!-- Shuffle --><img class="miniplayer-iconimg" src="images/shuffle.svg" /></button>
-                <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/skip-previous.svg" /></button>
-                <button class="btn-large play"><!-- pause play --><img class="miniplayer-iconimg" src="images/play.svg" /></button>
-                <button class="btn-small"><!-- Skip --><img class="miniplayer-iconimg" src="images/skip-next.svg" /></button>
-                <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/repeat-off.svg" /></button>
-            </div>
-            <div class="music-screen-nav">
-                <button class="btn-small"><!-- Fav --><img class="miniplayer-iconimg" src="images/heart.svg"></button>
-                <button class="btn-small" @onclick=OpenQueue><!-- Queue --><img class="miniplayer-iconimg" src="images/queue.svg"></button>
-            </div>
-        </div>
+    @if (MauiProgram.mediaService.songQueue.Count() > 0)
+    {
+        <img src="@MauiProgram.mediaService.songQueue.FirstOrDefault().imageSrc" class="music-screen-img" />
     }
     else
-    {// Queue Screen HTML
-        <div class="music-screen-tools">
+    {
+        <img src="/images/emptyAlbum.png" class="music-screen-img" />
+    }
+
+    <div class="music-screen-bottominfo">
+        @if (MauiProgram.mediaService.songQueue.Count() > 0)
+        {
+            <h1 class="music-name">@MauiProgram.mediaService.songQueue.FirstOrDefault().name</h1>
+            <p class="artist-name">@MauiProgram.mediaService.songQueue.FirstOrDefault().artist</p>
+        }
+        else
+        {
+            <h1 class="music-name">Song Title</h1>
+            <p class="artist-name">Artist Name</p>
+        }
+
+
+        <progress class="progress progress1" max="100" value="80"></progress>
+
+        <div class="controls">
+            <button class="btn-small"><!-- Shuffle --><img class="miniplayer-iconimg" src="images/shuffle.svg" /></button>
+            <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/skip-previous.svg" /></button>
+            <button class="btn-large play"><!-- pause play --><img class="miniplayer-iconimg" src="images/play.svg" /></button>
+            <button class="btn-small"><!-- Skip --><img class="miniplayer-iconimg" src="images/skip-next.svg" /></button>
+            <button class="btn-small"><!-- Back --><img class="miniplayer-iconimg" src="images/repeat-off.svg" /></button>
+        </div>
+        <div class="music-screen-nav">
+            <button class="btn-small"><!-- Fav --><img class="miniplayer-iconimg" src="images/heart.svg"></button>
+            <button class="btn-small" @onclick=OpenQueue><!-- Queue --><img class="miniplayer-iconimg" src="images/queue.svg"></button>
+        </div>
+    </div>
+
+    <!-- Queue Screen 
+        Display should be none by default. Should overlay the regualar music player when required
+    -->
+    <div class="music-screen-queue" id="queue-screen">
+        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
             <button class="GoBackButton" @onclick=ReturnToPlayer>
                 <img src="/images/back.svg" class="">
             </button>
-        </div>
 
-         <div style="overflow:hidden;">
+            <div class="music-queue-list">
+                @for (int i = 0; i < MauiProgram.mediaService.songQueue.Count(); i++)
+                {
+                    Song song = MauiProgram.mediaService.songQueue.ElementAt(i);
+                    if(i == 0)
+                    {
+                        <h5>Now Playing</h5>
+                        <p>@song.name</p>
 
-         </div>
-    }
+                        <div class="music-queue-controls">
+                            <h5>Next in Queue</h5>
+                            <input type="button" value="Clear Queue" />
+                        </div>
+                    }
+                    else
+                    {
+                        <p>@song.name</p>
+                    }
+                }
+            </div>
+        </Animate>
+    </div>
 </div>
 
 @code {
@@ -107,19 +161,17 @@
     {
 
     }
-    void OpenQueue()
+    public async void OpenQueue()
     {
         MauiProgram.MusicPlayerIsQueueOpen = true;
         queueScreen = true;
-
-        StateHasChanged();
+        await JS.InvokeAsync<string>("openQueue");
     }
-    public void ReturnToPlayer()
+    public async void ReturnToPlayer()
     {
         MauiProgram.MusicPlayerIsQueueOpen = false;
         queueScreen = false;
-
-        StateHasChanged();
+        await JS.InvokeAsync<string>("closeQueue");
     }
 
     // Methods for handling the movement and controls of the main media player
@@ -131,21 +183,25 @@
     public async Task OpenPlayer()
     {
         MauiProgram.mainLayout.OpenPlayer();
+        MauiProgram.MusicPlayerIsOpen = true;
         isOpen = true;
     }
     public async Task ClosePlayer()
     {
         MauiProgram.mainLayout.ClosePlayer();
+        MauiProgram.MusicPlayerIsOpen = false;
         isOpen = false;
     }
     [JSInvokable("SetPlayerOpen")]
     public static void SetPlayerOpen()
     {
         MauiProgram.mainLayout.musicPlayerContainer.isOpen = true;
+        MauiProgram.MusicPlayerIsOpen = true;
     }
     [JSInvokable("SetPlayerClosed")]
     public static void SetPlayerClosed()
     {
         MauiProgram.mainLayout.musicPlayerContainer.isOpen = false;
+        MauiProgram.MusicPlayerIsOpen = true;
     }
 }

@@ -3,6 +3,7 @@
 @inject IJSRuntime JS
 @using PortaJel_Blazor.Classes;
 @using PortaJel_Blazor.UI;
+@using MediaManager;
 @using BlazorAnimate;
 
 <div class="page">
@@ -148,12 +149,20 @@
     private string errorMessage { get; set; } = "Unspecified error! You should not see this message!";
 
     private bool showMusicPlayer { get; set; } = true;
-    public MusicPlayerContainer musicPlayerContainer = new MusicPlayerContainer();
-    public ItemContextMenu itemContextMenu = new ItemContextMenu();
+    public MusicPlayerContainer? musicPlayerContainer;
+    public ItemContextMenu? itemContextMenu;
 
     protected override async Task OnInitializedAsync()
     {
         MauiProgram.mainLayout = this;
+
+        musicPlayerContainer = new UI.MusicPlayerContainer();
+        itemContextMenu = new UI.ItemContextMenu();
+
+        CrossMediaManager.Current.Notification.ShowNavigationControls = true;
+        CrossMediaManager.Current.Notification.ShowPlayPauseControls = true;
+        CrossMediaManager.Current.Notification.Enabled = true;
+        CrossMediaManager.Current.Notification.UpdateNotification();
 
         if (MauiProgram.servers.Count > 0)
         {
@@ -337,11 +346,18 @@
     {
         await JS.InvokeAsync<string>("dragElement", "open");
         await JS.InvokeAsync<string>("LockScroll");
+        MauiProgram.MusicPlayerIsOpen = true;
     }
     public async Task ClosePlayer()
     {
         await JS.InvokeAsync<string>("dragElement", "close");
         await JS.InvokeAsync<string>("UnlockScoll");
+        MauiProgram.MusicPlayerIsOpen = false;
+    }
+    public async Task ReturnToPlayer()
+    {
+        MauiProgram.MusicPlayerIsQueueOpen = false;
+        await JS.InvokeAsync<string>("closeQueue");
     }
     public async Task OpenContextMenu()
     {

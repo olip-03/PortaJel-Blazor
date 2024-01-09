@@ -163,6 +163,34 @@
 .music-screen-tools {
     width: 100%;
     height: 50px;
+    display: flex; /* display: flex; */
+    position: absolute;
+    justify-content: space-between;
+}
+
+.music-screen-queue {
+    width: 100%;
+    height: 100%;
+    display: none; /* display: flex; */
+    position: absolute;
+    flex-direction: column;
+    background-color: white;
+}
+
+.music-queue-controls {
     display: flex;
     justify-content: space-between;
+}
+
+.music-queue-list {
+    height: 80%;
+    overflow: visible;
+    overflow-x: hidden;
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none; /* Firefox */
+    margin: 1rem;
+}
+
+.music-queue-list::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
 }
