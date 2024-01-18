@@ -1,10 +1,8 @@
-﻿using CommunityToolkit.Maui;
-using CommunityToolkit.Maui.Views;
-using Jellyfin.Sdk;
+﻿using Jellyfin.Sdk;
+using MediaManager;
 using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
-using Plugin.Maui.Audio;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Shared;
@@ -26,14 +24,18 @@ public static class MauiProgram
 
     public static MainLayout mainLayout = null;
 
+    public static MediaService mediaService = new MediaService();
+
     // Data for context menu
     public static List<ContextMenuItem> ContextMenuTaskList = new List<ContextMenuItem>();
     public static bool ShowContextMenuImage = false;
+    public static bool ContextMenuIsOpen = false;
     public static string ContextMenuImage = String.Empty;
     public static string ContextMenuMainText = String.Empty;
     public static string ContextMenuSubText = String.Empty;
 
     // Data for MusicPlayer
+    public static bool MusicPlayerIsOpen = false;
     public static bool MusicPlayerIsQueueOpen = false;
 
     // Data for connections 
@@ -41,7 +43,6 @@ public static class MauiProgram
     public static DataHandler? dataHandler = null;
 
     // Direct access to the media element
-    public static MediaElement? mediaElement = null;
     public static BlazorWebView webView = null;
 
     // Stored data for library page
@@ -53,6 +54,7 @@ public static class MauiProgram
     public static int favouritesSortMethod = 0;
     public static int favouritesItemView = 0;
     public static bool favouritesShowGrid = false;
+    public static bool hideM3u = true;
     public static List<Album> favouritePlaylists = new();
     public static List<Album> favouriteAlbums = new();
     public static List<Album> favouriteArtist = new();
@@ -100,22 +102,19 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
-            .UseMauiCommunityToolkitMediaElement()
             .ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
 
 		builder.Services.AddMauiBlazorWebView();
-        builder.Services.AddSingleton(AudioManager.Current);
         builder.Services.AddSingleton<JsInteropClasses2, JsInteropClasses2>();
-
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
+        return builder.Build();
 	}
 
 	/// <summary>
@@ -143,12 +142,10 @@ public static class MauiProgram
     /// </summary>
     public static async Task<bool> LoadAllData()
     {
-        await Task.Run(() =>
-        {
-            // Thread.Sleep(2000);
-        });
+        
         return true;
     }
+
 }
 
 // https://github.com/villagra/jellyfin-apiclient-dotnet

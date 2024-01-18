@@ -26,12 +26,36 @@
     {
         <button class="reconnect-button">Reconnect</button>
     }
+</div>
 
+<!-- Favourites Settings -->
+<div>
+    <div class="header">
+        <div class="title">Favourites</div>
+    </div>
+
+    <!-- Hide M3U Playlists -->
+    <div class="header">
+        <div class="checkbox-wrapper-22">
+            <label class="switch" for="checkbox">
+                <input type="checkbox" id="checkbox" @bind="hidem3u"/>
+                <div class="slider round"></div>
+            </label>
+        </div>
+
+        <p>Hide .m3u files in Playlists</p>
+    </div>
 </div>
 
 
 @code {
     string cacheDir = FileSystem.Current.CacheDirectory;
+
+    public bool hidem3u
+    {
+        get { return MauiProgram.hideM3u; }
+        set { MauiProgram.hideM3u = value; }
+    }
 
     private async void DeleteConnection()
     {

@@ -1,5 +1,6 @@
 ﻿var elmnt = null;
 var musicElmnt = null;
+var queueElmnt = null;
 
 var startTime = -1;
 var endTime = 0;
@@ -160,4 +161,19 @@ function dragElement(itemName) {
     if (elmnt != null) {
         elmnt.ontouchstart = dragMouseDown;
     }
+}
+
+function openQueue() {
+    if (queueElmnt == null) { queueElmnt = document.getElementById("queue-screen"); }
+    queueElmnt.style.display = "flex";
+}
+function closeQueue() {
+    if (queueElmnt == null) { queueElmnt = document.getElementById("queue-screen"); }
+    queueElmnt.style.display = "none";
+}
+
+function initQueueList() {
+    var el = document.getElementById('music-queue-list');
+    var sortable = Sortable.create(el);
+    sortable.option("disabled", true); // set
 }

@@ -1,0 +1,223 @@
+﻿.music-player {
+    height: 4rem;
+    background-color: white;
+    border: solid;
+    border-color: lightgray;
+    border-width: 2px;
+    border-radius: 0.25rem;
+    position: fixed; /* Ensure the z-index property works */
+    top: calc(100vh - 132px);
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90vw; /* Need a specific value to work */
+    z-index: 51; /* Set a higher z-index value to bring it above the other buttons */
+    display: flex;
+    transition-property: top, opacity;
+    transition-duration: 1s;
+}
+.music-screen {
+    position: fixed;
+    top: 90vh;
+    height: 100vh;
+    width: 100vw;
+    background-color: white;
+    opacity: 0%;
+    z-index: -1;
+    transition-property: top, opacity;
+    transition-duration: 1s;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.miniplayer-img {
+    height: 3rem;
+    width: 3rem;
+    margin-left: 0.5rem;
+    margin-top: auto;
+    margin-bottom: auto;
+    border-radius: 0.2rem;
+    margin-right: 0.5rem;
+}
+.miniplayer-text{
+    width: 100%;
+    height:auto;
+    margin-top:auto;
+    margin-bottom:auto;
+}
+.miniplayer-icon {
+    width: fit-content;
+    display: flex;
+}
+.miniplayer-iconimg{
+    aspect-ratio: 1/1;
+    margin-top: auto;
+    margin-bottom: auto;
+    height: 70%;
+}
+.miniplayer-paragraph {
+    margin: 0px;
+}
+.artistTitle{
+    
+}
+
+.music-screen-img{
+    width: 80%;
+    margin: auto;
+    border-radius: 0.5rem;
+    aspect-ratio: 1/1;
+}
+.music-name,
+.artist-name {
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.music-name {
+    font-size: 40px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.artist-name {
+    font-size: 20px;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.btn-small {
+    border: none;
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+    s
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 3.5rem;
+    height: 3.5rem;
+}
+.btn-large {
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 5rem;
+    height: 5rem;
+}
+
+.controls button {
+    border: none;
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+}
+.play {
+    background-color: rgb(240, 240, 240) !important;
+}
+
+.music-screen-bottominfo{
+    padding-bottom: 3rem;
+}
+
+.music-screen-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+.progress {
+    background-color: rgb(255, 30, 30);
+    width: auto;
+
+    margin: 1rem;
+
+    margin-left: 1rem;
+    margin-right: 1rem;
+
+    border-radius: 10px;
+    transition: all 1s;
+}
+
+.GoBackButton {
+    margin: 1rem;
+    padding: 0;
+    border-radius: 50%;
+    border-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.1);
+
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.music-screen-tools {
+    width: 100%;
+    height: 50px;
+    display: flex; /* display: flex; */
+    position: absolute;
+    justify-content: space-between;
+}
+
+.music-screen-queue {
+    width: 100%;
+    height: 100%;
+    display: none; /* display: flex; */
+    position: absolute;
+    flex-direction: column;
+    background-color: white;
+}
+
+.music-queue-controls {
+    display: flex;
+    justify-content: space-between;
+}
+
+.music-queue-list {
+    height: 80%;
+    overflow: visible;
+    overflow-x: hidden;
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none; /* Firefox */
+    margin: 1rem;
+    user-select: unset
+}
+
+.music-queue-list::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
+.music-queue-songcontainer {
+    height: 3rem;
+    margin-bottom: 0.5rem;
+    overflow:hidden;
+    user-select: unset;
+    display: block;
+    position: relative;
+}
+.music-queue-songcontainer-img {
+    height: 3rem;
+    width: 3rem;
+    aspect-ratio: 1/1;
+    border-radius: 0.2rem;
+}
+.music-queue-songcontainer-artistinfo{
+    margin-left: 0.5rem;
+}
+.music-queue-songcontainer-contextmenu{
+    margin-left:auto;
+    margin-top:auto;
+    margin-bottom:auto;
+}
+.music-queue-songcontainer-contextmenu-img {
+    height: 1.5rem;
+}

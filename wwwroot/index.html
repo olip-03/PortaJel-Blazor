@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/app.css" rel="stylesheet" />
     <link href="PortaJel-Blazor.styles.css" rel="stylesheet" />
+    <!-- Sortable.js -->
+    <!--<script src="js/Sortable-master/Sortable.js"></script>
+    <script src="js/Sortable-master/modular/sortable.complete.esm.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 
 <body style="top: 0%;">
@@ -28,6 +32,7 @@
     <script src="js/dragElement.js" autostart="true"></script>
     <script src="js/contextMenu.js" autostart="true"></script>
     <script src="js/scrolldisable.js" autostart="true"></script>
+    <!--<script src="js/Sortable-master/Sortable.js" autostart="true"></script>-->
 
     <script>
         window.goBack = () => {
@@ -47,8 +52,13 @@
             scrollbar-width: none; /* Firefox */
             scroll-behavior: auto !important;
         }
+
         html {
             scroll-behavior: auto !important;
+        }
+
+        div {
+            user-select: none;
         }
     </style>
 </body>
