@@ -16,25 +16,58 @@
         </BlazorWebView>
 
         <!-- Navigation Bar -->
-        <Grid x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0">
-            <!-- Background Gradient -->
-            <Frame HeightRequest="80" HorizontalOptions="Fill" VerticalOptions="End" >
-                <Frame.Background>
-                    <!-- StartPoint defaults to (0,0) -->
-                    <LinearGradientBrush EndPoint="0,1">
-                        <GradientStop Color="Transparent"
-                          Offset="0" />
-                        <GradientStop Color="White"
-                          Offset="1.0" />
-                    </LinearGradientBrush>
-                </Frame.Background>
+        <Grid x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" >
+            <!-- Player -->
+            <Frame CornerRadius="5" Margin="20, 0, 20, 0" Padding="0" BorderColor="Gray"  Grid.Row="0" HorizontalOptions="Fill" VerticalOptions="Fill">
+                <Grid Grid.Row="1" Padding="0" FlexLayout.Grow="1" ColumnSpacing="5">
+                    <!-- Player Image -->
+                    <Frame WidthRequest="50" HeightRequest="50" Margin="2.5, 0, 2.5, 0" Padding="0" CornerRadius="5" FlexLayout.Grow="0" Grid.Column="0">
+                        <Image Aspect="AspectFit" Source="emptyAlbum.png" WidthRequest="50" HeightRequest="50"/>
+                    </Frame>
+                    
+                    <!-- Artist Text -->
+                    <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="Start" Grid.Column="1">
+                        <Label Text="Current Playing Song Title" FontSize="18" TextColor="Black"/>
+                        <Label Text="Current Playing Artist" FontSize="12" TextColor="Gray"/>
+                    </StackLayout>
+
+                    <!-- Playback Controls -->
+                    <StackLayout Orientation="Horizontal" Grid.Column="2">
+                        <ImageButton WidthRequest="40" HeightRequest="40" Source="heart.png"/>
+                        <ImageButton WidthRequest="40" HeightRequest="40" Source="play.png"/>
+                    </StackLayout>
+                    
+                    <!-- Player Frame Background-->
+                    <Grid.Background>
+                        <SolidColorBrush Color="White"/>
+                    </Grid.Background>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="85" />
+                    </Grid.ColumnDefinitions>
+                </Grid>
             </Frame>
-            <FlexLayout HeightRequest="60" VerticalOptions="End" JustifyContent="SpaceEvenly">
-                <ImageButton Source="/Resources/home128x.png" HeightRequest="60" WidthRequest="60"/>
-                <ImageButton Source="/Resources/Images/search.png" HeightRequest="35" WidthRequest="35" IsOpaque="True"/>
-                <ImageButton Source="/Resources/Images/library.png" HeightRequest="35" WidthRequest="35" IsOpaque="True"/>
-                <ImageButton Source="/Resources/Images/favourite.png" HeightRequest="35" WidthRequest="35" IsOpaque="True"/>
+            <!-- Navigation Buttons -->
+            <FlexLayout Grid.Row="1"  HorizontalOptions="Fill" VerticalOptions="Fill" JustifyContent="SpaceEvenly" AlignItems="Center">
+                <ImageButton x:Name="btn_navnar_home" Source="home.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_home_click"/>
+                <ImageButton x:Name="btn_navnar_search" Source="search.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_search_click"/>
+                <ImageButton x:Name="btn_navnar_library" Source="library.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_library_click"/>
+                <ImageButton x:Name="btn_navnar_favourites" Source="favourite.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_favourite_click"/>
             </FlexLayout>
+            <!-- Row Definitions -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60" />
+                <RowDefinition Height="60"/>
+            </Grid.RowDefinitions>
+            <!-- Background Gradient -->
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="Transparent" Offset="0.0" />
+
+                    <GradientStop Color="White" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
         </Grid>
     </Grid>
 </ContentPage>

@@ -8,6 +8,7 @@
         <OutputType>Exe</OutputType>
         <RootNamespace>PortaJel_Blazor</RootNamespace>
         <UseMaui>true</UseMaui>
+		<EnableMauiImageProcessing>false</EnableMauiImageProcessing>
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
@@ -40,8 +41,10 @@
 
         <!-- Images -->
         <MauiImage Include="Resources\Images\*" />
-        <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
-
+		<MauiImage Update="Resources\Images\favourite.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\home.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\library.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\search.svg" BaseSize="40,40" />
         <!-- Custom Fonts -->
         <MauiFont Include="Resources\Fonts\*" />
 
@@ -56,10 +59,6 @@
       <EmbeddedResource Remove="Pages\xaml\**" />
       <MauiXaml Remove="Pages\xaml\**" />
       <None Remove="Pages\xaml\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Resources\Images\cd.svg" />
     </ItemGroup>
 
     <ItemGroup>
