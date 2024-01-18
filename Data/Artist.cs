@@ -9,11 +9,11 @@ namespace PortaJel_Blazor.Data
     public class Artist
     {
         public Guid id { get; set; } = Guid.Empty;
-        public string name { get; set; } = string.Empty;
-        public string imgSrc { get; set; } = string.Empty;
-        public string backgroundImgSrc { get; set; } = string.Empty;
-        public string logoImgSrc { get; set; } = string.Empty;
-        public string description { get; set; } = string.Empty;
+        public string name { get; set; } = String.Empty;
+        public string description { get; set; } = String.Empty;
+        public string imgSrc { get; set; } = String.Empty;
+        public string backgroundImgSrc { get; set; } = String.Empty;
+        public string logoImgSrc { get; set; } = String.Empty;
         public bool isFavourite { get; set; } = false;
         public Album[] artistAlbums { get; set; } = new Album[0];
 

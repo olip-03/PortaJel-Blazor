@@ -19,6 +19,20 @@
     margin-right: 10px;
     border-radius: 50%;
 }
+.album-metadata{
+
+}
+.album-metadata-container{
+    border-radius: 0.2rem;
+    height: 1.5rem;
+    width:fit-content;
+    background-color: lightgray;
+    color: gray;
+}
+.album-metadata-text{
+    margin-left:0.5rem;
+    margin-right:0.5rem;
+}
 /* Style for the album name */
 .album-name {
     font-weight: bold;

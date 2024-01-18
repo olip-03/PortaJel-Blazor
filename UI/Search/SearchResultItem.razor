@@ -70,6 +70,9 @@ else
             <div @onclick=NavigateToAlbum>
                 <div class="album-name">@album.name</div>
                 <div class="album-artist">@album.GetArtistName()</div>
+                <div class="album-metadata">
+                    <div class="album-metadata-container"><b class="album-metadata-text">flac</b></div>
+                </div>
             </div>
             <div class="favorite-button" @onclick=FavouriteItem>
                 @if (album.isFavourite)
@@ -117,6 +120,7 @@ else
     private async void FavouriteItem()
     {
         album.isFavourite = !album.isFavourite;
+        StateHasChanged();
         await MauiProgram.servers[0].FavouriteItem(album.id, album.isFavourite);
     }
     private async void OpenContextMenu()

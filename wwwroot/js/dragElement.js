@@ -171,3 +171,9 @@ function closeQueue() {
     if (queueElmnt == null) { queueElmnt = document.getElementById("queue-screen"); }
     queueElmnt.style.display = "none";
 }
+
+function initQueueList() {
+    var el = document.getElementById('music-queue-list');
+    var sortable = Sortable.create(el);
+    sortable.option("disabled", true); // set
+}

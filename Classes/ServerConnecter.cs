@@ -439,7 +439,7 @@ namespace PortaJel_Blazor.Classes
 
                 newSong.name = item.Name;
                 newSong.artist = item.AlbumArtist;
-                newSong.id = item.Id.ToString(); // TODO: Change to Guid type
+                newSong.id = item.Id;
 
                 songList.Add(newSong);
             }
@@ -827,7 +827,7 @@ namespace PortaJel_Blazor.Classes
 
             // Catch blocks
             if (artistInfo == null) { return null; }
-            if (artistInfo.Items == null) { return null; }
+            if (artistInfo.Items.Count <= 0) { return null; }
 
             Artist returnArtist = new Artist();
             foreach (var item in artistInfo.Items)
@@ -1074,6 +1074,7 @@ namespace PortaJel_Blazor.Classes
             Artist newArtist= new();
             newArtist.name = baseItem.Name;
             newArtist.id = baseItem.Id;
+            newArtist.description = baseItem.Overview;
 
             // 69c72555-b29b-443d-9a17-01d735bd6f9f
             // https://media.olisshittyserver.xyz/Items/cc890a31-1449-ec9c-b428-24ec98127fdb/Images/Primary

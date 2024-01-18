@@ -137,6 +137,13 @@
     </div>
 </div>
 
+@if (@artist.description != String.Empty)
+{
+    <div class="additional-info">
+        <p>@artist.description</p>
+    </div>
+}
+
 @code {
     [Parameter] public string artistId { get; set; }
     private Artist artist { get; set; } = Artist.Empty;
@@ -229,9 +236,11 @@
 
         StateHasChanged();
     }
-    private void FavouriteItem()
+    private async void FavouriteItem()
     {
-        
+        artist.isFavourite = !artist.isFavourite;
+        StateHasChanged();
+        await MauiProgram.servers[0].FavouriteItem(artist.id, artist.isFavourite);
     }
     private async void GoBack()
     {

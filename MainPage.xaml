@@ -8,10 +8,33 @@
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
     <Grid VerticalOptions="Fill" HorizontalOptions="Fill">
+        
         <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
             <BlazorWebView.RootComponents>
                 <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
             </BlazorWebView.RootComponents>
         </BlazorWebView>
+
+        <!-- Navigation Bar -->
+        <Grid x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0">
+            <!-- Background Gradient -->
+            <Frame HeightRequest="80" HorizontalOptions="Fill" VerticalOptions="End" >
+                <Frame.Background>
+                    <!-- StartPoint defaults to (0,0) -->
+                    <LinearGradientBrush EndPoint="0,1">
+                        <GradientStop Color="Transparent"
+                          Offset="0" />
+                        <GradientStop Color="White"
+                          Offset="1.0" />
+                    </LinearGradientBrush>
+                </Frame.Background>
+            </Frame>
+            <FlexLayout HeightRequest="60" VerticalOptions="End" JustifyContent="SpaceEvenly">
+                <ImageButton Source="/Resources/home128x.png" HeightRequest="60" WidthRequest="60"/>
+                <ImageButton Source="/Resources/Images/search.png" HeightRequest="35" WidthRequest="35" IsOpaque="True"/>
+                <ImageButton Source="/Resources/Images/library.png" HeightRequest="35" WidthRequest="35" IsOpaque="True"/>
+                <ImageButton Source="/Resources/Images/favourite.png" HeightRequest="35" WidthRequest="35" IsOpaque="True"/>
+            </FlexLayout>
+        </Grid>
     </Grid>
 </ContentPage>

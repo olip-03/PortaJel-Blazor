@@ -101,51 +101,24 @@
             <img src="/images/back.svg" class="">
         </button>
 
-        <div class="music-queue-list">
+        <div class="music-queue-list" id="music-queue-list">
             @for (int i = 0; i < MauiProgram.mediaService.songQueue.Count(); i++)
             {
                 Song song = MauiProgram.mediaService.songQueue.ElementAt(i);
-                if (i == 0)
-                {
-                    <h5>Now Playing</h5>
-
-                    <!-- Song Container -->
-                    <div class="music-queue-songcontainer">
-                        <!-- Image -->
-                        <img class="music-queue-songcontainer-img" src="@song.imageSrc">
-                        <!-- Song information -->
-                        <div class="music-queue-songcontainer-artistinfo">
-                            <b>@song.name</b>
-                            <p>@song.artist</p>
-                        </div>
-                        <!-- Context menu button-->
-                        <div class="music-queue-songcontainer-contextmenu">
-                            <img src="/images/more-horiz.svg" class="music-queue-songcontainer-contextmenu-img">
-                        </div>
+                <!-- Song Container -->
+                <div class="music-queue-songcontainer">
+                    <!-- Image -->
+                    <img class="music-queue-songcontainer-img" src="@song.imageSrc">
+                    <!-- Song information -->
+                    <div class="music-queue-songcontainer-artistinfo">
+                        <b>@song.name</b>
+                        <p>@song.artist</p>
                     </div>
-
-                    <div class="music-queue-controls">
-                        <h5>Next in Queue</h5>
-                        <input type="button" value="Clear Queue" />
+                    <!-- Context menu button-->
+                    <div class="music-queue-songcontainer-contextmenu">
+                        <img src="/images/more-horiz.svg" class="music-queue-songcontainer-contextmenu-img">
                     </div>
-                }
-                else
-                {
-                    <!-- Song Container -->
-                    <div class="music-queue-songcontainer">
-                        <!-- Image -->
-                        <img class="music-queue-songcontainer-img" src="@song.imageSrc">
-                        <!-- Song information -->
-                        <div class="music-queue-songcontainer-artistinfo">
-                            <b>@song.name</b>
-                            <p>@song.artist</p>
-                        </div>
-                        <!-- Context menu button-->
-                        <div class="music-queue-songcontainer-contextmenu">
-                            <img src="/images/more-horiz.svg" class="music-queue-songcontainer-contextmenu-img">
-                        </div>
-                    </div>
-                }
+                </div>
             }
         </div>
 
@@ -192,15 +165,20 @@
     {
 
     }
-    void FavouriteSong()
+    async void FavouriteSong()
     {
+        Song data = MauiProgram.mediaService.songQueue.FirstOrDefault();
 
+        data.isFavourite = !data.isFavourite;
+        StateHasChanged();
+        await MauiProgram.servers[0].FavouriteItem(data.id, data.isFavourite);
     }
     public async void OpenQueue()
     {
         MauiProgram.MusicPlayerIsQueueOpen = true;
         queueScreen = true;
         await JS.InvokeAsync<string>("openQueue");
+        await JS.InvokeAsync<string>("initQueueList");
     }
     public async void ReturnToPlayer()
     {

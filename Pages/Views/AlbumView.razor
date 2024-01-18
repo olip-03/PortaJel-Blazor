@@ -120,9 +120,11 @@
             MauiProgram.mainLayout.NavigateHome();
         }
     }
-    private void FavouriteItem()
+    private async void FavouriteItem()
     {
         album.isFavourite = !album.isFavourite;
+        StateHasChanged();
+        await MauiProgram.servers[0].FavouriteItem(album.id, album.isFavourite);
     }
     private void PlayAlbum()
     {
