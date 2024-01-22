@@ -1,8 +1,9 @@
-﻿using MediaManager.Library;
-using Microsoft.AspNetCore.Components.WebView.Maui;
+﻿using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Pages;
+using System.Windows.Input;
+using PortaJel_Blazor.Data;
 
 #if ANDROID
 using Android;
@@ -14,34 +15,57 @@ public partial class MainPage : ContentPage
 {
     private Album? contextMenuAlbum = null;
     private List<ContextMenuItem> contextMenuItems = new();
+    private bool IsRefreshing = false;
+    public event EventHandler CanExecuteChanged;
     public MainPage()
 	{
         InitializeComponent();
         MauiProgram.mainPage = this;
 
-        contextMenuItems.Add(new ContextMenuItem("View Artist", "Favourite.png", new Task(() =>
+        if (contextMenuAlbum != null)
+        {
+            if (contextMenuAlbum.isFavourite)
+            {
+                contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "Favourite.png", new Task(() =>
+                {
+
+                })));
+            }
+            else
+            {
+                contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "Favourite.png", new Task(() =>
+                {
+
+                })));
+            }
+        }
+        contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
         {
 
         })));
-        contextMenuItems.Add(new ContextMenuItem("View Artist", "Favourite.png", new Task(() =>
+        contextMenuItems.Add(new ContextMenuItem("Play Album From Here", "light_play.png", new Task(() =>
         {
 
         })));
-        contextMenuItems.Add(new ContextMenuItem("View Artist", "Favourite.png", new Task(() =>
+        contextMenuItems.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
         {
 
         })));
-        contextMenuItems.Add(new ContextMenuItem("View Artist", "Favourite.png", new Task(() =>
+        contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
         {
 
         })));
-        contextMenuItems.Add(new ContextMenuItem("View Artist", "Favourite.png", new Task(() =>
+        contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(() =>
         {
 
         })));
-        contextMenuItems.Add(new ContextMenuItem("View Artist", "Favourite.png", new Task(() =>
+        contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(() =>
         {
-           
+
+        })));
+        contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+        {
+            MauiProgram.mainPage.CloseContextMenu();
         })));
 
         ContextMenu_List.ItemsSource = contextMenuItems;
@@ -74,7 +98,17 @@ public partial class MainPage : ContentPage
 				        platformView.OverScrollMode = Android.Views.OverScrollMode.Never;
         #endif
     }
-
+    public interface IRelayCommand : ICommand
+    {
+        void UpdateCanExecuteState();
+    }
+    public void UpdateCanExecuteState()
+    {
+        IsRefreshing = true;
+        if (CanExecuteChanged != null)
+            CanExecuteChanged(this, new EventArgs());
+        IsRefreshing = false;
+    }
     #region Methods
     public async void ShowNavbar()
     {
@@ -82,9 +116,24 @@ public partial class MainPage : ContentPage
         Navbar.Opacity = 0;
         await Navbar.FadeTo(1, 500);
     }
+    public async void CloseContextMenu()
+    {
+        ContextMenu.IsVisible = false;
+    }
     #endregion
 
     #region Interactions
+    private async void ContextMenuItem_Click(object sender, EventArgs e)
+    {
+        MauiProgram.mainLayout.NavigateHome();
+        btn_navnar_home.Scale = 0.6;
+        btn_navnar_home.Opacity = 0;
+        await Task.WhenAny<bool>
+        (
+            btn_navnar_home.FadeTo(1, 250),
+            btn_navnar_home.ScaleTo(1, 250)
+        );
+    }
     private async void btn_navnar_home_click(object sender, EventArgs e)
     {
         MauiProgram.mainLayout.NavigateHome();

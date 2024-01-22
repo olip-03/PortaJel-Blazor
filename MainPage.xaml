@@ -72,8 +72,8 @@
                 <ImageButton x:Name="btn_navnar_favourites" Source="favourite.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_favourite_click"/>
             </FlexLayout>
             
-            <!--LAYOUT-->
-            <!--Background-->
+            <!-- LAYOUT -->
+            <!-- Background -->
             <StackLayout.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Color="Transparent" Offset="0.0" />
@@ -83,19 +83,38 @@
         </StackLayout>
     
         <!-- Context Menus -->
+        <!-- TODO: Add 'Swipe down to close' function to contextmenu -->
         <Grid x:Name="ContextMenu" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="true">
-            <!--Image Container-->
-            <FlexLayout Grid.Row="0" BackgroundColor="pink">
-                <Border FlexLayout.Shrink="0" StrokeShape="RoundRectangle 5,5,5,5">
-                    <Image Source="emptyAlbum.png" Scale="0.7"></Image>
+            <!--Image Container -->
+            <Grid>
+                <Border Grid.Row="1" HorizontalOptions="Center" StrokeShape="RoundRectangle 5,5,5,5">
+                    <Image Source="emptyAlbum.png" ></Image>
                 </Border>
-            </FlexLayout>
+                <StackLayout  VerticalOptions="Start" Grid.Row="2">
+                    <Label Text="Album Name" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>
+                    <Label Text="Artist Name" FontSize="18" HorizontalTextAlignment="Center" Margin="30,0,30,0" ></Label>
+                </StackLayout>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+            </Grid>
+
             <!--Item List-->
             <ListView Grid.Row="1" x:Name="ContextMenu_List" Margin="20">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextCell Text="{Binding itemName}"
-                                  Detail="{Binding itemIcon}"/>
+                        <ViewCell>
+                            <FlexLayout AlignItems="Center" HeightRequest="50">
+                                <Image HeightRequest="35" WidthRequest="35" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
+                                <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18"></Label>
+                                <FlexLayout.GestureRecognizers>
+                                    <ClickGestureRecognizer Clicked="ContextMenuItem_Click"/>
+                                </FlexLayout.GestureRecognizers>
+                            </FlexLayout>
+                        </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
