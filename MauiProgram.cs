@@ -22,7 +22,8 @@ public static class MauiProgram
     public static bool contentPage = false;
     public static string contentTitle = "";
 
-    public static MainLayout mainLayout = null;
+    public static MainLayout? mainLayout = null;
+    public static MainPage? mainPage = null;
 
     public static MediaService mediaService = new MediaService();
 

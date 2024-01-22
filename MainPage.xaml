@@ -8,64 +8,110 @@
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
     <Grid VerticalOptions="Fill" HorizontalOptions="Fill">
-        
+        <!-- Webview -->
         <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
             <BlazorWebView.RootComponents>
                 <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
             </BlazorWebView.RootComponents>
         </BlazorWebView>
-
+        
         <!-- Navigation Bar -->
-        <Grid x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" >
+        <StackLayout Orientation="Vertical" x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" IsVisible="false">
             <!-- Player -->
-            <Frame CornerRadius="5" Margin="20, 0, 20, 0" Padding="0" BorderColor="Gray"  Grid.Row="0" HorizontalOptions="Fill" VerticalOptions="Fill">
-                <Grid Grid.Row="1" Padding="0" FlexLayout.Grow="1" ColumnSpacing="5">
-                    <!-- Player Image -->
-                    <Frame WidthRequest="50" HeightRequest="50" Margin="2.5, 0, 2.5, 0" Padding="0" CornerRadius="5" FlexLayout.Grow="0" Grid.Column="0">
-                        <Image Aspect="AspectFit" Source="emptyAlbum.png" WidthRequest="50" HeightRequest="50"/>
-                    </Frame>
-                    
-                    <!-- Artist Text -->
-                    <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="Start" Grid.Column="1">
-                        <Label Text="Current Playing Song Title" FontSize="18" TextColor="Black"/>
-                        <Label Text="Current Playing Artist" FontSize="12" TextColor="Gray"/>
-                    </StackLayout>
+            <Border x:Name="Player"
+                    Stroke="LightGray"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 5,5,5,5"
+                    Margin="10, 0, 10, 0"
+                    ZIndex="5">
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="5,5"
+                            Radius="15"
+                            Opacity="0.7" />
+                </Border.Shadow>
+                <Grid>
+                    <FlexLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White" HeightRequest="60" AlignItems="Center">
+                        <!-- Image -->
+                        <Border FlexLayout.Shrink="0" WidthRequest="50" HeightRequest="50" Margin="2.5, 0, 2.5, 0" StrokeShape="RoundRectangle 5,5,5,5">
+                            <Image Source="emptyAlbum.png" WidthRequest="50" HeightRequest="50"></Image>
+                        </Border>
+                        <!-- Song and Artist Text-->
+                        <Grid FlexLayout.Basis="50%" FlexLayout.Grow="1">
+                            <Label x:Name="Player_Txt_Title" Grid.Row="0" Text="Current Playing Song Title" MaxLines="1" FontSize="18" TextColor="Black"/>
+                            <Label x:Name="Player_Txt_Artist" Grid.Row="1" Text="Current Playing Artist" MaxLines="1" FontSize="12" TextColor="Gray"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                        </Grid>
+                        <!-- Playback Controls -->
+                        <StackLayout Orientation="Horizontal" FlexLayout.Grow="0" HeightRequest="50" Margin="2.5, 0, 2.5, 0">
+                            <ImageButton WidthRequest="40" HeightRequest="40" Source="heart.png"/>
+                            <ImageButton WidthRequest="40" HeightRequest="40" Source="play.png"/>
+                        </StackLayout>
+                    </FlexLayout>
+                    <Border StrokeThickness="0"
+                            StrokeShape="RoundRectangle 2,2,2,2"
+                            Margin="20, 0, 20, 0"
+                            BackgroundColor="Transparent"
+                            VerticalOptions="End">
+                        <ProgressBar Progress="0.7" HeightRequest="4" BackgroundColor="Transparent"/>
+                    </Border>
 
-                    <!-- Playback Controls -->
-                    <StackLayout Orientation="Horizontal" Grid.Column="2">
-                        <ImageButton WidthRequest="40" HeightRequest="40" Source="heart.png"/>
-                        <ImageButton WidthRequest="40" HeightRequest="40" Source="play.png"/>
-                    </StackLayout>
-                    
-                    <!-- Player Frame Background-->
-                    <Grid.Background>
-                        <SolidColorBrush Color="White"/>
-                    </Grid.Background>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="60" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="85" />
-                    </Grid.ColumnDefinitions>
+                    <Grid.GestureRecognizers>
+                        <PanGestureRecognizer PanUpdated="Navbar_PinchUpdated"/>
+                    </Grid.GestureRecognizers>
                 </Grid>
-            </Frame>
+            </Border>
             <!-- Navigation Buttons -->
-            <FlexLayout Grid.Row="1"  HorizontalOptions="Fill" VerticalOptions="Fill" JustifyContent="SpaceEvenly" AlignItems="Center">
+            <FlexLayout HeightRequest="60" HorizontalOptions="Fill" VerticalOptions="Fill" JustifyContent="SpaceEvenly" AlignItems="Center"> 
                 <ImageButton x:Name="btn_navnar_home" Source="home.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_home_click"/>
                 <ImageButton x:Name="btn_navnar_search" Source="search.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_search_click"/>
                 <ImageButton x:Name="btn_navnar_library" Source="library.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_library_click"/>
                 <ImageButton x:Name="btn_navnar_favourites" Source="favourite.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_favourite_click"/>
             </FlexLayout>
-            <!-- Row Definitions -->
+            
+            <!--LAYOUT-->
+            <!--Background-->
+            <StackLayout.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="Transparent" Offset="0.0" />
+                    <GradientStop Color="White" Offset="1.0" />
+                </LinearGradientBrush>
+            </StackLayout.Background>
+        </StackLayout>
+    
+        <!-- Context Menus -->
+        <Grid x:Name="ContextMenu" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="true">
+            <!--Image Container-->
+            <FlexLayout Grid.Row="0" BackgroundColor="pink">
+                <Border FlexLayout.Shrink="0" StrokeShape="RoundRectangle 5,5,5,5">
+                    <Image Source="emptyAlbum.png" Scale="0.7"></Image>
+                </Border>
+            </FlexLayout>
+            <!--Item List-->
+            <ListView Grid.Row="1" x:Name="ContextMenu_List" Margin="20">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding itemName}"
+                                  Detail="{Binding itemIcon}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            
+            <!--LAYOUT-->
+            <!--Row Definitions-->
             <Grid.RowDefinitions>
-                <RowDefinition Height="60" />
-                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <!-- Background Gradient -->
+            <!--Background-->
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Color="Transparent" Offset="0.0" />
-
-                    <GradientStop Color="White" Offset="1.0" />
+                    <GradientStop Color="Black" Offset="0.75" />
+                    <GradientStop Color="Black" Offset="1.0" />
                 </LinearGradientBrush>
             </Grid.Background>
         </Grid>
