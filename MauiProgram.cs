@@ -22,14 +22,14 @@ public static class MauiProgram
     public static bool contentPage = false;
     public static string contentTitle = "";
 
-    public static MainLayout? mainLayout = null;
-    public static MainPage? mainPage = null;
+    public static MainLayout mainLayout = new();
+    public static MainPage mainPage = new();
 
     public static MediaService mediaService = new MediaService();
 
     // Data for context menu
     public static List<ContextMenuItem> ContextMenuTaskList = new List<ContextMenuItem>();
-    public static bool ShowContextMenuImage = false;
+    public static bool ShowContextMenuImage = true;
     public static bool ContextMenuIsOpen = false;
     public static string ContextMenuImage = String.Empty;
     public static string ContextMenuMainText = String.Empty;

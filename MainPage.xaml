@@ -47,8 +47,8 @@
                         </Grid>
                         <!-- Playback Controls -->
                         <StackLayout Orientation="Horizontal" FlexLayout.Grow="0" HeightRequest="50" Margin="2.5, 0, 2.5, 0">
-                            <ImageButton WidthRequest="40" HeightRequest="40" Source="heart.png"/>
-                            <ImageButton WidthRequest="40" HeightRequest="40" Source="play.png"/>
+                            <ImageButton x:Name="Player_Btn_FavToggle" Clicked="Player_Btn_FavToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="heart.png"/>
+                            <ImageButton x:Name="Player_Btn_PlayToggle" Clicked="Player_Btn_PlayToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="play.png"/>
                         </StackLayout>
                     </FlexLayout>
                     <Border StrokeThickness="0"
@@ -84,35 +84,32 @@
     
         <!-- Context Menus -->
         <!-- TODO: Add 'Swipe down to close' function to contextmenu -->
-        <Grid x:Name="ContextMenu" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="true">
+        <Grid x:Name="ContextMenu" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="false">
             <!--Image Container -->
-            <Grid>
+            <Grid x:Name="ContextMenu_imagecontainer">
                 <Border Grid.Row="1" HorizontalOptions="Center" StrokeShape="RoundRectangle 5,5,5,5">
-                    <Image Source="emptyAlbum.png" ></Image>
+                    <Image x:Name="ContextMenu_image" Source="{Binding ContextMenuImage}" ></Image>
                 </Border>
                 <StackLayout  VerticalOptions="Start" Grid.Row="2">
-                    <Label Text="Album Name" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>
-                    <Label Text="Artist Name" FontSize="18" HorizontalTextAlignment="Center" Margin="30,0,30,0" ></Label>
+                    <Label x:Name="ContextMenu_MainText" Text="{Binding ContextMenuMainText}" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>
+                    <Label x:Name="ContextMenu_SubText" Text="{Binding ContextMenuSubText}" FontSize="18" HorizontalTextAlignment="Center" Margin="30,0,30,0" ></Label>
                 </StackLayout>
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2.5*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
             </Grid>
 
             <!--Item List-->
-            <ListView Grid.Row="1" x:Name="ContextMenu_List" Margin="20">
+            <ListView Grid.Row="1" x:Name="ContextMenu_List" Margin="20" ItemSelected="ContextMenu_SelectedItemChanged" SelectionMode="Single" IsVisible="True">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
                             <FlexLayout AlignItems="Center" HeightRequest="50">
                                 <Image HeightRequest="35" WidthRequest="35" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
                                 <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18"></Label>
-                                <FlexLayout.GestureRecognizers>
-                                    <ClickGestureRecognizer Clicked="ContextMenuItem_Click"/>
-                                </FlexLayout.GestureRecognizers>
                             </FlexLayout>
                         </ViewCell>
                     </DataTemplate>

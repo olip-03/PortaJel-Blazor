@@ -80,7 +80,8 @@ main {
 }
 
 .toolbar-img {
-    height: 30px; /* Set the height of the images to 100% of the toolbar's height */
+    cursor: pointer;
+    height: 35px; /* Set the height of the images to 100% of the toolbar's height */
     width: auto; /* Allow the width to adjust proportionally based on the image's aspect ratio */
 }
 

@@ -14,62 +14,15 @@ namespace PortaJel_Blazor;
 public partial class MainPage : ContentPage
 {
     private Album? contextMenuAlbum = null;
-    private List<ContextMenuItem> contextMenuItems = new();
     private bool IsRefreshing = false;
     public event EventHandler CanExecuteChanged;
+    private bool isClosing = false;
+
     public MainPage()
 	{
         InitializeComponent();
         MauiProgram.mainPage = this;
-
-        if (contextMenuAlbum != null)
-        {
-            if (contextMenuAlbum.isFavourite)
-            {
-                contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "Favourite.png", new Task(() =>
-                {
-
-                })));
-            }
-            else
-            {
-                contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "Favourite.png", new Task(() =>
-                {
-
-                })));
-            }
-        }
-        contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
-        {
-
-        })));
-        contextMenuItems.Add(new ContextMenuItem("Play Album From Here", "light_play.png", new Task(() =>
-        {
-
-        })));
-        contextMenuItems.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
-        {
-
-        })));
-        contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
-        {
-
-        })));
-        contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(() =>
-        {
-
-        })));
-        contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(() =>
-        {
-
-        })));
-        contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
-        {
-            MauiProgram.mainPage.CloseContextMenu();
-        })));
-
-        ContextMenu_List.ItemsSource = contextMenuItems;
-
+        
 #if ANDROID
         btn_navnar_home.HeightRequest = 30;
         btn_navnar_home.WidthRequest = 30;
@@ -118,21 +71,63 @@ public partial class MainPage : ContentPage
     }
     public async void CloseContextMenu()
     {
+        isClosing = true;
+        double h = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
+        await ContextMenu.TranslateTo(ContextMenu.X, ContextMenu.Y + h, 500, Easing.SinIn);
         ContextMenu.IsVisible = false;
+        isClosing = false;
+    }
+    public async void ShowContextMenu()
+    {
+        ContextMenu_imagecontainer.IsVisible = MauiProgram.ShowContextMenuImage;
+        ContextMenu_MainText.Text = MauiProgram.ContextMenuMainText;
+        ContextMenu_SubText.Text = MauiProgram.ContextMenuSubText;
+        ContextMenu_image.Source = MauiProgram.ContextMenuImage;
+        ContextMenu_List.ItemsSource = null;
+
+        if (MauiProgram.ContextMenuTaskList.Count <= 0) 
+        {
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+            {
+                MauiProgram.mainPage.CloseContextMenu();
+            })));
+        }
+
+        ContextMenu_List.ItemsSource = MauiProgram.ContextMenuTaskList;
+        ContextMenu_List.SelectedItem = null;
+        ContextMenu.IsVisible = true;
+        ContextMenu.TranslationY = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
+        await ContextMenu.TranslateTo(ContextMenu.X, 0, 500, Easing.SinOut);
     }
     #endregion
 
     #region Interactions
-    private async void ContextMenuItem_Click(object sender, EventArgs e)
+    private async void Player_Btn_FavToggle_Clicked(object sender, EventArgs e)
     {
-        MauiProgram.mainLayout.NavigateHome();
-        btn_navnar_home.Scale = 0.6;
-        btn_navnar_home.Opacity = 0;
-        await Task.WhenAny<bool>
-        (
-            btn_navnar_home.FadeTo(1, 250),
-            btn_navnar_home.ScaleTo(1, 250)
-        );
+
+    }
+    private async void Player_Btn_PlayToggle_Clicked(object sender, EventArgs e)
+    {
+
+    }
+    private async void ContextMenu_SelectedItemChanged(object sender, EventArgs e)
+    {
+        if(ContextMenu_List.SelectedItem == null)
+        {
+            return;
+        }
+        ContextMenuItem? selected = (ContextMenuItem)ContextMenu_List.SelectedItem;
+        if(selected != null)
+        {
+            if(selected.job != null)
+            {
+                selected.job.RunSynchronously();
+            }
+        }
+        if (!isClosing)
+        {
+            CloseContextMenu();
+        }
     }
     private async void btn_navnar_home_click(object sender, EventArgs e)
     {
@@ -178,20 +173,9 @@ public partial class MainPage : ContentPage
             btn_navnar_favourites.ScaleTo(1, 250)
         );
     }
-    private async void Navbar_PointerEnter(object sender, EventArgs e)
-    {
-
-    }
-    private async void Navbar_PointerExit(object sender, EventArgs e)
-    {
-
-    }
-    private async void Navbar_PointerMoved(object sender, EventArgs e)
-    {
-
-    }
     private async void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
     {
+        #if !WINDOWS
         switch (e.StatusType)
         {
             case GestureStatus.Running:
@@ -202,10 +186,7 @@ public partial class MainPage : ContentPage
                 await Player.TranslateTo(0, 0, 500, Easing.SinInOut);
                 break;
         }
-    }
-    private async void Navbar_Touched(object sender, EventArgs e)
-    {
-
+        #endif
     }
     #endregion
 }

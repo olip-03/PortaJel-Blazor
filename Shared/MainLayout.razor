@@ -40,10 +40,15 @@
             @if (_showHeader)
             {
                 <div class="content px-4 toolbar">
-                    <h1>@pageTitle</h1>
-                    <a @onclick="NavigateSettings">
-                        <img class="toolbar-img" src="/images/settings.svg" />
-                    </a>
+                    <h1 style="margin: 0;">@pageTitle</h1>
+                    <div>
+                        <a @onclick="NavigateDownloads" style="margin-right: 1rem">
+                            <img class="toolbar-img" src="/images/download.svg" />
+                        </a>
+                        <a @onclick="NavigateSettings">
+                            <img class="toolbar-img" src="/images/settings.svg" />
+                        </a>
+                    </div>
                 </div>
             }
 
@@ -249,6 +254,7 @@
             MauiProgram.AddServer(serverConnector);
         }
 
+        MauiProgram.mainPage.ShowNavbar();
         StateHasChanged();
     }
 
@@ -302,6 +308,18 @@
             showHeader = true;
             pageTitle = "Favourites";
             currentUri = "/favourites";
+
+            NavManager.NavigateTo(currentUri);
+        }
+    }
+    public void NavigateDownloads()
+    {
+        if (currentUri != "/downloads")
+        {
+            isLoading = true;
+            showHeader = true;
+            pageTitle = "Downloads";
+            currentUri = "/downloads";
 
             NavManager.NavigateTo(currentUri);
         }
@@ -362,13 +380,12 @@
     public async Task OpenContextMenu()
     {
         MauiProgram.ContextMenuIsOpen = true;
-        await JS.InvokeAsync<string>("contextMenu", "open");
-        await JS.InvokeAsync<string>("LockScroll");
+        MauiProgram.mainPage.ShowContextMenu();
+
     }
     public async Task CloseContextMenu()
     {
         MauiProgram.ContextMenuIsOpen = false;
-        await JS.InvokeAsync<string>("contextMenu", "close");
-        await JS.InvokeAsync<string>("UnlockScoll");
+        MauiProgram.mainPage.CloseContextMenu();
     }
 }

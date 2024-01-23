@@ -9,7 +9,7 @@
 @if (isGrid)
 {
     <div class="grid-album-container">
-        @if(album.isArtist == true)
+        @if (album.isArtist == true)
         { // this item is an artist
             <div class="grid-album-cover" @onclick=NavigateToArtist @oncontextmenu=OpenContextMenu>
                 <img class="grid-artist-img" src="@album.imageAtResolution(resolution)" loading="lazy" />
@@ -105,7 +105,7 @@ else
     {
         if (album != null)
         {
-            if(album.id == Guid.Empty) { return; }
+            if (album.id == Guid.Empty) { return; }
             MauiProgram.mainLayout.NavigateAlbum(album.id);
         }
     }
@@ -131,17 +131,43 @@ else
         MauiProgram.ContextMenuSubText = album.GetArtistName();
         MauiProgram.ContextMenuImage = album.imageAtResolution(resolution);
 
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Favourite", "Favourite.png", new Task(() =>
+        if (album.isFavourite)
+        {
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Remove From Favourites", "light_heart_minus.png", new Task(() =>
+            {
+
+            })));
+        }
+        else
+        {
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Favourites", "light_heart_plus.png", new Task(() =>
+            {
+
+            })));
+        }
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
         {
 
         })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Playlist", "Favourite.png", new Task(() =>
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
         {
 
         })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("View Artist", "Favourite.png", new Task(() =>
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
         {
-            NavigateToArtist();
+
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("View Album", "light_album.png", new Task(() =>
+        {
+            MauiProgram.mainLayout.NavigateArtist(album.id);
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(() =>
+        {
+            MauiProgram.mainLayout.NavigateArtist(album.artists.FirstOrDefault().id);
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+        {
+            MauiProgram.mainPage.CloseContextMenu();
         })));
 
         await MauiProgram.mainLayout.OpenContextMenu();

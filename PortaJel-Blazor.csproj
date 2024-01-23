@@ -55,6 +55,8 @@
 		<MauiImage Update="Resources\Images\Light\light_album.png" BaseSize="40,40" />
 		<MauiImage Update="Resources\Images\Light\light_artist.png" BaseSize="40,40" />
 		<MauiImage Update="Resources\Images\Light\light_close.png" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_heart_plus.png" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_heart_minus.png" BaseSize="40,40" />
 
 		<!-- Custom Fonts -->
         <MauiFont Include="Resources\Fonts\*" />
@@ -74,6 +76,7 @@
 
     <ItemGroup>
         <PackageReference Include="BlazorAnimate" Version="3.0.0" />
+        <PackageReference Include="Blurhash.Core" Version="2.0.0" />
         <PackageReference Include="Jellyfin.Sdk" Version="2022.6.11" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

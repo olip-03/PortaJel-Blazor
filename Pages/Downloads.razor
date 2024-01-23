@@ -1,0 +1,19 @@
+﻿@using PortaJel_Blazor.Classes;
+@using Microsoft.Maui.Controls;
+@page "/downloads"
+
+<!-- Settings for connecting to a Jellyfin server -->
+<div>
+
+</div>
+
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        MauiProgram.mainLayout.pageTitle = "Downloads";
+        MauiProgram.mainLayout.currentUri = "/downloads";
+        MauiProgram.mainLayout.showHeader = true;
+        MauiProgram.mainLayout.isLoading = false;
+    }
+}
