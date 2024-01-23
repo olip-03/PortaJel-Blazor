@@ -14,7 +14,7 @@
                 <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
             </BlazorWebView.RootComponents>
         </BlazorWebView>
-        
+
         <!-- Navigation Bar -->
         <StackLayout Orientation="Vertical" x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" IsVisible="false">
             <!-- Player -->
@@ -81,14 +81,33 @@
                 </LinearGradientBrush>
             </StackLayout.Background>
         </StackLayout>
-    
+
+        <!-- Media Player Controls -->
+        <Border x:Name="MediaController" 
+                VerticalOptions="FillAndExpand" 
+                HorizontalOptions="FillAndExpand"
+                Stroke="LightGray"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 15,15,0,0"
+                IsVisible="false">
+            <Grid BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+                <Grid>
+                    
+                </Grid>
+                <Grid>
+
+                </Grid>
+            </Grid>
+        </Border>
+
+
         <!-- Context Menus -->
         <!-- TODO: Add 'Swipe down to close' function to contextmenu -->
         <Grid x:Name="ContextMenu" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="false">
             <!--Image Container -->
             <Grid x:Name="ContextMenu_imagecontainer">
-                <Border Grid.Row="1" HorizontalOptions="Center" StrokeShape="RoundRectangle 5,5,5,5">
-                    <Image x:Name="ContextMenu_image" Source="{Binding ContextMenuImage}" ></Image>
+                <Border Grid.Row="1" HorizontalOptions="Center" StrokeShape="RoundRectangle 5,5,5,5" >
+                    <Image x:Name="ContextMenu_image" Source="{Binding ContextMenuImage}" HeightRequest="250" WidthRequest="250" Aspect="AspectFill"></Image>
                 </Border>
                 <StackLayout  VerticalOptions="Start" Grid.Row="2">
                     <Label x:Name="ContextMenu_MainText" Text="{Binding ContextMenuMainText}" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>

@@ -22,6 +22,7 @@ public partial class MainPage : ContentPage
 	{
         InitializeComponent();
         MauiProgram.mainPage = this;
+        MediaController.TranslationY = MediaController.Height;
         
 #if ANDROID
         btn_navnar_home.HeightRequest = 30;
@@ -173,17 +174,43 @@ public partial class MainPage : ContentPage
             btn_navnar_favourites.ScaleTo(1, 250)
         );
     }
+    double distance = 0;
     private async void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
     {
         #if !WINDOWS
         switch (e.StatusType)
         {
             case GestureStatus.Running:
+                double h = Microsoft.Maui.Devices.DeviceDisplay.Current.MainDisplayInfo.Height;
+                MediaController.IsVisible = true;
+
                 Player.TranslationY = Player.TranslationY + e.TotalY;
+                MediaController.TranslationY = Player.TranslationY + MediaController.Height - 50;
+
+                double vis = 0;
+                if (Player.TranslationY < 0)
+                {
+                    double check = ((Player.TranslationY * -1)+60) / MediaController.Height;
+                    if(check > 0)
+                    {
+                        vis = check;
+                    }
+                }
+
+                distance = Player.TranslationY;
+                MediaController.Opacity = vis;
                 break;
 
             case GestureStatus.Completed:
-                await Player.TranslateTo(0, 0, 500, Easing.SinInOut);
+                if (distance < 0) { distance *= -1; }
+                uint speed = (uint)distance;
+                await Task.WhenAny<bool>
+                (
+                    Player.TranslateTo(0, 0, speed, Easing.SinOut),
+                    MediaController.TranslateTo(0, MediaController.Height, speed, Easing.SinOut),
+                    MediaController.FadeTo(0, speed, Easing.SinOut)
+                );
+
                 break;
         }
         #endif

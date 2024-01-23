@@ -191,18 +191,21 @@
             return;
         }
 
-        int screenWidth = (int)Application.Current.Windows.FirstOrDefault().Width;
-        backgroundImgUrl = artist.backgroundImgAtResolution(screenWidth);
-
-        int imgScale = (int)(Application.Current.Windows.FirstOrDefault().Width * 0.4);
-        imgUrl = artist.imageAtResolution(imgScale);
-
-        artistAlbums = artist.artistAlbums;
-
-        logoUrl = artist.logoImgSrc;
-        if(logoUrl != string.Empty)
+        if(artist != null)
         {
-            hasLogo = true;
+            int screenWidth = (int)Application.Current.Windows.FirstOrDefault().Width;
+            backgroundImgUrl = artist.backgroundImgAtResolution(screenWidth);
+
+            int imgScale = (int)(Application.Current.Windows.FirstOrDefault().Width * 0.4);
+            imgUrl = artist.imageAtResolution(imgScale);
+
+            artistAlbums = artist.artistAlbums;
+
+            logoUrl = artist.logoImgSrc;
+            if (logoUrl != string.Empty)
+            {
+                hasLogo = true;
+            }
         }
 
         MauiProgram.mainLayout.pageTitle = "Artist View";

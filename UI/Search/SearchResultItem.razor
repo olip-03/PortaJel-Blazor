@@ -133,21 +133,25 @@ else
 
         if (album.isFavourite)
         {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Remove From Favourites", "light_heart_minus.png", new Task(() =>
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Remove From Favourites", "light_heart_minus.png", new Task(async () =>
             {
-
+                album.isFavourite = false;
+                await MauiProgram.servers[0].FavouriteItem(album.id, false);
+                StateHasChanged();
             })));
         }
         else
         {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Favourites", "light_heart_plus.png", new Task(() =>
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Favourites", "light_heart_plus.png", new Task(async () =>
             {
-
+                album.isFavourite = true;
+                await MauiProgram.servers[0].FavouriteItem(album.id, true);
+                StateHasChanged();
             })));
         }
         MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
         {
-
+            
         })));
         MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
         {
@@ -159,7 +163,7 @@ else
         })));
         MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("View Album", "light_album.png", new Task(() =>
         {
-            MauiProgram.mainLayout.NavigateArtist(album.id);
+            MauiProgram.mainLayout.NavigateAlbum(album.id);
         })));
         MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(() =>
         {
