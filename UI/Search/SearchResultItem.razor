@@ -133,7 +133,7 @@ else
 
         if (album.isFavourite)
         {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Remove From Favourites", "light_heart_minus.png", new Task(async () =>
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
             {
                 album.isFavourite = false;
                 await MauiProgram.servers[0].FavouriteItem(album.id, false);
@@ -142,7 +142,7 @@ else
         }
         else
         {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Favourites", "light_heart_plus.png", new Task(async () =>
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
             {
                 album.isFavourite = true;
                 await MauiProgram.servers[0].FavouriteItem(album.id, true);

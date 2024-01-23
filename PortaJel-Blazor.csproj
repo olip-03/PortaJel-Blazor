@@ -30,6 +30,56 @@
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
         <AssemblyName>PortaJel-Blazor</AssemblyName>
+        <AssemblyVersion>0.0.0.2</AssemblyVersion>
+        <FileVersion>0.0.0.2</FileVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
+      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+      <ApplicationVersion>2</ApplicationVersion>
+      <ApplicationId>portajel.portajel_blazor</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
+      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+      <ApplicationVersion>2</ApplicationVersion>
+      <ApplicationId>portajel.portajel_blazor</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android33.0|AnyCPU'">
+      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+      <ApplicationVersion>2</ApplicationVersion>
+      <ApplicationId>portajel.portajel_blazor</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows10.0.19041.0|AnyCPU'">
+      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+      <ApplicationVersion>2</ApplicationVersion>
+      <ApplicationId>portajel.portajel_blazor</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
+      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+      <ApplicationVersion>2</ApplicationVersion>
+      <ApplicationId>portajel.portajel_blazor</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-maccatalyst|AnyCPU'">
+      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+      <ApplicationVersion>2</ApplicationVersion>
+      <ApplicationId>portajel.portajel_blazor</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android33.0|AnyCPU'">
+      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+      <ApplicationVersion>2</ApplicationVersion>
+      <ApplicationId>portajel.portajel_blazor</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows10.0.19041.0|AnyCPU'">
+      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+      <ApplicationVersion>2</ApplicationVersion>
+      <ApplicationId>portajel.portajel_blazor</ApplicationId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -42,21 +92,22 @@
         <!-- Images -->
         <MauiImage Include="Resources\Images\*" />
 		<MauiImage Include="Resources\Images\Light\*" />
-
+		
 		<MauiImage Update="Resources\Images\favourite.svg" BaseSize="40,40" />
 		<MauiImage Update="Resources\Images\home.svg" BaseSize="40,40" />
 		<MauiImage Update="Resources\Images\library.svg" BaseSize="40,40" />
 		<MauiImage Update="Resources\Images\search.svg" BaseSize="40,40" />
 
 		<MauiImage Update="Resources\Images\Light\light_cloud_download.svg" BaseSize="40,40" />
-		<MauiImage Update="Resources\Images\Light\light_play.png" BaseSize="40,40" />
-		<MauiImage Update="Resources\Images\Light\light_playlist.png" BaseSize="40,40" />
-		<MauiImage Update="Resources\Images\Light\light_queue.png" BaseSize="40,40" />
-		<MauiImage Update="Resources\Images\Light\light_album.png" BaseSize="40,40" />
-		<MauiImage Update="Resources\Images\Light\light_artist.png" BaseSize="40,40" />
-		<MauiImage Update="Resources\Images\Light\light_close.png" BaseSize="40,40" />
-		<MauiImage Update="Resources\Images\Light\light_heart_plus.png" BaseSize="40,40" />
-		<MauiImage Update="Resources\Images\Light\light_heart_minus.png" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_play.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_playlist.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_queue.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_album.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_artist.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_close.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_heart.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_heartplus.svg" BaseSize="40,40" />
+		<MauiImage Update="Resources\Images\Light\light_heartminus.svg" BaseSize="40,40" />
 
 		<!-- Custom Fonts -->
         <MauiFont Include="Resources\Fonts\*" />

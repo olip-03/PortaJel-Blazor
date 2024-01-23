@@ -4,6 +4,7 @@ using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Pages;
 using System.Windows.Input;
 using PortaJel_Blazor.Data;
+using static Microsoft.Maui.ApplicationModel.Permissions;
 
 #if ANDROID
 using Android;
@@ -70,6 +71,25 @@ public partial class MainPage : ContentPage
         Navbar.Opacity = 0;
         await Navbar.FadeTo(1, 500);
     }
+    public async void CloseMusicController()
+    {
+        await Task.WhenAny<bool>
+                (
+                    Player.TranslateTo(0, 0, 500, Easing.SinOut),
+                    MediaController.TranslateTo(0, MediaController.Height, 500, Easing.SinOut),
+                    MediaController.FadeTo(0, 500, Easing.SinOut)
+                );
+    }
+    public async void ShowMusicController()
+    {
+        MediaController.IsVisible = true;
+        await Task.WhenAny<bool>
+        (
+            Player.TranslateTo(0, Player.TranslationY - MediaController.Height, 500, Easing.SinOut),
+            MediaController.TranslateTo(0, 0, 500, Easing.SinOut),
+            MediaController.FadeTo(1, 500, Easing.SinOut)
+        );
+    }
     public async void CloseContextMenu()
     {
         isClosing = true;
@@ -110,6 +130,14 @@ public partial class MainPage : ContentPage
     private async void Player_Btn_PlayToggle_Clicked(object sender, EventArgs e)
     {
 
+    }
+    private void Button_Clicked(object sender, EventArgs e)
+    {
+        CloseMusicController();
+    }
+    private async void MiniPlayer_Clicked(object sender, EventArgs e)
+    {
+        ShowMusicController(); 
     }
     private async void ContextMenu_SelectedItemChanged(object sender, EventArgs e)
     {
@@ -216,4 +244,5 @@ public partial class MainPage : ContentPage
         #endif
     }
     #endregion
+
 }
