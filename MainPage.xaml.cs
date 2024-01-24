@@ -18,13 +18,13 @@ public partial class MainPage : ContentPage
     private bool IsRefreshing = false;
     public event EventHandler CanExecuteChanged;
     private bool isClosing = false;
+    private double screenHeight = 0;
+    private bool musicControlsFirstOpen = true;
 
     public MainPage()
 	{
         InitializeComponent();
         MauiProgram.mainPage = this;
-        MediaController.TranslationY = MediaController.Height;
-        
 #if ANDROID
         btn_navnar_home.HeightRequest = 30;
         btn_navnar_home.WidthRequest = 30;
@@ -69,26 +69,35 @@ public partial class MainPage : ContentPage
     {
         Navbar.IsVisible = true;
         Navbar.Opacity = 0;
-        await Navbar.FadeTo(1, 500);
+        await Navbar.FadeTo(1, 1000);
     }
     public async void CloseMusicController()
     {
         await Task.WhenAny<bool>
-                (
-                    Player.TranslateTo(0, 0, 500, Easing.SinOut),
-                    MediaController.TranslateTo(0, MediaController.Height, 500, Easing.SinOut),
-                    MediaController.FadeTo(0, 500, Easing.SinOut)
-                );
+        (
+            Player.TranslateTo(0, 0, 500, Easing.SinOut),
+            MediaController.TranslateTo(0, screenHeight, 500, Easing.SinOut),
+            MediaController.FadeTo(0, 500, Easing.SinOut)
+        );
     }
     public async void ShowMusicController()
     {
+        screenHeight = AllContent.Height;
+
         MediaController.IsVisible = true;
+        if (musicControlsFirstOpen)
+        {
+            MediaController.TranslationY = screenHeight;
+        }
+
         await Task.WhenAny<bool>
         (
-            Player.TranslateTo(0, Player.TranslationY - MediaController.Height, 500, Easing.SinOut),
+            Player.TranslateTo(0, screenHeight * -1, 500, Easing.SinOut),
             MediaController.TranslateTo(0, 0, 500, Easing.SinOut),
             MediaController.FadeTo(1, 500, Easing.SinOut)
         );
+
+        musicControlsFirstOpen = false;
     }
     public async void CloseContextMenu()
     {
@@ -137,6 +146,7 @@ public partial class MainPage : ContentPage
     }
     private async void MiniPlayer_Clicked(object sender, EventArgs e)
     {
+
         ShowMusicController(); 
     }
     private async void ContextMenu_SelectedItemChanged(object sender, EventArgs e)
@@ -226,19 +236,24 @@ public partial class MainPage : ContentPage
                 }
 
                 distance = Player.TranslationY;
+                //Player_Txt_Title.Text = distance.ToString();
                 MediaController.Opacity = vis;
                 break;
 
             case GestureStatus.Completed:
                 if (distance < 0) { distance *= -1; }
                 uint speed = (uint)distance;
-                await Task.WhenAny<bool>
-                (
-                    Player.TranslateTo(0, 0, speed, Easing.SinOut),
-                    MediaController.TranslateTo(0, MediaController.Height, speed, Easing.SinOut),
-                    MediaController.FadeTo(0, speed, Easing.SinOut)
-                );
 
+                screenHeight = AllContent.Height;
+                if (distance > screenHeight / 3)
+                {
+                    musicControlsFirstOpen = false;
+                    ShowMusicController();
+                }
+                else
+                {
+                    CloseMusicController();
+                }
                 break;
         }
         #endif

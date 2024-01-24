@@ -7,7 +7,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
-    <Grid VerticalOptions="Fill" HorizontalOptions="Fill">
+    <Grid VerticalOptions="Fill" HorizontalOptions="Fill" x:Name="AllContent">
         <!-- Webview -->
         <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
             <BlazorWebView.RootComponents>
@@ -62,6 +62,7 @@
                     <Grid.GestureRecognizers>
                         <PanGestureRecognizer PanUpdated="Navbar_PinchUpdated"/>
                         <TapGestureRecognizer Tapped="MiniPlayer_Clicked"/>
+                        <SwipeGestureRecognizer Direction="Up" Swiped="MiniPlayer_Clicked"></SwipeGestureRecognizer>
                     </Grid.GestureRecognizers>
                 </Grid>
             </Border>
@@ -84,25 +85,21 @@
         </StackLayout>
 
         <!-- Media Player Controls -->
-        <Border x:Name="MediaController" 
-                VerticalOptions="FillAndExpand" 
-                HorizontalOptions="FillAndExpand"
-                Stroke="LightGray"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 15,15,0,0"
-                IsVisible="false">
-            <Grid BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-                <Grid>
-                    <Button Clicked="Button_Clicked" WidthRequest="100" HeightRequest="40" Text="Close">
-                        <Button.GestureRecognizers>
-                            <TapGestureRecognizer></TapGestureRecognizer>
-                        </Button.GestureRecognizers></Button>
-                </Grid>
-                <Grid>
-
-                </Grid>
+        <Grid x:Name="MediaController" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="false">
+            <Grid>
+                <Button Clicked="Button_Clicked" WidthRequest="100" HeightRequest="40" Text="Close">
+                    <Button.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="Button_Clicked"></TapGestureRecognizer>
+                    </Button.GestureRecognizers>
+                </Button>
             </Grid>
-        </Border>
+            <Grid>
+
+            </Grid>
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer><!--Do NOTHING! I just don't want fucking tapps passing this grid RRAHHH--></TapGestureRecognizer>
+            </Grid.GestureRecognizers>
+        </Grid>
 
         <!-- Context Menus -->
         <!-- TODO: Add 'Swipe down to close' function to contextmenu -->
