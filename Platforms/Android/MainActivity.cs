@@ -40,12 +40,12 @@ public class MainActivity : MauiAppCompatActivity
                 {
                     if (MauiProgram.MusicPlayerIsQueueOpen)
                     {
-                        MauiProgram.mainLayout.ReturnToPlayer();
+                        MauiProgram.mainPage.CloseMusicQueue();
                         return false;
                     }
                     else
                     {
-                        MauiProgram.mainLayout.ClosePlayer();
+                        MauiProgram.mainPage.CloseMusicController();
                         return false;
                     }
                 }

@@ -71,8 +71,18 @@ public partial class MainPage : ContentPage
         Navbar.Opacity = 0;
         await Navbar.FadeTo(1, 1000);
     }
+    public void CloseMusicQueue()
+    {
+
+    }
+    public void OpenMusicQueue()
+    {
+
+    }
     public async void CloseMusicController()
     {
+        MauiProgram.MusicPlayerIsOpen = false;
+
         await Task.WhenAny<bool>
         (
             Player.TranslateTo(0, 0, 500, Easing.SinOut),
@@ -82,6 +92,8 @@ public partial class MainPage : ContentPage
     }
     public async void ShowMusicController()
     {
+                MauiProgram.MusicPlayerIsOpen = true;
+
         screenHeight = AllContent.Height;
 
         MediaController.IsVisible = true;
@@ -146,7 +158,6 @@ public partial class MainPage : ContentPage
     }
     private async void MiniPlayer_Clicked(object sender, EventArgs e)
     {
-
         ShowMusicController(); 
     }
     private async void ContextMenu_SelectedItemChanged(object sender, EventArgs e)
@@ -160,7 +171,14 @@ public partial class MainPage : ContentPage
         {
             if(selected.job != null)
             {
-                selected.job.RunSynchronously();
+                try
+                {
+                    selected.job.RunSynchronously();
+                }
+                catch (Exception)
+                {
+                    CloseContextMenu();
+                }
             }
         }
         if (!isClosing)
@@ -211,6 +229,10 @@ public partial class MainPage : ContentPage
             btn_navnar_favourites.FadeTo(1, 250),
             btn_navnar_favourites.ScaleTo(1, 250)
         );
+    }
+    private async void MediaController_Btn_ContextMenu(object sender, EventArgs args)
+    {
+        ShowContextMenu();
     }
     double distance = 0;
     private async void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
