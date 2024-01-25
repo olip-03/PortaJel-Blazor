@@ -31,6 +31,30 @@ namespace PortaJel_Blazor.Classes
                     // Refresh UI
                 }
             }
+            public void QueueSong(Song[] _songList)
+            {
+                bool refreshUi = false;
+                foreach (var _song in _songList)
+                {
+                    Song? lastSong = songQueue.FirstOrDefault();
+                    songQueue.Enqueue(_song);
+
+                    if (lastSong != null)
+                    {
+                        if (lastSong != songQueue.FirstOrDefault())
+                        {
+                            refreshUi = true;
+                            // Refresh UI
+                        }
+                    }
+                    else
+                    {
+                        refreshUi = true;
+                        // Refresh UI
+                    }
+                }
+                // Refresh UI
+            }
             public Song DequeueSong()
             {
                 Song? lastSong = songQueue.FirstOrDefault();
@@ -66,6 +90,10 @@ namespace PortaJel_Blazor.Classes
             public Song? FirstOrDefault()
             {
                 return songQueue.FirstOrDefault();
+            }
+            public Song[] GetQueue()
+            {
+                return songQueue.ToArray();
             }
         }
         public void Play()

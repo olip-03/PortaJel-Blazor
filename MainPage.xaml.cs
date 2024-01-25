@@ -20,11 +20,23 @@ public partial class MainPage : ContentPage
     private bool isClosing = false;
     private double screenHeight = 0;
     private bool musicControlsFirstOpen = true;
+    private List<Song> queue = new List<Song>();
 
     public MainPage()
 	{
         InitializeComponent();
         MauiProgram.mainPage = this;
+
+        for (int i = 0; i < 20; i++)
+        {
+            Song newSong = new();
+            newSong.name = "Song " + i;
+            newSong.artist = "Demonstration " + i;
+            newSong.imageSrc = "emptyalbum.png";
+
+            queue.Add(newSong);
+        }
+        MediaController_Queue_List.ItemsSource = queue;
 #if ANDROID
         btn_navnar_home.HeightRequest = 30;
         btn_navnar_home.WidthRequest = 30;
@@ -73,11 +85,15 @@ public partial class MainPage : ContentPage
     }
     public void CloseMusicQueue()
     {
-
+        MauiProgram.MusicPlayerIsQueueOpen = false;
+        MediaController_Queue.IsVisible = false;
+        MediaController_Player.IsVisible = true;
     }
     public void OpenMusicQueue()
     {
-
+        MauiProgram.MusicPlayerIsQueueOpen = true;
+        MediaController_Queue.IsVisible = true;
+        MediaController_Player.IsVisible = false;
     }
     public async void CloseMusicController()
     {
@@ -114,6 +130,8 @@ public partial class MainPage : ContentPage
     public async void CloseContextMenu()
     {
         isClosing = true;
+        MauiProgram.ContextMenuIsOpen = false;
+
         double h = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
         await ContextMenu.TranslateTo(ContextMenu.X, ContextMenu.Y + h, 500, Easing.SinIn);
         ContextMenu.IsVisible = false;
@@ -139,6 +157,7 @@ public partial class MainPage : ContentPage
         ContextMenu_List.SelectedItem = null;
         ContextMenu.IsVisible = true;
         ContextMenu.TranslationY = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
+        MauiProgram.ContextMenuIsOpen = true;
         await ContextMenu.TranslateTo(ContextMenu.X, 0, 500, Easing.SinOut);
     }
     #endregion
@@ -185,6 +204,14 @@ public partial class MainPage : ContentPage
         {
             CloseContextMenu();
         }
+    }
+    private async void MediaController_Queue_Show(object sender, EventArgs e)
+    {
+        OpenMusicQueue();
+    }
+    private async void MediaController_Queue_Hide(object sender, EventArgs e)
+    {
+        CloseMusicQueue();
     }
     private async void btn_navnar_home_click(object sender, EventArgs e)
     {

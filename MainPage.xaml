@@ -87,23 +87,23 @@
         <!-- Media Player Controls -->
         <Grid x:Name="MediaController" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="false">
             <!-- Controller -->
-            <Grid VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <Grid x:Name="MediaController_Player" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
                 <!-- Header -->
                 <Grid Grid.Row="0">
-                    <Button Clicked="Button_Clicked" WidthRequest="40" HeightRequest="40" Text="Close" Grid.Column="0">
-                        <Button.GestureRecognizers>
+                    <ImageButton Clicked="Button_Clicked" WidthRequest="40" HeightRequest="40" Source="down.png" Grid.Column="0">
+                        <ImageButton.GestureRecognizers>
                             <TapGestureRecognizer Tapped="Button_Clicked"></TapGestureRecognizer>
-                        </Button.GestureRecognizers>
-                    </Button>
+                        </ImageButton.GestureRecognizers>
+                    </ImageButton>
                     <StackLayout Grid.Column="1" VerticalOptions="Center">
                         <Label Text="Playing from Album" TextColor="Black" FontSize="16" HorizontalOptions="Center"></Label>
                         <Label Text="Album Name" TextColor="Black" FontSize="14" HorizontalOptions="Center"></Label>
                     </StackLayout>
-                    <Button Clicked="MediaController_Btn_ContextMenu" WidthRequest="40" HeightRequest="40" Text="Cntxt" Grid.Column="2">
-                        <Button.GestureRecognizers>
+                    <ImageButton Clicked="MediaController_Btn_ContextMenu" WidthRequest="40" HeightRequest="40" Source="more_horiz.png" Grid.Column="2">
+                        <ImageButton.GestureRecognizers>
                             <TapGestureRecognizer Tapped="MediaController_Btn_ContextMenu"></TapGestureRecognizer>
-                        </Button.GestureRecognizers>
-                    </Button>
+                        </ImageButton.GestureRecognizers>
+                    </ImageButton>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="70"/>
                         <ColumnDefinition Width="*"/>
@@ -120,19 +120,33 @@
                 </Grid>
                 <!-- Playback controls -->
                 <Grid Grid.Row="2">
-                    <ProgressBar Progress="1" HeightRequest="15" BackgroundColor="Transparent" VerticalOptions="Start" Margin="20, 0, 20, 0"/>
+                    <StackLayout Margin="10, 0, 10, 0" VerticalOptions="Start">
+                        <Slider Maximum="100" Value="100" Margin="0" MaximumTrackColor="Gray" BackgroundColor="Transparent" HorizontalOptions="FillAndExpand"/>
+                        <FlexLayout  Margin="20, 0, 20, 0" JustifyContent="SpaceBetween" >
+                            <Label TextColor="Black" Text="0:00"></Label>
+                            <Label TextColor="Black" Text="0:00"></Label>
+                        </FlexLayout>
+                    </StackLayout>
 
                     <StackLayout VerticalOptions="Center">
                         <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
-                            <ImageButton HeightRequest="50" WidthRequest="50" BackgroundColor="LightGray" Source="play.png"></ImageButton>
-                            <ImageButton HeightRequest="50" WidthRequest="50" BackgroundColor="LightGray" Source="play.png"></ImageButton>
-                            <ImageButton HeightRequest="80" WidthRequest="80" BackgroundColor="LightGray" Source="play.png"></ImageButton>
-                            <ImageButton HeightRequest="50" WidthRequest="50" BackgroundColor="LightGray" Source="play.png"></ImageButton>
-                            <ImageButton HeightRequest="50" WidthRequest="50" BackgroundColor="LightGray" Source="play.png"></ImageButton>
+                            <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="repeat_off.png"></ImageButton>
+                            <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="skip_previous.png"></ImageButton>
+                            <Frame CornerRadius="40" Padding="0" Margin="0" HeightRequest="80" WidthRequest="80" BackgroundColor="LightGray">
+                                <ImageButton Aspect="AspectFit" 
+                                             VerticalOptions="Center"
+                                             HorizontalOptions="Center" 
+                                             BackgroundColor="Transparent" 
+                                             HeightRequest="50" 
+                                             WidthRequest="50" 
+                                             Source="play.png"/>
+                            </Frame>
+                            <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="skip_next.png"></ImageButton>
+                            <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="shuffle.png"></ImageButton>
                         </FlexLayout>
                         <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
-                            <ImageButton HeightRequest="50" WidthRequest="50" BackgroundColor="LightGray" Source="play.png"></ImageButton>
-                            <ImageButton HeightRequest="50" WidthRequest="50" BackgroundColor="LightGray" Source="play.png"></ImageButton>
+                            <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="heart.png"></ImageButton>
+                            <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="queue.png" Clicked="MediaController_Queue_Show"></ImageButton>
                         </FlexLayout>
                     </StackLayout>
                 </Grid>
@@ -144,8 +158,89 @@
                 </Grid.RowDefinitions>
             </Grid>
             <!-- Queue -->
-            <Grid VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="false">
-                <!-- TODO: Add some fuckass shit to get draggable lists working the way I want them to --> 
+            <Grid x:Name="MediaController_Queue" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="false" BackgroundColor="White">
+                <!-- Header -->
+                <Grid Grid.Row="0">
+                    <ImageButton Clicked="MediaController_Queue_Hide" WidthRequest="40" HeightRequest="40" Source="back.png" Grid.Column="0">
+                        <ImageButton.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="MediaController_Queue_Hide"></TapGestureRecognizer>
+                        </ImageButton.GestureRecognizers>
+                    </ImageButton>
+                    <StackLayout Grid.Column="1" VerticalOptions="Center">
+                        <Label Text="Playing from Album" TextColor="Black" FontSize="16" HorizontalOptions="Center"></Label>
+                        <Label Text="Album Name" TextColor="Black" FontSize="14" HorizontalOptions="Center"></Label>
+                    </StackLayout>
+                    <ImageButton Clicked="MediaController_Btn_ContextMenu" WidthRequest="40" HeightRequest="40" Source="more_horiz.png" Grid.Column="2">
+                        <ImageButton.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="MediaController_Btn_ContextMenu"></TapGestureRecognizer>
+                        </ImageButton.GestureRecognizers>
+                    </ImageButton>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="70"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
+
+                <!-- TODO: Add some fuckass shit to get draggable lists working the way I want them to -->
+                <Grid InputTransparent="False" Grid.Row="1">
+                    <CollectionView CanReorderItems="True" x:Name="MediaController_Queue_List" InputTransparent="False" >
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="20, 0, 0, 10">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.RowSpan="2"
+                                           Source="{Binding imageSrc}"
+                                           Aspect="AspectFill"
+                                           HeightRequest="60"
+                                           WidthRequest="60" Margin="0, 0, 10, 0"/>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding name}"
+                                           FontAttributes="Bold" 
+                                           TextColor="Black"/>
+                                    <Label Grid.Row="1"
+                                           Grid.Column="1"
+                                           Text="{Binding artist}"
+                                           FontAttributes="Italic"
+                                           VerticalOptions="End"
+                                           TextColor="Black"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+                
+
+                <Grid Grid.Row="2">
+                    <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
+                        <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="repeat_off.png"></ImageButton>
+                        <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="skip_previous.png"></ImageButton>
+                        <Frame CornerRadius="40" Padding="0" Margin="0" HeightRequest="80" WidthRequest="80" BackgroundColor="LightGray">
+                            <ImageButton Aspect="AspectFit" 
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center" 
+                             BackgroundColor="Transparent" 
+                             HeightRequest="50" 
+                             WidthRequest="50" 
+                             Source="play.png"/>
+                        </Frame>
+                        <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="skip_next.png"></ImageButton>
+                        <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="shuffle.png"></ImageButton>
+                    </FlexLayout>
+                </Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="120"/>
+                </Grid.RowDefinitions>
             </Grid>
             <Grid.GestureRecognizers>
                 <TapGestureRecognizer><!--Do NOTHING! I just don't want fucking tapps passing this grid RRAHHH--></TapGestureRecognizer>

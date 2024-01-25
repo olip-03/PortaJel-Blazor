@@ -8,3 +8,6 @@ As for what needs to be done, currently my plan is to have the app be fully navi
 If you're interested in helping with this project, please feel free to! The less work I have to do, the better. Even more so if you're more experienced with some of the technologies going on here. I'm quite fresh to using .Net MAUI, and am very fresh to making mobile apps. Most of my work has either been for desktop or for web.
 
 Thank you! 
+
+References and shit I've stolen for this: 
+https://github.com/billvenhaus/ReorderableCollectionView.Maui

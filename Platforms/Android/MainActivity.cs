@@ -3,7 +3,6 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
-using MediaManager;
 using PortaJel_Blazor.Classes;
 
 namespace PortaJel_Blazor;
@@ -16,7 +15,7 @@ public class MainActivity : MauiAppCompatActivity
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
-        CrossMediaManager.Current.Init(this);
+        // CrossMediaManager.Current.Init(this);
     }
     protected override void OnNewIntent(Intent? intent)
     {

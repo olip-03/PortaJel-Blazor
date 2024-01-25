@@ -1,5 +1,4 @@
 ﻿using Jellyfin.Sdk;
-using MediaManager;
 using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
@@ -74,9 +73,17 @@ public static class MauiProgram
             dataHandler = new DataHandler();
         }
 
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            });
+
         // File.Delete(filePath);
         // Load servers from file
-        if(File.Exists(filePath))
+        if (File.Exists(filePath))
         {
             using (BinaryReader binReader = new BinaryReader(File.Open(filePath, FileMode.Open)))
             {
@@ -99,14 +106,6 @@ public static class MauiProgram
 
         // Check connection to server
         isConnected = false;
-
-		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
-            .ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-			});
 
 		builder.Services.AddMauiBlazorWebView();
         builder.Services.AddSingleton<JsInteropClasses2, JsInteropClasses2>();
