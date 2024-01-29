@@ -1,0 +1,139 @@
+﻿.imageContainer {
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+.albumImage {
+    pointer-events: none;
+    width: 65vw;
+    height: 65vw;
+    max-width: 20rem;
+    max-height: 20rem;
+    margin: auto; /* Center horizontally */
+    margin-bottom: 1rem;
+    border-radius: 0.4rem;
+    background-color: darkgrey;
+    z-index: -1;
+    flex-shrink: 0;
+    position: relative;
+    animation: shimmer 1.5s infinite linear;
+}
+.artistInfo {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    font-size: 1.1rem;
+    color: darkgray;
+    cursor: pointer !important;
+}
+.user-profile {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: #3498db; /* Blue background color, you can change this */
+    margin-right: 10px;
+}
+h3 {
+    color: darkgray;
+}
+centerItems {
+    display: flex;
+    align-items: center;
+/*    image-orientation
+*/    justify-content: center;
+}
+hr {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.songTitle {
+    color: black;
+    font-size: 1rem;
+    margin: 0px;
+}
+.songArtistTitle {
+    color: darkgray;
+    font-size: 0.8rem;
+    margin: 0px;
+}
+.GoBackButton {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    border-radius: 50%;
+    border-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.1);
+    top: 1rem;
+    left: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer !important;
+    z-index: 3;
+}
+.GoBackImg {
+    margin:0;
+    padding:0;
+    width: 2rem;
+    height: 2rem;
+}
+.artistInfoImg{
+    border-radius: 50%;
+    max-width: 40px;
+    max-height: 40px;
+    margin-right: 0.25rem;
+
+    aspect-ratio: 1/1;
+}
+.item-title {
+    display: flex;
+    height: fit-content;
+    justify-content: space-between;
+    align-items: center;
+}
+.title-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+.title-control {
+    background-color: lightgray;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    height: 4rem;
+    min-height: 100%;
+    width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.title-control-img {
+    height: 80%;
+    width: 80%;
+}
+.playback-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.playback-controls-btn {
+    aspect-ratio: 1/1;
+    height: 4rem;
+    min-height: 100%;
+    width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.playback-controls-btn-img {
+    height: 2.5rem;
+    width: 2.5rem;
+}
+.playbtn{
+    background-color:lightgray;
+    border-radius: 50%;
+}
+.favbtn{
+    color:red;
+}

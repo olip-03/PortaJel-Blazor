@@ -120,15 +120,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AndroidResource Remove="Pages\xaml\**" />
-      <Compile Remove="Pages\xaml\**" />
-      <Content Remove="Pages\xaml\**" />
-      <EmbeddedResource Remove="Pages\xaml\**" />
-      <MauiXaml Remove="Pages\xaml\**" />
-      <None Remove="Pages\xaml\**" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="BlazorAnimate" Version="3.0.0" />
         <PackageReference Include="Blurhash.Core" Version="2.0.0" />
         <PackageReference Include="Jellyfin.Sdk" Version="2022.6.11" />
@@ -150,6 +141,12 @@
       <PackageReference Include="Xamarin.Google.Guava.ListenableFuture">
         <Version>1.0.0.17</Version>
       </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiXaml Update="Pages\Xaml\PlaylistViewEditor.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
     </ItemGroup>
 
     <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionPortaJelBlazorHideInfoBar="True" /></VisualStudio></ProjectExtensions>

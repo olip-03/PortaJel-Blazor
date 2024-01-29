@@ -4,6 +4,7 @@ using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Pages;
 using System.Windows.Input;
 using PortaJel_Blazor.Data;
+using PortaJel_Blazor.Pages.Xaml;
 using static Microsoft.Maui.ApplicationModel.Permissions;
 
 #if ANDROID
@@ -83,16 +84,28 @@ public partial class MainPage : ContentPage
         Navbar.Opacity = 0;
         await Navbar.FadeTo(1, 1000);
     }
-    public void CloseMusicQueue()
+    public async void CloseMusicQueue()
     {
+        screenHeight = AllContent.Height;
+
         MauiProgram.MusicPlayerIsQueueOpen = false;
-        MediaController_Queue.IsVisible = false;
         MediaController_Player.IsVisible = true;
+
+        MediaController_Queue.TranslationY = 0;
+        await MediaController_Queue.TranslateTo(0, screenHeight, 500, Easing.SinIn);
+
+        // MediaController_Queue.IsVisible = false;
     }
-    public void OpenMusicQueue()
+    public async void OpenMusicQueue()
     {
+        screenHeight = AllContent.Height;
+
         MauiProgram.MusicPlayerIsQueueOpen = true;
         MediaController_Queue.IsVisible = true;
+        
+        MediaController_Queue.TranslationY = screenHeight;
+        await MediaController_Queue.TranslateTo(0, 0, 500, Easing.SinOut);
+
         MediaController_Player.IsVisible = false;
     }
     public async void CloseMusicController()
@@ -101,14 +114,14 @@ public partial class MainPage : ContentPage
 
         await Task.WhenAny<bool>
         (
-            Player.TranslateTo(0, 0, 500, Easing.SinOut),
-            MediaController.TranslateTo(0, screenHeight, 500, Easing.SinOut),
-            MediaController.FadeTo(0, 500, Easing.SinOut)
+            Player.TranslateTo(0, 0, 500, Easing.SinIn),
+            MediaController.TranslateTo(0, screenHeight, 500, Easing.SinIn),
+            MediaController.FadeTo(0, 500, Easing.SinIn)
         );
     }
     public async void ShowMusicController()
     {
-                MauiProgram.MusicPlayerIsOpen = true;
+        MauiProgram.MusicPlayerIsOpen = true;
 
         screenHeight = AllContent.Height;
 
@@ -163,11 +176,11 @@ public partial class MainPage : ContentPage
     #endregion
 
     #region Interactions
-    private async void Player_Btn_FavToggle_Clicked(object sender, EventArgs e)
+    private void Player_Btn_FavToggle_Clicked(object sender, EventArgs e)
     {
 
     }
-    private async void Player_Btn_PlayToggle_Clicked(object sender, EventArgs e)
+    private void Player_Btn_PlayToggle_Clicked(object sender, EventArgs e)
     {
 
     }
@@ -175,11 +188,11 @@ public partial class MainPage : ContentPage
     {
         CloseMusicController();
     }
-    private async void MiniPlayer_Clicked(object sender, EventArgs e)
+    private void MiniPlayer_Clicked(object sender, EventArgs e)
     {
         ShowMusicController(); 
     }
-    private async void ContextMenu_SelectedItemChanged(object sender, EventArgs e)
+    private void ContextMenu_SelectedItemChanged(object sender, EventArgs e)
     {
         if(ContextMenu_List.SelectedItem == null)
         {
@@ -205,11 +218,11 @@ public partial class MainPage : ContentPage
             CloseContextMenu();
         }
     }
-    private async void MediaController_Queue_Show(object sender, EventArgs e)
+    private void MediaController_Queue_Show(object sender, EventArgs e)
     {
         OpenMusicQueue();
     }
-    private async void MediaController_Queue_Hide(object sender, EventArgs e)
+    private void MediaController_Queue_Hide(object sender, EventArgs e)
     {
         CloseMusicQueue();
     }

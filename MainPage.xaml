@@ -161,7 +161,7 @@
             <Grid x:Name="MediaController_Queue" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="false" BackgroundColor="White">
                 <!-- Header -->
                 <Grid Grid.Row="0">
-                    <ImageButton Clicked="MediaController_Queue_Hide" WidthRequest="40" HeightRequest="40" Source="back.png" Grid.Column="0">
+                    <ImageButton Clicked="MediaController_Queue_Hide" WidthRequest="40" HeightRequest="40" Source="down.png" Grid.Column="0">
                         <ImageButton.GestureRecognizers>
                             <TapGestureRecognizer Tapped="MediaController_Queue_Hide"></TapGestureRecognizer>
                         </ImageButton.GestureRecognizers>
@@ -182,7 +182,6 @@
                     </Grid.ColumnDefinitions>
                 </Grid>
 
-                <!-- TODO: Add some fuckass shit to get draggable lists working the way I want them to -->
                 <Grid InputTransparent="False" Grid.Row="1">
                     <CollectionView CanReorderItems="True" x:Name="MediaController_Queue_List" InputTransparent="False" >
                         <CollectionView.ItemTemplate>
@@ -219,6 +218,14 @@
                 
 
                 <Grid Grid.Row="2">
+                    <Border StrokeThickness="0"
+                            StrokeShape="RoundRectangle 2,2,2,2"
+                            Margin="10, 0, 10, 0"
+                            BackgroundColor="Transparent"
+                            VerticalOptions="Start">
+                        <ProgressBar Progress="0.7" HeightRequest="4" BackgroundColor="Transparent"/>
+                    </Border>
+
                     <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
                         <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="repeat_off.png"></ImageButton>
                         <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="skip_previous.png"></ImageButton>
