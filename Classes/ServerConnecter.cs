@@ -438,7 +438,7 @@ namespace PortaJel_Blazor.Classes
                 Song newSong = new Song();
 
                 newSong.name = item.Name;
-                newSong.artist = item.AlbumArtist;
+                newSong.artists = item.AlbumArtist;
                 newSong.id = item.Id;
 
                 songList.Add(newSong);

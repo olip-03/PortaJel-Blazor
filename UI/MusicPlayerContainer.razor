@@ -27,7 +27,7 @@
         @if (MauiProgram.mediaService.songQueue.Count() > 0)
         {
             <p class="miniplayer-paragraph" id="music-player-title">@MauiProgram.mediaService.songQueue.FirstOrDefault().name</p>
-            <p class="miniplayer-paragraph artistTitle" id="music-player-artist">@MauiProgram.mediaService.songQueue.FirstOrDefault().artist</p>
+            <p class="miniplayer-paragraph artistTitle" id="music-player-artist">@MauiProgram.mediaService.songQueue.FirstOrDefault().artists</p>
         }
         else
         {
@@ -69,7 +69,7 @@
         @if (MauiProgram.mediaService.songQueue.Count() > 0)
         {
             <h1 class="music-name">@MauiProgram.mediaService.songQueue.FirstOrDefault().name</h1>
-            <p class="artist-name">@MauiProgram.mediaService.songQueue.FirstOrDefault().artist</p>
+            <p class="artist-name">@MauiProgram.mediaService.songQueue.FirstOrDefault().artists</p>
         }
         else
         {
@@ -112,7 +112,7 @@
                     <!-- Song information -->
                     <div class="music-queue-songcontainer-artistinfo">
                         <b>@song.name</b>
-                        <p>@song.artist</p>
+                        <p>@song.artists</p>
                     </div>
                     <!-- Context menu button-->
                     <div class="music-queue-songcontainer-contextmenu">

@@ -28,7 +28,7 @@ namespace PortaJel_Blazor.Data
             artist,
             id
         }
-        
+        public static readonly Album Empty = new();
         public string GetArtistName()
         {
             if(artists == null)

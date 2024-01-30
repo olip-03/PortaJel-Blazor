@@ -32,7 +32,7 @@ public partial class MainPage : ContentPage
         {
             Song newSong = new();
             newSong.name = "Song " + i;
-            newSong.artist = "Demonstration " + i;
+            newSong.artists = "Demonstration " + i;
             newSong.imageSrc = "emptyalbum.png";
 
             queue.Add(newSong);

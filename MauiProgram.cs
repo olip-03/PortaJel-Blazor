@@ -26,6 +26,11 @@ public static class MauiProgram
 
     public static MediaService mediaService = new MediaService();
 
+    // Global Data Cache
+    public static Dictionary<Guid, Song> songDictionary = new Dictionary<Guid, Song>();
+    public static Dictionary<Guid, Album> albumDictionary = new Dictionary<Guid, Album>();
+    public static Dictionary<Guid, Artist> artistDictionary = new Dictionary<Guid, Artist>();
+
     // Data for context menu
     public static List<ContextMenuItem> ContextMenuTaskList = new List<ContextMenuItem>();
     public static bool ShowContextMenuImage = true;
