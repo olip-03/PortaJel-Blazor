@@ -28,15 +28,6 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         MauiProgram.mainPage = this;
 
-        for (int i = 0; i < 20; i++)
-        {
-            Song newSong = new();
-            newSong.name = "Song " + i;
-            newSong.artists = "Demonstration " + i;
-            newSong.imageSrc = "emptyalbum.png";
-
-            queue.Add(newSong);
-        }
         MediaController_Queue_List.ItemsSource = queue;
 #if ANDROID
         btn_navnar_home.HeightRequest = 30;

@@ -59,12 +59,12 @@
                 </div>
             </div>
 
-            foreach (var item in album.songs)
+            foreach (var song in album.songs)
             {
                 <hr />
                 <div>
-                    <p class="songTitle">@item.name</p>
-                    <p class="songArtistTitle">@item.artists</p>
+                    <p class="songTitle">@song.name</p>
+                    <p class="songArtistTitle">@song.GetArtistAsync()</p>
                 </div>
             }
             <hr />
@@ -131,7 +131,7 @@
         MauiProgram.mediaService.songQueue.Clear();
         foreach (Song song in album.songs)
         {
-            song.imageSrc = album.imageSrc;
+            song.image.source = album.imageSrc;
             MauiProgram.mediaService.songQueue.QueueSong(song);
         }
         MauiProgram.mediaService.Play();

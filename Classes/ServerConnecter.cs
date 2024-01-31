@@ -435,12 +435,28 @@ namespace PortaJel_Blazor.Classes
             List<Song> songList = new List<Song>();
             foreach (var item in songResult.Items)
             {
-                Song newSong = new Song();
+                // Preliminary info 
+                List<Guid> artistIds = new();
+                foreach (var artist in item.AlbumArtists)
+                {
+                    artistIds.Add(artist.Id);
+                }
 
-                newSong.name = item.Name;
-                newSong.artists = item.AlbumArtist;
-                newSong.id = item.Id;
+                // Create object
+                Song newSong = new Song(
+                    setGuid: item.Id,
+                    setName: item.Name,
+                    setArtistIds: artistIds.ToArray(),
+                    setAlbumID: getAlbum.id,
+                    setIsFavourite: item.UserData.IsFavorite,
+                    setDiskNum: 0 //TODO: Add disk number
+                    );
 
+                // Add to song dictionary
+                if (!MauiProgram.songDictionary.ContainsKey(item.Id))
+                {
+                    MauiProgram.songDictionary.Add(item.Id, newSong);
+                }
                 songList.Add(newSong);
             }
             getAlbum.songs = songList.ToArray();
@@ -456,7 +472,13 @@ namespace PortaJel_Blazor.Classes
                     newArtists.id = artist.Id;
                     newArtists.name = artist.Name;
                     artistList.Add(newArtists);
+
+                    if (!MauiProgram.artistDictionary.ContainsKey(artist.Id))
+                    {
+                        MauiProgram.artistDictionary.Add(artist.Id, newArtists);
+                    }
                 }
+                getAlbum.artists = artistList.ToArray();
             }
             else
             {
@@ -466,10 +488,14 @@ namespace PortaJel_Blazor.Classes
                     newArtists.id = artist.Id;
                     newArtists.name = artist.Name;
                     artistList.Add(newArtists);
+
+                    if (!MauiProgram.artistDictionary.ContainsKey(artist.Id))
+                    {
+                        MauiProgram.artistDictionary.Add(artist.Id, newArtists);
+                    }
                 }
                 getAlbum.artists = artistList.ToArray();
             }
-
 
             return getAlbum;
         }
@@ -841,6 +867,11 @@ namespace PortaJel_Blazor.Classes
                 returnArtist.artistAlbums = albums.ToArray();
             }
 
+            if (!MauiProgram.artistDictionary.ContainsKey(returnArtist.id))
+            {
+                MauiProgram.artistDictionary.Add(returnArtist.id, returnArtist);
+            }
+            
             return returnArtist;
         }
         public async Task FavouriteItem(Guid id, bool setState)

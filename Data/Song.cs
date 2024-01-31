@@ -10,14 +10,14 @@ namespace PortaJel_Blazor.Data
         /// <summary>
         /// Reference to the artists of this song.
         /// </summary>
-        private Artist[] artists = new Artist[0];
+        public Artist[] artists = new Artist[0];
         /// <summary>
         /// Reference to the album this song belongs to.
         /// </summary>
-        private Album album = Album.Empty;
+        public Album? album = Album.Empty;
         public string streamUrl { get; private set; } = String.Empty;
         public int diskNum { get; private set; }
-        public bool isFavourite { get; private set; } = false;
+        public bool isFavourite { get; set; } = false;
         public string fileLocation { get; set; } = String.Empty;
         public bool isDownloaded { get; set; } = false;
 
@@ -32,20 +32,20 @@ namespace PortaJel_Blazor.Data
             // Rest of em
             if (setArtistIds != null)
             { //Set Artists
-                List<Artist> newArtists = new();
+                List<Artist> newArtistsIDs = new();
                 for (int i = 0; i < setArtistIds.Length; i++)
                 {
-                    Artist toAdd = new Artist();
+                    Artist toAdd = new();
                     toAdd.id = setArtistIds[i];
-                    newArtists.Add(toAdd);
+                    newArtistsIDs.Add(toAdd);
                 }
-                artists = newArtists.ToArray();
+                artists = newArtistsIDs.ToArray();
             }
             if(setAlbumID != null)
             { //Set Album
-                Album newAlbum = new Album();
-                newAlbum.id = (Guid)setAlbumID;
-                album = newAlbum;
+                Album setAlbum = new Album();
+                setAlbum.id = (Guid)setAlbumID;
+                album = setAlbum;
             }
             if(setStreamUrl != null)
             { //Set Stream Location
@@ -66,21 +66,20 @@ namespace PortaJel_Blazor.Data
 
         #region Methods
         /// <summary>
-        /// Fetches the Artist based on if the artist has been returned by the API already. If not fetch from API.
+        /// Fetches the Artist based on if the artist has been returned by the API already, also fills in the artist of this object will the full data of that artist. If not fetch from API.
         /// </summary>
         /// <returns>Artist array of this object.</returns>
-        public async Task<Artist[]> GetArtistAsync() 
+        public async Task<Artist[]?> GetArtistAsync() 
         {
             List<Artist> toAdd = new List<Artist>();
             for (int i = 0; i < artists.Length; i++)
             {
-                Artist? artist = artists[i];
+                Artist? artist = Artist.Empty;
                 bool exists = MauiProgram.artistDictionary.TryGetValue(artists[i].id, out artist);
                 if (!exists)
                 {
                     artist = await MauiProgram.servers[0].GetArtistAsync(artists[i].id);
                 }
-
                 if (artist != null)
                 {
                     toAdd.Add(artist);
@@ -93,8 +92,12 @@ namespace PortaJel_Blazor.Data
         /// Fetches the Album of this song based on if the Album has been returned by the API already. If not force fetch from API.
         /// </summary>
         /// <returns>Album of this object.</returns>
-        public async Task<Album> GetAlbumAsync()
+        public async Task<Album?> GetAlbumAsync()
         {
+            if (album == null) 
+            { 
+                return null; 
+            }
             bool exists = MauiProgram.albumDictionary.TryGetValue(album.id, out album);
             if (!exists)
             {
