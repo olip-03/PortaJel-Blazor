@@ -1,19 +1,26 @@
-﻿@using PortaJel_Blazor.Data;
+﻿@using PortaJel_Blazor.Pages;
+@using PortaJel_Blazor.Pages.Views;
+@using PortaJel_Blazor.Classes;
+@using PortaJel_Blazor.Data;
+@using PortaJel_Blazor;
 @using BlazorAnimate;
 @inject IJSRuntime JS;
 
-@page "/PlaylistView/{albumId}"
+@page "/PlaylistView/{playlistId}"
 
 @if (loaded)
 {
     <button class="GoBackButton" @onclick=GoBack>
         <img src="/images/back.svg" class="">
     </button>
+    <button class="ContextButton" @onclick=ShowPlaylistContextMenu>
+        <img src="/images/more-horiz.svg" class="">
+    </button>
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
         <div class="imageContainer">
-            @if (album != null)
+            @if (playlist != null)
             {
-                <img src="@album.imageSrc" class="albumImage" />
+                <img src="@playlist.image.source" class="albumImage" />
             }
             else
             {
@@ -21,20 +28,17 @@
             }
         </div>
 
-        @if (album != null)
+        @if (playlist != null)
         {
             <div class="item-title">
                 <div class="title-text">
-                    <h2>@album.name</h2>
-                    <div class="artistInfo" @onclick="() => SelectArtist(album.artists.FirstOrDefault().id)">
-                        @album.GetArtistName()
-                    </div>
+                    <h2>@playlist.name</h2>
                 </div>
             </div>
 
             <div class="playback-controls">
                 <div @onclick=FavouriteItem>
-                    @if (album.isFavourite)
+                    @if (playlist.isFavourite)
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                             <svg class="playback-controls-btn-img favbtn" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
@@ -59,44 +63,56 @@
                 </div>
             </div>
 
-            foreach (var song in album.songs)
+            foreach (var song in playlist.songs)
             {
                 <hr />
-                <div>
-                    <p class="songTitle">@song.name</p>
-                    <p class="songArtistTitle">@song.GetArtistAsync()</p>
+                <div class="songItem">
+                    <img src="@song.image.source" class="songItemImg"/>
+                    <div class="songItemTxt">
+                        <p class="songTitle">@song.name</p>
+                        <p class="songArtistTitle">
+                            @foreach (var item in song.artists)
+                            {
+                                <p>@item.name</p>
+                            }
+                        </p>
+                    </div>
                 </div>
             }
             <hr />
-
-            foreach (Artist artist in album.artists)
-            {
-                <div class="artistInfo" @onclick="() => SelectArtist(artist.id)">
-                    <img src="@artist.imageAtResolution(40)" class="artistInfoImg">
-                    @artist.name
-                </div>
-            }
         }
     </Animate>
 }
 
 
 @code {
-    [Parameter] public string albumId { get; set; }
+    [Parameter] public string playlistId { get; set; }
 
-    private Album album { get; set; }
+    private Playlist? playlist { get; set; }
     private bool loaded = false;
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.mainLayout.pageTitle = "Album";
-        MauiProgram.mainLayout.currentUri = $"/AlbumView/{albumId}";
+        MauiProgram.mainLayout.pageTitle = "Playlist";
+        MauiProgram.mainLayout.currentUri = $"/PlaylistView/{playlistId}";
         MauiProgram.mainLayout.showHeader = false;
 
-        Guid parseId = Guid.Parse(albumId);
-        if (albumId != null)
+        Guid parseId = Guid.Parse(playlistId);
+        if (playlistId != null)
         {
-            album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist:true);
+            playlist = await MauiProgram.servers[0].FetchPlaylistByIDAsync(parseId);
+        }
+
+        if (playlist != null)
+        {
+            foreach (Song albumSongs in playlist.songs)
+            {
+                Artist[]? songArtists = await albumSongs.GetArtistAsync();
+                if (songArtists != null)
+                {
+                    albumSongs.artists = songArtists;
+                }
+            }
         }
 
         loaded = true;
@@ -120,18 +136,66 @@
             MauiProgram.mainLayout.NavigateHome();
         }
     }
+    private async void ShowPlaylistContextMenu()
+    {
+        MauiProgram.ContextMenuTaskList.Clear();
+        MauiProgram.ShowContextMenuImage = true;
+        MauiProgram.ContextMenuMainText = playlist.name;
+        MauiProgram.ContextMenuImage = playlist.image.SourceAtResolution(500);
+
+        if (playlist.isFavourite)
+        {
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
+            {
+                playlist.isFavourite = false;
+                await MauiProgram.servers[0].FavouriteItem(playlist.id, false);
+                StateHasChanged();
+            })));
+        }
+        else
+        {
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
+            {
+                playlist.isFavourite = true;
+                await MauiProgram.servers[0].FavouriteItem(playlist.id, true);
+                StateHasChanged();
+            })));
+        }
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Edit Playlist", "light_edit.png", new Task(() =>
+        {
+            MauiProgram.mainPage.NavigateToPlaylistEdit(playlist);
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
+        {
+
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
+        {
+
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
+        {
+
+        })));
+        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+        {
+            MauiProgram.mainPage.CloseContextMenu();
+        })));
+
+        await MauiProgram.mainLayout.OpenContextMenu();
+    }
     private async void FavouriteItem()
     {
-        album.isFavourite = !album.isFavourite;
+        playlist.isFavourite = !playlist.isFavourite;
         StateHasChanged();
-        await MauiProgram.servers[0].FavouriteItem(album.id, album.isFavourite);
+        await MauiProgram.servers[0].FavouriteItem(playlist.id, playlist.isFavourite);
     }
     private void PlayAlbum()
     {
         MauiProgram.mediaService.songQueue.Clear();
-        foreach (Song song in album.songs)
+        foreach (Song song in playlist.songs)
         {
-            song.image.source = album.imageSrc;
+            song.image.source = playlist.image.source;
             MauiProgram.mediaService.songQueue.QueueSong(song);
         }
         MauiProgram.mediaService.Play();

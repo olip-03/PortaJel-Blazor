@@ -30,6 +30,8 @@ public static class MauiProgram
     public static Dictionary<Guid, Song> songDictionary = new Dictionary<Guid, Song>();
     public static Dictionary<Guid, Album> albumDictionary = new Dictionary<Guid, Album>();
     public static Dictionary<Guid, Artist> artistDictionary = new Dictionary<Guid, Artist>();
+    public static Dictionary<Guid, Playlist> playlistDictionary = new Dictionary<Guid, Playlist>();
+
 
     // Data for context menu
     public static List<ContextMenuItem> ContextMenuTaskList = new List<ContextMenuItem>();

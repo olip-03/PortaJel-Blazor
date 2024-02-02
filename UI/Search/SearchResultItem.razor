@@ -64,16 +64,34 @@ else
     else
     {
         <div class="album-container" @oncontextmenu=OpenContextMenu>
-            <div class="album-cover" @onclick=NavigateToAlbum>
-                <img class="album-cover" src="@album.imageAtResolution(resolution)" />
-            </div>
-            <div @onclick=NavigateToAlbum>
-                <div class="album-name">@album.name</div>
-                <div class="album-artist">@album.GetArtistName()</div>
-                <div class="album-metadata">
+            @if (isPlaylist == true)
+            {
+                <div class="album-cover" @onclick=NavigateToPlaylist>
+                    <img class="album-cover" src="@album.imageAtResolution(resolution)" />
+                </div>
+                <div @onclick=NavigateToPlaylist>
+                    <div class="album-name">@album.name</div>
+                    <div class="album-artist">@album.GetArtistName()</div>
+                    <div class="album-metadata">
+                        <div class="album-metadata-container"><b class="album-metadata-text">flac</b></div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="album-cover" @onclick=NavigateToAlbum>
+                    <img class="album-cover" src="@album.imageAtResolution(resolution)" />
+                </div>
+                <div @onclick=NavigateToAlbum>
+                    <div class="album-name">@album.name</div>
+                    <div class="album-artist">@album.GetArtistName()</div>
+                    <div class="album-metadata">
                     <div class="album-metadata-container"><b class="album-metadata-text">flac</b></div>
                 </div>
             </div>
+            }
+
+
             <div class="favorite-button" @onclick=FavouriteItem>
                 @if (album.isFavourite)
                 {
@@ -98,6 +116,7 @@ else
 @code {
     [Parameter] public Album album { get; set; } = new Album();
     [Parameter] public bool isGrid { get; set; } = false;
+    [Parameter] public bool? isPlaylist { get; set; } = false;
 
     private int resolution = 300;
 
@@ -115,6 +134,14 @@ else
         {
             if (album.id == Guid.Empty) { return; }
             MauiProgram.mainLayout.NavigateArtist(album.id);
+        }
+    }
+    private void NavigateToPlaylist()
+    {
+        if (album != null)
+        {
+            if (album.id == Guid.Empty) { return; }
+            MauiProgram.mainLayout.NavigatePlaylist(album.id);
         }
     }
     private async void FavouriteItem()

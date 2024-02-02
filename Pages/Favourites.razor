@@ -9,7 +9,7 @@
             but I am FAR too lazy and tired to implement something with css right
             now.
         *@
-        @if (selected == selectable.playlists)
+        @if (selected == PlaylistSelectable.playlists)
         {
             <div class="filter-button selected">Playlists</div>
         }
@@ -17,7 +17,7 @@
         {
             <div class="filter-button" @onclick=SelectPlaylist>Playlists</div>
         }
-        @if (selected == selectable.albums)
+        @if (selected == PlaylistSelectable.albums)
         {
             <div class="filter-button selected">Albums</div>
         }
@@ -25,7 +25,7 @@
         {
             <div class="filter-button" @onclick=SelectAlbums>Albums</div>
         }
-        @if (selected == selectable.artists)
+        @if (selected == PlaylistSelectable.artists)
         {
             <div class="filter-button selected">Artists</div>
         }
@@ -33,7 +33,7 @@
         {
             <div class="filter-button" @onclick=SelectArtists>Artists</div>
         }
-        @if (selected == selectable.songs)
+        @if (selected == PlaylistSelectable.songs)
         {
             <div class="filter-button selected">Songs</div>
         }
@@ -92,12 +92,12 @@
         else if (data.Length > 0)
         { // Load information
             // If playlist, add option to create new
-            @if (selected == selectable.playlists)
+            @if (selected == PlaylistSelectable.playlists)
             {
                 Album dummyItem = new Album();
                 dummyItem.imageSrc = "/images/emptyAlbum.png";
                 dummyItem.name = "New Album";
-                <PortaJel_Blazor.UI.Search.SearchResultItem album="@dummyItem" />
+                <PortaJel_Blazor.UI.Search.SearchResultItem album="@dummyItem" isGrid="@showGrid" isPlaylist="@isPlaylist" />
             }
             for (int i = 0; i < data.Length; i++)
             {
@@ -111,12 +111,12 @@
                 {
                     if(!MauiProgram.hideM3u)
                     {
-                        <PortaJel_Blazor.UI.Search.SearchResultItem album="@item" />
+                        <PortaJel_Blazor.UI.Search.SearchResultItem album="@item" isGrid="@showGrid" isPlaylist="@isPlaylist" />
                     }
                 }
                 else
                 {
-                    <PortaJel_Blazor.UI.Search.SearchResultItem album="@item" />
+                    <PortaJel_Blazor.UI.Search.SearchResultItem album="@item" isGrid="@showGrid" isPlaylist="@isPlaylist" />
                 }
             }
         }
@@ -133,6 +133,7 @@
     private bool isLoading = false;
 
     private bool showGrid = MauiProgram.favouritesShowGrid;
+    private bool isPlaylist = false;
 
     private int itemsPerPage = 100;
     private int startFromIndex = 0;
@@ -142,14 +143,14 @@
     private int lowerPages = 0;
     private int higherPages = 0;
 
-    private enum selectable
+    private enum PlaylistSelectable
     {
+        playlists,
         albums,
         artists,
-        songs,
-        playlists
+        songs
     }
-    selectable selected = (selectable)Enum.ToObject(typeof(selectable), MauiProgram.favouritesItemView);
+    PlaylistSelectable selected = (PlaylistSelectable)Enum.ToObject(typeof(PlaylistSelectable), MauiProgram.favouritesItemView);
 
     private enum sortMethod
     {
@@ -166,19 +167,19 @@
         MauiProgram.mainLayout.showHeader = true;
         MauiProgram.mainLayout.isLoading = false;
 
-        selected = (selectable)Enum.ToObject(typeof(selectable), MauiProgram.favouritesItemView);
+        selected = (PlaylistSelectable)Enum.ToObject(typeof(PlaylistSelectable), MauiProgram.favouritesItemView);
         switch (selected)
         {
-            case selectable.albums:
+            case PlaylistSelectable.albums:
                 SelectAlbums();
                 break;
-            case selectable.artists:
+            case PlaylistSelectable.artists:
                 SelectArtists();
                 break;
-            case selectable.songs:
+            case PlaylistSelectable.songs:
                 SelectSongs();
                 break;
-            case selectable.playlists:
+            case PlaylistSelectable.playlists:
                 SelectPlaylist();
                 break;
         }
@@ -203,15 +204,16 @@
     }
     private async void SelectAlbums()
     {
-        if (selected != selectable.albums)
+        if (selected != PlaylistSelectable.albums)
         {
             startFromIndex = 0;
             selectedPage = 0;
         }
 
         isLoading = true;
-        selected = selectable.albums;
+        selected = PlaylistSelectable.albums;
         MauiProgram.favouritesItemView = (int)selected;
+        isPlaylist = false;
 
         // Fetch Album information
         data = await MauiProgram.servers[0].GetAlbumsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
@@ -228,15 +230,16 @@
     }
     private async void SelectArtists()
     {
-        if (selected != selectable.artists)
+        if (selected != PlaylistSelectable.artists)
         {
             startFromIndex = 0;
             selectedPage = 0;
         }
 
         isLoading = true;
-        selected = selectable.artists;
+        selected = PlaylistSelectable.artists;
         MauiProgram.favouritesItemView = (int)selected;
+        isPlaylist = false;
 
         // Fetch Artist information
         data = await MauiProgram.servers[0].GetAllArtistsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
@@ -253,15 +256,16 @@
     }
     private async void SelectSongs()
     {
-        if (selected != selectable.songs)
+        if (selected != PlaylistSelectable.songs)
         {
             startFromIndex = 0;
             selectedPage = 0;
         }
 
         isLoading = true;
-        selected = selectable.songs;
+        selected = PlaylistSelectable.songs;
         MauiProgram.favouritesItemView = (int)selected;
+        isPlaylist = false;
 
         // Fetch Song information
         data = await MauiProgram.servers[0].GetAllSongsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
@@ -278,18 +282,19 @@
     }
     private async void SelectPlaylist()
     {
-        if (selected != selectable.playlists)
+        if (selected != PlaylistSelectable.playlists)
         {
             startFromIndex = 0;
             selectedPage = 0;
         }
 
         isLoading = true;
-        selected = selectable.playlists;
+        selected = PlaylistSelectable.playlists;
         MauiProgram.favouritesItemView = (int)selected;
+        isPlaylist = true;
 
         // Fetch Album information
-        data = await MauiProgram.servers[0].GetPlaylistAsycn(limit: itemsPerPage, startFromIndex: startFromIndex);
+        data = await MauiProgram.servers[0].GetPlaylistsAsycn(limit: itemsPerPage, startFromIndex: startFromIndex);
         totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
         MauiProgram.favouriteAlbums = data.ToList();
 

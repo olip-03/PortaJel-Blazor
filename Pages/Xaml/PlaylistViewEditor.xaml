@@ -2,11 +2,94 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PortaJel_Blazor.Pages.Xaml.PlaylistViewEditor"
-             Title="PlaylistViewEditor">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="PlaylistViewEditor"
+             BackgroundColor="White">
+    <Grid>
+        <Grid Margin="20" Grid.Row="0">
+            <ImageButton Clicked="ImageButton_Clicked" WidthRequest="40" HorizontalOptions="Start" HeightRequest="40" Source="close.png" Grid.Column="0">
+                <ImageButton.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="ImageButton_Clicked"></TapGestureRecognizer>
+                </ImageButton.GestureRecognizers>
+            </ImageButton>
+
+            <ImageButton Clicked="ImageButton_Clicked" WidthRequest="40" HorizontalOptions="End" HeightRequest="40" Source="save.png" Grid.Column="2">
+                <ImageButton.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="ImageButton_Clicked"></TapGestureRecognizer>
+                </ImageButton.GestureRecognizers>
+            </ImageButton>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="70"/>
+            </Grid.ColumnDefinitions>
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="1"  MaximumWidthRequest="200" >
+            <Image x:Name="img_main" Aspect="AspectFill" Source="emptyAlbum.png">
+
+            </Image>
+            <Label Text="Click Image to change" TextColor="Black" HorizontalOptions="Center"></Label>
+        </VerticalStackLayout>
+        
+        <VerticalStackLayout Grid.Row="2" VerticalOptions="FillAndExpand" MaximumWidthRequest="300" >
+            <Label Text="Playlist Title:" TextColor="Gray" HorizontalOptions="Start"></Label>
+            <Editor Grid.Row="2"
+            x:Name="txt_debug"
+            Text="Title"
+            WidthRequest="300"
+            VerticalOptions="Center"
+            TextColor="Black"
+            BackgroundColor="LightGray"/>
+        </VerticalStackLayout>
+
+        <CollectionView CanReorderItems="True" x:Name="Playlist_List" InputTransparent="False" Grid.Row="3" VerticalOptions="FillAndExpand">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="20, 0, 0, 10" HorizontalOptions="FillAndExpand">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="40" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <Image Grid.RowSpan="2"
+                               Source="{Binding image.source}"
+                               Aspect="AspectFill"
+                               HeightRequest="40"
+                               WidthRequest="40" Margin="0, 0, 10, 0"/>
+
+                        <VerticalStackLayout Grid.Column="1" Grid.RowSpan="2">
+                            <Label
+                               Text="{Binding name}"
+                               FontAttributes="Bold" 
+                               TextColor="Black"/>
+                            <Label 
+                                Text="{Binding artistCongregate}"
+                                HeightRequest="18"
+                                VerticalOptions="End"
+                                TextColor="Gray" />
+                        </VerticalStackLayout>
+                        
+                        <Image Grid.RowSpan="2" Grid.Column="3"
+                               Source="cancel.png"
+                               Aspect="AspectFill"
+                               HeightRequest="25"
+                               WidthRequest="25" Margin="0, 0, 20, 0"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="225"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+    </Grid>
 </ContentPage>

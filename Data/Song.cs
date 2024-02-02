@@ -11,6 +11,27 @@ namespace PortaJel_Blazor.Data
         /// Reference to the artists of this song.
         /// </summary>
         public Artist[] artists = new Artist[0];
+        public string artistCongregate
+        {
+            get
+            {
+                string data = string.Empty;
+                for (int i = 0; i < artists.Length; i++)
+                {
+                    data += artists[i].name;
+                    if(i < artists.Length - 1)
+                    {
+                        data += ", ";
+                    }
+                }
+                return data;
+            }
+            private set 
+            { 
+
+            }
+        }
+        
         /// <summary>
         /// Reference to the album this song belongs to.
         /// </summary>

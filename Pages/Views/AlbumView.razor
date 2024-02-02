@@ -102,13 +102,15 @@
         {
             album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist:true);
         }
-
-        foreach (Song albumSongs in album.songs)
+        if (album != null)
         {
-            Artist[]? songArtists = await albumSongs.GetArtistAsync();
-            if (songArtists != null)
+            foreach (Song albumSongs in album.songs)
             {
-                albumSongs.artists = songArtists;
+                Artist[]? songArtists = await albumSongs.GetArtistAsync();
+                if (songArtists != null)
+                {
+                    albumSongs.artists = songArtists;
+                }
             }
         }
 

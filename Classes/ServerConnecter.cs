@@ -499,6 +499,81 @@ namespace PortaJel_Blazor.Classes
 
             return getAlbum;
         }
+        public async Task<Playlist?> FetchPlaylistByIDAsync(Guid playlistId)
+        {
+            List<Guid> _filterIds = new List<Guid> { playlistId };
+
+            BaseItemDtoQueryResult? playlistResult;
+            BaseItemDtoQueryResult? albumResult;
+
+            try
+            {
+                albumResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _filterIds, recursive: true, enableImages: true);
+                playlistResult = await _playlistsClient.GetPlaylistItemsAsync(playlistId: playlistId, userId: userDto.Id, enableImages: true);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            Playlist newPlaylist = new Playlist();
+
+            if(playlistResult == null)
+            {
+                return null;
+            }
+
+            newPlaylist.image.source = _sdkClientSettings.BaseUrl + "/Items/" + playlistId + "/Images/Primary?format=jpg";
+            newPlaylist.image.musicItemImageType = MusicItemImage.MusicItemImageType.url;
+            foreach (BaseItemDto item in albumResult.Items)
+            {
+                if(item.Id == playlistId)
+                {
+                    newPlaylist.id = playlistId;
+                    newPlaylist.name = item.Name;
+                    newPlaylist.isFavourite = item.UserData.IsFavorite;
+                    if(item.ImageBlurHashes.Primary == null)
+                    {
+                        newPlaylist.image.source = "/images/emptyAlbum.png";
+                    }
+                }
+            }
+
+            List<Song> songList = new();
+            foreach (BaseItemDto songItem in playlistResult.Items)
+            {
+                List<Guid> artistIds = new();
+                foreach (NameGuidPair artist in songItem.AlbumArtists)
+                {
+                    artistIds.Add(artist.Id);
+                }
+
+                Song newSong = new(
+                    setGuid: songItem.Id,
+                    setName: songItem.Name,
+                    setArtistIds: artistIds.ToArray(), 
+                    setAlbumID: songItem.AlbumId, 
+                    setDiskNum: 0, //TODO: Fix disk num
+                    setIsFavourite: songItem.UserData.IsFavorite);
+
+                MusicItemImage image = MusicItemImageBuilder(songItem);
+                newSong.image = image;
+
+                if (!MauiProgram.songDictionary.ContainsKey(newSong.id))
+                {
+                    MauiProgram.songDictionary.Add(newSong.id, newSong);
+                }
+                else
+                {
+                    MauiProgram.songDictionary[newSong.id] = newSong;
+                }
+                
+                songList.Add(newSong);
+            }
+            newPlaylist.songs = songList.ToArray();
+
+            return newPlaylist;
+        }
         public async Task<Album[]> SearchAsync(string _searchTerm, bool? sorted = false, int? searchLimit = 50)
         {
             if (String.IsNullOrWhiteSpace(_searchTerm))
@@ -885,7 +960,7 @@ namespace PortaJel_Blazor.Classes
                 await _userLibraryClient.UnmarkFavoriteItemAsync(userDto.Id, id);
             }
         }
-        public async Task<Album[]> GetPlaylistAsycn(int? limit = 50, int? startFromIndex = 0)
+        public async Task<Album[]> GetPlaylistsAsycn(int? limit = 50, int? startFromIndex = 0)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Playlist };
             List<String> _sortTypes = new List<string> { "SortName" };
@@ -1163,6 +1238,29 @@ namespace PortaJel_Blazor.Classes
                 return newAlbum;
             });
 
+        }
+        private MusicItemImage MusicItemImageBuilder(BaseItemDto baseItem)
+        {
+            MusicItemImage image = new();
+            image.musicItemImageType = MusicItemImage.MusicItemImageType.url;
+            
+
+            if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
+            {
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
+                image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+            }
+            else if (baseItem.ImageBlurHashes.Primary != null)
+            {
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/Primary?format=jpg";
+                image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+            }
+            else
+            {
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
+            }
+
+            return image;
         }
         private Album PlaylistBuilder(BaseItemDto baseItem)
         {

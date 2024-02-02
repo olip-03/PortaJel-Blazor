@@ -359,6 +359,18 @@
             NavManager.NavigateTo($"/ArtistView/{guid}");
         }
     }
+    public void NavigatePlaylist(Guid guid)
+    {
+        if (currentUri != $"/PlaylistView/{guid}")
+        {
+            isLoading = true;
+            showHeader = false;
+            pageTitle = "Playlist";
+            currentUri = $"/PlaylistView/{guid}";
+
+            NavManager.NavigateTo($"/PlaylistView/{guid}");
+        }
+    }
     public async Task OpenPlayer()
     {
         await JS.InvokeAsync<string>("dragElement", "open");
