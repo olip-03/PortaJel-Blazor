@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
+using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
 
 namespace PortaJel_Blazor;
@@ -28,6 +29,13 @@ public class MainActivity : MauiAppCompatActivity
         {
             if (e.Action == KeyEventActions.Down)
             {
+                // If there are any modals open, close them
+                if(MauiProgram.mainPage.StackCount() > 0)
+                {
+                    MauiProgram.mainPage.PopStack();
+                    return false;
+                }
+
                 // If the context menu is open, close it
                 if (MauiProgram.ContextMenuIsOpen)
                 {

@@ -7,6 +7,7 @@ namespace PortaJel_Blazor.Data
     /// </summary>
     public class Song : BaseMusicItem
     {
+        public string playlistId = string.Empty;
         /// <summary>
         /// Reference to the artists of this song.
         /// </summary>
@@ -36,15 +37,15 @@ namespace PortaJel_Blazor.Data
         /// Reference to the album this song belongs to.
         /// </summary>
         public Album? album = Album.Empty;
-        public string streamUrl { get; private set; } = String.Empty;
-        public int diskNum { get; private set; }
+        public string streamUrl { get; set; } = String.Empty;
+        public int diskNum { get; set; }
         public bool isFavourite { get; set; } = false;
         public string fileLocation { get; set; } = String.Empty;
         public bool isDownloaded { get; set; } = false;
 
         #region Constructors
         public static readonly Song Empty = new(setGuid: Guid.Empty, setName: String.Empty);
-        public Song(Guid setGuid, string setName, Guid[]? setArtistIds = null, Guid? setAlbumID = null, string? setStreamUrl = null, int? setDiskNum = 0, bool setIsFavourite = false, string? setFileLocation = null, bool setIsDownloaded = false)
+        public Song(Guid setGuid, string setName, string? setServerId = null, Guid[]? setArtistIds = null, Guid? setAlbumID = null, string? setStreamUrl = null, int? setDiskNum = 0, bool setIsFavourite = false, string? setFileLocation = null, bool setIsDownloaded = false)
         {
             // Required variables
             id = setGuid;

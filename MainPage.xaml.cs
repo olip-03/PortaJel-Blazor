@@ -82,6 +82,17 @@ public partial class MainPage : ContentPage
     {
         Navigation.PushModalAsync(new PlaylistViewEditor(setPlaylist));
     }
+    public void PopStack()
+    {
+        if (Navigation.ModalStack.Count > 0)
+        {
+            Navigation.PopModalAsync();
+        }
+    }
+    public int StackCount()
+    {
+        return Navigation.ModalStack.Count;
+    }
     public async void ShowNavbar()
     {
         Navbar.IsVisible = true;

@@ -28,6 +28,7 @@ namespace PortaJel_Blazor.Classes
         private SdkClientSettings _sdkClientSettings;
         private ArtistsClient _artistsClient;
         private ItemsClient _itemsClient;
+        private ItemUpdateClient _itemUpdateClient;
         private PlaylistsClient _playlistsClient;
         private PlaylistCreationResult _playlistCreationResult;
         private MediaInfoClient _mediaInfoClient;
@@ -125,6 +126,7 @@ namespace PortaJel_Blazor.Classes
                 _playlistsClient = new(_sdkClientSettings, _httpClient);
                 _userLibraryClient = new(_sdkClientSettings, _httpClient);
                 _mediaInfoClient = new(_sdkClientSettings, _httpClient);
+                _itemUpdateClient = new(_sdkClientSettings, _httpClient);
 
                 _playlistCreationResult = new();
                 Username = username;
@@ -445,6 +447,7 @@ namespace PortaJel_Blazor.Classes
                 // Create object
                 Song newSong = new Song(
                     setGuid: item.Id,
+                    setServerId: item.ServerId,
                     setName: item.Name,
                     setArtistIds: artistIds.ToArray(),
                     setAlbumID: getAlbum.id,
@@ -503,13 +506,13 @@ namespace PortaJel_Blazor.Classes
         {
             List<Guid> _filterIds = new List<Guid> { playlistId };
 
+            BaseItemDtoQueryResult? playlistSongResult;
             BaseItemDtoQueryResult? playlistResult;
-            BaseItemDtoQueryResult? albumResult;
 
             try
             {
-                albumResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _filterIds, recursive: true, enableImages: true);
-                playlistResult = await _playlistsClient.GetPlaylistItemsAsync(playlistId: playlistId, userId: userDto.Id, enableImages: true);
+                playlistResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _filterIds, recursive: true, enableImages: true);
+                playlistSongResult = await _playlistsClient.GetPlaylistItemsAsync(playlistId: playlistId, userId: userDto.Id, enableImages: true);
             }
             catch (Exception)
             {
@@ -518,41 +521,38 @@ namespace PortaJel_Blazor.Classes
 
             Playlist newPlaylist = new Playlist();
 
-            if(playlistResult == null)
+            if(playlistSongResult == null)
             {
                 return null;
             }
-
-            newPlaylist.image.source = _sdkClientSettings.BaseUrl + "/Items/" + playlistId + "/Images/Primary?format=jpg";
-            newPlaylist.image.musicItemImageType = MusicItemImage.MusicItemImageType.url;
-            foreach (BaseItemDto item in albumResult.Items)
+            
+            foreach (BaseItemDto item in playlistResult.Items)
             {
                 if(item.Id == playlistId)
                 {
                     newPlaylist.id = playlistId;
                     newPlaylist.name = item.Name;
                     newPlaylist.isFavourite = item.UserData.IsFavorite;
-                    if(item.ImageBlurHashes.Primary == null)
-                    {
-                        newPlaylist.image.source = "/images/emptyAlbum.png";
-                    }
+                    newPlaylist.image = MusicItemImageBuilder(item);
                 }
             }
 
-            List<Song> songList = new();
-            foreach (BaseItemDto songItem in playlistResult.Items)
+            List<PlaylistSong> songList = new();
+            foreach (BaseItemDto songItem in playlistSongResult.Items)
             {
+ 
                 List<Guid> artistIds = new();
                 foreach (NameGuidPair artist in songItem.AlbumArtists)
                 {
                     artistIds.Add(artist.Id);
                 }
 
-                Song newSong = new(
+                PlaylistSong newSong = new(
                     setGuid: songItem.Id,
+                    setPlaylistId: songItem.PlaylistItemId,
                     setName: songItem.Name,
-                    setArtistIds: artistIds.ToArray(), 
-                    setAlbumID: songItem.AlbumId, 
+                    setArtistIds: artistIds.ToArray(),
+                    setAlbumID: songItem.AlbumId,
                     setDiskNum: 0, //TODO: Fix disk num
                     setIsFavourite: songItem.UserData.IsFavorite);
 
@@ -572,7 +572,49 @@ namespace PortaJel_Blazor.Classes
             }
             newPlaylist.songs = songList.ToArray();
 
+            if (!MauiProgram.playlistDictionary.ContainsKey(newPlaylist.id))
+            {
+                MauiProgram.playlistDictionary.Add(newPlaylist.id, newPlaylist);
+            }
+            else
+            {
+                MauiProgram.playlistDictionary[newPlaylist.id] = newPlaylist;
+            }
+
             return newPlaylist;
+        }
+        public async Task<bool> MovePlaylistItem(Guid playlistId, string itemServerId, int newIndex)
+        {
+            try
+            {
+                string apiPlaylistId = playlistId.ToString().Replace("-", string.Empty);
+                string apiitemId = itemServerId.Replace("-", string.Empty);
+
+                await _playlistsClient.MoveItemAsync(apiPlaylistId, apiitemId, newIndex);
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<bool> RemovePlaylistItem(Guid playlistId, string itemPlaylistId)
+        {
+            List<string> toRemove = new List<String> { itemPlaylistId };
+
+            string apiPlaylistId = playlistId.ToString().Replace("-", string.Empty);
+
+            await _playlistsClient.RemoveFromPlaylistAsync(apiPlaylistId, toRemove);
+            return true;
+        }
+        public async Task<bool> RemovePlaylistItem(Guid playlistId, string[] itemPlaylistId)
+        {
+            List<string> toRemove = itemPlaylistId.ToList();
+
+            string apiPlaylistId = playlistId.ToString().Replace("-", string.Empty);
+
+            await _playlistsClient.RemoveFromPlaylistAsync(apiPlaylistId, toRemove);
+            return true;
         }
         public async Task<Album[]> SearchAsync(string _searchTerm, bool? sorted = false, int? searchLimit = 50)
         {
