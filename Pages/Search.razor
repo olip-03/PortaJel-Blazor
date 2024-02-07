@@ -21,7 +21,7 @@
                 foreach (var item in searchResults)
                 {
                     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                        <SearchResultItem album="@item"/>
+                        <SearchResultItem musicObject="@item"/>
                     </Animate>
 
                     itemFadeInDelay += 0.1f;

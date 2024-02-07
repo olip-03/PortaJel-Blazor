@@ -104,12 +104,10 @@
         { // Load information
             for (int i = 0; i < data.Length; i++)
             {
-                Album item = new Album();
                 if(data[i] != null)
                 {
-                    item = data[i];
+                    <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid />
                 }
-                <PortaJel_Blazor.UI.Search.SearchResultItem album="@item" isGrid=@showGrid isPlaylist="false"/>
             }
         }
         else
@@ -162,7 +160,7 @@
 </div>
 
 @code {
-    private Album[] data = new Album[20];
+    private BaseMusicItem[] data = new BaseMusicItem[0];
     private int totalRecordCount = 0;
     private bool isLoading = false;
 

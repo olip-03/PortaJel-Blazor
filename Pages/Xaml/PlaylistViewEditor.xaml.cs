@@ -142,7 +142,6 @@ public partial class PlaylistViewEditor : ContentPage
         if(button == null) { return; }
         PlaylistSong? song = button.BindingContext as PlaylistSong;
         if (song == null) { return; }
-
     }
     #endregion
 }

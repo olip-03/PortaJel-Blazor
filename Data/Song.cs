@@ -39,7 +39,6 @@ namespace PortaJel_Blazor.Data
         public Album? album = Album.Empty;
         public string streamUrl { get; set; } = String.Empty;
         public int diskNum { get; set; }
-        public bool isFavourite { get; set; } = false;
         public string fileLocation { get; set; } = String.Empty;
         public bool isDownloaded { get; set; } = false;
 

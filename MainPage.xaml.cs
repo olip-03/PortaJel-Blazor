@@ -17,7 +17,7 @@ public partial class MainPage : ContentPage
 {
     private Album? contextMenuAlbum = null;
     private bool IsRefreshing = false;
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged;
     private bool isClosing = false;
     private double screenHeight = 0;
     private bool musicControlsFirstOpen = true;

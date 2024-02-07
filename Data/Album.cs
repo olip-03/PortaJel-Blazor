@@ -1,4 +1,5 @@
 ﻿using Jellyfin.Sdk;
+using PortaJel_Blazor.Classes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,18 +8,36 @@ using System.Threading.Tasks;
 
 namespace PortaJel_Blazor.Data
 {
-    public class Album : IComparable<Album>
+    public class Album : BaseMusicItem, IComparable<Album>
     {
-        public Guid id { get; set; }
-        public string name { get; set; } = string.Empty;
         public string imageSrc { get; set; } = "/images/emptyAlbum.png";
         public string lowResImageSrc { get; set; } = "/images/emptyAlbum.png";
         public bool isSong { get; set; } = false;
         public bool isArtist { get; set; } = false;
-        public bool isFavourite { get; set; } = false; 
-        public string path = string.Empty;
+        
         public bool isM3u = false;
         public Artist[] artists { get; set; }
+        public string artistCongregate
+        {
+            get
+            {
+                if(artists == null) { return String.Empty; }
+                string data = string.Empty;
+                for (int i = 0; i < artists.Length; i++)
+                {
+                    data += artists[i].name;
+                    if (i < artists.Length - 1)
+                    {
+                        data += ", ";
+                    }
+                }
+                return data;
+            }
+            private set
+            {
+
+            }
+        }
         public Song[] songs { get; set; }
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;
         public string serverAddress { get; set; } = string.Empty;
@@ -71,6 +90,53 @@ namespace PortaJel_Blazor.Data
         {
             string data = imageSrc + $"?fillHeight={px}&fillWidth={px}&quality=96";
             return data;
+        }
+        public List<ContextMenuItem> GetContextMenuItems()
+        {
+            contextMenuItems.Clear();
+            
+            if (this.isFavourite)
+            {
+                contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
+                {
+                    this.isFavourite = false;
+                    await MauiProgram.servers[0].FavouriteItem(this.id, false);
+                })));
+            }
+            else
+            {
+                contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
+                {
+                    this.isFavourite = true;
+                    await MauiProgram.servers[0].FavouriteItem(this.id, true);
+                })));
+            }
+            contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
+            {
+
+            })));
+            contextMenuItems.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
+            {
+
+            })));
+            contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
+            {
+
+            })));
+            contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(() =>
+            {
+                MauiProgram.mainLayout.NavigateAlbum(this.id);
+            })));
+            contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(() =>
+            {
+                MauiProgram.mainLayout.NavigateArtist(this.artists.FirstOrDefault().id);
+            })));
+            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+            {
+                MauiProgram.mainPage.CloseContextMenu();
+            })));
+            
+            return contextMenuItems;
         }
     }
 }
