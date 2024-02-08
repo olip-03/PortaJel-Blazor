@@ -388,12 +388,11 @@
     public async Task OpenContextMenu()
     {
         MauiProgram.ContextMenuIsOpen = true;
-        MauiProgram.mainPage.ShowContextMenu();
-
+        await MauiProgram.mainPage.ShowContextMenu();
     }
     public async Task CloseContextMenu()
     {
         MauiProgram.ContextMenuIsOpen = false;
-        MauiProgram.mainPage.CloseContextMenu();
+        await MauiProgram.mainPage.CloseContextMenu();
     }
 }

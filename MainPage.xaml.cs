@@ -155,7 +155,7 @@ public partial class MainPage : ContentPage
 
         musicControlsFirstOpen = false;
     }
-    public async void CloseContextMenu()
+    public async Task CloseContextMenu()
     {
         isClosing = true;
         MauiProgram.ContextMenuIsOpen = false;
@@ -165,7 +165,7 @@ public partial class MainPage : ContentPage
         ContextMenu.IsVisible = false;
         isClosing = false;
     }
-    public async void ShowContextMenu()
+    public async Task ShowContextMenu()
     {
         ContextMenu_imagecontainer.IsVisible = MauiProgram.ShowContextMenuImage;
         ContextMenu_MainText.Text = MauiProgram.ContextMenuMainText;

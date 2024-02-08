@@ -26,7 +26,7 @@ namespace PortaJel_Blazor.Classes
     {
         private UserDto userDto = null!;
 
-        private SdkClientSettings _sdkClientSettings;
+        private SdkClientSettings _sdkClientSettings = null;
         private ArtistsClient _artistsClient;
         private ItemsClient _itemsClient;
         private ItemUpdateClient _itemUpdateClient;
@@ -43,8 +43,8 @@ namespace PortaJel_Blazor.Classes
 
         private IUserViewsClient _userViewsClient;
 
-        private string Username = null;
-        private string StoredPassword = null;
+        private string Username = String.Empty;
+        private string StoredPassword = String.Empty;
 
         private int TotalAlbumRecordCount = -1;
         private int TotalPlaylistRecordCount = -1;
@@ -1308,7 +1308,7 @@ namespace PortaJel_Blazor.Classes
                 image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/Primary?format=jpg";
                 image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
-            else
+            else if (baseItem.ArtistItems != null)
             {
                 image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
             }

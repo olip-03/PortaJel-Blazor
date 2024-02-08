@@ -6,14 +6,14 @@
 @using PortaJel_Blazor.Classes;
 @using BlazorAnimate;
 
-@if (isGrid)
+@if (isGrid && musicObject != null)
 {
     <div class="grid-album-container" @oncontextmenu=OpenContextMenu>
         @if (musicObject is Artist)
         {
             Artist artist = (Artist)musicObject;
             <div class="grid-album-cover" @onclick=NavigateToArtist>
-                <img class="grid-artist-img" src="@artist.imageAtResolution(resolution)" />
+                <img class="grid-artist-img" src="@artist.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@artist.name</div>
@@ -23,7 +23,7 @@
         {
             Album album = (Album)musicObject;
             <div class="grid-album-cover" @onclick=NavigateToArtist>
-                <img class="grid-artist-img" src="@album.imageAtResolution(resolution)" />
+                <img class="grid-artist-img" src="@album.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@album.name</div>
@@ -34,7 +34,7 @@
         {
             Playlist playlist = (Playlist)musicObject;
             <div class="grid-album-cover" @onclick=NavigateToArtist>
-                <img class="grid-artist-img" src="@playlist.image.SourceAtResolution(resolution)" />
+                <img class="grid-artist-img" src="@playlist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@playlist.name</div>
@@ -44,7 +44,7 @@
         {
             Song song = (Song)musicObject;
             <div class="grid-album-cover" @onclick=NavigateToArtist>
-                <img class="grid-artist-img" src="@song.image.SourceAtResolution(resolution)" />
+                <img class="grid-artist-img" src="@song.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@song.name</div>
@@ -53,14 +53,14 @@
         }
     </div>
 }
-else
+else if (musicObject != null)
 {
     <div class="album-container" @oncontextmenu=OpenContextMenu>
         @if (musicObject is Artist)
         {
             Artist artist = (Artist)musicObject;
             <div class="artist-cover" @onclick=NavigateToArtist>
-                <img class="artist-cover" src="@artist.imageAtResolution(resolution)" />
+                <img class="artist-cover" src="@artist.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@artist.name</div>
@@ -70,7 +70,7 @@ else
         {
             Album album = (Album)musicObject;
             <div class="album-cover" @onclick=NavigateToAlbum>
-                <img class="album-cover" src="@album.imageAtResolution(resolution)" />
+                <img class="album-cover" src="@album.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@album.name</div>
@@ -81,7 +81,7 @@ else
         {
             Playlist playlist = (Playlist)musicObject;
             <div class="album-cover" @onclick=NavigateToPlaylist>
-                <img class="album-cover" src="@playlist.image.SourceAtResolution(resolution)" />
+                <img class="album-cover" src="@playlist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@playlist.name</div>
@@ -91,7 +91,7 @@ else
         {
             Song song = (Song)musicObject;
             <div class="album-cover" @onclick=NavigateToAlbum>
-                <img class="album-cover" src="@song.image.SourceAtResolution(resolution)" />
+                <img class="album-cover" src="@song.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@song.name</div>
@@ -172,23 +172,42 @@ else
         else if(musicObject is Artist)
         {
             Artist artist = (Artist)musicObject;
+            MauiProgram.ContextMenuTaskList = artist.GetContextMenuItems();
             MauiProgram.ContextMenuMainText = artist.name;
+            MauiProgram.ContextMenuSubText = String.Empty;
             MauiProgram.ContextMenuImage = artist.imageAtResolution(resolution);
-            //MauiProgram.ContextMenuTaskList = artist.GetContextMenuItems();
         }
         else if(musicObject is Playlist)
         {
             Playlist playlist = (Playlist)musicObject;
             MauiProgram.ContextMenuTaskList = playlist.GetContextMenuItems();
             MauiProgram.ContextMenuImage = playlist.image.SourceAtResolution(resolution);
+            MauiProgram.ContextMenuSubText = String.Empty;
             MauiProgram.ContextMenuMainText = playlist.name;
         }
-        else
+        else if (musicObject is Song)
+        {
+            Song song = (Song)musicObject;
+            //MauiProgram.ContextMenuTaskList = song.GetContextMenuItems();
+            MauiProgram.ContextMenuImage = song.image.SourceAtResolution(resolution);
+            MauiProgram.ContextMenuSubText = song.artistCongregate;
+            MauiProgram.ContextMenuMainText = song.name;
+        }
+        else if (musicObject != null)
         {
             MauiProgram.ContextMenuMainText = musicObject.name;
             MauiProgram.ContextMenuImage = musicObject.image.SourceAtResolution(resolution);
         }
 
-        await MauiProgram.mainLayout.OpenContextMenu();
+        await MauiProgram.mainPage.ShowContextMenu();
+        await Task.Run(() =>
+        {
+            // Literally just waiting for the fucking thing to close before we refresh 
+            while (MauiProgram.ContextMenuIsOpen == true)
+            {
+
+            }
+        });
+        StateHasChanged();
     }
 }
