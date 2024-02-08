@@ -72,7 +72,7 @@ else if (musicObject != null)
             <div class="album-cover" @onclick=NavigateToAlbum>
                 <img class="album-cover" src="@album.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
-            <div @onclick=NavigateToArtist>
+            <div @onclick=NavigateToAlbum>
                 <div class="album-name">@album.name</div>
                 <div class="album-artist">@album.artistCongregate</div>
             </div>
@@ -83,7 +83,7 @@ else if (musicObject != null)
             <div class="album-cover" @onclick=NavigateToPlaylist>
                 <img class="album-cover" src="@playlist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
-            <div @onclick=NavigateToArtist>
+            <div @onclick=NavigateToPlaylist>
                 <div class="album-name">@playlist.name</div>
             </div>
         }
@@ -93,7 +93,7 @@ else if (musicObject != null)
             <div class="album-cover" @onclick=NavigateToAlbum>
                 <img class="album-cover" src="@song.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
-            <div @onclick=NavigateToArtist>
+            <div @onclick=NavigateToAlbum>
                 <div class="album-name">@song.name</div>
                 <div class="album-artist">@song.artistCongregate</div>
             </div>

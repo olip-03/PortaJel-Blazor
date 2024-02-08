@@ -13,7 +13,9 @@
     {
         <div class="connection-container">
             <div class="connection-details">
-                <div class="user-profile">@item.GetProfileImage()</div>
+                <div class="user-profile">
+                    <img class="user-profile-img" src="@item.GetProfileImage()" onerror="this.src='/images/avatar.png'" />
+                </div>
                 <div>
                     <div class="user-profile-name">@item.GetUsername()</div>
                     <div class="user-profile-connection">@item.GetBaseAddress()</div>
@@ -50,6 +52,7 @@
 
 @code {
     string cacheDir = FileSystem.Current.CacheDirectory;
+    AppTheme currentTheme = AppTheme.Unspecified;
 
     public bool hidem3u
     {
@@ -64,6 +67,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Application.Current.UserAppTheme = AppTheme.Dark;
+
         MauiProgram.mainLayout.pageTitle = "Settings";
         MauiProgram.mainLayout.currentUri = "/settings";
         MauiProgram.mainLayout.showHeader = true;

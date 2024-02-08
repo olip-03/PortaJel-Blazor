@@ -15,36 +15,62 @@ public partial class PlaylistViewEditor : ContentPage
     private List<PlaylistSong> unorderedList = new();
     private List<PlaylistSong> songList = new();
 
+    private bool isLoading = false;
+
     public PlaylistViewEditor()
 	{
-		InitializeComponent();
-        save_btn.IsVisible = true;
-        save_activityIndicator.IsVisible = false;
+        InitializeComponent();
+        Initalize();
+
     }
     public PlaylistViewEditor(Guid setPlaylistId)
     {
         playlistId = setPlaylistId;
         InitializeComponent();
-
-        txt_playlistName.Text = playlistId.ToString();
-        save_btn.IsVisible = true;
-        save_activityIndicator.IsVisible = false;
+        Initalize();
     }
     public PlaylistViewEditor(Playlist setPlaylist)
     {
         playlistId = setPlaylist.id;
         playlist = setPlaylist;
 
-        songList = playlist.songs.ToList();
-        unorderedList = playlist.songs.ToList();
-
         InitializeComponent();
-
-        img_main.Source = playlist.image.source;
-        txt_playlistName.Text = playlist.name;
-        Playlist_List.ItemsSource = songList;
+        Initalize();
     }
     #region Methods
+    private async void Initalize()
+    {
+        if(playlist == Playlist.Empty)
+        {
+            // fetch the playlist MEEEEOWWW
+            isLoading = true;
+            loadingScreen.IsVisible = isLoading;
+            // Neccesary to stop the page from lagging when you open it
+            await Task.Run(() => { Thread.Sleep(200); });
+            Playlist? getPlaylist = await MauiProgram.servers[0].FetchPlaylistByIDAsync(playlistId);
+            if(getPlaylist != null)
+            {
+                playlist = getPlaylist;
+            }
+        }
+
+        songList = playlist.songs.ToList();
+        unorderedList = playlist.songs.ToList();
+        img_main.Source = playlist.image.source;
+        txt_playlistName.Text = playlist.name;
+
+        Playlist_List.ItemsSource = songList;
+        save_btn.IsVisible = true;
+        save_activityIndicator.IsVisible = false;
+
+        if (isLoading)
+        {
+            await loadingScreen.FadeTo(0, 500, Easing.SinIn);
+            isLoading = false;
+        }
+        
+        loadingScreen.IsVisible = isLoading;
+    }
     private async void ClosePage()
     {
         if (Navigation.ModalStack.Count > 0)

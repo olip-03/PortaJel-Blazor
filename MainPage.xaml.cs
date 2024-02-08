@@ -19,11 +19,12 @@ public partial class MainPage : ContentPage
     private bool IsRefreshing = false;
     public event EventHandler? CanExecuteChanged;
     private bool isClosing = false;
+    private bool isModalAnimating = false;
     private double screenHeight = 0;
     private bool musicControlsFirstOpen = true;
     private List<Song> queue = new List<Song>();
 
-    private uint animationSpeed = 400;
+    private uint animationSpeed = 550;
 
     public MainPage()
 	{
@@ -74,13 +75,13 @@ public partial class MainPage : ContentPage
         IsRefreshing = false;
     }
     #region Methods
-    public void NavigateToPlaylistEdit(Guid PlaylistId)
+    public async Task NavigateToPlaylistEdit(Guid PlaylistId)
     {
-        Navigation.PushModalAsync(new PlaylistViewEditor(PlaylistId));
+        await Navigation.PushModalAsync(new PlaylistViewEditor(PlaylistId));
     }
-    public void NavigateToPlaylistEdit(Playlist setPlaylist)
+    public async Task NavigateToPlaylistEdit(Playlist setPlaylist)
     {
-        Navigation.PushModalAsync(new PlaylistViewEditor(setPlaylist));
+        await Navigation.PushModalAsync(new PlaylistViewEditor(setPlaylist));
     }
     public void PopStack()
     {
@@ -158,12 +159,28 @@ public partial class MainPage : ContentPage
     public async Task CloseContextMenu()
     {
         isClosing = true;
-        MauiProgram.ContextMenuIsOpen = false;
 
         double h = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
         await ContextMenu.TranslateTo(ContextMenu.X, ContextMenu.Y + h, animationSpeed, Easing.SinIn);
+        MauiProgram.ContextMenuIsOpen = false;
         ContextMenu.IsVisible = false;
         isClosing = false;
+    }
+    public Task AwaitContextMenuClose()
+    {
+        while (MauiProgram.ContextMenuIsOpen)
+        {
+
+        }
+        return Task.CompletedTask;
+    }
+    public Task AwaitContextMenuOpen()
+    {
+        while (!MauiProgram.ContextMenuIsOpen)
+        {
+
+        }
+        return Task.CompletedTask;
     }
     public async Task ShowContextMenu()
     {
@@ -185,8 +202,8 @@ public partial class MainPage : ContentPage
         ContextMenu_List.SelectedItem = null;
         ContextMenu.IsVisible = true;
         ContextMenu.TranslationY = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
-        MauiProgram.ContextMenuIsOpen = true;
         await ContextMenu.TranslateTo(ContextMenu.X, 0, animationSpeed, Easing.SinOut);
+        MauiProgram.ContextMenuIsOpen = true;
     }
     #endregion
     #region Interactions
@@ -206,14 +223,15 @@ public partial class MainPage : ContentPage
     {
         ShowMusicController(); 
     }
-    private void ContextMenu_SelectedItemChanged(object sender, EventArgs e)
+    private async void ContextMenu_SelectedItemChanged(object sender, EventArgs e)
     {
         if(ContextMenu_List.SelectedItem == null)
         {
             return;
         }
         ContextMenuItem? selected = (ContextMenuItem)ContextMenu_List.SelectedItem;
-        if(selected != null)
+
+        if (selected != null)
         {
             if(selected.job != null)
             {
@@ -223,13 +241,14 @@ public partial class MainPage : ContentPage
                 }
                 catch (Exception)
                 {
-                    CloseContextMenu();
+                    await CloseContextMenu();
                 }
             }
         }
+
         if (!isClosing)
         {
-            CloseContextMenu();
+            await CloseContextMenu();
         }
     }
     private void MediaController_Queue_Show(object sender, EventArgs e)

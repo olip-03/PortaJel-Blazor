@@ -1225,6 +1225,7 @@ namespace PortaJel_Blazor.Classes
             newArtist.name = baseItem.Name;
             newArtist.id = baseItem.Id;
             newArtist.description = baseItem.Overview;
+            newArtist.isFavourite = baseItem.UserData.IsFavorite;
 
             // 69c72555-b29b-443d-9a17-01d735bd6f9f
             // https://media.olisshittyserver.xyz/Items/cc890a31-1449-ec9c-b428-24ec98127fdb/Images/Primary
@@ -1263,23 +1264,22 @@ namespace PortaJel_Blazor.Classes
             // working really quick. Ideally this'd be redone. 
             return Task.Run(() =>
             {
-                Album newAlbum = new();
-                newAlbum.name = baseItem.Name;
-                newAlbum.id = baseItem.Id;
-                newAlbum.songs = null; // TODO: Implement songs
+                Album newGenre = new();
+                newGenre.name = baseItem.Name;
+                newGenre.id = baseItem.Id;
+                newGenre.songs = null; // TODO: Implement songs
 
                 if (baseItem.Type != BaseItemKind.MusicAlbum)
                 {
-                    newAlbum.isSong = true;
+                    newGenre.isSong = true;
                     if (baseItem.AlbumId != null)
                     {
-                        newAlbum.id = (Guid)baseItem.AlbumId;
+                        newGenre.id = (Guid)baseItem.AlbumId;
                     }
                 }
 
                 // TODO: Implement getting album images for each genre 
-
-                return newAlbum;
+                return newGenre;
             });
 
         }
@@ -1326,7 +1326,9 @@ namespace PortaJel_Blazor.Classes
                 Playlist newPlaylist = new();
                 newPlaylist.name = baseItem.Name;
                 newPlaylist.id = baseItem.Id;
+                newPlaylist.isFavourite = baseItem.UserData.IsFavorite;
                 newPlaylist.songs = null; // TODO: Implement songs
+
 
                 if (baseItem.Type != BaseItemKind.MusicAlbum)
                 {
@@ -1334,12 +1336,6 @@ namespace PortaJel_Blazor.Classes
                     {
                         newPlaylist.id = (Guid)baseItem.AlbumId;
                     }
-                }
-
-                // Favourite Info
-                if (baseItem.UserData.IsFavorite)
-                {
-                    newPlaylist.isFavourite = true;
                 }
 
                 newPlaylist.image = MusicItemImageBuilder(baseItem);

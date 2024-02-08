@@ -45,13 +45,16 @@ namespace PortaJel_Blazor.Data
                     await MauiProgram.servers[0].FavouriteItem(this.id, true);
                 })));
             }
-            contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(() =>
+            contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async() =>
             {
+                await MauiProgram.mainLayout.FlagLoading();
+                await MauiProgram.mainPage.CloseContextMenu();
+                await MauiProgram.mainPage.AwaitContextMenuClose();
                 MauiProgram.mainLayout.NavigateArtist(this.id);
             })));
-            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async() =>
             {
-                MauiProgram.mainPage.CloseContextMenu();
+                await MauiProgram.mainPage.CloseContextMenu();
             })));
 
             return contextMenuItems;

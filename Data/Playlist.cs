@@ -10,7 +10,6 @@ namespace PortaJel_Blazor.Data
     public class Playlist: BaseMusicItem
     {
         public PlaylistSong[] songs = new PlaylistSong[0];
-        public bool isFavourite = false;
         public string path = string.Empty;
         public static readonly Playlist Empty = new();    
         public Playlist() 
@@ -40,7 +39,7 @@ namespace PortaJel_Blazor.Data
             }
             contextMenuItems.Add(new ContextMenuItem("Edit Playlist", "light_edit.png", new Task(() =>
             {
-                MauiProgram.mainPage.NavigateToPlaylistEdit(this);
+                MauiProgram.mainPage.NavigateToPlaylistEdit(this.id);
             })));
             contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
             {
@@ -54,9 +53,9 @@ namespace PortaJel_Blazor.Data
             {
 
             })));
-            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async() =>
             {
-                MauiProgram.mainPage.CloseContextMenu();
+                await MauiProgram.mainPage.CloseContextMenu();
             })));
 
             return contextMenuItems;

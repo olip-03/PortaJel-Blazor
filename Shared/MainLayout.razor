@@ -368,6 +368,11 @@
 
         NavManager.NavigateTo($"/PlaylistView/{guid}", forceLoad: true);
     }
+    public Task FlagLoading()
+    {
+        isLoading = true;
+        return Task.CompletedTask;
+    }
     public async Task OpenPlayer()
     {
         await JS.InvokeAsync<string>("dragElement", "open");
