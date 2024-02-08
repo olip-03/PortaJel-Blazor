@@ -1,54 +1,56 @@
 ﻿@using PortaJel_Blazor.Classes;
 @using Microsoft.Maui.Controls;
+@using BlazorAnimate;
 @page "/settings"
 
-<!-- Settings for connecting to a Jellyfin server -->
-<div>
-    <div class="header">
-        <div class="title">Connections</div>
-        <button class="add-button">Add</button>
-    </div>
+<Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+    <!-- Settings for connecting to a Jellyfin server -->
+    <div>
+        <div class="header">
+            <div class="title">Connections</div>
+            <button class="add-button">Add</button>
+        </div>
 
-    @foreach (var item in MauiProgram.servers)
-    {
-        <div class="connection-container">
-            <div class="connection-details">
-                <div class="user-profile">
-                    <img class="user-profile-img" src="@item.GetProfileImage()" onerror="this.src='/images/avatar.png'" />
+        @foreach (var item in MauiProgram.servers)
+        {
+            <div class="connection-container">
+                <div class="connection-details">
+                    <div class="user-profile">
+                        <img class="user-profile-img" src="@item.GetProfileImage()" onerror="this.src='/images/avatar.png'" />
+                    </div>
+                    <div>
+                        <div class="user-profile-name">@item.GetUsername()</div>
+                        <div class="user-profile-connection">@item.GetBaseAddress()</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="user-profile-name">@item.GetUsername()</div>
-                    <div class="user-profile-connection">@item.GetBaseAddress()</div>
-                </div>
+                <button class="remove-button" @onclick="DeleteConnection">Remove</button>
             </div>
-            <button class="remove-button" @onclick="DeleteConnection">Remove</button>
-        </div>
-    }
-    @if(!MauiProgram.isConnected)
-    {
-        <button class="reconnect-button">Reconnect</button>
-    }
-</div>
-
-<!-- Favourites Settings -->
-<div>
-    <div class="header">
-        <div class="title">Favourites</div>
+        }
+        @if (!MauiProgram.isConnected)
+        {
+            <button class="reconnect-button">Reconnect</button>
+        }
     </div>
 
-    <!-- Hide M3U Playlists -->
-    <div class="header">
-        <div class="checkbox-wrapper-22">
-            <label class="switch" for="checkbox">
-                <input type="checkbox" id="checkbox" @bind="hidem3u"/>
-                <div class="slider round"></div>
-            </label>
+    <!-- Favourites Settings -->
+    <div>
+        <div class="header">
+            <div class="title">Favourites</div>
         </div>
 
-        <p>Hide .m3u files in Playlists</p>
-    </div>
-</div>
+        <!-- Hide M3U Playlists -->
+        <div class="header">
+            <div class="checkbox-wrapper-22">
+                <label class="switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" @bind="hidem3u" />
+                    <div class="slider round"></div>
+                </label>
+            </div>
 
+            <p>Hide .m3u files in Playlists</p>
+        </div>
+    </div>
+</Animate>
 
 @code {
     string cacheDir = FileSystem.Current.CacheDirectory;

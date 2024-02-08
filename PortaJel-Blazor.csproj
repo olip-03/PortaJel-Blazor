@@ -122,6 +122,8 @@
     <ItemGroup>
         <PackageReference Include="BlazorAnimate" Version="3.0.0" />
         <PackageReference Include="Blurhash.Core" Version="2.0.0" />
+        <PackageReference Include="Blurhash.ImageSharp" Version="3.0.0" />
+        <PackageReference Include="Blurhash.Microsoft.Extensions.Core" Version="2.0.0" />
         <PackageReference Include="Jellyfin.Sdk" Version="2022.6.11" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

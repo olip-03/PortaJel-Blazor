@@ -877,6 +877,7 @@ namespace PortaJel_Blazor.Classes
             foreach (var item in songResult.Items)
             {
                 Song toAdd = SongBuilder(item);
+                toAdd.image = MusicItemImageBuilder(item);
                 songs.Add(toAdd);
             }
 
@@ -894,7 +895,7 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalGenreRecordCount;
         }
-        public async Task<Album[]> GetAllGenresAsync(int? limit = 50, int? startFromIndex = 0)
+        public async Task<Genre[]> GetAllGenresAsync(int? limit = 50, int? startFromIndex = 0)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
             List<String> _sortTypes = new List<string> { "SortName" };
@@ -925,14 +926,14 @@ namespace PortaJel_Blazor.Classes
             if (songResult == null) { return null; }
             if (songResult.Items == null) { return null; }
 
-            List<Album> songs = new List<Album>();
+            List<Genre> genres = new List<Genre>();
             foreach (var item in songResult.Items)
             {
-                Album itemToAdd = await GenreBuilder(item);
-                songs.Add(itemToAdd);
+                Genre itemToAdd = await GenreBuilder(item);
+                genres.Add(itemToAdd);
             }
 
-            return songs.ToArray();
+            return genres.ToArray();
         }
         public async Task<Artist> GetArtistAsync(Guid artistId)
         {
@@ -1258,20 +1259,20 @@ namespace PortaJel_Blazor.Classes
 
             return newArtist;
         }
-        private Task<Album> GenreBuilder(BaseItemDto baseItem)
+        private Task<Genre> GenreBuilder(BaseItemDto baseItem)
         {
             // TODO: This is just a rehash of the AlbumBuilder to get the page I needed
             // working really quick. Ideally this'd be redone. 
             return Task.Run(() =>
             {
-                Album newGenre = new();
+                Genre newGenre = new();
                 newGenre.name = baseItem.Name;
                 newGenre.id = baseItem.Id;
+                newGenre.image = MusicItemImageBuilder(baseItem);
                 newGenre.songs = null; // TODO: Implement songs
 
                 if (baseItem.Type != BaseItemKind.MusicAlbum)
                 {
-                    newGenre.isSong = true;
                     if (baseItem.AlbumId != null)
                     {
                         newGenre.id = (Guid)baseItem.AlbumId;
@@ -1293,10 +1294,15 @@ namespace PortaJel_Blazor.Classes
                 image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
-            if (baseItem.Type == BaseItemKind.Audio)
+            else if (baseItem.Type == BaseItemKind.Audio)
             {
                 image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+            }
+            else if(baseItem.Type == BaseItemKind.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
+            {
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
+                image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
             else if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
             {

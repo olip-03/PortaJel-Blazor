@@ -4,41 +4,43 @@
 @inject IJSRuntime JS
 
 @page "/search"
-<div>
-    <input type="text" id="SearchPage_SearchInput" name="search" class="searchBox" @oninput="@((e) => TextChange((string)e.Value) )" />
-    <hr />
-    @if (waitingForResult)
-    {
-        <div class="album-container">
-            <PortaJel_Blazor.Shared.Resources.Spinner/>
-        </div>
-    }
-    else
-    {
-        <div class="searchResponse">
-            @if (searchResults != null && !waitingForResult)
-            {
-                foreach (var item in searchResults)
+<Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+    <div>
+        <input type="text" id="SearchPage_SearchInput" name="search" class="searchBox" @oninput="@((e) => TextChange((string)e.Value) )" />
+        <hr />
+        @if (waitingForResult)
+        {
+            <div class="album-container">
+                <PortaJel_Blazor.Shared.Resources.Spinner />
+            </div>
+        }
+        else
+        {
+            <div class="searchResponse">
+                @if (searchResults != null && !waitingForResult)
                 {
-                    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                        <SearchResultItem musicObject="@item"/>
-                    </Animate>
+                    foreach (var item in searchResults)
+                    {
+                        <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                            <SearchResultItem musicObject="@item" />
+                        </Animate>
 
-                    itemFadeInDelay += 0.1f;
+                        itemFadeInDelay += 0.1f;
+                    }
+                    if (searchResults.Count() == 0)
+                    {
+                        <p>Nothing found...</p>
+                    }
                 }
-                if (searchResults.Count() == 0)
-                {
-                    <p>Nothing found...</p>
-                }
-            }
-            @*TODO: Add spinny wheel when waiting for results
-                Also need to add a 'nothing found' message and other status codes
+                @*TODO: Add spinny wheel when waiting for results
+            Also need to add a 'nothing found' message and other status codes
             *@
 
-        </div>
-    }
+            </div>
+        }
 
-</div>
+    </div>
+</Animate>
 
 @code {
     // https://www.meziantou.net/infinite-scrolling-in-blazor.htm

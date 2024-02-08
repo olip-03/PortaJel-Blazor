@@ -4,6 +4,7 @@
 @inject IJSRuntime JS;
 @page "/ArtistView/{artistId}"
 
+<Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
     <button class="GoBackButton" @onclick=GoBack>
         <img src="/images/back.svg" class="">
     </button>
@@ -143,6 +144,7 @@
         <p>@artist.description</p>
     </div>
 }
+</Animate>
 
 @code {
     [Parameter] public string artistId { get; set; }

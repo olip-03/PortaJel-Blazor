@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
-using Microsoft.Maui.Controls;
-using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Pages;
+﻿using PortaJel_Blazor.Classes;
 using System.Windows.Input;
 using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Pages.Xaml;
-using static Microsoft.Maui.ApplicationModel.Permissions;
+using Blurhash;
+using Blurhash.ImageSharp;
 
 #if ANDROID
 using Android;

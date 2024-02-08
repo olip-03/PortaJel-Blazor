@@ -4,160 +4,162 @@
 @using PortaJel_Blazor;
 @using BlazorAnimate;
 
-<div>
-    <div class="button-container">
-        @* See comments made on Favourites.razor. I do not wish to repeat myself
-        *@
-        @if (selected == selectable.albums)
-        {
-            <div class="filter-button selected">Albums</div>
-        }
-        else
-        {
-            <div class="filter-button" @onclick=SelectAlbums>Albums</div>
-        }
-        @if (selected == selectable.artists)
-        {
-            <div class="filter-button selected">Artists</div>
-        }
-        else
-        {
-            <div class="filter-button" @onclick=SelectArtists>Artists</div>
-        }
-        @if (selected == selectable.songs)
-        {
-            <div class="filter-button selected">Songs</div>
-        }
-        else
-        {
-            <div class="filter-button" @onclick=SelectSongs>Songs</div>
-        }
-        @if (selected == selectable.genres)
-        {
-            <div class="filter-button selected">Genres</div>
-        }
-        else
-        {
-            <div class="filter-button" @onclick=SelectGenres>Genres</div>
-        }
-    </div>
-    <div class="tool-container">
-        <div @onclick=ToggleSort>
-            @switch (sort)
+<Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+    <div>
+        <div class="button-container">
+            @* See comments made on Favourites.razor. I do not wish to repeat myself
+            *@
+            @if (selected == selectable.albums)
             {
-                case sortMethod.byActivity:
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                        <p class="tools-text">Activity</p>
-                    </Animate>
-                    break;
-                case sortMethod.byArtist:
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                        <p class="tools-text">Artist</p>
-                    </Animate>
-                    break;
-                case sortMethod.byName:
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                        <p class="tools-text">Name</p>
-                    </Animate>
-                    break;
-            }
-        </div>
-        <div @onclick=ToggleView>
-            @if (showGrid)
-            {
-                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
-                </Animate>
+                <div class="filter-button selected">Albums</div>
             }
             else
             {
-                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
-                </Animate>
+                <div class="filter-button" @onclick=SelectAlbums>Albums</div>
+            }
+            @if (selected == selectable.artists)
+            {
+                <div class="filter-button selected">Artists</div>
+            }
+            else
+            {
+                <div class="filter-button" @onclick=SelectArtists>Artists</div>
+            }
+            @if (selected == selectable.songs)
+            {
+                <div class="filter-button selected">Songs</div>
+            }
+            else
+            {
+                <div class="filter-button" @onclick=SelectSongs>Songs</div>
+            }
+            @if (selected == selectable.genres)
+            {
+                <div class="filter-button selected">Genres</div>
+            }
+            else
+            {
+                <div class="filter-button" @onclick=SelectGenres>Genres</div>
             }
         </div>
-    </div>
-
-    @* Custom styling for items when grid mode is selected *@
-    @if (showGrid)
-    {
-        <style>
-            .album-list {
-                width: 100%;
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                grid-gap: 20px 10px;
-            }
-        </style>
-    }
-
-    @* Load actual items *@
-    <div class="album-list">
-        @if (isLoading)
-        { // Spinner
-            <Spinner />
-        }
-        else if (data.Length > 0)
-        { // Load information
-            for (int i = 0; i < data.Length; i++)
-            {
-                if(data[i] != null)
+        <div class="tool-container">
+            <div @onclick=ToggleSort>
+                @switch (sort)
                 {
-                    <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid />
+                    case sortMethod.byActivity:
+                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                            <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                            <p class="tools-text">Activity</p>
+                        </Animate>
+                        break;
+                    case sortMethod.byArtist:
+                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                            <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                            <p class="tools-text">Artist</p>
+                        </Animate>
+                        break;
+                    case sortMethod.byName:
+                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                            <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                            <p class="tools-text">Name</p>
+                        </Animate>
+                        break;
+                }
+            </div>
+            <div @onclick=ToggleView>
+                @if (showGrid)
+                {
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
+                    </Animate>
+                }
+                else
+                {
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
+                    </Animate>
+                }
+            </div>
+        </div>
+
+        @* Custom styling for items when grid mode is selected *@
+        @if (showGrid)
+        {
+            <style>
+                .album-list {
+                    width: 100%;
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    grid-gap: 20px 10px;
+                }
+            </style>
+        }
+
+        @* Load actual items *@
+        <div class="album-list">
+            @if (isLoading)
+            { // Spinner
+                <Spinner />
+            }
+            else if (data.Length > 0)
+            { // Load information
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (data[i] != null)
+                    {
+                        <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid />
+                    }
                 }
             }
-        }
-        else
-        { // something went wrong click here to try again
+            else
+            { // something went wrong click here to try again
 
-        }
-    </div>
+            }
+        </div>
 
-    @* Load page numbers *@
-    @if (!isLoading)
-    {
-        // Disabling current pagination class as I have another idea for how this could work
-        // TODO: This works however overflow:x does NOT allow for you to scroll to the left.
-        // try to address this at a later stage when it's actually important. Not a priority atm cause
-        // it looks pretty. I've set it to overflow:hidden so the scroll function is gone completely this
-        // just needs to be fixed at some point
-        <div class="grid-pgnator-container">
-            <!-- Items to the left -->
-            <div class="grid-pgnator-items-l">
-                @for (int i = selectedPage; i >= 0; i--)
-                { // operation should be done in revese because flex-direction:row-reverse
-                    if(i != selectedPage)
+        @* Load page numbers *@
+        @if (!isLoading)
+        {
+            // Disabling current pagination class as I have another idea for how this could work
+            // TODO: This works however overflow:x does NOT allow for you to scroll to the left.
+            // try to address this at a later stage when it's actually important. Not a priority atm cause
+            // it looks pretty. I've set it to overflow:hidden so the scroll function is gone completely this
+            // just needs to be fixed at some point
+            <div class="grid-pgnator-container">
+                <!-- Items to the left -->
+                <div class="grid-pgnator-items-l">
+                    @for (int i = selectedPage; i >= 0; i--)
+                    { // operation should be done in revese because flex-direction:row-reverse
+                        if (i != selectedPage)
+                        {
+                            int tempInt = i;
+                            int displayNum = tempInt + 1;
+                            <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
+                        }
+                    }
+                </div>
+                <!-- Centered active item -->
+                <div class="grid-pgnator-items">
+                    @{
+                        int pgnNumInt = selectedPage;
+                        int displayPgNum = pgnNumInt + 1;
+                        <div class="pagination-item active">@displayPgNum</div>
+                    }
+                </div>
+                <!-- Items to the right -->
+                <div class="grid-pgnator-items-r">
+                    @for (int i = selectedPage + 1; i < pages; i++)
                     {
                         int tempInt = i;
                         int displayNum = tempInt + 1;
                         <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
                     }
-                }
+                </div>
             </div>
-            <!-- Centered active item -->
-            <div class="grid-pgnator-items">
-                @{
-                    int pgnNumInt = selectedPage;
-                    int displayPgNum = pgnNumInt + 1;
-                    <div class="pagination-item active">@displayPgNum</div>
-                }
-            </div>
-            <!-- Items to the right -->
-            <div class="grid-pgnator-items-r">
-                @for (int i = selectedPage + 1; i < pages; i++)
-                {
-                    int tempInt = i;
-                    int displayNum = tempInt + 1;
-                    <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
-                }
-            </div>
-        </div>
-        <p>Showing @data.Length of @totalRecordCount</p>
-    }
-</div>
+            <p>Showing @data.Length of @totalRecordCount</p>
+        }
+    </div>
+</Animate>
 
 @code {
     private BaseMusicItem[] data = new BaseMusicItem[0];
