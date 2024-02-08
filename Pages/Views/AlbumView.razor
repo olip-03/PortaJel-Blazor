@@ -59,12 +59,17 @@
                 </div>
             </div>
 
-            foreach (var item in album.songs)
+            foreach (var song in album.songs)
             {
                 <hr />
                 <div>
-                    <p class="songTitle">@item.name</p>
-                    <p class="songArtistTitle">@item.artist</p>
+                    <p class="songTitle">@song.name</p>
+                    <p class="songArtistTitle">
+                        @foreach (var item in song.artists)
+                        {
+                            <p>@item.name</p>
+                        }
+                    </p>
                 </div>
             }
             <hr />
@@ -79,7 +84,6 @@
         }
     </Animate>
 }
-
 
 @code {
     [Parameter] public string albumId { get; set; }
@@ -97,6 +101,17 @@
         if (albumId != null)
         {
             album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist:true);
+        }
+        if (album != null)
+        {
+            foreach (Song albumSongs in album.songs)
+            {
+                Artist[]? songArtists = await albumSongs.GetArtistAsync();
+                if (songArtists != null)
+                {
+                    albumSongs.artists = songArtists;
+                }
+            }
         }
 
         loaded = true;
@@ -131,7 +146,7 @@
         MauiProgram.mediaService.songQueue.Clear();
         foreach (Song song in album.songs)
         {
-            song.imageSrc = album.imageSrc;
+            song.image.source = album.imageSrc;
             MauiProgram.mediaService.songQueue.QueueSong(song);
         }
         MauiProgram.mediaService.Play();

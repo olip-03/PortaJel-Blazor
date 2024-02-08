@@ -1,17 +1,17 @@
 ﻿@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.UI.Search;
 @using BlazorAnimate;
+@inject IJSRuntime JS
 
 @page "/search"
 <div>
-    <input type="text" id="search" name="search" class="searchBox" @oninput="@((e) => TextChange((string)e.Value) )" />
+    <input type="text" id="SearchPage_SearchInput" name="search" class="searchBox" @oninput="@((e) => TextChange((string)e.Value) )" />
     <hr />
     @if (waitingForResult)
     {
         <div class="album-container">
             <PortaJel_Blazor.Shared.Resources.Spinner/>
         </div>
-
     }
     else
     {
@@ -21,7 +21,7 @@
                 foreach (var item in searchResults)
                 {
                     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                        <SearchResultItem album="@item"/>
+                        <SearchResultItem musicObject="@item"/>
                     </Animate>
 
                     itemFadeInDelay += 0.1f;
@@ -111,7 +111,6 @@
             }
         }
 
-
         waitingForResult = false;
         StateHasChanged();
     }
@@ -128,5 +127,10 @@
         MauiProgram.mainLayout.currentUri = "/search";
         MauiProgram.mainLayout.isLoading = false;
         MauiProgram.mainLayout.showHeader = true;
+    }
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        await JS.InvokeAsync<string>("SearchPage_FocusOnInput");
     }
 }

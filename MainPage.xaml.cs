@@ -17,28 +17,21 @@ public partial class MainPage : ContentPage
 {
     private Album? contextMenuAlbum = null;
     private bool IsRefreshing = false;
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged;
     private bool isClosing = false;
     private double screenHeight = 0;
     private bool musicControlsFirstOpen = true;
     private List<Song> queue = new List<Song>();
+
+    private uint animationSpeed = 400;
 
     public MainPage()
 	{
         InitializeComponent();
         MauiProgram.mainPage = this;
 
-        for (int i = 0; i < 20; i++)
-        {
-            Song newSong = new();
-            newSong.name = "Song " + i;
-            newSong.artist = "Demonstration " + i;
-            newSong.imageSrc = "emptyalbum.png";
-
-            queue.Add(newSong);
-        }
         MediaController_Queue_List.ItemsSource = queue;
-#if ANDROID
+        #if ANDROID
         btn_navnar_home.HeightRequest = 30;
         btn_navnar_home.WidthRequest = 30;
 
@@ -50,7 +43,7 @@ public partial class MainPage : ContentPage
 
         btn_navnar_favourites.HeightRequest = 30;
         btn_navnar_favourites.WidthRequest = 30;
-#endif
+        #endif
 
         MauiProgram.webView = blazorWebView;
     }
@@ -61,9 +54,12 @@ public partial class MainPage : ContentPage
 		// CLEAR giveaway this app uses webview lolz
 
         #if ANDROID
-				        var blazorView = this.blazorWebView;
-				        var platformView = (Android.Webkit.WebView)blazorView.Handler.PlatformView;
-				        platformView.OverScrollMode = Android.Views.OverScrollMode.Never;
+		var blazorView = this.blazorWebView;
+        if(blazorView.Handler != null && blazorView.Handler.PlatformView != null)
+        {
+            var platformView = (Android.Webkit.WebView)blazorView.Handler.PlatformView;
+            platformView.OverScrollMode = Android.Views.OverScrollMode.Never;
+        }	        
         #endif
     }
     public interface IRelayCommand : ICommand
@@ -78,6 +74,25 @@ public partial class MainPage : ContentPage
         IsRefreshing = false;
     }
     #region Methods
+    public void NavigateToPlaylistEdit(Guid PlaylistId)
+    {
+        Navigation.PushModalAsync(new PlaylistViewEditor(PlaylistId));
+    }
+    public void NavigateToPlaylistEdit(Playlist setPlaylist)
+    {
+        Navigation.PushModalAsync(new PlaylistViewEditor(setPlaylist));
+    }
+    public void PopStack()
+    {
+        if (Navigation.ModalStack.Count > 0)
+        {
+            Navigation.PopModalAsync();
+        }
+    }
+    public int StackCount()
+    {
+        return Navigation.ModalStack.Count;
+    }
     public async void ShowNavbar()
     {
         Navbar.IsVisible = true;
@@ -92,7 +107,7 @@ public partial class MainPage : ContentPage
         MediaController_Player.IsVisible = true;
 
         MediaController_Queue.TranslationY = 0;
-        await MediaController_Queue.TranslateTo(0, screenHeight, 500, Easing.SinIn);
+        await MediaController_Queue.TranslateTo(0, screenHeight, animationSpeed, Easing.SinIn);
 
         // MediaController_Queue.IsVisible = false;
     }
@@ -104,7 +119,7 @@ public partial class MainPage : ContentPage
         MediaController_Queue.IsVisible = true;
         
         MediaController_Queue.TranslationY = screenHeight;
-        await MediaController_Queue.TranslateTo(0, 0, 500, Easing.SinOut);
+        await MediaController_Queue.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
 
         MediaController_Player.IsVisible = false;
     }
@@ -114,9 +129,9 @@ public partial class MainPage : ContentPage
 
         await Task.WhenAny<bool>
         (
-            Player.TranslateTo(0, 0, 500, Easing.SinIn),
-            MediaController.TranslateTo(0, screenHeight, 500, Easing.SinIn),
-            MediaController.FadeTo(0, 500, Easing.SinIn)
+            Player.TranslateTo(0, 0, animationSpeed, Easing.SinIn),
+            MediaController.TranslateTo(0, screenHeight, animationSpeed, Easing.SinIn),
+            MediaController.FadeTo(0, animationSpeed, Easing.SinIn)
         );
     }
     public async void ShowMusicController()
@@ -133,24 +148,24 @@ public partial class MainPage : ContentPage
 
         await Task.WhenAny<bool>
         (
-            Player.TranslateTo(0, screenHeight * -1, 500, Easing.SinOut),
-            MediaController.TranslateTo(0, 0, 500, Easing.SinOut),
-            MediaController.FadeTo(1, 500, Easing.SinOut)
+            Player.TranslateTo(0, screenHeight * -1, animationSpeed, Easing.SinOut),
+            MediaController.TranslateTo(0, 0, animationSpeed, Easing.SinOut),
+            MediaController.FadeTo(1, animationSpeed, Easing.SinOut)
         );
 
         musicControlsFirstOpen = false;
     }
-    public async void CloseContextMenu()
+    public async Task CloseContextMenu()
     {
         isClosing = true;
         MauiProgram.ContextMenuIsOpen = false;
 
         double h = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
-        await ContextMenu.TranslateTo(ContextMenu.X, ContextMenu.Y + h, 500, Easing.SinIn);
+        await ContextMenu.TranslateTo(ContextMenu.X, ContextMenu.Y + h, animationSpeed, Easing.SinIn);
         ContextMenu.IsVisible = false;
         isClosing = false;
     }
-    public async void ShowContextMenu()
+    public async Task ShowContextMenu()
     {
         ContextMenu_imagecontainer.IsVisible = MauiProgram.ShowContextMenuImage;
         ContextMenu_MainText.Text = MauiProgram.ContextMenuMainText;
@@ -171,10 +186,9 @@ public partial class MainPage : ContentPage
         ContextMenu.IsVisible = true;
         ContextMenu.TranslationY = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
         MauiProgram.ContextMenuIsOpen = true;
-        await ContextMenu.TranslateTo(ContextMenu.X, 0, 500, Easing.SinOut);
+        await ContextMenu.TranslateTo(ContextMenu.X, 0, animationSpeed, Easing.SinOut);
     }
     #endregion
-
     #region Interactions
     private void Player_Btn_FavToggle_Clicked(object sender, EventArgs e)
     {
@@ -270,12 +284,12 @@ public partial class MainPage : ContentPage
             btn_navnar_favourites.ScaleTo(1, 250)
         );
     }
-    private async void MediaController_Btn_ContextMenu(object sender, EventArgs args)
+    private void MediaController_Btn_ContextMenu(object sender, EventArgs args)
     {
         ShowContextMenu();
     }
     double distance = 0;
-    private async void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
+    private void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
     {
         #if !WINDOWS
         switch (e.StatusType)

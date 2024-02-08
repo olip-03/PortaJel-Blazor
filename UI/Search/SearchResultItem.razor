@@ -6,174 +6,208 @@
 @using PortaJel_Blazor.Classes;
 @using BlazorAnimate;
 
-@if (isGrid)
+@if (isGrid && musicObject != null)
 {
-    <div class="grid-album-container">
-        @if (album.isArtist == true)
-        { // this item is an artist
-            <div class="grid-album-cover" @onclick=NavigateToArtist @oncontextmenu=OpenContextMenu>
-                <img class="grid-artist-img" src="@album.imageAtResolution(resolution)" loading="lazy" />
+    <div class="grid-album-container" @oncontextmenu=OpenContextMenu>
+        @if (musicObject is Artist)
+        {
+            Artist artist = (Artist)musicObject;
+            <div class="grid-album-cover" @onclick=NavigateToArtist>
+                <img class="grid-artist-img" src="@artist.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
+            </div>
+            <div @onclick=NavigateToArtist>
+                <div class="album-name">@artist.name</div>
+            </div>
+        }
+        else if (musicObject is Album)
+        {
+            Album album = (Album)musicObject;
+            <div class="grid-album-cover" @onclick=NavigateToArtist>
+                <img class="grid-artist-img" src="@album.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@album.name</div>
-                <div class="album-artist">@album.GetArtistName()</div>
+                <div class="album-artist">@album.artistCongregate</div>
             </div>
         }
-        else
+        else if (musicObject is Playlist)
         {
-            <div class="grid-album-cover" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
-                <img class="grid-album-img" src="@album.imageAtResolution(resolution)" loading="lazy" />
+            Playlist playlist = (Playlist)musicObject;
+            <div class="grid-album-cover" @onclick=NavigateToArtist>
+                <img class="grid-artist-img" src="@playlist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
-            <div @onclick=NavigateToAlbum>
-                <div class="album-name">@album.name</div>
-                <div class="album-artist">@album.GetArtistName()</div>
+            <div @onclick=NavigateToArtist>
+                <div class="album-name">@playlist.name</div>
+            </div>
+        }
+        else if (musicObject is Song)
+        {
+            Song song = (Song)musicObject;
+            <div class="grid-album-cover" @onclick=NavigateToArtist>
+                <img class="grid-artist-img" src="@song.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
+            </div>
+            <div @onclick=NavigateToArtist>
+                <div class="album-name">@song.name</div>
+                <div class="album-artist">@song.artistCongregate</div>
             </div>
         }
     </div>
 }
-else
+else if (musicObject != null)
 {
-    @if (album.isArtist == true)
-    {
-        <div class="album-container" @oncontextmenu=OpenContextMenu>
+    <div class="album-container" @oncontextmenu=OpenContextMenu>
+        @if (musicObject is Artist)
+        {
+            Artist artist = (Artist)musicObject;
             <div class="artist-cover" @onclick=NavigateToArtist>
-                <img class="artist-cover" src="@album.imageAtResolution(resolution)" />
+                <img class="artist-cover" src="@artist.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
+            </div>
+            <div @onclick=NavigateToArtist>
+                <div class="album-name">@artist.name</div>
+            </div>
+        }
+        else if(musicObject is Album)
+        {
+            Album album = (Album)musicObject;
+            <div class="album-cover" @onclick=NavigateToAlbum>
+                <img class="album-cover" src="@album.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@album.name</div>
-                <div class="album-artist">@album.GetArtistName()</div>
+                <div class="album-artist">@album.artistCongregate</div>
             </div>
-            <div class="favorite-button" @onclick=FavouriteItem>
-                @if (album.isFavourite)
-                {
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <svg class="favorite-button-icon" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M 480 -120 L 422 -172 C 354.667 -232.667 299 -285 255 -329 C 211 -373 176 -412.5 150 -447.5 C 124 -482.5 105.833 -514.667 95.5 -544 C 85.167 -573.333 80 -603.333 80 -634 C 80 -696.667 101 -749 143 -791 C 185 -833 237.333 -854 300 -854 C 334.667 -854 367.667 -846.667 399 -832 C 430.333 -817.333 457.333 -796.667 480 -770 C 502.667 -796.667 529.667 -817.333 561 -832 C 592.333 -846.667 625.333 -854 660 -854 C 722.667 -854 775 -833 817 -791 C 859 -749 880 -696.667 880 -634 C 880 -603.333 874.833 -573.333 864.5 -544 C 854.167 -514.667 836 -482.5 810 -447.5 C 784 -412.5 749 -373 705 -329 C 661 -285 605.333 -232.667 538 -172 L 480 -120 Z M 480 -501 Z" fill="currentColor" transform="matrix(1, 0, 0, 1, 7.105427357601002e-15, 1.1368683772161603e-13)" />
-                        </svg>
-                    </Animate>
-                }
-                else
-                {
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img class="favorite-button-icon" src="/images/heart.svg" />
-                    </Animate>
-                }
+        }
+        else if(musicObject is Playlist)
+        {
+            Playlist playlist = (Playlist)musicObject;
+            <div class="album-cover" @onclick=NavigateToPlaylist>
+                <img class="album-cover" src="@playlist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
-        </div>
-    }
-    else
-    {
-        <div class="album-container" @oncontextmenu=OpenContextMenu>
+            <div @onclick=NavigateToArtist>
+                <div class="album-name">@playlist.name</div>
+            </div>
+        }
+        else if(musicObject is Song)
+        {
+            Song song = (Song)musicObject;
             <div class="album-cover" @onclick=NavigateToAlbum>
-                <img class="album-cover" src="@album.imageAtResolution(resolution)" />
+                <img class="album-cover" src="@song.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
-            <div @onclick=NavigateToAlbum>
-                <div class="album-name">@album.name</div>
-                <div class="album-artist">@album.GetArtistName()</div>
-                <div class="album-metadata">
-                    <div class="album-metadata-container"><b class="album-metadata-text">flac</b></div>
-                </div>
+            <div @onclick=NavigateToArtist>
+                <div class="album-name">@song.name</div>
+                <div class="album-artist">@song.artistCongregate</div>
             </div>
-            <div class="favorite-button" @onclick=FavouriteItem>
-                @if (album.isFavourite)
-                {
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <svg class="favorite-button-icon" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M 480 -120 L 422 -172 C 354.667 -232.667 299 -285 255 -329 C 211 -373 176 -412.5 150 -447.5 C 124 -482.5 105.833 -514.667 95.5 -544 C 85.167 -573.333 80 -603.333 80 -634 C 80 -696.667 101 -749 143 -791 C 185 -833 237.333 -854 300 -854 C 334.667 -854 367.667 -846.667 399 -832 C 430.333 -817.333 457.333 -796.667 480 -770 C 502.667 -796.667 529.667 -817.333 561 -832 C 592.333 -846.667 625.333 -854 660 -854 C 722.667 -854 775 -833 817 -791 C 859 -749 880 -696.667 880 -634 C 880 -603.333 874.833 -573.333 864.5 -544 C 854.167 -514.667 836 -482.5 810 -447.5 C 784 -412.5 749 -373 705 -329 C 661 -285 605.333 -232.667 538 -172 L 480 -120 Z M 480 -501 Z" fill="currentColor" transform="matrix(1, 0, 0, 1, 7.105427357601002e-15, 1.1368683772161603e-13)" />
-                        </svg>
-                    </Animate>
-
-                }
-                else
-                {
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img class="favorite-button-icon" src="/images/heart.svg" />
-                    </Animate>
-                }
-            </div>
+        }
+        <div class="favorite-button" @onclick=FavouriteItem>
+            @if (musicObject.isFavourite)
+            {
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <svg class="favorite-button-icon" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 480 -120 L 422 -172 C 354.667 -232.667 299 -285 255 -329 C 211 -373 176 -412.5 150 -447.5 C 124 -482.5 105.833 -514.667 95.5 -544 C 85.167 -573.333 80 -603.333 80 -634 C 80 -696.667 101 -749 143 -791 C 185 -833 237.333 -854 300 -854 C 334.667 -854 367.667 -846.667 399 -832 C 430.333 -817.333 457.333 -796.667 480 -770 C 502.667 -796.667 529.667 -817.333 561 -832 C 592.333 -846.667 625.333 -854 660 -854 C 722.667 -854 775 -833 817 -791 C 859 -749 880 -696.667 880 -634 C 880 -603.333 874.833 -573.333 864.5 -544 C 854.167 -514.667 836 -482.5 810 -447.5 C 784 -412.5 749 -373 705 -329 C 661 -285 605.333 -232.667 538 -172 L 480 -120 Z M 480 -501 Z" fill="currentColor" transform="matrix(1, 0, 0, 1, 7.105427357601002e-15, 1.1368683772161603e-13)" />
+                    </svg>
+                </Animate>
+            }
+            else
+            {
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img class="favorite-button-icon" src="/images/heart.svg" />
+                </Animate>
+            }
         </div>
-    }
+    </div>
 }
 
 @code {
-    [Parameter] public Album album { get; set; } = new Album();
+    [Parameter] public BaseMusicItem? musicObject { get; set; } = null;
     [Parameter] public bool isGrid { get; set; } = false;
 
     private int resolution = 300;
 
     private void NavigateToAlbum()
     {
-        if (album != null)
+        if (musicObject != null)
         {
-            if (album.id == Guid.Empty) { return; }
-            MauiProgram.mainLayout.NavigateAlbum(album.id);
+            if (musicObject.id == Guid.Empty) { return; }
+            MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
         }
     }
     private void NavigateToArtist()
     {
-        if (album != null)
+        if (musicObject != null)
         {
-            if (album.id == Guid.Empty) { return; }
-            MauiProgram.mainLayout.NavigateArtist(album.id);
+            if (musicObject.id == Guid.Empty) { return; }
+            MauiProgram.mainLayout.NavigateArtist(musicObject.id);
+        }
+    }
+    private void NavigateToPlaylist()
+    {
+        if (musicObject != null)
+        {
+            if (musicObject.id == Guid.Empty) { return; }
+            MauiProgram.mainLayout.NavigatePlaylist(musicObject.id);
         }
     }
     private async void FavouriteItem()
     {
-        album.isFavourite = !album.isFavourite;
+        if (musicObject != null)
+        {
+            musicObject.isFavourite = !musicObject.isFavourite;
+            await MauiProgram.servers[0].FavouriteItem(musicObject.id, musicObject.isFavourite);
+        }
         StateHasChanged();
-        await MauiProgram.servers[0].FavouriteItem(album.id, album.isFavourite);
     }
     private async void OpenContextMenu()
     {
         MauiProgram.ContextMenuTaskList.Clear();
         MauiProgram.ShowContextMenuImage = true;
-        MauiProgram.ContextMenuMainText = album.name;
-        MauiProgram.ContextMenuSubText = album.GetArtistName();
-        MauiProgram.ContextMenuImage = album.imageAtResolution(resolution);
 
-        if (album.isFavourite)
+        if(musicObject is Album)
         {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
-            {
-                album.isFavourite = false;
-                await MauiProgram.servers[0].FavouriteItem(album.id, false);
-                StateHasChanged();
-            })));
+            Album album = (Album)musicObject;
+            MauiProgram.ContextMenuMainText = album.name;
+            MauiProgram.ContextMenuSubText = album.artistCongregate;
+            MauiProgram.ContextMenuImage = album.imageAtResolution(resolution);
+            MauiProgram.ContextMenuTaskList = album.GetContextMenuItems();
         }
-        else
+        else if(musicObject is Artist)
         {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
-            {
-                album.isFavourite = true;
-                await MauiProgram.servers[0].FavouriteItem(album.id, true);
-                StateHasChanged();
-            })));
+            Artist artist = (Artist)musicObject;
+            MauiProgram.ContextMenuTaskList = artist.GetContextMenuItems();
+            MauiProgram.ContextMenuMainText = artist.name;
+            MauiProgram.ContextMenuSubText = String.Empty;
+            MauiProgram.ContextMenuImage = artist.imageAtResolution(resolution);
         }
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
+        else if(musicObject is Playlist)
         {
-            
-        })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
+            Playlist playlist = (Playlist)musicObject;
+            MauiProgram.ContextMenuTaskList = playlist.GetContextMenuItems();
+            MauiProgram.ContextMenuImage = playlist.image.SourceAtResolution(resolution);
+            MauiProgram.ContextMenuSubText = String.Empty;
+            MauiProgram.ContextMenuMainText = playlist.name;
+        }
+        else if (musicObject is Song)
         {
+            Song song = (Song)musicObject;
+            //MauiProgram.ContextMenuTaskList = song.GetContextMenuItems();
+            MauiProgram.ContextMenuImage = song.image.SourceAtResolution(resolution);
+            MauiProgram.ContextMenuSubText = song.artistCongregate;
+            MauiProgram.ContextMenuMainText = song.name;
+        }
+        else if (musicObject != null)
+        {
+            MauiProgram.ContextMenuMainText = musicObject.name;
+            MauiProgram.ContextMenuImage = musicObject.image.SourceAtResolution(resolution);
+        }
 
-        })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
+        await MauiProgram.mainPage.ShowContextMenu();
+        await Task.Run(() =>
         {
+            // Literally just waiting for the fucking thing to close before we refresh 
+            while (MauiProgram.ContextMenuIsOpen == true)
+            {
 
-        })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("View Album", "light_album.png", new Task(() =>
-        {
-            MauiProgram.mainLayout.NavigateAlbum(album.id);
-        })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(() =>
-        {
-            MauiProgram.mainLayout.NavigateArtist(album.artists.FirstOrDefault().id);
-        })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
-        {
-            MauiProgram.mainPage.CloseContextMenu();
-        })));
-
-        await MauiProgram.mainLayout.OpenContextMenu();
+            }
+        });
+        StateHasChanged();
     }
 }

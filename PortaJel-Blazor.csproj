@@ -147,6 +147,9 @@
       <MauiXaml Update="Pages\Xaml\PlaylistViewEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
+      <MauiXaml Update="UI\Drawables\CircularProgressBar.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
     </ItemGroup>
 
     <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionPortaJelBlazorHideInfoBar="True" /></VisualStudio></ProjectExtensions>

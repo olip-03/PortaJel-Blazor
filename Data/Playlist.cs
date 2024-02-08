@@ -7,33 +7,26 @@ using System.Threading.Tasks;
 
 namespace PortaJel_Blazor.Data
 {
-    public class Artist : BaseMusicItem
+    public class Playlist: BaseMusicItem
     {
-        public string description { get; set; } = String.Empty;
-        public string imgSrc { get; set; } = String.Empty;
-        public string backgroundImgSrc { get; set; } = String.Empty;
-        public string logoImgSrc { get; set; } = String.Empty;
-        public Album[] artistAlbums { get; set; } = new Album[0];
-
-        public static Artist Empty = new Artist(); 
-
-        public string imageAtResolution(int px)
+        public PlaylistSong[] songs = new PlaylistSong[0];
+        public bool isFavourite = false;
+        public string path = string.Empty;
+        public static readonly Playlist Empty = new();    
+        public Playlist() 
         {
-            return imgSrc += $"&fillHeight={px}&fillWidth={px}&quality=96";
+
         }
-        public string backgroundImgAtResolution(int px)
-        {
-            return backgroundImgSrc += $"&fillHeight={px}&fillWidth={px}&quality=96";
-        }
+
         public List<ContextMenuItem> GetContextMenuItems()
         {
             contextMenuItems.Clear();
 
-            if (this.isFavourite)
+            if (isFavourite)
             {
                 contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
                 {
-                    this.isFavourite = false;
+                    isFavourite = false;
                     await MauiProgram.servers[0].FavouriteItem(this.id, false);
                 })));
             }
@@ -41,13 +34,25 @@ namespace PortaJel_Blazor.Data
             {
                 contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
                 {
-                    this.isFavourite = true;
+                    isFavourite = true;
                     await MauiProgram.servers[0].FavouriteItem(this.id, true);
                 })));
             }
-            contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(() =>
+            contextMenuItems.Add(new ContextMenuItem("Edit Playlist", "light_edit.png", new Task(() =>
             {
-                MauiProgram.mainLayout.NavigateArtist(this.id);
+                MauiProgram.mainPage.NavigateToPlaylistEdit(this);
+            })));
+            contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
+            {
+
+            })));
+            contextMenuItems.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
+            {
+
+            })));
+            contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
+            {
+
             })));
             contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
             {

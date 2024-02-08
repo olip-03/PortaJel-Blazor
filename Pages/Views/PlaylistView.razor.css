@@ -70,6 +70,20 @@ hr {
     cursor: pointer !important;
     z-index: 3;
 }
+.ContextButton {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    border-radius: 50%;
+    border-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.1);
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer !important;
+    z-index: 3;
+}
 .GoBackImg {
     margin:0;
     padding:0;
@@ -136,4 +150,15 @@ hr {
 }
 .favbtn{
     color:red;
+}
+.songItem{
+    display: flex;
+    height: 3rem;
+}
+.songItemImg{
+    height: 3rem;
+    margin-right: 1rem;
+}
+.songItemTxt{
+
 }

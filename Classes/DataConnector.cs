@@ -11,7 +11,7 @@ namespace PortaJel_Blazor.Classes
     /// <summary>
     /// Main class for handling data from many servers, as well as cached data and whatever
     /// </summary>
-    public class DataHandler
+    public class DataConnector
     {
         // Cached data. Sorted by unique ID, the by the type for quicker access
         // These will potentially contain thousands of albums and songs and shit so it's important that these 
@@ -35,6 +35,8 @@ namespace PortaJel_Blazor.Classes
         public async Task<Album[]> GetAllAlbumsAsync(int? limit = 50, int? startIndex = 0)
         {
             List<Album> toReturn = new List<Album>();
+
+            // await Parallel.ForEachAsync
 
             // Create tasks to pull requested data
             List<Task> toExecute = new List<Task>();

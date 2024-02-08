@@ -26,6 +26,13 @@ public static class MauiProgram
 
     public static MediaService mediaService = new MediaService();
 
+    // Global Data Cache
+    // TODO: Move these to the ServerConnectors
+    public static Dictionary<Guid, Song> songDictionary = new Dictionary<Guid, Song>();
+    public static Dictionary<Guid, Album> albumDictionary = new Dictionary<Guid, Album>();
+    public static Dictionary<Guid, Artist> artistDictionary = new Dictionary<Guid, Artist>();
+    public static Dictionary<Guid, Playlist> playlistDictionary = new Dictionary<Guid, Playlist>();
+
     // Data for context menu
     public static List<ContextMenuItem> ContextMenuTaskList = new List<ContextMenuItem>();
     public static bool ShowContextMenuImage = true;
@@ -40,7 +47,7 @@ public static class MauiProgram
 
     // Data for connections 
     public static List<ServerConnecter> servers = new List<ServerConnecter>();
-    public static DataHandler? dataHandler = null;
+    public static DataConnector api = new();
 
     // Direct access to the media element
     public static BlazorWebView webView = null;
@@ -55,10 +62,10 @@ public static class MauiProgram
     public static int favouritesItemView = 0;
     public static bool favouritesShowGrid = false;
     public static bool hideM3u = true;
-    public static List<Album> favouritePlaylists = new();
+    public static List<Playlist> favouritePlaylists = new();
     public static List<Album> favouriteAlbums = new();
-    public static List<Album> favouriteArtist = new();
-    public static List<Album> favouriteSongs = new();
+    public static List<Artist> favouriteArtist = new();
+    public static List<Song> favouriteSongs = new();
 
     // Index page cached data
     public static Album[]? favouritesPlayData { get; set; } = null;
@@ -68,9 +75,9 @@ public static class MauiProgram
 
     public static MauiApp CreateMauiApp()
 	{
-        if(dataHandler == null)
+        if(api == null)
         {
-            dataHandler = new DataHandler();
+            api = new DataConnector();
         }
 
         var builder = MauiApp.CreateBuilder();
@@ -99,7 +106,7 @@ public static class MauiProgram
                     serverConnector.SetUserDetails(user, pass);
 
                     servers.Add(serverConnector);
-                    dataHandler.AddServer(serverConnector);
+                    api.AddServer(serverConnector);
                 }
             }
         }
