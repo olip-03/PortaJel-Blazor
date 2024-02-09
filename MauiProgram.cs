@@ -68,10 +68,10 @@ public static class MauiProgram
     public static List<Song> favouriteSongs = new();
 
     // Index page cached data
-    public static Album[]? favouritesPlayData { get; set; } = null;
-    public static Album[]? recentPlayData { get; set; } = null;
-    public static Album[]? mostPlayData { get; set; } = null;
-    public static Album[]? recentAddedData { get; set; } = null;
+    public static Album[] favouritesPlayData { get; set; } = new Album[0];
+    public static Album[] recentPlayData { get; set; } = new Album[0];
+    public static Album[] mostPlayData { get; set; } = new Album[0];
+    public static Album[] recentAddedData { get; set; } = new Album[0];
 
     public static MauiApp CreateMauiApp()
 	{

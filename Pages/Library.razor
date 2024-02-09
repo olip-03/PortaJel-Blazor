@@ -103,13 +103,16 @@
             }
             else if (data.Length > 0)
             { // Load information
-                for (int i = 0; i < data.Length; i++)
-                {
-                    if (data[i] != null)
+                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    @for (int i = 0; i < data.Length; i++)
                     {
-                        <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid />
+                        if (data[i] != null)
+                        {
+                            <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid />
+                        }
                     }
-                }
+                </Animate>
+
             }
             else
             { // something went wrong click here to try again
@@ -193,8 +196,11 @@
     }
     sortMethod sort = (sortMethod)Enum.ToObject(typeof(sortMethod), MauiProgram.librarySortMethod);
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
+        MauiProgram.mainLayout.cancellationSource = new();
+        MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;
+
         MauiProgram.mainLayout.pageTitle = "Library";
         MauiProgram.mainLayout.currentUri = "/library";
         MauiProgram.mainLayout.showHeader = true;

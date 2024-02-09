@@ -13,13 +13,11 @@ namespace PortaJel_Blazor;
 
 public partial class MainPage : ContentPage
 {
-    private Album? contextMenuAlbum = null;
-    private bool IsRefreshing = false;
     public event EventHandler? CanExecuteChanged;
     private bool isClosing = false;
-    private bool isModalAnimating = false;
     private double screenHeight = 0;
     private bool musicControlsFirstOpen = true;
+    private bool waitingForPageLoad = false;
     private List<Song> queue = new List<Song>();
 
     private uint animationSpeed = 550;
@@ -67,11 +65,10 @@ public partial class MainPage : ContentPage
     }
     public void UpdateCanExecuteState()
     {
-        IsRefreshing = true;
         if (CanExecuteChanged != null)
             CanExecuteChanged(this, new EventArgs());
-        IsRefreshing = false;
     }
+    
     #region Methods
     public async Task NavigateToPlaylistEdit(Guid PlaylistId)
     {
@@ -92,11 +89,10 @@ public partial class MainPage : ContentPage
     {
         return Navigation.ModalStack.Count;
     }
-    public async void ShowNavbar()
+    public void ShowNavbar()
     {
         Navbar.IsVisible = true;
-        Navbar.Opacity = 0;
-        await Navbar.FadeTo(1, 1000);
+        Navbar.Opacity = 1;
     }
     public async void CloseMusicQueue()
     {
@@ -107,8 +103,6 @@ public partial class MainPage : ContentPage
 
         MediaController_Queue.TranslationY = 0;
         await MediaController_Queue.TranslateTo(0, screenHeight, animationSpeed, Easing.SinIn);
-
-        // MediaController_Queue.IsVisible = false;
     }
     public async void OpenMusicQueue()
     {
@@ -259,6 +253,12 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_home_click(object sender, EventArgs e)
     {
+        if (waitingForPageLoad)
+        { // If we're waiting before the requested page is loading, another task is still running and needs to be canned
+            MauiProgram.mainLayout.CancelLoading();
+
+        }
+        waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateHome();
         btn_navnar_home.Scale = 0.6;
         btn_navnar_home.Opacity = 0;
@@ -270,6 +270,11 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_search_click(object sender, EventArgs e)
     {
+        if (MauiProgram.mainLayout.isLoading)
+        { // If we're waiting before the requested page is loading, another task is still running and needs to be canned
+            MauiProgram.mainLayout.CancelLoading();
+        }
+        waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateSearch();
         btn_navnar_search.Scale = 0.6;
         btn_navnar_search.Opacity = 0;
@@ -281,6 +286,12 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_library_click(object sender, EventArgs e)
     {
+        if (waitingForPageLoad)
+        { // If we're waiting before the requested page is loading, another task is still running and needs to be canned
+            // Call Cancellation token
+            // Recreate cancellation token
+        }
+        waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateLibrary();
         btn_navnar_library.Scale = 0.6;
         btn_navnar_library.Opacity = 0;
@@ -292,6 +303,12 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_favourite_click(object sender, EventArgs e)
     {
+        if (waitingForPageLoad)
+        { // If we're waiting before the requested page is loading, another task is still running and needs to be canned
+            // Call Cancellation token
+            // Recreate cancellation token
+        }
+        waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateFavourites();
         btn_navnar_favourites.Scale = 0.6;
         btn_navnar_favourites.Opacity = 0;

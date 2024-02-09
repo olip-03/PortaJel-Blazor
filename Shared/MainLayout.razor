@@ -155,10 +155,12 @@
     public MusicPlayerContainer? musicPlayerContainer;
     public ItemContextMenu? itemContextMenu;
 
+    public CancellationToken cancellationToken;
+    public CancellationTokenSource cancellationSource = new();
+
     protected override async Task OnInitializedAsync()
     {
         MauiProgram.mainLayout = this;
-
         musicPlayerContainer = new UI.MusicPlayerContainer();
         itemContextMenu = new UI.ItemContextMenu();
 
@@ -372,6 +374,10 @@
     {
         isLoading = true;
         return Task.CompletedTask;
+    }
+    public void CancelLoading()
+    {
+        
     }
     public async Task OpenPlayer()
     {

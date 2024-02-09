@@ -67,10 +67,8 @@
         bool answer = await App.Current.MainPage.DisplayAlert("Warning?", "This is your only current connection, removing it will not allow you to access online content.", "Cancel", "Delete");
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Application.Current.UserAppTheme = AppTheme.Dark;
-
         MauiProgram.mainLayout.pageTitle = "Settings";
         MauiProgram.mainLayout.currentUri = "/settings";
         MauiProgram.mainLayout.showHeader = true;

@@ -87,7 +87,7 @@ public partial class PlaylistViewEditor : ContentPage
         MauiProgram.playlistDictionary[playlist.id].name = txt_playlistName.Text;
         MauiProgram.playlistDictionary[playlist.id].songs = songList.ToArray();
         // load playlist page from saved data
-        MauiProgram.mainLayout.NavigatePlaylist(playlist.id);
+        // MauiProgram.mainLayout.NavigatePlaylist(playlist.id);
 
         await Task.Run(async () =>
         {

@@ -84,7 +84,6 @@
                 }
             </div>
         </div>
-
         <div class="album-list">
             @if (isLoading)
             { // Spinner
@@ -92,21 +91,23 @@
             }
             else if (data != null)
             {
-                if (data.Length > 0)
-                { // Load information
-                    // If playlist, add option to create new
-                    @if (selected == PlaylistSelectable.playlists)
-                    {
-                        Album dummyItem = new Album();
-                        dummyItem.imageSrc = "/images/emptyAlbum.png";
-                        dummyItem.name = "New Album";
-                        <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@dummyItem" isGrid="@showGrid" />
+                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    @if (data.Length > 0)
+                    { // Load information
+                        // If playlist, add option to create new
+                        @if (selected == PlaylistSelectable.playlists)
+                        {
+                            Album dummyItem = new Album();
+                            dummyItem.imageSrc = "/images/emptyAlbum.png";
+                            dummyItem.name = "New Playlist";
+                            <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@dummyItem" isGrid="@showGrid" />
+                        }
+                        for (int i = 0; i < data.Length; i++)
+                        {
+                            <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid="@showGrid" />
+                        }
                     }
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid="@showGrid" />
-                    }
-                }
+                </Animate>
             }
         </div>
     </div>
@@ -145,12 +146,15 @@
     }
     sortMethod sort = (sortMethod)Enum.ToObject(typeof(sortMethod), MauiProgram.favouritesSortMethod);
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         MauiProgram.mainLayout.pageTitle = "Favourites";
         MauiProgram.mainLayout.currentUri = "/favourites";
         MauiProgram.mainLayout.showHeader = true;
         MauiProgram.mainLayout.isLoading = false;
+
+        MauiProgram.mainLayout.cancellationSource = new();
+        MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;
 
         selected = (PlaylistSelectable)Enum.ToObject(typeof(PlaylistSelectable), MauiProgram.favouritesItemView);
         switch (selected)
@@ -168,6 +172,7 @@
                 SelectPlaylist();
                 break;
         }
+        //base.OnInitialized();
     }
 
     private void ToggleSort()

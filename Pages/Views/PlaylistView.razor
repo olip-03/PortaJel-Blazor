@@ -83,7 +83,7 @@
 }
 
 @code {
-    [Parameter] public string playlistId { get; set; }
+    [Parameter] public string playlistId { get; set; } = String.Empty;
 
     private Playlist? playlist { get; set; }
     private bool loaded = false;

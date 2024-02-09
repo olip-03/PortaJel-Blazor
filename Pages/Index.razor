@@ -46,11 +46,11 @@
 
 
 @code {
-    private Album[] favouritesPlayData { get; set; }
-    private Album[] recentPlayData { get; set; }
-    private Album[] mostPlayData { get; set; }
-    private Album[] recentAddedData { get; set; }
-    private Album[] randomData { get; set; }
+    private Album[] favouritesPlayData { get; set; } = new Album[0];
+    private Album[] recentPlayData { get; set; } = new Album[0];
+    private Album[] mostPlayData { get; set; } = new Album[0];
+    private Album[] recentAddedData { get; set; } = new Album[0];
+    private Album[] randomData { get; set; } = new Album[0];
 
     private float itemFadeInDelay = 0;
 
@@ -61,6 +61,9 @@
         recentPlayData = MauiProgram.recentPlayData;
         mostPlayData = MauiProgram.mostPlayData;
         recentAddedData = MauiProgram.recentAddedData;
+
+        MauiProgram.mainLayout.cancellationSource = new();
+        MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;
 
         NavigationPage.SetHasNavigationBar(App.Current, true);
 

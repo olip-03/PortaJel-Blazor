@@ -54,6 +54,16 @@
     private bool waitingForResult = false;
     private float itemFadeInDelay = 0;
 
+    protected override void OnInitialized()
+    {
+        MauiProgram.mainLayout.pageTitle = "Search";
+        MauiProgram.mainLayout.currentUri = "/search";
+        MauiProgram.mainLayout.isLoading = false;
+        MauiProgram.mainLayout.showHeader = true;
+
+        MauiProgram.mainLayout.cancellationSource = new();
+        MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;
+    }
     private async void TextChange(string searchFor)
     {
         if (waitingForResult)
@@ -116,19 +126,10 @@
         waitingForResult = false;
         StateHasChanged();
     }
-
     // Helper method to remove special characters from a string
     private string RemoveSpecialCharacters(string str)
     {
         return new string(str.Where(c => Char.IsLetterOrDigit(c) || Char.IsWhiteSpace(c)).ToArray());
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        MauiProgram.mainLayout.pageTitle = "Search";
-        MauiProgram.mainLayout.currentUri = "/search";
-        MauiProgram.mainLayout.isLoading = false;
-        MauiProgram.mainLayout.showHeader = true;
     }
     protected override async void OnAfterRender(bool firstRender)
     {
