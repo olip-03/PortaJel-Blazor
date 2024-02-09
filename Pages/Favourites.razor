@@ -84,6 +84,7 @@
                 }
             </div>
         </div>
+
         <div class="album-list">
             @if (isLoading)
             { // Spinner
@@ -92,16 +93,21 @@
             else if (data != null)
             {
                 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    @if (data.Length > 0)
-                    { // Load information
-                        // If playlist, add option to create new
+                    <div class="quickplay-container">
                         @if (selected == PlaylistSelectable.playlists)
                         {
-                            Album dummyItem = new Album();
-                            dummyItem.imageSrc = "/images/emptyAlbum.png";
-                            dummyItem.name = "New Playlist";
-                            <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@dummyItem" isGrid="@showGrid" />
+                            <button class="quickplay-button">New Playlist</button>
                         }
+                        else
+                        {
+                            <button class="quickplay-button">Play All</button>
+                            <div style="width:1rem;" />
+                            <button class="quickplay-button">Shuffle</button>
+                        }
+                    </div>
+
+                    @if (data.Length > 0)
+                    { // Load information
                         for (int i = 0; i < data.Length; i++)
                         {
                             <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid="@showGrid" />

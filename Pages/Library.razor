@@ -104,6 +104,11 @@
             else if (data.Length > 0)
             { // Load information
                 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <div class="quickplay-container">
+                        <button class="quickplay-button">Play All</button>
+                        <div style="width:1rem;" />
+                        <button class="quickplay-button">Shuffle</button>
+                    </div>
                     @for (int i = 0; i < data.Length; i++)
                     {
                         if (data[i] != null)
