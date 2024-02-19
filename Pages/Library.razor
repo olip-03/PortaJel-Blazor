@@ -6,42 +6,50 @@
 
 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
     <div>
-        <div class="button-container">
-            @* See comments made on Favourites.razor. I do not wish to repeat myself
-            *@
+        <div class="button-container boxed">
             @if (selected == selectable.albums)
             {
-                <div class="filter-button selected">Albums</div>
+                <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(selectable.albums)">
             }
             else
             {
-                <div class="filter-button" @onclick=SelectAlbums>Albums</div>
+                <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(selectable.albums)">
             }
+            <label for="albums">Albums</label>
+
             @if (selected == selectable.artists)
             {
-                <div class="filter-button selected">Artists</div>
+                <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(selectable.artists)">
             }
             else
             {
-                <div class="filter-button" @onclick=SelectArtists>Artists</div>
+                <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(selectable.artists)">
             }
+            <label for="artists">Artists</label>
+
+
             @if (selected == selectable.songs)
             {
-                <div class="filter-button selected">Songs</div>
+                <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(selectable.songs)">
             }
             else
             {
-                <div class="filter-button" @onclick=SelectSongs>Songs</div>
+                <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(selectable.songs)">
             }
+            <label for="songs">Songs</label>
+
+
             @if (selected == selectable.genres)
             {
-                <div class="filter-button selected">Genres</div>
+                <input checked type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(selectable.genres)">
             }
             else
             {
-                <div class="filter-button" @onclick=SelectGenres>Genres</div>
+                <input type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(selectable.genres)">
             }
+            <label for="genres">Genres</label>
         </div>
+
         <div class="tool-container">
             <div @onclick=ToggleSort>
                 @switch (sort)
@@ -117,7 +125,6 @@
                         }
                     }
                 </Animate>
-
             }
             else
             { // something went wrong click here to try again
@@ -142,7 +149,7 @@
                         {
                             int tempInt = i;
                             int displayNum = tempInt + 1;
-                            <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
+                            //<div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
                         }
                     }
                 </div>
@@ -160,7 +167,7 @@
                     {
                         int tempInt = i;
                         int displayNum = tempInt + 1;
-                        <div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
+                        //<div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
                     }
                 </div>
             </div>
@@ -173,6 +180,7 @@
     private BaseMusicItem[] data = new BaseMusicItem[0];
     private int totalRecordCount = 0;
     private bool isLoading = false;
+    private Task? queuedTask = null;
 
     private bool showGrid = MauiProgram.libraryShowGrid;
 
@@ -186,12 +194,14 @@
 
     private enum selectable
     {
+        none,
         albums,
         artists,
         songs,
         genres
     }
     selectable selected = (selectable)Enum.ToObject(typeof(selectable), MauiProgram.libraryItemView);
+    selectable queued = selectable.none;
 
     private enum sortMethod
     {
@@ -201,7 +211,7 @@
     }
     sortMethod sort = (sortMethod)Enum.ToObject(typeof(sortMethod), MauiProgram.librarySortMethod);
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         MauiProgram.mainLayout.cancellationSource = new();
         MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;
@@ -209,28 +219,14 @@
         MauiProgram.mainLayout.pageTitle = "Library";
         MauiProgram.mainLayout.currentUri = "/library";
         MauiProgram.mainLayout.showHeader = true;
+
+        await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.mainLayout.isLoading = false;
-
-        switch (selected)
-        {
-            case selectable.albums:
-                SelectAlbums();
-                break;
-            case selectable.artists:
-                SelectArtists();
-                break;
-            case selectable.songs:
-                SelectSongs();
-                break;
-            case selectable.genres:
-                SelectGenres();
-                break;
-        }
+        SelectPage(selected);
     }
-
     private void ToggleSort()
     {
-        if(sort >= sortMethod.byActivity)
+        if (sort >= sortMethod.byActivity)
         {
             sort = 0;
         }
@@ -242,128 +238,68 @@
     }
     private void ToggleView()
     {
-        SelectPage(selectedPage);
+        // electPage(selectedPage);
 
         showGrid = !showGrid; // toggle
         MauiProgram.libraryShowGrid = showGrid;
 
         StateHasChanged();
     }
-    private async void SelectAlbums()
+
+    private async void SelectPage(selectable page)
     {
-        if(selected != selectable.albums)
-        {
-            startFromIndex = 0;
-            selectedPage = 0;
-        }
+        MauiProgram.libraryItemView = (int)page;
 
-        isLoading = true; 
-        selected = selectable.albums;
-        MauiProgram.libraryItemView = (int)selected;
-
-        // Fetch Album information
-        data = await MauiProgram.servers[0].GetAlbumsAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
-        totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
-
-        double number = (double)totalRecordCount / (double)itemsPerPage;
-        int roundedNumber = (int)Math.Ceiling(number);
-        pages = roundedNumber;
-
-        isLoading = false;
-        startFromIndex = 0; 
-        StateHasChanged();
-    }
-    private async void SelectArtists()
-    {
-        if(selected != selectable.artists)
-        {
-            startFromIndex = 0;
-            selectedPage = 0;
-        }
-
-        isLoading = true; 
-        selected = selectable.artists;
-        MauiProgram.libraryItemView = (int)selected;
-
-        // Fetch Artist information
-        data = await MauiProgram.servers[0].GetAllArtistsAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
-        totalRecordCount = await MauiProgram.servers[0].GetTotalArtistCount();
-
-        double number = (double)totalRecordCount / (double)itemsPerPage;
-        int roundedNumber = (int)Math.Ceiling(number);
-        pages = roundedNumber;
-
-        isLoading = false; 
-        startFromIndex = 0; 
-        StateHasChanged();
-    }
-    private async void SelectSongs()
-    {
-        if(selected != selectable.songs)
-        {
-            startFromIndex = 0;
-            selectedPage = 0;
-        }
-
-        isLoading = true; 
-        selected = selectable.songs;
-        MauiProgram.libraryItemView = (int)selected;
-
-        // Fetch Song information
-        data = await MauiProgram.servers[0].GetAllSongsAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
-        totalRecordCount = await MauiProgram.servers[0].GetTotalSongCount();
-
-        double number = totalRecordCount / itemsPerPage;// or any other number with a decimal
-        int roundedNumber = (int)Math.Ceiling(number);
-        pages = roundedNumber;
-
-        isLoading = false; 
-        startFromIndex = 0; 
-        StateHasChanged();    
-    }
-    private async void SelectGenres()
-    {
-        if (selected != selectable.genres)
-        {
-            startFromIndex = 0;
-            selectedPage = 0;
+        if (isLoading)
+        { // Still waiting for previous iteration to complete
+          // Call cancellation token
+          // Add this bitch to the queue
+            queued = page;
+            return;
         }
 
         isLoading = true;
-        selected = selectable.genres;
-        MauiProgram.libraryItemView = (int)selected;
+        await InvokeAsync(StateHasChanged);
 
-        // Fetch Genre information
-        data = await MauiProgram.servers[0].GetAllGenresAsync(limit: itemsPerPage, startFromIndex: startFromIndex);
-        totalRecordCount = await MauiProgram.servers[0].GetTotalGenreCount();
-
-        double number = totalRecordCount / itemsPerPage;// or any other number with a decimal
-        int roundedNumber = (int)Math.Ceiling(number);
-        pages = roundedNumber;
-
-        isLoading = false; 
-        startFromIndex = 0;
-        StateHasChanged();
-    }
-    private async void SelectPage(int page)
-    {
-        startFromIndex = itemsPerPage * page;
-        selectedPage = page;
-
-        switch (selected)
+        await Task.Run(async () =>
         {
-            case selectable.albums:
-                SelectAlbums();
-                break;
-            case selectable.artists:
-                SelectArtists();
-                break;
-            case selectable.songs:
-                SelectSongs();
-                break;
-            case selectable.genres:
-                SelectGenres();
-                break;
-        }
+            bool isCompleted = false;
+            while (!isCompleted)
+            {
+                switch (page)
+                {
+                    case selectable.none:
+                        data = new BaseMusicItem[0];
+                        break;
+                    case selectable.albums:
+                        data = await MauiProgram.api.GetAllAlbumsAsync(limit: 50);
+                        break;
+                    case selectable.artists:
+                        data = await MauiProgram.api.GetAllArtistsAsync(limit: 50);
+                        break;
+                    case selectable.songs:
+                        data = await MauiProgram.api.GetAllSongsAsync(limit: 50);
+                        break;
+                    case selectable.genres:
+                        data = await MauiProgram.api.GetAllGenresAsync(limit: 50);
+                        break;
+                    default:
+                        data = new BaseMusicItem[0];
+                        break;
+                }
+
+                if (queued != selectable.none)
+                {
+                    page = queued;
+                    queued = selectable.none;
+                    continue;
+                }
+
+                isCompleted = true;
+            }
+        }); 
+
+        isLoading = false;
+        await InvokeAsync(StateHasChanged);
     }
 }

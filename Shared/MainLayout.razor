@@ -7,102 +7,28 @@
 
 <div class="page">
     <main>
-        @if (MauiProgram.loginPage)
+        @if (_showHeader)
         {
-            <div class="centreItems">
-                <div class="login-form">
-                    <h1>PortaJel</h1>
-
-                    <label for="server_address"><b>Server Address</b></label>
-                    <input class="login-form" type="text" name="server_address" required @bind-value="serverAddress" disabled="@waiting">
-
-                    <label for="username"><b>Username</b></label>
-                    <input class="login-form" type="text" name="username" required @bind-value="username" disabled="@waiting">
-
-                    <label for="password"><b>Password</b></label>
-                    <input class="login-form" type="password" name="password" required @bind-value="password" disabled="@waiting">
-
-                    <div style="height: 2rem; width: 100%; display:flex; justify-content:center;">
-                        @if (showError)
-                        {
-                            <p>@errorMessage</p>
-                        }
-                    </div>
-
-                    <button class="login-form" type="submit" @onclick="Login" id="signin" name="signin" disabled="@waiting">Sign In</button>
-                    <a class="login-form" @onclick="SkipLogin" disabled="@waiting">Skip Login</a>
+            <div class="content px-4 toolbar">
+                <h1 style="margin: 0;">@pageTitle</h1>
+                <div>
+                    <a @onclick="NavigateDownloads" style="margin-right: 1rem">
+                        <img class="toolbar-img" src="/images/download.svg" />
+                    </a>
+                    <a @onclick="NavigateSettings">
+                        <img class="toolbar-img" src="/images/settings.svg" />
+                    </a>
                 </div>
             </div>
         }
-        else
-        {
-            @if (_showHeader)
-            {
-                <div class="content px-4 toolbar">
-                    <h1 style="margin: 0;">@pageTitle</h1>
-                    <div>
-                        <a @onclick="NavigateDownloads" style="margin-right: 1rem">
-                            <img class="toolbar-img" src="/images/download.svg" />
-                        </a>
-                        <a @onclick="NavigateSettings">
-                            <img class="toolbar-img" src="/images/settings.svg" />
-                        </a>
-                    </div>
-                </div>
-            }
 
-            <article class="mainContent px-4">
-                @if (loading)
-                { // If the loading flag is engaged, show a fullscreen
-                  // loading page over the top of the container. 
-                    <div class="loadingContainer">
-                        <div>
-                            <PortaJel_Blazor.Shared.Resources.Spinner />
-                        </div>
-                    </div>
-                }
-                <div class="bodyContainer">
-                    @Body
-                </div>
-                @if (musicPlayerContainer.isActive)
-                { // If the music player is active, padd the bottom of the page a tiny bit more
-                    <div style="height:4rem;"></div>
-                }
-            </article>
-
-
-            @if (!MauiProgram.isConnected)
-            {
-                <div class="offline">
-                    <img class="offline-img" src="/images/clouderror.svg" />
-                    Not Connected
-                </div>
-            }
-            <div class="bottom-panel">
-                @* Music player control *@
-                <MusicPlayerContainer reference="musicPlayerContainer" />
-
-                <ItemContextMenu reference="itemContextMenu" />
-
-                @* Navigation bar at the bottom of the screen *@
-                <div class="top-row px-4">
-@*                    <a @onclick="NavigateHome">
-                        <img class="toolbar-img" src="/images/home.svg" />
-                    </a>
-                    <a @onclick="NavigateSearch">
-                        <img class="toolbar-img" src="/images/search.svg" />
-                    </a>
-                    <a @onclick="NavigateLibrary">
-                        <img class="toolbar-img" src="/images/library.svg" />
-                    </a>
-                    <a @onclick="NavigateFavourites">
-                        <img class="toolbar-img" src="/images/favourite.svg" />
-                    </a>*@
-                </div>
+        <article class="mainContent px-4">
+            <div class="bodyContainer">
+                @Body
             </div>
-            
-            @* Item Context Menu Flyin *@
-        }
+            <div style="height:4rem;"></div>
+
+        </article>
     </main>
 </div>
 
@@ -126,13 +52,15 @@
             StateHasChanged();
         }
     }
+    private bool loading { get; set; } = true;
     public bool isLoading
     {
         get { return loading; }
         set
         {
             loading = value;
-            StateHasChanged();
+            MauiProgram.mainPage.ShowLoadingScreen(loading);
+            // StateHasChanged();
         }
     }
 
@@ -145,7 +73,6 @@
 
     private bool waiting { get; set; }
     private bool showError { get; set; }
-    private bool loading { get; set; } = true;
 
     private bool showLoading { get; set; }
 
@@ -158,105 +85,13 @@
     public CancellationToken cancellationToken;
     public CancellationTokenSource cancellationSource = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         MauiProgram.mainLayout = this;
         musicPlayerContainer = new UI.MusicPlayerContainer();
         itemContextMenu = new UI.ItemContextMenu();
 
-        // CrossMediaManager.Current.Notification.ShowNavigationControls = true;
-        // CrossMediaManager.Current.Notification.ShowPlayPauseControls = true;
-        // CrossMediaManager.Current.Notification.Enabled = true;
-        // CrossMediaManager.Current.Notification.UpdateNotification();
-
-        if (MauiProgram.servers.Count > 0)
-        {
-            waiting = true;
-
-            foreach (var loadedServer in MauiProgram.servers)
-            {
-                serverAddress = loadedServer.GetBaseAddress();
-                username = loadedServer.GetUsername();
-                password = loadedServer.GetPassword();
-
-                bool urlpass = await loadedServer.AuthenticateAddressAsync();
-                bool usrpass = await loadedServer.AuthenticateUser();
-
-                if(usrpass)
-                {
-                    waiting = false;
-
-                    await MauiProgram.LoadAllData();
-
-                    MauiProgram.isConnected = true;
-                    SkipLogin();
-                }
-                else
-                {
-                    waiting = false;
-                    showError = true;
-
-                    NetworkAccess accessType = Connectivity.Current.NetworkAccess;
-                    if (accessType == NetworkAccess.Internet)
-                    {
-                        errorMessage = "One or all of the previous servers failed to authenticate!";
-                    }
-                    else
-                    {
-                        MauiProgram.isConnected = false;
-                        SkipLogin();
-                    }
-                }
-            }
-        }
-    }
-
-    void SkipLogin()
-    {
-        if(!waiting)
-        {
-            MauiProgram.loginPage = false; 
-            MauiProgram.mainPage.ShowNavbar();
-            StateHasChanged();
-            return;
-        }
-    }
-
-    async void Login()
-    {
-        waiting = true;
-        showError = false;
-
-        ServerConnecter serverConnector = new ServerConnecter(DeviceInfo.Current.Name, DeviceInfo.Current.Idiom.ToString(), "PortaJel", "0.0.1");
-
-        bool validServer = await serverConnector.AuthenticateAddressAsync(serverAddress);
-        bool validUser = await serverConnector.AuthenticateUser(username, password);
-
-        if (!validServer) 
-        { 
-            showError = true; 
-            errorMessage = "Unable to connect to address " + serverAddress; 
-        }
-        if (!validUser && validServer)
-        { 
-            showError = true; 
-            errorMessage = "Username or password is incorrect!"; 
-        }
-
-        await MauiProgram.LoadAllData();
-
-        waiting = false;
-        MauiProgram.loginPage = showError;
-        MauiProgram.isConnected = !showError;
-
-        if(validServer && validUser)
-        {
-            // If this passed, add this server as a valid connection
-            MauiProgram.AddServer(serverConnector);
-        }
-
-        MauiProgram.mainPage.ShowNavbar();
-        StateHasChanged();
+        MauiProgram.webViewInitalized = true;
     }
 
     public void UpdateState()
@@ -267,12 +102,12 @@
     public string currentUri = "/";
     public void NavigateHome()
     {
-        if (currentUri != "/")
+        if (currentUri != "/home")
         {
             isLoading = true;
             showHeader = true;
             pageTitle = "PortaJel";
-            currentUri = "/";
+            currentUri = "/home";
 
             NavManager.NavigateTo(currentUri);
         }
@@ -377,7 +212,7 @@
     }
     public void CancelLoading()
     {
-        
+        cancellationSource.Cancel();
     }
     public async Task OpenPlayer()
     {

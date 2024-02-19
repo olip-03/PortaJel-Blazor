@@ -4,6 +4,7 @@ using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Pages.Xaml;
 using Blurhash;
 using Blurhash.ImageSharp;
+using System;
 
 #if ANDROID
 using Android;
@@ -25,8 +26,8 @@ public partial class MainPage : ContentPage
     public MainPage()
 	{
         InitializeComponent();
+        Initialize();
         MauiProgram.mainPage = this;
-
         MediaController_Queue_List.ItemsSource = queue;
         #if ANDROID
         btn_navnar_home.HeightRequest = 30;
@@ -41,8 +42,32 @@ public partial class MainPage : ContentPage
         btn_navnar_favourites.HeightRequest = 30;
         btn_navnar_favourites.WidthRequest = 30;
         #endif
-
         MauiProgram.webView = blazorWebView;
+    }
+    private async void Initialize()
+    {
+        await MauiProgram.LoadAllData();
+        if(MauiProgram.api.GetServers().Count() <= 0)
+        {
+            await Navigation.PushModalAsync(new AddServerView());
+        }
+
+        await Task.Run(() =>
+        {
+            while (!MauiProgram.webViewInitalized)
+            {
+
+            }
+        });
+
+        ShowNavbar();
+        MauiProgram.mainLayout.NavigateHome();
+    }
+    private void Bwv_BlazorWebViewInitialized(object sender, Microsoft.AspNetCore.Components.WebView.BlazorWebViewInitializedEventArgs e)
+    {
+        #if ANDROID
+               e.WebView.Settings.MixedContentMode = Android.Webkit.MixedContentHandling.AlwaysAllow;
+        #endif
     }
     protected override void OnHandlerChanged()
     {
@@ -50,14 +75,14 @@ public partial class MainPage : ContentPage
 		// Disabled overscroll 'stretch' effect that I fucking hate.
 		// CLEAR giveaway this app uses webview lolz
 
-        #if ANDROID
+#if ANDROID
 		var blazorView = this.blazorWebView;
         if(blazorView.Handler != null && blazorView.Handler.PlatformView != null)
         {
             var platformView = (Android.Webkit.WebView)blazorView.Handler.PlatformView;
             platformView.OverScrollMode = Android.Views.OverScrollMode.Never;
         }	        
-        #endif
+#endif
     }
     public interface IRelayCommand : ICommand
     {
@@ -70,13 +95,26 @@ public partial class MainPage : ContentPage
     }
     
     #region Methods
+    public async Task PushModalAsync(Page page)
+    {
+        await Navigation.PushModalAsync(page);
+    }
     public async Task NavigateToPlaylistEdit(Guid PlaylistId)
     {
         await Navigation.PushModalAsync(new PlaylistViewEditor(PlaylistId));
     }
+    public async Task AddServerView()
+    {
+        AddServerView viewer = new();
+        await Navigation.PushModalAsync(viewer);
+    }
     public async Task NavigateToPlaylistEdit(Playlist setPlaylist)
     {
         await Navigation.PushModalAsync(new PlaylistViewEditor(setPlaylist));
+    }
+    public INavigation GetNavigation()
+    {
+        return Navigation;
     }
     public void PopStack()
     {
@@ -184,9 +222,9 @@ public partial class MainPage : ContentPage
 
         if (MauiProgram.ContextMenuTaskList.Count <= 0) 
         {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
             {
-                MauiProgram.mainPage.CloseContextMenu();
+                await MauiProgram.mainPage.CloseContextMenu();
             })));
         }
 
@@ -196,6 +234,31 @@ public partial class MainPage : ContentPage
         ContextMenu.TranslationY = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
         await ContextMenu.TranslateTo(ContextMenu.X, 0, animationSpeed, Easing.SinOut);
         MauiProgram.ContextMenuIsOpen = true;
+    }
+    public async void ShowLoadingScreen(bool value)
+    {
+        if (value == true && LoadingBlockout.IsVisible)
+        { // If we're already visible, do nothin'
+            return;
+        }
+        if (value == false && !LoadingBlockout.IsVisible)
+        { // If we're not already visible, do nothin'
+            return;
+        }
+
+
+        if (value == true)
+        {
+            LoadingBlockout.Opacity = 1;
+        }
+
+        if(LoadingBlockout.IsVisible && value == false)
+        {
+            await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
+        }
+
+        LoadingBlockout.IsVisible = value;
+        LoadingBlockout.IsEnabled = value;
     }
     #endregion
     #region Interactions
@@ -258,6 +321,7 @@ public partial class MainPage : ContentPage
             MauiProgram.mainLayout.CancelLoading();
 
         }
+        MauiProgram.mainLayout.isLoading = true;
         waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateHome();
         btn_navnar_home.Scale = 0.6;
@@ -274,6 +338,7 @@ public partial class MainPage : ContentPage
         { // If we're waiting before the requested page is loading, another task is still running and needs to be canned
             MauiProgram.mainLayout.CancelLoading();
         }
+        MauiProgram.mainLayout.isLoading = true;
         waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateSearch();
         btn_navnar_search.Scale = 0.6;
@@ -291,6 +356,7 @@ public partial class MainPage : ContentPage
             // Call Cancellation token
             // Recreate cancellation token
         }
+        MauiProgram.mainLayout.isLoading = true;
         waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateLibrary();
         btn_navnar_library.Scale = 0.6;
@@ -308,6 +374,7 @@ public partial class MainPage : ContentPage
             // Call Cancellation token
             // Recreate cancellation token
         }
+        MauiProgram.mainLayout.isLoading = true;
         waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateFavourites();
         btn_navnar_favourites.Scale = 0.6;
@@ -325,7 +392,7 @@ public partial class MainPage : ContentPage
     double distance = 0;
     private void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
     {
-        #if !WINDOWS
+#if !WINDOWS
         switch (e.StatusType)
         {
             case GestureStatus.Running:
@@ -366,8 +433,7 @@ public partial class MainPage : ContentPage
                 }
                 break;
         }
-        #endif
+#endif
     }
     #endregion
-
 }

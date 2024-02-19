@@ -1,105 +1,10 @@
-﻿@using Jellyfin.Sdk;
-@using PortaJel_Blazor.Data;
-@using PortaJel_Blazor.UI.Index;
-@using BlazorAnimate;
+﻿@page "/"
 
-@page "/"
-@page "/index"
-
-<Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-    <div style="margin-bottom: 2rem">
-        <h3>Recently Played</h3>
-
-        <ul class="music-list">
-            @for (int i = 0; i < 6; i++)
-            {
-                itemFadeInDelay += 0.1f;
-
-                if (recentPlayData != null)
-                {
-                    if (i < recentPlayData.Count())
-                    {
-                        if (recentPlayData[i] != null)
-                        {
-                            Album item = recentPlayData[i];
-                            <AlbumListView album="@item"/>
-                        }
-                    }
-                }
-            }
-        </ul>
-    </div>
-
-    @* Need to make changes to the way these are done*@
-    <AlbumContainer Title="Favourites" itemCount="20" albumData="@favouritesPlayData" />
-    <br />
-
-    <AlbumContainer Title="Recently Added" itemCount="20" albumData="@recentAddedData" />
-    <br />
-
-
-    <AlbumContainer Title="Most Played" itemCount="20" albumData="@mostPlayData" />
-    <br />
-
-    <AlbumContainer Title="Random" itemCount="20" albumData="@randomData" />
-</Animate>
-
+<h3>Index</h3>
 
 @code {
-    private Album[] favouritesPlayData { get; set; } = new Album[0];
-    private Album[] recentPlayData { get; set; } = new Album[0];
-    private Album[] mostPlayData { get; set; } = new Album[0];
-    private Album[] recentAddedData { get; set; } = new Album[0];
-    private Album[] randomData { get; set; } = new Album[0];
-
-    private float itemFadeInDelay = 0;
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        // Load all the stored fucking data
-        favouritesPlayData = MauiProgram.favouritesPlayData;
-        recentPlayData = MauiProgram.recentPlayData;
-        mostPlayData = MauiProgram.mostPlayData;
-        recentAddedData = MauiProgram.recentAddedData;
-
-        MauiProgram.mainLayout.cancellationSource = new();
-        MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;
-
-        NavigationPage.SetHasNavigationBar(App.Current, true);
-
-        MauiProgram.mainLayout.pageTitle = "PortaJel";
-        MauiProgram.mainLayout.currentUri = "/";
-        MauiProgram.mainLayout.showHeader = true;
-
-        if (favouritesPlayData != null && recentPlayData != null && mostPlayData != null && recentAddedData != null)
-        {
-            MauiProgram.mainLayout.isLoading = false;
-        }
-
-        // Update all the stored fucking data
-        try
-        {
-            favouritesPlayData = await MauiProgram.servers[0].FetchFavouritesAddedAsync(_startIndex: 0, _limit: 20);
-            MauiProgram.favouritesPlayData = favouritesPlayData;
-
-            mostPlayData = await MauiProgram.servers[0].FetchMostPlayedAsync(_startIndex: 0, _limit: 20);
-            MauiProgram.mostPlayData = mostPlayData;
-
-            recentAddedData = await MauiProgram.servers[0].FetchRecentlyAddedAsync(_startIndex: 0, _limit: 20);
-            MauiProgram.recentAddedData = recentAddedData;
-
-            randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 20);
-
-            // Only collects SONGS, need to collect album information as well
-            recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 75);
-            MauiProgram.recentPlayData = recentPlayData;
-        }
-        catch (Exception ex)
-        {
-            Console.Write(ex);
-        }
-
-        MauiProgram.mainLayout.isLoading = false;
-        StateHasChanged();
+        //
     }
 }

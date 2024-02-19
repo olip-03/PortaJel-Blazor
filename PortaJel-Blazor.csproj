@@ -146,6 +146,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <MauiXaml Update="Pages\Xaml\AddServerView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
       <MauiXaml Update="Pages\Xaml\PlaylistViewEditor.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
@@ -154,6 +157,6 @@
       </MauiXaml>
     </ItemGroup>
 
-    <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionPortaJelBlazorHideInfoBar="True" /></VisualStudio></ProjectExtensions>
+    <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionPortaJelBlazorHideInfoBar="True" XamarinHotReloadGenericExceptionInfoBarPortaJelBlazorHideInfoBar="True" /></VisualStudio></ProjectExtensions>
 
 </Project>

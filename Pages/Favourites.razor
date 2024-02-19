@@ -152,12 +152,11 @@
     }
     sortMethod sort = (sortMethod)Enum.ToObject(typeof(sortMethod), MauiProgram.favouritesSortMethod);
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         MauiProgram.mainLayout.pageTitle = "Favourites";
         MauiProgram.mainLayout.currentUri = "/favourites";
         MauiProgram.mainLayout.showHeader = true;
-        MauiProgram.mainLayout.isLoading = false;
 
         MauiProgram.mainLayout.cancellationSource = new();
         MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;
@@ -178,7 +177,9 @@
                 SelectPlaylist();
                 break;
         }
-        //base.OnInitialized();
+       
+        await Task.Run(() => { Thread.Sleep(250); });
+        MauiProgram.mainLayout.isLoading = false;
     }
 
     private void ToggleSort()
@@ -212,7 +213,7 @@
         isPlaylist = false;
 
         // Fetch Album information
-        Album[] albums = await MauiProgram.servers[0].GetAlbumsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
+        Album[] albums = await MauiProgram.api.GetAllAlbumsAsync(limit: itemsPerPage, startIndex: startFromIndex, isFavourite: true);
         totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
 
         data = albums;
@@ -268,7 +269,7 @@
         isPlaylist = false;
 
         // Fetch Song information
-        Song[] songs = await MauiProgram.servers[0].GetAllSongsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
+        Song[] songs = await MauiProgram.api.GetAllSongsAsync(limit: itemsPerPage, startIndex: startFromIndex, isFavourite: true);
         totalRecordCount = await MauiProgram.servers[0].GetTotalSongCount();
 
         data = songs;

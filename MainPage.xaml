@@ -9,14 +9,26 @@
              Shell.TabBarIsVisible="False">
     <Grid VerticalOptions="Fill" HorizontalOptions="Fill" x:Name="AllContent">
         <!-- Webview -->
-        <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
+        <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html" BlazorWebViewInitialized="Bwv_BlazorWebViewInitialized">
             <BlazorWebView.RootComponents>
                 <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
             </BlazorWebView.RootComponents>
         </BlazorWebView>
+        
+        <!-- Loading blockout -->
+        <Grid x:Name="LoadingBlockout" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="true">
+            <ActivityIndicator x:Name="save_activityIndicator" IsRunning="True" IsVisible="True" HeightRequest="80" WidthRequest="80" VerticalOptions="Center" HorizontalOptions="Center"/>
+
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer>
+                    <!--Do NOTHING! I just don't want fucking tapps passing this grid RRAHHH-->
+                </TapGestureRecognizer>
+            </Grid.GestureRecognizers>
+        </Grid>
+
 
         <!-- Navigation Bar -->
-        <StackLayout Orientation="Vertical" x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" IsVisible="false">
+        <StackLayout Orientation="Vertical" x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" InputTransparent="False" IsVisible="false">
             <!-- MiniPlayer -->
             <Border x:Name="Player"
                     Stroke="LightGray"
@@ -67,13 +79,13 @@
                 </Grid>
             </Border>
             <!-- Navigation Buttons -->
-            <FlexLayout HeightRequest="60" HorizontalOptions="Fill" VerticalOptions="Fill" JustifyContent="SpaceEvenly" AlignItems="Center"> 
+            <FlexLayout HeightRequest="60" HorizontalOptions="Fill" VerticalOptions="Fill" JustifyContent="SpaceEvenly" AlignItems="Center">
                 <ImageButton x:Name="btn_navnar_home" Source="home.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_home_click"/>
                 <ImageButton x:Name="btn_navnar_search" Source="search.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_search_click"/>
                 <ImageButton x:Name="btn_navnar_library" Source="library.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_library_click"/>
                 <ImageButton x:Name="btn_navnar_favourites" Source="favourite.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_favourite_click"/>
             </FlexLayout>
-            
+
             <!-- LAYOUT -->
             <!-- Background -->
             <StackLayout.Background>
@@ -215,7 +227,7 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </Grid>
-                
+
 
                 <Grid Grid.Row="2">
                     <Border StrokeThickness="0"
@@ -250,7 +262,9 @@
                 </Grid.RowDefinitions>
             </Grid>
             <Grid.GestureRecognizers>
-                <TapGestureRecognizer><!--Do NOTHING! I just don't want fucking tapps passing this grid RRAHHH--></TapGestureRecognizer>
+                <TapGestureRecognizer>
+                    <!--Do NOTHING! I just don't want fucking tapps passing this grid RRAHHH-->
+                </TapGestureRecognizer>
             </Grid.GestureRecognizers>
         </Grid>
 
@@ -287,7 +301,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            
+
             <!--LAYOUT-->
             <!--Row Definitions-->
             <Grid.RowDefinitions>

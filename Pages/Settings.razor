@@ -1,5 +1,6 @@
 ﻿@using PortaJel_Blazor.Classes;
 @using Microsoft.Maui.Controls;
+@using PortaJel_Blazor.Pages.Xaml;
 @using BlazorAnimate;
 @page "/settings"
 
@@ -8,22 +9,22 @@
     <div>
         <div class="header">
             <div class="title">Connections</div>
-            <button class="add-button">Add</button>
+            <button class="add-button" @onclick=AddConnection>Add</button>
         </div>
 
-        @foreach (var item in MauiProgram.servers)
+        @foreach (var serverConnector in MauiProgram.api.GetServers())
         {
             <div class="connection-container">
                 <div class="connection-details">
                     <div class="user-profile">
-                        <img class="user-profile-img" src="@item.GetProfileImage()" onerror="this.src='/images/avatar.png'" />
+                        <img class="user-profile-img" src="@serverConnector.GetProfileImage()" onerror="this.src='/images/avatar.png'" />
                     </div>
                     <div>
-                        <div class="user-profile-name">@item.GetUsername()</div>
-                        <div class="user-profile-connection">@item.GetBaseAddress()</div>
+                        <div class="user-profile-name">@serverConnector.GetUsername()</div>
+                        <div class="user-profile-connection">@serverConnector.GetBaseAddress()</div>
                     </div>
                 </div>
-                <button class="remove-button" @onclick="DeleteConnection">Remove</button>
+                <button class="remove-button" @onclick="() => DeleteConnection(serverConnector.GetBaseAddress())">Remove</button>
             </div>
         }
         @if (!MauiProgram.isConnected)
@@ -62,16 +63,65 @@
         set { MauiProgram.hideM3u = value; }
     }
 
-    private async void DeleteConnection()
-    {
-        bool answer = await App.Current.MainPage.DisplayAlert("Warning?", "This is your only current connection, removing it will not allow you to access online content.", "Cancel", "Delete");
-    }
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         MauiProgram.mainLayout.pageTitle = "Settings";
         MauiProgram.mainLayout.currentUri = "/settings";
         MauiProgram.mainLayout.showHeader = true;
+
+        await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.mainLayout.isLoading = false;
+    }
+    private async void DeleteConnection(string srv)
+    {
+        if(MauiProgram.api.GetServers().Count() <= 1)
+        {
+            if (App.Current != null && App.Current.MainPage != null)
+            { // fuck i am so sick of these null reference checks
+                bool answer = await App.Current.MainPage.DisplayAlert("Warning?", "This is your only current connection, removing it will not allow you to access online content.", "Delete", "Cancel");
+                if (answer == false)
+                {
+                    return;
+                }
+            }
+        }
+        else
+        {
+            if (App.Current != null && App.Current.MainPage != null)
+            { // fuck i am so sick of these null reference checks
+                bool answer = await App.Current.MainPage.DisplayAlert("Warning?", $"Are you sure you want to remove {srv}?", "Yes", "No");
+                if (answer == false)
+                {
+                    return;
+                }
+            }
+        }
+        MauiProgram.api.RemoveServer(srv);
+        StateHasChanged();
+    }
+
+    private async void AddConnection()
+    {
+        AddServerView addServerView = new();
+        await MauiProgram.mainPage.PushModalAsync(addServerView);
+        await Task.Run(() => addServerView.AwaitClose(addServerView));
+
+        if (addServerView.serverConnecter.GetBaseAddress().StartsWith("http") && !addServerView.serverConnecter.GetBaseAddress().Contains("https"))
+        {
+            if (App.Current != null && App.Current.MainPage != null)
+            { // fuck i am so sick of these null reference checks
+                bool answer = await App.Current.MainPage.DisplayAlert("Warning?", $"Insecure servers are currently not fully supported, are you sure you want to use this connection?", "Yes", "No");
+                if (answer == false)
+                {
+                    return;
+                }
+            }
+            System.Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", $"--unsafely-treat-insecure-origin-as-secure={addServerView.serverConnecter.GetBaseAddress()}");
+        }
+        MauiProgram.AddServer(addServerView.serverConnecter);
+
+        // Save all the data again
+
+        StateHasChanged();
     }
 }

@@ -13,61 +13,121 @@ namespace PortaJel_Blazor.Classes
     /// </summary>
     public class DataConnector
     {
-        // Cached data. Sorted by unique ID, the by the type for quicker access
-        // These will potentially contain thousands of albums and songs and shit so it's important that these 
-        // are done efficiently.
-        public Dictionary<Guid, Album> cachedAlbums = new Dictionary<Guid, Album>();
-        public Dictionary<Guid, Artist> cachedArtists = new Dictionary<Guid, Artist>();
-        public Dictionary<Guid, Song> cachedSongs = new Dictionary<Guid, Song>();
-
-        private List<ServerConnecter> connecters = new List<ServerConnecter>();
-
-        public void AddServer(ServerConnecter server)
+        private Dictionary<string, ServerConnecter> connecters = new();
+        /// <summary>
+        /// Adds a new server to access data from.
+        /// </summary>
+        /// <param name="server">The ServerConnector to be added. This must be initalized and set up to be used in this class.</param>
+        /// <returns>True if the server was successfully added, false if otherwise. Will return false if duplicate keys (servers with the same address) are added.</returns>
+        public bool AddServer(ServerConnecter server)
         {
-            connecters.Add(server);
+            if (!connecters.ContainsKey(server.GetBaseAddress().ToLower()))
+            {
+                connecters.Add(server.GetBaseAddress().ToLower(), server);
+                return true;
+            }
+            return false;
         }
+        public void RemoveServer(ServerConnecter server) 
+        { 
+            connecters.Remove(server.GetBaseAddress());
+        }
+        public void RemoveServer(string address)
+        {
+            ServerConnecter[] enumerate = connecters.Values.ToArray();
+            foreach (var srv in enumerate)
+            {
+                if(srv.GetBaseAddress().ToLower() == address.ToLower())
+                {
+                    connecters.Remove(address.ToLower());
+                }
+            }
+        }
+        public ServerConnecter[] GetServers()
+        {
+            return connecters.Values.ToArray();
+        }
+        #region AlbumEndpoints
         /// <summary>
         /// Retreieves all albums from connected servers. 
         /// </summary>
         /// <param name="limit">Total amount of albums that should be retuend. Depends on how many albums the requested server has at the specifiec index.</param>
         /// <param name="startIndex">What index the server should start counting from</param>
         /// <returns>Album[] (Album array) containing all albums as requested from all servers</returns>
-        public async Task<Album[]> GetAllAlbumsAsync(int? limit = 50, int? startIndex = 0)
+        public async Task<Album[]> GetAllAlbumsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
         {
-            List<Album> toReturn = new List<Album>();
-
-            // await Parallel.ForEachAsync
-
-            // Create tasks to pull requested data
-            List<Task> toExecute = new List<Task>();
-            foreach (ServerConnecter server in connecters)
-            {
-                List<Album> albums = new List<Album>();
-                toExecute.Add(server.GetAlbumsAsync(limit: limit, startFromIndex: startIndex));
-            }
-            
-            // Execure tasks
-            await Task.WhenAll(toExecute);
-
-            // Return data and add to list  
-            foreach (var task in toExecute)
-            {
-                var returnValue = ((Task<Album[]>)task).Result;
-                toReturn.AddRange(returnValue);
-            }
-
-            // Sort data 
-            // TODO: Ensuere sorting method is actually sorting, you know. 
-            toReturn.Sort();
+            List<Album> albumsReturn = new List<Album>();
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite, cancellationToken: cancellationToken));
+            });
+            //albumsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
 
             // Set return capacity to requested limit 
-            if (toReturn.Count > limit) 
+            if (albumsReturn.Count > limit) 
             {
-                int capacity = (int)limit;// you're a real boy now int
-                toReturn.RemoveRange(capacity, toReturn.Count); // Cap the count at the maximum requested.
+                int capacity = (int)limit;
+                albumsReturn.RemoveRange(capacity, albumsReturn.Count); // Cap the count at the maximum requested.
             }
 
-            return toReturn.ToArray();
+            return albumsReturn.ToArray();
         }
+        #endregion
+        #region ArtistEndoings
+        public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startIndex = 0, CancellationToken? cancellationToken = null)
+        {
+            List<Artist> artistsReturn = new List<Artist>();
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                artistsReturn.AddRange(await server.Value.GetAllArtistsAsync(limit: limit, startFromIndex: startIndex, cancellationToken: cancellationToken));
+            });
+            // artistsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
+
+            // Set return capacity to requested limit 
+            if (artistsReturn.Count > limit)
+            {
+                int capacity = (int)limit;
+                artistsReturn.RemoveRange(capacity, artistsReturn.Count); // Cap the count at the maximum requested.
+            }
+
+            return artistsReturn.ToArray();
+        }
+        #endregion
+        #region SongsEndpoints
+        public async Task<Song[]> GetAllSongsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
+        {
+            List<Song> songsReturn = new List<Song>();
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                songsReturn.AddRange(await server.Value.GetAllSongsAsync(limit: limit, startFromIndex: startIndex, isFavourite, cancellationToken: cancellationToken));
+            });
+            //songsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
+
+            // Set return capacity to requested limit 
+            if (songsReturn.Count > limit)
+            {
+                int capacity = (int)limit;
+                songsReturn.RemoveRange(capacity, songsReturn.Count); // Cap the count at the maximum requested.
+            }
+
+            return songsReturn.ToArray();
+        }
+        #endregion
+        #region GenreEndpoints
+        public async Task<Genre[]> GetAllGenresAsync(int? limit = 50, int? startIndex = 0, CancellationToken? cancellationToken = null)
+        {
+            List<Genre> genresReturn = new List<Genre>();
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                genresReturn.AddRange(await server.Value.GetAllGenresAsync(limit: limit, startFromIndex: startIndex, cancellationToken: cancellationToken));
+            });
+            //genresReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
+
+            // Set return capacity to requested limit 
+            if (genresReturn.Count > limit)
+            {
+                int capacity = (int)limit;
+                genresReturn.RemoveRange(capacity, genresReturn.Count); // Cap the count at the maximum requested.
+            }
+
+            return genresReturn.ToArray();
+        }
+        #endregion
     }
 }

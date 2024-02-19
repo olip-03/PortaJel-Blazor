@@ -24,7 +24,7 @@ namespace PortaJel_Blazor.Classes
     // /Users/{userId}/Items/Latest endpoint to fetch MOST RECENT media added to the server
     public class ServerConnecter
     {
-        private UserDto userDto = null!;
+        private UserDto userDto = null;
 
         private SdkClientSettings _sdkClientSettings = null;
         private ArtistsClient _artistsClient;
@@ -52,6 +52,7 @@ namespace PortaJel_Blazor.Classes
         private int TotalSongRecordCount = -1;
         private int TotalGenreRecordCount = -1;
 
+        public bool isOffline = false;
         public bool isRunningTask = false;
         public CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
         private CancellationToken token;
@@ -62,21 +63,13 @@ namespace PortaJel_Blazor.Classes
             _sdkClientSettings = new();
             _httpClient = new HttpClient();
 
-            token = cancelTokenSource.Token;
-        }
-        public ServerConnecter(string deviceName, string deviceId, string clientName, string clientVersion)
-        {
-            _sdkClientSettings = new();
-            _httpClient = new HttpClient();
-
-            _sdkClientSettings.DeviceName = deviceName;
-            _sdkClientSettings.DeviceId = deviceId;
-            _sdkClientSettings.ClientName = clientName;
-            _sdkClientSettings.ClientVersion = clientVersion;
+            _sdkClientSettings.DeviceName = Microsoft.Maui.Devices.DeviceInfo.Current.Name;
+            _sdkClientSettings.DeviceId = Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString();
+            _sdkClientSettings.ClientName = MauiProgram.applicationName;
+            _sdkClientSettings.ClientVersion = MauiProgram.applicationClientVersion;
 
             token = cancelTokenSource.Token;
         }
-
         public async Task<bool> AuthenticateAddressAsync(string address)
         {
             _sdkClientSettings.BaseUrl = address;
@@ -564,7 +557,6 @@ namespace PortaJel_Blazor.Classes
             });
             return playlists.ToArray();
         }
-
         public async Task<Playlist?> FetchPlaylistByIDAsync(Guid playlistId)
         {
             List<Guid> _filterIds = new List<Guid> { playlistId };
@@ -680,14 +672,14 @@ namespace PortaJel_Blazor.Classes
             await _playlistsClient.RemoveFromPlaylistAsync(apiPlaylistId, toRemove);
             return true;
         }
-        public async Task<Album[]> SearchAsync(string _searchTerm, bool? sorted = false, int? searchLimit = 50)
+        public async Task<BaseMusicItem[]> SearchAsync(string _searchTerm, bool? sorted = false, int? searchLimit = 50)
         {
             if (String.IsNullOrWhiteSpace(_searchTerm))
             {
-                return new Album[0];
+                return new BaseMusicItem[0];
             }
 
-            List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio, BaseItemKind.MusicArtist };
+            List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio, BaseItemKind.MusicArtist, BaseItemKind.Playlist };
 
             SearchHintResult searchResult;
             searchResult = await _searchClient.GetAsync(userId: userDto.Id, searchTerm: _searchTerm, limit: searchLimit, includeItemTypes: _albumItemTypes, includeArtists: true, cancellationToken: token);
@@ -695,7 +687,7 @@ namespace PortaJel_Blazor.Classes
 
             if (searchResult.SearchHints.Count() == 0)
             {
-                return new Album[0];
+                return new BaseMusicItem[0];
             }
 
             List<Guid> searchedIds = new List<Guid>();
@@ -723,31 +715,45 @@ namespace PortaJel_Blazor.Classes
                 return new Album[0];
             }
 
-            List<Album> albums = new List<Album>();
+            List<BaseMusicItem> searchResults = new List<BaseMusicItem>();
             foreach (var item in itemsResult.Items)
             {
                 try
                 {
-                    Album toAdd = AlbumBuilder(item);   
-                    if(item.Type == BaseItemKind.MusicArtist)
+                    switch (item.Type)
                     {
-                        toAdd.isArtist = true;
+                        case BaseItemKind.Audio:
+                            searchResults.Add(SongBuilder(item));
+                            break;
+                        case BaseItemKind.MusicAlbum:
+                            searchResults.Add(AlbumBuilder(item));
+                            break;
+                        case BaseItemKind.MusicArtist:
+                            searchResults.Add(ArtistBuilder(item));
+                            break;
+                        //case BaseItemKind.MusicGenre:
+                        //    searchResults.Add(GenreBuilder(item));
+                        //    break;
+                        case BaseItemKind.Playlist:
+                            searchResults.Add(PlaylistBuilder(item));
+                            break;
+                        default:
+                            searchResults.Add(AlbumBuilder(item));
+                            break;
                     }
-                    albums.Add(toAdd);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                 }
-
             }
 
-            if(sorted == true)
-            {
-                albums.Sort();
-            }
+            //if(sorted == true)
+            //{
+            //    searchResults.Sort();
+            //}
 
-            return albums.ToArray();
+            return searchResults.ToArray();
         }
         public async Task<int> GetTotalAlbumCount()
         {
@@ -765,11 +771,14 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalAlbumRecordCount;
         }
-        public async Task<Album[]> GetAlbumsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false)
+        public async Task<Album[]> GetAllAlbumsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
             List<String> _sortTypes = new List<string> { "SortName" };
             List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+
+            CancellationToken ctoken = new();
+            if(cancellationToken != null) { ctoken = (CancellationToken)cancellationToken; }
 
             BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
             // Call GetItemsAsync with the specified parameters
@@ -777,11 +786,11 @@ namespace PortaJel_Blazor.Classes
             {  
                 if(favourites == true)
                 {
-                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, isFavorite: true, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
+                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, isFavorite: true, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
                 }
                 else
                 {
-                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
+                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
                 }
                 TotalAlbumRecordCount = songResult.TotalRecordCount;
             }
@@ -799,8 +808,8 @@ namespace PortaJel_Blazor.Classes
                 throw;
             }
 
-            if (songResult == null || token.IsCancellationRequested) { cancelTokenSource = new(); return new Album[0]; }
-            if (songResult.Items == null || token.IsCancellationRequested) { cancelTokenSource = new(); return new Album[0]; }
+            if (songResult == null || ctoken.IsCancellationRequested) { cancelTokenSource = new(); return new Album[0]; }
+            if (songResult.Items == null || ctoken.IsCancellationRequested) { cancelTokenSource = new(); return new Album[0]; }
 
             List<Album> albums = new List<Album>();
             foreach (var item in songResult.Items)
@@ -834,11 +843,14 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalArtistRecordCount;
         }
-        public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false)
+        public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
             List<String> _sortTypes = new List<string> { "SortName" };
             List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+
+            CancellationToken ctoken = new();
+            if (cancellationToken != null) { ctoken = (CancellationToken)cancellationToken; }
 
             BaseItemDtoQueryResult artistResult = new BaseItemDtoQueryResult();
             // Call GetItemsAsync with the specified parameters
@@ -846,11 +858,11 @@ namespace PortaJel_Blazor.Classes
             {
                 if (favourites == true)
                 {
-                    artistResult = await _itemsClient.GetItemsAsync(isFavorite: true, userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
+                    artistResult = await _itemsClient.GetItemsAsync(isFavorite: true, userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
                 }
                 else
                 {
-                    artistResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
+                    artistResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
                 }
                 TotalArtistRecordCount = artistResult.TotalRecordCount;
             }
@@ -868,8 +880,8 @@ namespace PortaJel_Blazor.Classes
                 throw;
             }
 
-            if (artistResult == null || token.IsCancellationRequested) { return new Artist[0]; }
-            if (artistResult.Items == null || token.IsCancellationRequested) { return new Artist[0]; }
+            if (artistResult == null || ctoken.IsCancellationRequested) { return new Artist[0]; }
+            if (artistResult.Items == null || ctoken.IsCancellationRequested) { return new Artist[0]; }
 
             List<Artist> artists = new List<Artist>();
             foreach (var item in artistResult.Items)
@@ -895,11 +907,14 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalSongRecordCount;
         }
-        public async Task<Song[]> GetAllSongsAsync(int? limit= 50, int? startFromIndex = 0, bool? favourites = false)
+        public async Task<Song[]> GetAllSongsAsync(int? limit= 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
             List<String> _sortTypes = new List<string> { "SortName" };
             List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+
+            CancellationToken ctoken = new();
+            if (cancellationToken != null) { ctoken = (CancellationToken)cancellationToken; }
 
             BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
             // Call GetItemsAsync with the specified parameters
@@ -907,11 +922,11 @@ namespace PortaJel_Blazor.Classes
             {
                 if(favourites == true)
                 {
-                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, isFavorite: true, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
+                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, isFavorite: true, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
                 }
                 else
                 {
-                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
+                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
                 }
                 TotalSongRecordCount = songResult.TotalRecordCount;
             }
@@ -930,8 +945,8 @@ namespace PortaJel_Blazor.Classes
             }
 
             // Catch blocks
-            if (songResult == null || token.IsCancellationRequested) { return new Song[0]; }
-            if (songResult.Items == null || token.IsCancellationRequested) { return new Song[0]; }
+            if (songResult == null || ctoken.IsCancellationRequested) { return new Song[0]; }
+            if (songResult.Items == null || ctoken.IsCancellationRequested) { return new Song[0]; }
 
             List<Song> songs = new List<Song>();
             foreach (var item in songResult.Items)
@@ -958,17 +973,20 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalGenreRecordCount;
         }
-        public async Task<Genre[]> GetAllGenresAsync(int? limit = 50, int? startFromIndex = 0)
+        public async Task<Genre[]> GetAllGenresAsync(int? limit = 50, int? startFromIndex = 0, CancellationToken? cancellationToken = null)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
             List<String> _sortTypes = new List<string> { "SortName" };
             List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
 
+            CancellationToken ctoken = new();
+            if (cancellationToken != null) { ctoken = (CancellationToken)cancellationToken; }
+
             BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
             // Call GetItemsAsync with the specified parameters
             try
             {
-                songResult = await _genresClient.GetMusicGenresAsync(userId: userDto.Id, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, enableTotalRecordCount: true, cancellationToken: token);
+                songResult = await _genresClient.GetMusicGenresAsync(userId: userDto.Id, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, enableTotalRecordCount: true, cancellationToken: ctoken);
                 TotalGenreRecordCount = songResult.TotalRecordCount;
             }
             catch (Jellyfin.Sdk.ItemsException itemException)
@@ -986,8 +1004,8 @@ namespace PortaJel_Blazor.Classes
             }
 
             // Catch blocks
-            if (songResult == null || token.IsCancellationRequested) { return new Genre[0]; }
-            if (songResult.Items == null || token.IsCancellationRequested) { return new Genre[0]; }
+            if (songResult == null || ctoken.IsCancellationRequested) { return new Genre[0]; }
+            if (songResult.Items == null || ctoken.IsCancellationRequested) { return new Genre[0]; }
 
             List<Genre> genres = new List<Genre>();
             foreach (var item in songResult.Items)

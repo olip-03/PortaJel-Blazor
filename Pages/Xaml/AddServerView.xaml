@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PortaJel_Blazor.Pages.Xaml.AddServerView"
+             Title="AddServerView">
+    <VerticalStackLayout VerticalOptions="Center" Margin="40" MaximumWidthRequest="400" Spacing="10">
+        <Label HorizontalOptions="Center" FontSize="40">PortaJel</Label>
+        <Line/>
+        <Label HorizontalOptions="Start" FontSize="16">Add Connection</Label>
+        <Entry x:Name="entry_server" HeightRequest="40" Placeholder="Server Address" IsTextPredictionEnabled="false" IsSpellCheckEnabled="false"></Entry>
+        <Entry x:Name="entry_username" HeightRequest="40" Placeholder="Username" IsTextPredictionEnabled="false" IsSpellCheckEnabled="false"></Entry>
+        <Entry x:Name="entry_password" HeightRequest="40" Placeholder="Password" IsTextPredictionEnabled="false" IsSpellCheckEnabled="false" IsPassword="True"></Entry>
+        <Line/>
+        <Button x:Name="btn_connect" Text="Connect" Clicked="btn_connect_Clicked"></Button>
+        <Button x:Name="btn_skipLogin" Text="Skip Login" Clicked="btn_skipLogin_Clicked"></Button>
+        <Label x:Name="lbl_errormessage" TextColor="Red" HorizontalOptions="Start" Opacity="0">Failed connection to 'server address'</Label>
+    </VerticalStackLayout>
+</ContentPage>

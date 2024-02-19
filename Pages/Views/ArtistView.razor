@@ -182,6 +182,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        MauiProgram.mainLayout.pageTitle = "Artist View";
+        MauiProgram.mainLayout.currentUri = $"/ArtistView/{artistId}";
+        MauiProgram.mainLayout.showHeader = false;
+
         Guid parseId = Guid.Parse(artistId);
         if (artistId != null)
         {
@@ -210,9 +214,7 @@
             }
         }
 
-        MauiProgram.mainLayout.pageTitle = "Artist View";
-        MauiProgram.mainLayout.currentUri = $"/ArtistView/{artistId}";
-        MauiProgram.mainLayout.showHeader = false;
+        await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.mainLayout.isLoading = false;
     }
     private async void SelectPage(int page)

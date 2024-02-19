@@ -157,3 +157,21 @@
     border-radius: 0.5rem;
     border-color: lightgray;
 }
+
+
+.boxed label {
+    display: inline-block;
+    width: 100px;
+    padding: 10px;
+    border-radius: 25px;
+    border: solid 1px #ccc;
+    transition: all 0.3s;
+}
+
+.boxed input[type="radio"] {
+    display: none;
+}
+
+    .boxed input[type="radio"]:checked + label {
+        border: solid 1px #007bff;
+    }

@@ -14,11 +14,13 @@
 
 
 @code {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         MauiProgram.mainLayout.pageTitle = "Downloads";
         MauiProgram.mainLayout.currentUri = "/downloads";
         MauiProgram.mainLayout.showHeader = true;
+
+        await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.mainLayout.isLoading = false;
     }
 }
