@@ -1,101 +1,105 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-    <PropertyGroup>
-        <TargetFrameworks>net7.0-ios;net7.0-maccatalyst;net7.0-android33.0</TargetFrameworks>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
-        <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-        <!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
-        <OutputType>Exe</OutputType>
-        <RootNamespace>PortaJel_Blazor</RootNamespace>
-        <UseMaui>true</UseMaui>
+	<PropertyGroup>
+		<TargetFrameworks>net7.0-ios;net7.0-maccatalyst;net7.0-android33.0</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
+		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
+		<OutputType>Exe</OutputType>
+		<RootNamespace>PortaJel_Blazor</RootNamespace>
+		<UseMaui>true</UseMaui>
 		<EnableMauiImageProcessing>false</EnableMauiImageProcessing>
-        <SingleProject>true</SingleProject>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <EnableDefaultCssItems>false</EnableDefaultCssItems>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<EnableDefaultCssItems>false</EnableDefaultCssItems>
 
-        <!-- Display name -->
-        <ApplicationTitle>PortaJel-Blazor</ApplicationTitle>
+		<!-- Display name -->
+		<ApplicationTitle>PortaJel-Blazor</ApplicationTitle>
 
-        <!-- App Identifier -->
-        <ApplicationId>com.companyname.portajel_blazor</ApplicationId>
-        <ApplicationIdGuid>63F097CD-6CBF-48FB-8421-A32813117752</ApplicationIdGuid>
+		<!-- App Identifier -->
+		<ApplicationId>com.companyname.portajel_blazor</ApplicationId>
+		<ApplicationIdGuid>63F097CD-6CBF-48FB-8421-A32813117752</ApplicationIdGuid>
 
-        <!-- Versions -->
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-        <ApplicationVersion>1</ApplicationVersion>
+		<!-- Versions -->
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
 
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">33.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-        <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-        <AssemblyName>PortaJel-Blazor</AssemblyName>
-        <AssemblyVersion>0.0.0.2</AssemblyVersion>
-        <FileVersion>0.0.0.2</FileVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">33.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<AssemblyName>PortaJel-Blazor</AssemblyName>
+		<AssemblyVersion>0.0.0.2</AssemblyVersion>
+		<FileVersion>0.0.0.2</FileVersion>
 
 		<XamarinGoogleGuavaListenableFutureOptOut>true</XamarinGoogleGuavaListenableFutureOptOut>
 		<XamarinGoogleGuavaOptOut>true</XamarinGoogleGuavaOptOut>
 	</PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
-      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
-      <ApplicationVersion>2</ApplicationVersion>
-      <ApplicationId>portajel.portajel_blazor</ApplicationId>
-    </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+	</PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
-      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
-      <ApplicationVersion>2</ApplicationVersion>
-      <ApplicationId>portajel.portajel_blazor</ApplicationId>
-    </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+	</PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android33.0|AnyCPU'">
-      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
-      <ApplicationVersion>2</ApplicationVersion>
-      <ApplicationId>portajel.portajel_blazor</ApplicationId>
-    </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android33.0|AnyCPU'">
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+		<AndroidEnableMultiDex>True</AndroidEnableMultiDex>
+		<AndroidDexTool>d8</AndroidDexTool>
+	</PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows10.0.19041.0|AnyCPU'">
-      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
-      <ApplicationVersion>2</ApplicationVersion>
-      <ApplicationId>portajel.portajel_blazor</ApplicationId>
-    </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows10.0.19041.0|AnyCPU'">
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+	</PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
-      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
-      <ApplicationVersion>2</ApplicationVersion>
-      <ApplicationId>portajel.portajel_blazor</ApplicationId>
-    </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+	</PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-maccatalyst|AnyCPU'">
-      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
-      <ApplicationVersion>2</ApplicationVersion>
-      <ApplicationId>portajel.portajel_blazor</ApplicationId>
-    </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-maccatalyst|AnyCPU'">
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+	</PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android33.0|AnyCPU'">
-      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
-      <ApplicationVersion>2</ApplicationVersion>
-      <ApplicationId>portajel.portajel_blazor</ApplicationId>
-    </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android33.0|AnyCPU'">
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+		<AndroidEnableMultiDex>True</AndroidEnableMultiDex>
+		<AndroidDexTool>d8</AndroidDexTool>
+	</PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows10.0.19041.0|AnyCPU'">
-      <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
-      <ApplicationVersion>2</ApplicationVersion>
-      <ApplicationId>portajel.portajel_blazor</ApplicationId>
-    </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows10.0.19041.0|AnyCPU'">
+		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
+		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+	<ItemGroup>
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
-        <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
-        <!-- Images -->
-        <MauiImage Include="Resources\Images\*" />
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
 		<MauiImage Include="Resources\Images\Light\*" />
-		
+
 		<MauiImage Update="Resources\Images\favourite.svg" BaseSize="40,40" />
 		<MauiImage Update="Resources\Images\home.svg" BaseSize="40,40" />
 		<MauiImage Update="Resources\Images\library.svg" BaseSize="40,40" />
@@ -113,50 +117,45 @@
 		<MauiImage Update="Resources\Images\Light\light_heartminus.svg" BaseSize="40,40" />
 
 		<!-- Custom Fonts -->
-        <MauiFont Include="Resources\Fonts\*" />
+		<MauiFont Include="Resources\Fonts\*" />
 
-        <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
-        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-    </ItemGroup>
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="BlazorAnimate" Version="3.0.0" />
-        <PackageReference Include="Blurhash.Core" Version="2.0.0" />
-        <PackageReference Include="Blurhash.ImageSharp" Version="3.0.0" />
-        <PackageReference Include="Blurhash.Microsoft.Extensions.Core" Version="2.0.0" />
-        <PackageReference Include="Jellyfin.Sdk" Version="2022.6.11" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    </ItemGroup>
-	
-    <ItemGroup>
-      <MauiImage Include="wwwroot\images\cd.svg" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BlazorAnimate" Version="3.0.0" />
+		<PackageReference Include="Blurhash.Core" Version="2.0.0" />
+		<PackageReference Include="Jellyfin.Sdk" Version="2022.6.11" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0-android'">
-      <PackageReference Include="Plugin.MediaManager.ExoPlayer">
-        <Version>0.4.5</Version>
-      </PackageReference>
-    </ItemGroup>
+	<ItemGroup>
+		<MauiImage Include="wwwroot\images\cd.svg" />
+	</ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0-android33.0'">
-      <PackageReference Include="Xamarin.Google.Guava.ListenableFuture">
-        <Version>1.0.0.17</Version>
-      </PackageReference>
-    </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-android33.0'">
+	  <PackageReference Include="Xam.Plugins.Android.ExoPlayer">
+	    <Version>2.19.1</Version>
+	  </PackageReference>
+		<ReferenceJar Include="$(MSBuildThisFileDirectory)guava-33.0.0-android.jar" />
+		<AndroidLibrary Include="guava-33.0.0-android.jar" Bind="false"/>
+	</ItemGroup>
 
-    <ItemGroup>
-      <MauiXaml Update="Pages\Xaml\AddServerView.xaml">
-        <Generator>MSBuild:Compile</Generator>
-      </MauiXaml>
-      <MauiXaml Update="Pages\Xaml\PlaylistViewEditor.xaml">
-        <Generator>MSBuild:Compile</Generator>
-      </MauiXaml>
-      <MauiXaml Update="UI\Drawables\CircularProgressBar.xaml">
-        <Generator>MSBuild:Compile</Generator>
-      </MauiXaml>
-    </ItemGroup>
+	<ItemGroup>
+		<MauiXaml Update="Pages\Xaml\PlaylistViewEditor.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="UI\Drawables\CircularProgressBar.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+	</ItemGroup>
 
-    <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionPortaJelBlazorHideInfoBar="True" XamarinHotReloadGenericExceptionInfoBarPortaJelBlazorHideInfoBar="True" /></VisualStudio></ProjectExtensions>
+	<ProjectExtensions>
+		<VisualStudio>
+			<UserProperties XamarinHotReloadDebuggerTimeoutExceptionPortaJelBlazorHideInfoBar="True" />
+		</VisualStudio>
+	</ProjectExtensions>
 
 </Project>

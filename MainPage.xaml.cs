@@ -3,7 +3,6 @@ using System.Windows.Input;
 using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Pages.Xaml;
 using Blurhash;
-using Blurhash.ImageSharp;
 using System;
 
 #if ANDROID
@@ -264,11 +263,11 @@ public partial class MainPage : ContentPage
     #region Interactions
     private void Player_Btn_FavToggle_Clicked(object sender, EventArgs e)
     {
-
+        MauiProgram.mediaService.Pause();
     }
     private void Player_Btn_PlayToggle_Clicked(object sender, EventArgs e)
     {
-
+        MauiProgram.mediaService.Play();
     }
     private void Button_Clicked(object sender, EventArgs e)
     {

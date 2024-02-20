@@ -79,8 +79,6 @@
     private string errorMessage { get; set; } = "Unspecified error! You should not see this message!";
 
     private bool showMusicPlayer { get; set; } = true;
-    public MusicPlayerContainer? musicPlayerContainer;
-    public ItemContextMenu? itemContextMenu;
 
     public CancellationToken cancellationToken;
     public CancellationTokenSource cancellationSource = new();
@@ -88,9 +86,6 @@
     protected override void OnInitialized()
     {
         MauiProgram.mainLayout = this;
-        musicPlayerContainer = new UI.MusicPlayerContainer();
-        itemContextMenu = new UI.ItemContextMenu();
-
         MauiProgram.webViewInitalized = true;
     }
 

@@ -1,9 +1,9 @@
-﻿using Blurhash.Microsoft.Extensions.Core;
-using Jellyfin.Sdk;
+﻿using Jellyfin.Sdk;
 using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
+using PortaJel_Blazor.Classes.Services;
 using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Shared;
 using System.Collections.Generic;
@@ -102,7 +102,6 @@ public static class MauiProgram
         isConnected = false;
 
 		builder.Services.AddMauiBlazorWebView();
-        builder.Services.AddBlurhashCore();
         builder.Services.AddSingleton<JsInteropClasses2, JsInteropClasses2>();
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

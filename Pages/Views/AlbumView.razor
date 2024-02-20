@@ -143,13 +143,7 @@
     }
     private void PlayAlbum()
     {
-        MauiProgram.mediaService.songQueue.Clear();
-        foreach (Song song in album.songs)
-        {
-            song.image.source = album.imageSrc;
-            MauiProgram.mediaService.songQueue.QueueSong(song);
-        }
-        MauiProgram.mediaService.Play();
+        
     }
 }
 

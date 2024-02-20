@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
+using Dalvik.SystemInterop;
 using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
 
