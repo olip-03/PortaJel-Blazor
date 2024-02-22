@@ -8,6 +8,7 @@ public partial class App : Application
 	{
 		InitializeComponent(); 
         MainPage = new MainPage();
+        MauiProgram.mainPage = (MainPage)MainPage;
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

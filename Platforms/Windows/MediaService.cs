@@ -9,6 +9,10 @@ namespace PortaJel_Blazor.Classes.Services
 {
     public partial class MediaService
     {
+        public partial void Initalize()
+        {
+
+        }
         public partial void Play()
         {
 

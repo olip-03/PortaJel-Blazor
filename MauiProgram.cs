@@ -22,6 +22,7 @@ public static class MauiProgram
     private static string filePath = System.IO.Path.Combine(mainDir, fileName);
 
     public static bool isConnected = false;
+    public static bool firstLoginComplete = false;
     public static bool webViewInitalized = false;
 	public static bool showContent = false;
 
@@ -29,7 +30,7 @@ public static class MauiProgram
     public static string contentTitle = "";
 
     public static MainLayout mainLayout = new();
-    public static MainPage mainPage = new();
+    public static MainPage mainPage = new(initalize: false);
 
     public static MediaService mediaService = new MediaService();
 
@@ -101,7 +102,7 @@ public static class MauiProgram
         // Check connection to server
         isConnected = false;
 
-		builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddMauiBlazorWebView();
         builder.Services.AddSingleton<JsInteropClasses2, JsInteropClasses2>();
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
@@ -115,52 +116,78 @@ public static class MauiProgram
 	/// Adds a server to the list of avaliable servers, and saves it to the device.
 	/// </summary>
 	/// <param name="server"></param>
-	public static void AddServer(ServerConnecter server)
+	public static async void AddServer(ServerConnecter server)
 	{
         // Saves the server to file
         servers.Add(server); // TODO: depreciate
         api.AddServer(server);
 
-        using (BinaryWriter binWriter = new BinaryWriter(File.Open(filePath, FileMode.Create)))
+        await SaveData();
+    }
+    public static async void RemoveServer(ServerConnecter server)
+    {
+        // Saves the server to file
+        servers.Remove(server); // TODO: depreciate
+        api.RemoveServer(server);
+
+        await SaveData();
+    }
+    public static async void RemoveServer(string server)
+    {
+        ServerConnecter[] enumerate = servers.ToArray();
+        // Saves the server to file
+        foreach (ServerConnecter srv in enumerate)
         {
-            foreach (var item in servers)
+            if(srv.GetBaseAddress() == server)
             {
-                // Write string
-                binWriter.Write(item.GetBaseAddress());
-                binWriter.Write(item.GetUsername());
-                binWriter.Write(item.GetPassword());
+                servers.Remove(srv); // TODO: depreciate
             }
         }
+        api.RemoveServer(server);
+        await SaveData();
     }
     /// <summary>
     /// Loads aaalll the fucking data
     /// </summary>
-    public static async Task<bool> LoadAllData()
+    public static async Task<bool> LoadData()
     {
         servers = new List<ServerConnecter>();
         api = new DataConnector();
 
         if (File.Exists(filePath))
         {
+
             using (BinaryReader binReader = new BinaryReader(File.Open(filePath, FileMode.Open)))
             {
                 while (binReader.BaseStream.Position < binReader.BaseStream.Length)
                 {
-                    ServerConnecter serverConnector = new ServerConnecter();
+                    // LOAD SERVER COUNT
+                    int srvCount = binReader.ReadInt32();
 
-                    string url = binReader.ReadString();
-                    string user = binReader.ReadString();
-                    string pass = binReader.ReadString();
+                    // LOAD CONNECTIONS
+                    for (int i = 0; i < srvCount; i++)
+                    {
+                        ServerConnecter serverConnector = new ServerConnecter();
 
-                    serverConnector.SetBaseAddress(url);
-                    serverConnector.SetUserDetails(user, pass);
+                        string url = binReader.ReadString();
+                        string user = binReader.ReadString();
+                        string pass = binReader.ReadString();
 
-                    servers.Add(serverConnector);
-                    api.AddServer(serverConnector);
+                        serverConnector.SetBaseAddress(url);
+                        serverConnector.SetUserDetails(user, pass);
+
+                        servers.Add(serverConnector);
+                        api.AddServer(serverConnector);
+                        firstLoginComplete = true;
+                    }
+
+                    // LOAD FIRSTLOGIN DATA
+                    firstLoginComplete = binReader.ReadBoolean();
                 }
             }
         }
 
+        // Validate connection data and log into servers
         await Parallel.ForEachAsync(api.GetServers(), async (server, ct) => {
             server.isOffline = !await server.AuthenticateAddressAsync();
             if (!server.isOffline)
@@ -169,6 +196,27 @@ public static class MauiProgram
             }
         });
 
+        return true;
+    }
+    public static async Task<bool> SaveData()
+    {
+        // TODO: Change to json file type
+        using (BinaryWriter binWriter = new BinaryWriter(File.Open(filePath, FileMode.Create)))
+        {
+            // SAVE SERVER COUNT
+            binWriter.Write(api.GetServers().Count());
+
+            // SAVE CONNECTIONS
+            foreach (ServerConnecter srv in api.GetServers())
+            {
+                // Write string
+                binWriter.Write(srv.GetBaseAddress());
+                binWriter.Write(srv.GetUsername());
+                binWriter.Write(srv.GetPassword());
+            }
+            // SAVE FIRSTLOGIN DATA
+            binWriter.Write(firstLoginComplete);
+        }
         return true;
     }
 }

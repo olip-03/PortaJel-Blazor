@@ -22,8 +22,13 @@ public partial class MainPage : ContentPage
 
     private uint animationSpeed = 550;
 
-    public MainPage()
+    public MainPage(bool? initalize = true)
 	{
+        if (initalize == false)
+        {
+            return;
+        }
+
         InitializeComponent();
         Initialize();
         MauiProgram.mainPage = this;
@@ -45,11 +50,7 @@ public partial class MainPage : ContentPage
     }
     private async void Initialize()
     {
-        await MauiProgram.LoadAllData();
-        if(MauiProgram.api.GetServers().Count() <= 0)
-        {
-            await Navigation.PushModalAsync(new AddServerView());
-        }
+        await MauiProgram.LoadData();
 
         await Task.Run(() =>
         {
@@ -59,7 +60,16 @@ public partial class MainPage : ContentPage
             }
         });
 
+        if (MauiProgram.api.GetServers().Count() <= 0)
+        {
+            AddServerView addServerView = new();
+            await MauiProgram.mainPage.PushModalAsync(addServerView, false);
+            await Task.Run(() => addServerView.AwaitClose(addServerView));
+            MauiProgram.firstLoginComplete = true;
+        }
+
         ShowNavbar();
+        MauiProgram.mediaService.Initalize();
         MauiProgram.mainLayout.NavigateHome();
     }
     private void Bwv_BlazorWebViewInitialized(object sender, Microsoft.AspNetCore.Components.WebView.BlazorWebViewInitializedEventArgs e)
@@ -94,9 +104,14 @@ public partial class MainPage : ContentPage
     }
     
     #region Methods
-    public async Task PushModalAsync(Page page)
+    public async Task PushModalAsync(Page page, bool? animate = false)
     {
-        await Navigation.PushModalAsync(page);
+        if(animate == true)
+        {
+            await Navigation.PushModalAsync(page, true);
+            return;
+        }
+        await Navigation.PushModalAsync(page, false);
     }
     public async Task NavigateToPlaylistEdit(Guid PlaylistId)
     {

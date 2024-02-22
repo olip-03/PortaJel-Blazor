@@ -11,6 +11,7 @@ namespace PortaJel_Blazor.Classes.Services
     {
         public bool isPlaying = false;
         public SongQueue songQueue = new();
+        public partial void Initalize();
         public partial void Play();
         public partial void Pause();
         public partial void TogglePlay();

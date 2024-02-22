@@ -96,7 +96,7 @@
                 }
             }
         }
-        MauiProgram.api.RemoveServer(srv);
+        MauiProgram.RemoveServer(srv);
         StateHasChanged();
     }
 
@@ -106,21 +106,7 @@
         await MauiProgram.mainPage.PushModalAsync(addServerView);
         await Task.Run(() => addServerView.AwaitClose(addServerView));
 
-        if (addServerView.serverConnecter.GetBaseAddress().StartsWith("http") && !addServerView.serverConnecter.GetBaseAddress().Contains("https"))
-        {
-            if (App.Current != null && App.Current.MainPage != null)
-            { // fuck i am so sick of these null reference checks
-                bool answer = await App.Current.MainPage.DisplayAlert("Warning?", $"Insecure servers are currently not fully supported, are you sure you want to use this connection?", "Yes", "No");
-                if (answer == false)
-                {
-                    return;
-                }
-            }
-            System.Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", $"--unsafely-treat-insecure-origin-as-secure={addServerView.serverConnecter.GetBaseAddress()}");
-        }
-        MauiProgram.AddServer(addServerView.serverConnecter);
-
-        // Save all the data again
+        // TODO: Save all the data again
 
         StateHasChanged();
     }

@@ -26,7 +26,20 @@ public partial class AddServerView : ContentPage
     }
 	private async void TryConnect()
 	{
-		UserCredentials.ServerAddress = entry_server.Text;
+        if (entry_server.Text.StartsWith("http") && !entry_server.Text.Contains("https"))
+        {
+            if (App.Current != null && App.Current.MainPage != null)
+            { // fuck i am so sick of these null reference checks
+                bool answer = await App.Current.MainPage.DisplayAlert("Warning?", $"Insecure servers are currently not fully supported, are you sure you want to use this connection?", "Yes", "No");
+                if (answer == false)
+                {
+                    return;
+                }
+            }
+            System.Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", $"--unsafely-treat-insecure-origin-as-secure={entry_server.Text}");
+        }
+
+        UserCredentials.ServerAddress = entry_server.Text;
 		UserCredentials.UserName = entry_username.Text;
         UserCredentials.Password = entry_password.Text;
 
@@ -85,6 +98,7 @@ public partial class AddServerView : ContentPage
                 // Close this page  
                 if (Navigation.ModalStack.Count > 0)
                 {
+                    MauiProgram.AddServer(serverConnecter);
                     await Navigation.PopModalAsync();
                 }
             }

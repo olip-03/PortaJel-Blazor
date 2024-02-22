@@ -53,8 +53,9 @@
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
-		<AndroidEnableMultiDex>True</AndroidEnableMultiDex>
+		<AndroidEnableMultiDex>False</AndroidEnableMultiDex>
 		<AndroidDexTool>d8</AndroidDexTool>
+		<AndroidUseAapt2>true</AndroidUseAapt2>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows10.0.19041.0|AnyCPU'">
@@ -79,8 +80,9 @@
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
-		<AndroidEnableMultiDex>True</AndroidEnableMultiDex>
+		<AndroidEnableMultiDex>False</AndroidEnableMultiDex>
 		<AndroidDexTool>d8</AndroidDexTool>
+		<AndroidUseAapt2>true</AndroidUseAapt2>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows10.0.19041.0|AnyCPU'">
@@ -140,7 +142,7 @@
 	    <Version>2.19.1</Version>
 	  </PackageReference>
 		<ReferenceJar Include="$(MSBuildThisFileDirectory)guava-33.0.0-android.jar" />
-		<AndroidLibrary Include="guava-33.0.0-android.jar" Bind="false"/>
+		<AndroidLibrary Include="guava-33.0.0-android.jar" Bind="false" />
 	</ItemGroup>
 
 	<ItemGroup>

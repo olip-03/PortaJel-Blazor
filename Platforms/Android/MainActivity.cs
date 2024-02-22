@@ -3,13 +3,11 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
-using Dalvik.SystemInterop;
-using Microsoft.Maui.Controls;
-using PortaJel_Blazor.Classes;
 
 namespace PortaJel_Blazor;
 
-//https://github.com/Baseflow/XamarinMediaManager
+// https://github.com/Baseflow/XamarinMediaManager
+// https://stackoverflow.com/questions/76275381/an-easy-way-to-check-and-request-maui-permissions-including-bluetooth
 
 [Activity(Theme = "@style/Maui.SplashTheme", LaunchMode = LaunchMode.SingleTop, MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
 public class MainActivity : MauiAppCompatActivity
@@ -17,7 +15,6 @@ public class MainActivity : MauiAppCompatActivity
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
-        // CrossMediaManager.Current.Init(this);
     }
     protected override void OnNewIntent(Intent? intent)
     {
@@ -31,10 +28,18 @@ public class MainActivity : MauiAppCompatActivity
             if (e.Action == KeyEventActions.Down)
             {
                 // If there are any modals open, close them
-                if(MauiProgram.mainPage.StackCount() > 0)
+                // Additional check for the firstLoginComplete. This is to ensure we cant close
+                // the modal for logging in before the app has actually allowed the user to sign in :)
+                if (MauiProgram.mainPage.StackCount() > 0 && MauiProgram.firstLoginComplete)
                 {
                     MauiProgram.mainPage.PopStack();
                     return false;
+                }
+                else if (!MauiProgram.firstLoginComplete && App.Current != null && App.Current.MainPage != null)
+                {
+                    // null ref checks make me want to fuckign die 
+                    // This is also just to prevent a bug from occuring
+                    App.Current.CloseWindow(App.Current.MainPage.Window);
                 }
 
                 // If the context menu is open, close it
