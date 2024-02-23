@@ -2,7 +2,7 @@
 using System.Windows.Input;
 using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Pages.Xaml;
-using Blurhash;
+using Microsoft.Maui.Platform;
 using System;
 
 #if ANDROID

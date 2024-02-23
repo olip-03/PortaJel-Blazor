@@ -156,39 +156,46 @@ public static class MauiProgram
 
         if (File.Exists(filePath))
         {
-
-            using (BinaryReader binReader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+            try
             {
-                while (binReader.BaseStream.Position < binReader.BaseStream.Length)
+                using (BinaryReader binReader = new BinaryReader(File.Open(filePath, FileMode.Open)))
                 {
-                    // LOAD SERVER COUNT
-                    int srvCount = binReader.ReadInt32();
-
-                    // LOAD CONNECTIONS
-                    for (int i = 0; i < srvCount; i++)
+                    while (binReader.BaseStream.Position < binReader.BaseStream.Length)
                     {
-                        ServerConnecter serverConnector = new ServerConnecter();
+                        // LOAD SERVER COUNT
+                        int srvCount = binReader.ReadInt32();
 
-                        string url = binReader.ReadString();
-                        string user = binReader.ReadString();
-                        string pass = binReader.ReadString();
+                        // LOAD CONNECTIONS
+                        for (int i = 0; i < srvCount; i++)
+                        {
+                            ServerConnecter serverConnector = new ServerConnecter();
 
-                        serverConnector.SetBaseAddress(url);
-                        serverConnector.SetUserDetails(user, pass);
+                            string url = binReader.ReadString();
+                            string user = binReader.ReadString();
+                            string pass = binReader.ReadString();
 
-                        servers.Add(serverConnector);
-                        api.AddServer(serverConnector);
-                        firstLoginComplete = true;
+                            serverConnector.SetBaseAddress(url);
+                            serverConnector.SetUserDetails(user, pass);
+
+                            servers.Add(serverConnector);
+                            api.AddServer(serverConnector);
+                            firstLoginComplete = true;
+                        }
+
+                        // LOAD FIRSTLOGIN DATA
+                        firstLoginComplete = binReader.ReadBoolean();
                     }
-
-                    // LOAD FIRSTLOGIN DATA
-                    firstLoginComplete = binReader.ReadBoolean();
                 }
+            }
+            catch (Exception)
+            {
+                File.Delete(filePath);
             }
         }
 
         // Validate connection data and log into servers
         await Parallel.ForEachAsync(api.GetServers(), async (server, ct) => {
+            firstLoginComplete = true; // double-check set true if any servers exist 
             server.isOffline = !await server.AuthenticateAddressAsync();
             if (!server.isOffline)
             {
