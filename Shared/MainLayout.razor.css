@@ -11,8 +11,10 @@ main {
 
 .mainContent {
     padding-bottom: 5rem;
-    padding-top: 1rem;
     width: 100vw;
+    padding-top: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 .sidebar {

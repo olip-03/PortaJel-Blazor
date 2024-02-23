@@ -4,6 +4,7 @@ using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Pages.Xaml;
 using Microsoft.Maui.Platform;
 using System;
+using Microsoft.Maui.Controls.Shapes;
 
 #if ANDROID
 using Android;
@@ -104,7 +105,7 @@ public partial class MainPage : ContentPage
     }
     
     #region Methods
-    public async Task PushModalAsync(Page page, bool? animate = false)
+    public async Task PushModalAsync(Page page, bool? animate = true)
     {
         if(animate == true)
         {
@@ -233,6 +234,20 @@ public partial class MainPage : ContentPage
         ContextMenu_SubText.Text = MauiProgram.ContextMenuSubText;
         ContextMenu_image.Source = MauiProgram.ContextMenuImage;
         ContextMenu_List.ItemsSource = null;
+        if (MauiProgram.ContextMenuRoundImage)
+        {
+            ContextMenu_imageBorder.StrokeShape = new RoundRectangle
+            {
+                CornerRadius = new CornerRadius(125, 125, 125, 125)
+            };
+        }
+        else
+        {
+            ContextMenu_imageBorder.StrokeShape = new RoundRectangle
+            {
+                CornerRadius = new CornerRadius(5, 5, 5, 5)
+            };
+        }
 
         if (MauiProgram.ContextMenuTaskList.Count <= 0) 
         {
@@ -278,11 +293,21 @@ public partial class MainPage : ContentPage
     #region Interactions
     private void Player_Btn_FavToggle_Clicked(object sender, EventArgs e)
     {
-        MauiProgram.mediaService.Pause();
+        // MauiProgram.mediaService.Pause();
     }
-    private void Player_Btn_PlayToggle_Clicked(object sender, EventArgs e)
+    private async void Player_Btn_PlayToggle_Clicked(object sender, EventArgs e)
     {
-        MauiProgram.mediaService.Play();
+        MauiProgram.mediaService.TogglePlay();
+        Player_Btn_PlayToggle.Opacity = 0;
+        if (MauiProgram.mediaService.isPlaying)
+        {
+            Player_Btn_PlayToggle.Source = "pause.png";
+        }
+        else
+        {
+            Player_Btn_PlayToggle.Source = "play.png";
+        }
+        await Player_Btn_PlayToggle.FadeTo(1, 500, Easing.SinOut);
     }
     private void Button_Clicked(object sender, EventArgs e)
     {

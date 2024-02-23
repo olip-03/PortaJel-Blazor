@@ -23,7 +23,7 @@
             }
             else
             {
-                <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(selectable.artists)">
+                <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(selectable.artists)">
             }
             <label for="artists">Artists</label>
 
@@ -48,6 +48,12 @@
                 <input type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(selectable.genres)">
             }
             <label for="genres">Genres</label>
+        </div>
+
+        <div class="quickplay-container">
+            <button class="quickplay-button">Play All</button>
+            <div style="width:1rem;" />
+            <button class="quickplay-button">Shuffle</button>
         </div>
 
         <div class="tool-container">
@@ -112,11 +118,6 @@
             else if (data.Length > 0)
             { // Load information
                 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <div class="quickplay-container">
-                        <button class="quickplay-button">Play All</button>
-                        <div style="width:1rem;" />
-                        <button class="quickplay-button">Shuffle</button>
-                    </div>
                     @for (int i = 0; i < data.Length; i++)
                     {
                         if (data[i] != null)
@@ -194,11 +195,11 @@
 
     private enum selectable
     {
-        none,
         albums,
         artists,
         songs,
-        genres
+        genres,
+        none
     }
     selectable selected = (selectable)Enum.ToObject(typeof(selectable), MauiProgram.libraryItemView);
     selectable queued = selectable.none;
@@ -297,7 +298,7 @@
 
                 isCompleted = true;
             }
-        }); 
+        });
 
         isLoading = false;
         await InvokeAsync(StateHasChanged);

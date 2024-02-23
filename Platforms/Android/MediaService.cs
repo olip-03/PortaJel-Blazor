@@ -35,6 +35,7 @@ namespace PortaJel_Blazor.Classes.Services
         [Obsolete]
         public partial void Initalize()
         {
+            isPlaying = false;
             CheckPermissions();
             //Android.Content.Intent intent = new Android.Content.Intent(Android.Provider.Settings.ActionNotificationPolicyAccessSettings);
             //intent.AddFlags(ActivityFlags.NewTask);
@@ -134,7 +135,10 @@ namespace PortaJel_Blazor.Classes.Services
         }
         public partial void Pause()
         {
-            
+            if (Exoplayer != null)
+            {
+                Exoplayer.Pause();
+            }
         }
         public partial void TogglePlay()
         {
@@ -166,4 +170,4 @@ namespace PortaJel_Blazor.Classes.Services
         }
     }
 }
-#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0612, CS0618 // Type or member is obsolete

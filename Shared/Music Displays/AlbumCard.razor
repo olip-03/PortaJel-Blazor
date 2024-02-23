@@ -10,11 +10,11 @@
 <div class="containerImg">
     <div class="imageHolder">
         <img src="@backImg" class="albumImage lowRes" />
-        <img src="@albumImg" class="albumImage" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="OpenContextMenu" />
+        <img src="@albumImg" class="albumImage" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="OpenContextMenu" onerror="this.src='/images/emptyAlbum.png'" />
     </div>
 
-    <p class="albumText" @onclick="NavigateToArtist">
-        @if (album.isSong)
+    <p class="albumText" @onclick="NavigateToAlbum">
+        @if (musicObject is Song)
         { // Show the little song icon
             <img src="/images/song.svg" />
         }
@@ -22,7 +22,7 @@
         {
             <img src="/images/album.svg" />
         }
-        @album.name • @album.GetArtistName()
+        @musicObject.name • @artistName
     </p>
 </div>
 
@@ -37,9 +37,12 @@
 </style>
 
 @code {
-    [Parameter] public Album album { get; set; } = new Album();
+    [Parameter] public BaseMusicItem musicObject { get; set; } = new Album();
     [Parameter] public int? albumResolutionpx { get; set; } = 160;
     string albumText = null;
+    string? artistName = null;
+
+    private int resolution = 250;
 
     private string albumImg { get; set; } = String.Empty;
     private string backImg { get; set; } = String.Empty;
@@ -47,39 +50,87 @@
 
     protected override async Task OnInitializedAsync()
     {
-        albumImg = album.imageSrc;
-        backImg = album.imageAtResolution(25);
+        albumImg = musicObject.image.SourceAtResolution(resolution);
+        backImg = musicObject.image.SourceAtResolution(25);
+        if(musicObject is Album)
+        {
+            Album album = musicObject as Album;
+            artistName = album.artistCongregate;
+        }
+        if (musicObject is Song)
+        {
+            Album album = musicObject as Album;
+            artistName = album.artistCongregate;
+        }
         StateHasChanged();
     }
 
     private void NavigateToAlbum()
     {
-        if (album != null)
+        if (musicObject != null)
         {
-            MauiProgram.mainLayout.NavigateAlbum(album.id);
+            MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
         }
     }
-    private void NavigateToArtist()
-    {
-        if (album == null)
-        {
-            return;
-        }
-        if (album.artists.FirstOrDefault() == null)
-        {
-            return;
-        }
-        MauiProgram.mainLayout.NavigateArtist(album.artists.FirstOrDefault().id);
-    }
+
     private async void OpenContextMenu()
     {
         MauiProgram.ContextMenuTaskList.Clear();
         MauiProgram.ShowContextMenuImage = true;
-        MauiProgram.ContextMenuMainText = album.name;
-        MauiProgram.ContextMenuSubText = album.GetArtistName();
-        MauiProgram.ContextMenuImage = albumImg;
 
-        await MauiProgram.mainLayout.OpenContextMenu();
+        if (musicObject is Album)
+        {
+            Album album = (Album)musicObject;
+            MauiProgram.ContextMenuMainText = album.name;
+            MauiProgram.ContextMenuSubText = album.artistCongregate;
+            MauiProgram.ContextMenuImage = albumImg;
+            MauiProgram.ContextMenuTaskList = album.GetContextMenuItems();
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+        else if (musicObject is Artist)
+        {
+            Artist artist = (Artist)musicObject;
+            MauiProgram.ContextMenuTaskList = artist.GetContextMenuItems();
+            MauiProgram.ContextMenuMainText = artist.name;
+            MauiProgram.ContextMenuSubText = String.Empty;
+            MauiProgram.ContextMenuImage = albumImg;
+            MauiProgram.ContextMenuRoundImage = true;
+        }
+        else if (musicObject is Playlist)
+        {
+            Playlist playlist = (Playlist)musicObject;
+            MauiProgram.ContextMenuTaskList = playlist.GetContextMenuItems();
+            MauiProgram.ContextMenuImage = albumImg;
+            MauiProgram.ContextMenuSubText = String.Empty;
+            MauiProgram.ContextMenuMainText = playlist.name;
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+        else if (musicObject is Song)
+        {
+            Song song = (Song)musicObject;
+            //MauiProgram.ContextMenuTaskList = song.GetContextMenuItems();
+            MauiProgram.ContextMenuImage = albumImg;
+            MauiProgram.ContextMenuSubText = song.artistCongregate;
+            MauiProgram.ContextMenuMainText = song.name;
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+        else if (musicObject != null)
+        {
+            MauiProgram.ContextMenuMainText = musicObject.name;
+            MauiProgram.ContextMenuImage = albumImg;
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+
+        await MauiProgram.mainPage.ShowContextMenu();
+        await Task.Run(() =>
+        {
+            // Literally just waiting for the fucking thing to close before we refresh
+            while (MauiProgram.ContextMenuIsOpen == true)
+            {
+
+            }
+        });
+        StateHasChanged();
     }
 
 }

@@ -12,7 +12,7 @@
         {
             Artist artist = (Artist)musicObject;
             <div class="grid-album-cover" @onclick=NavigateToArtist>
-                <img class="grid-artist-img" src="@artist.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
+                <img class="grid-artist-img" src="@artist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@artist.name</div>
@@ -22,7 +22,7 @@
         {
             Album album = (Album)musicObject;
             <div class="grid-album-cover" @onclick=NavigateToArtist>
-                <img class="grid-artist-img" src="@album.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
+                <img class="grid-artist-img" src="@album.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@album.name</div>
@@ -59,7 +59,7 @@ else if (musicObject != null)
         {
             Artist artist = (Artist)musicObject;
             <div class="artist-cover" @onclick=NavigateToArtist>
-                <img class="artist-cover" src="@artist.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
+                <img class="artist-cover" src="@artist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToArtist>
                 <div class="album-name">@artist.name</div>
@@ -69,7 +69,7 @@ else if (musicObject != null)
         {
             Album album = (Album)musicObject;
             <div class="album-cover" @onclick=NavigateToAlbum>
-                <img class="album-cover" src="@album.imageAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
+                <img class="album-cover" src="@album.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
             </div>
             <div @onclick=NavigateToAlbum>
                 <div class="album-name">@album.name</div>
@@ -141,7 +141,7 @@ else if (musicObject != null)
         {
             // TODO: Fix the fucking blur hash
             // Image image = Blurhasher.Decode(musicObject.image.blurHash, 32, 32);
-            
+
             // SixLabors.ImageSharp.Formats.IImageFormat format = Image.DetectFormatAsync(image);
             // image.ToBase64String(format);
         }
@@ -192,6 +192,7 @@ else if (musicObject != null)
             MauiProgram.ContextMenuSubText = album.artistCongregate;
             MauiProgram.ContextMenuImage = album.imageAtResolution(resolution);
             MauiProgram.ContextMenuTaskList = album.GetContextMenuItems();
+            MauiProgram.ContextMenuRoundImage = false;
         }
         else if(musicObject is Artist)
         {
@@ -200,6 +201,7 @@ else if (musicObject != null)
             MauiProgram.ContextMenuMainText = artist.name;
             MauiProgram.ContextMenuSubText = String.Empty;
             MauiProgram.ContextMenuImage = artist.imageAtResolution(resolution);
+            MauiProgram.ContextMenuRoundImage = true;
         }
         else if(musicObject is Playlist)
         {
@@ -208,6 +210,7 @@ else if (musicObject != null)
             MauiProgram.ContextMenuImage = playlist.image.SourceAtResolution(resolution);
             MauiProgram.ContextMenuSubText = String.Empty;
             MauiProgram.ContextMenuMainText = playlist.name;
+            MauiProgram.ContextMenuRoundImage = false;
         }
         else if (musicObject is Song)
         {
@@ -216,11 +219,13 @@ else if (musicObject != null)
             MauiProgram.ContextMenuImage = song.image.SourceAtResolution(resolution);
             MauiProgram.ContextMenuSubText = song.artistCongregate;
             MauiProgram.ContextMenuMainText = song.name;
+            MauiProgram.ContextMenuRoundImage = false;
         }
         else if (musicObject != null)
         {
             MauiProgram.ContextMenuMainText = musicObject.name;
             MauiProgram.ContextMenuImage = musicObject.image.SourceAtResolution(resolution);
+            MauiProgram.ContextMenuRoundImage = false;
         }
 
         await MauiProgram.mainPage.ShowContextMenu();

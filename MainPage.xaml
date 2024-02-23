@@ -27,7 +27,7 @@
         </Grid>
 
 
-        <!-- Navigation Bar -->
+        <!-- Navigation Bar & MiniPlayer -->
         <StackLayout Orientation="Vertical" x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" InputTransparent="False" IsVisible="false">
             <!-- MiniPlayer -->
             <Border x:Name="Player"
@@ -49,9 +49,9 @@
                             <Image Source="emptyAlbum.png" WidthRequest="50" HeightRequest="50"></Image>
                         </Border>
                         <!-- Song and Artist Text-->
-                        <Grid FlexLayout.Basis="50%" FlexLayout.Grow="1">
-                            <Label x:Name="Player_Txt_Title" Grid.Row="0" Text="Current Playing Song Title" MaxLines="1" FontSize="18" TextColor="Black"/>
-                            <Label x:Name="Player_Txt_Artist" Grid.Row="1" Text="Current Playing Artist" MaxLines="1" FontSize="12" TextColor="Gray"/>
+                        <Grid FlexLayout.Basis="50%" FlexLayout.Grow="1" VerticalOptions="FillAndExpand">
+                            <Label VerticalOptions="Start" x:Name="Player_Txt_Title" Grid.Row="0" Text="Current Playing Song Title" MaxLines="1" FontSize="15" TextColor="Black"/>
+                            <Label VerticalOptions="End" x:Name="Player_Txt_Artist" Grid.Row="1" Text="Current Playing Artist" MaxLines="1" FontSize="12" TextColor="Gray"/>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
@@ -63,6 +63,7 @@
                             <ImageButton x:Name="Player_Btn_PlayToggle" Clicked="Player_Btn_PlayToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="play.png"/>
                         </StackLayout>
                     </FlexLayout>
+
                     <Border StrokeThickness="0"
                             StrokeShape="RoundRectangle 2,2,2,2"
                             Margin="20, 0, 20, 0"
@@ -273,8 +274,8 @@
         <Grid x:Name="ContextMenu" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="false">
             <!--Image Container -->
             <Grid x:Name="ContextMenu_imagecontainer">
-                <Border Grid.Row="1" HorizontalOptions="Center" StrokeShape="RoundRectangle 5,5,5,5"  WidthRequest="250">
-                    <Image x:Name="ContextMenu_image" Source="{Binding ContextMenuImage}" WidthRequest="250" Aspect="AspectFit"></Image>
+                <Border x:Name="ContextMenu_imageBorder" Grid.Row="1" HorizontalOptions="Center" StrokeShape="RoundRectangle 5,5,5,5" StrokeThickness="0" HeightRequest="250" WidthRequest="250">
+                    <Image x:Name="ContextMenu_image" Source="{Binding ContextMenuImage}" HeightRequest="250" WidthRequest="250" Aspect="Fill"></Image>
                 </Border>
                 <StackLayout  VerticalOptions="Start" Grid.Row="2">
                     <Label x:Name="ContextMenu_MainText" Text="{Binding ContextMenuMainText}" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>

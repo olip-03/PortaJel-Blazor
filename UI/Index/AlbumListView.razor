@@ -1,33 +1,97 @@
 ﻿@namespace PortaJel_Blazor.UI.Index
 @using PortaJel_Blazor.Data;
 
-<li class="music-item" @onclick=NavigateToAlbum>
+<li class="music-item" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
     <div class="image-container">
         <img class="album-image"
-             src="@album.lowResImageSrc"
+             src="@musicItem.image.SourceAtResolution(100)"
              loading="lazy"
-             />
+             onerror="this.src='/images/emptyAlbum.png'" />
     </div>
     <div class="music-details">
-        <b>@album.name</b> • @album.GetArtistName()
+        @if(musicItem is Album)
+        {
+            Album album = (Album)musicItem;
+            string artistName = "• " + album.artistCongregate;
+            <b>@album.name</b> @artistName;
+        }   
     </div>
 </li>
 
 @code {
-    [Parameter] public Album album { get; set; } = new Album();
+    [Parameter] public BaseMusicItem musicItem { get; set; } = new Album();
     private void NavigateToAlbum()
     {
-        if (album != null)
+        if (musicItem != null)
         {
-            MauiProgram.mainLayout.NavigateAlbum(album.id);
+            MauiProgram.mainLayout.NavigateAlbum(musicItem.id);
         }
     }
     private void NavigateToArtist()
     {
-        if (album != null)
+        if (musicItem != null)
         {
             // TODO: Update to artist ID
-            MauiProgram.mainLayout.NavigateArtist(album.id);
+            MauiProgram.mainLayout.NavigateArtist(musicItem.id);
         }
+    }
+    private async void OpenContextMenu()
+    {
+        MauiProgram.ContextMenuTaskList.Clear();
+        MauiProgram.ShowContextMenuImage = true;
+
+        if (musicItem is Album)
+        {
+            Album album = (Album)musicItem;
+            MauiProgram.ContextMenuMainText = album.name;
+            MauiProgram.ContextMenuSubText = album.artistCongregate;
+            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
+            MauiProgram.ContextMenuTaskList = album.GetContextMenuItems();
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+        else if (musicItem is Artist)
+        {
+            Artist artist = (Artist)musicItem;
+            MauiProgram.ContextMenuTaskList = artist.GetContextMenuItems();
+            MauiProgram.ContextMenuMainText = artist.name;
+            MauiProgram.ContextMenuSubText = String.Empty;
+            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
+            MauiProgram.ContextMenuRoundImage = true;
+        }
+        else if (musicItem is Playlist)
+        {
+            Playlist playlist = (Playlist)musicItem;
+            MauiProgram.ContextMenuTaskList = playlist.GetContextMenuItems();
+            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
+            MauiProgram.ContextMenuSubText = String.Empty;
+            MauiProgram.ContextMenuMainText = playlist.name;
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+        else if (musicItem is Song)
+        {
+            Song song = (Song)musicItem;
+            //MauiProgram.ContextMenuTaskList = song.GetContextMenuItems();
+            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
+            MauiProgram.ContextMenuSubText = song.artistCongregate;
+            MauiProgram.ContextMenuMainText = song.name;
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+        else if (musicItem != null)
+        {
+            MauiProgram.ContextMenuMainText = musicItem.name;
+            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+
+        await MauiProgram.mainPage.ShowContextMenu();
+        await Task.Run(() =>
+        {
+            // Literally just waiting for the fucking thing to close before we refresh
+            while (MauiProgram.ContextMenuIsOpen == true)
+            {
+
+            }
+        });
+        StateHasChanged();
     }
 }

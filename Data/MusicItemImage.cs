@@ -11,7 +11,7 @@ namespace PortaJel_Blazor.Data
         // Variables
         public string source { get; set; } = String.Empty;
         public string blurHash { get; set; } = String.Empty;
-        public MusicItemImageType musicItemImageType { get; set; } = MusicItemImageType.onDisk;
+        public MusicItemImageType musicItemImageType { get; set; } = MusicItemImageType.url;
         public enum MusicItemImageType
         {
             onDisk,
@@ -32,7 +32,8 @@ namespace PortaJel_Blazor.Data
         {
             if(musicItemImageType == MusicItemImageType.url)
             {
-                return source += $"&fillHeight={px}&fillWidth={px}&quality=96";
+                string toReturn = source + $"&fillHeight={px}&fillWidth={px}&quality=96";
+                return toReturn;
             }
             return source;
         }

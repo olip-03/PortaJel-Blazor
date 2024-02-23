@@ -48,6 +48,7 @@ public static class MauiProgram
     public static string ContextMenuImage = String.Empty;
     public static string ContextMenuMainText = String.Empty;
     public static string ContextMenuSubText = String.Empty;
+    public static bool ContextMenuRoundImage = false;
 
     // Data for MusicPlayer
     public static bool MusicPlayerIsOpen = false;
@@ -62,7 +63,7 @@ public static class MauiProgram
 
     // Stored data for library page
     public static int librarySortMethod = 0;
-    public static int libraryItemView = 1;
+    public static int libraryItemView = 0;
     public static bool libraryShowGrid = false;
 
     // Stored data for favourites page

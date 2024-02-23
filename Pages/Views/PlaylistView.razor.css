@@ -63,8 +63,8 @@ hr {
     border-radius: 50%;
     border-color: rgba(0, 0, 0, 0.2);
     background-color: rgba(0, 0, 0, 0.1);
-    top: 1rem;
-    left: 1rem;
+    top: 0rem;
+    left: 0rem;
     width: 2.5rem;
     height: 2.5rem;
     cursor: pointer !important;
@@ -77,8 +77,8 @@ hr {
     border-radius: 50%;
     border-color: rgba(0, 0, 0, 0.2);
     background-color: rgba(0, 0, 0, 0.1);
-    top: 1rem;
-    right: 1rem;
+    top: 0rem;
+    right: 0rem;
     width: 2.5rem;
     height: 2.5rem;
     cursor: pointer !important;

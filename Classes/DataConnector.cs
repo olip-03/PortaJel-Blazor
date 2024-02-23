@@ -73,11 +73,11 @@ namespace PortaJel_Blazor.Classes
         }
         #endregion
         #region ArtistEndoings
-        public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startIndex = 0, CancellationToken? cancellationToken = null)
+        public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
         {
             List<Artist> artistsReturn = new List<Artist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                artistsReturn.AddRange(await server.Value.GetAllArtistsAsync(limit: limit, startFromIndex: startIndex, cancellationToken: cancellationToken));
+                artistsReturn.AddRange(await server.Value.GetAllArtistsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite, cancellationToken: cancellationToken));
             });
             // artistsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
 
@@ -96,7 +96,7 @@ namespace PortaJel_Blazor.Classes
         {
             List<Song> songsReturn = new List<Song>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                songsReturn.AddRange(await server.Value.GetAllSongsAsync(limit: limit, startFromIndex: startIndex, isFavourite, cancellationToken: cancellationToken));
+                songsReturn.AddRange(await server.Value.GetAllSongsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite, cancellationToken: cancellationToken));
             });
             //songsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
 
@@ -127,6 +127,17 @@ namespace PortaJel_Blazor.Classes
             }
 
             return genresReturn.ToArray();
+        }
+        #endregion
+        #region PlaylistsEndpoint
+        public async Task<Playlist[]> GetAllPlaylistsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
+        {
+            List<Playlist> playlistsReturn = new List<Playlist>();
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                playlistsReturn.AddRange(await server.Value.GetPlaylistsAsycn(limit: limit, startFromIndex: startIndex));
+            });
+
+            return playlistsReturn.ToArray();
         }
         #endregion
     }

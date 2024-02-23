@@ -887,6 +887,7 @@ namespace PortaJel_Blazor.Classes
             foreach (var item in artistResult.Items)
             {
                 Artist toAdd = ArtistBuilder(item);
+                toAdd.image = MusicItemImageBuilder(item);
                 artists.Add(toAdd);
             }
 
@@ -1151,10 +1152,12 @@ namespace PortaJel_Blazor.Classes
             {
                 return null;
             }
+
             Album newAlbum = new();
             newAlbum.name = baseItem.Name;
             newAlbum.id = baseItem.Id;
             newAlbum.songs = null; // TODO: Implement songs
+            newAlbum.image = MusicItemImageBuilder(baseItem);
 
             if (baseItem.Type != BaseItemKind.MusicAlbum)
             {
@@ -1207,36 +1210,12 @@ namespace PortaJel_Blazor.Classes
                 }
                 // Fetch Artists
                 // Do need to do another request here
-
             }
 
             // Favourite Info
             if(baseItem.UserData.IsFavorite)
             {
                 newAlbum.isFavourite = true;
-            }
-
-            // 69c72555-b29b-443d-9a17-01d735bd6f9f
-            // https://media.olisshittyserver.xyz/Items/cc890a31-1449-ec9c-b428-24ec98127fdb/Images/Primary
-            try
-            {
-                if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
-                {
-                    newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
-                }
-                else if (baseItem.ImageBlurHashes.Primary != null)
-                {
-                    newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/Primary?format=jpg";
-                }
-                else
-                {
-                    newAlbum.imageSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
-                }
-                newAlbum.lowResImageSrc = newAlbum.imageSrc;
-            }
-            catch (Exception)
-            {
-                Debug.WriteLine("Failed to assign image to item ID " + baseItem.Id);
             }
 
             return newAlbum;
@@ -1314,14 +1293,25 @@ namespace PortaJel_Blazor.Classes
             MusicItemImage image = new();
             image.musicItemImageType = MusicItemImage.MusicItemImageType.url;
             
-            if(baseItem.Type == BaseItemKind.Playlist)
+            if(baseItem.Type == BaseItemKind.MusicAlbum)
+            {
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
+            }
+            else if(baseItem.Type == BaseItemKind.Playlist)
             {
                 image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
             else if (baseItem.Type == BaseItemKind.Audio)
             {
-                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
+                if(baseItem.AlbumId != null)
+                {
+                    image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
+                }
+                else
+                {
+                    image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
+                }
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
             else if(baseItem.Type == BaseItemKind.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
