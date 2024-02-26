@@ -5,6 +5,8 @@ using PortaJel_Blazor.Pages.Xaml;
 using Microsoft.Maui.Platform;
 using System;
 using Microsoft.Maui.Controls.Shapes;
+using Jellyfin.Sdk;
+using System.Collections.Generic;
 
 #if ANDROID
 using Android;
@@ -20,6 +22,7 @@ public partial class MainPage : ContentPage
     private bool musicControlsFirstOpen = true;
     private bool waitingForPageLoad = false;
     private List<Song> queue = new List<Song>();
+    private Song currentlyPlaying = Song.Empty;
 
     private uint animationSpeed = 550;
 
@@ -33,7 +36,6 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         Initialize();
         MauiProgram.mainPage = this;
-        MediaController_Queue_List.ItemsSource = queue;
         #if ANDROID
         btn_navnar_home.HeightRequest = 30;
         btn_navnar_home.WidthRequest = 30;
@@ -169,6 +171,43 @@ public partial class MainPage : ContentPage
 
         MediaController_Player.IsVisible = false;
     }
+    public async Task<bool> RefreshMiniPlayer()
+    {
+        queue.Clear();
+        queue = MauiProgram.mediaService.songQueue.GetQueue().ToList();
+        currentlyPlaying = queue[0];
+
+        Player_Txt_Title.Opacity = 0;
+        Player_Txt_Artist.Opacity = 0;
+        Player_Img.Opacity = 0;
+
+        MainPlayer_MainImage.Source = currentlyPlaying.image.source;
+        MainPlayer_SongTitle.Text = currentlyPlaying.name;
+        MainPlayer_ArtistTitle.Text = currentlyPlaying.artistCongregate;
+
+        Player_Txt_Title.Text = currentlyPlaying.name;
+        Player_Txt_Artist.Text = currentlyPlaying.artistCongregate;
+        Player_Img.Source = currentlyPlaying.image.source;
+
+        await Task.WhenAll(
+        Player_Txt_Title.FadeTo(1, animationSpeed, Easing.SinOut),
+        Player_Txt_Artist.FadeTo(1, animationSpeed, Easing.SinOut),
+        Player_Img.FadeTo(1, animationSpeed, Easing.SinOut)
+        );
+        return true;
+    }
+    public void RefreshQueue()
+    {
+        queue.Clear();
+        queue = MauiProgram.mediaService.songQueue.GetQueue().ToList();
+        currentlyPlaying = queue[0];
+
+        queue_currentlyplaying_img.Source = currentlyPlaying.image.source;
+        queue_currentlyplaying_title_lbl.Text = currentlyPlaying.name;
+        queue_currentlyplaying_artisttitle_lbl.Text = currentlyPlaying.artistCongregate;
+
+        MediaController_Queue_List.ItemsSource = queue;
+    }
     public async void CloseMusicController()
     {
         MauiProgram.MusicPlayerIsOpen = false;
@@ -199,6 +238,7 @@ public partial class MainPage : ContentPage
             MediaController.FadeTo(1, animationSpeed, Easing.SinOut)
         );
 
+        RefreshQueue();
         musicControlsFirstOpen = false;
     }
     public async Task CloseContextMenu()
@@ -299,15 +339,66 @@ public partial class MainPage : ContentPage
     {
         MauiProgram.mediaService.TogglePlay();
         Player_Btn_PlayToggle.Opacity = 0;
+        MediaController_Player_Play_btn.Opacity = 0;
         if (MauiProgram.mediaService.isPlaying)
         {
+            MediaController_Player_Play_btn.Source = "pause.png";
             Player_Btn_PlayToggle.Source = "pause.png";
         }
         else
         {
+            MediaController_Player_Play_btn.Source = "play.png";
             Player_Btn_PlayToggle.Source = "play.png";
         }
-        await Player_Btn_PlayToggle.FadeTo(1, 500, Easing.SinOut);
+        await Task.WhenAll(
+            Player_Btn_PlayToggle.FadeTo(1, 500, Easing.SinOut),
+            MediaController_Player_Play_btn.FadeTo(1, 500, Easing.SinOut));
+    }
+    private async void MediaCntroller_Player_Repeat_btn_Clicked(object sender, EventArgs e)
+    {
+        MauiProgram.mediaService.ToggleRepeat();
+        MediaCntroller_Player_Repeat_btn.Opacity = 0;
+        switch (MauiProgram.mediaService.repeatMode)
+        {
+            case 2:
+                MediaCntroller_Player_Repeat_btn.Source = "repeat_on_single.png";
+                break;
+            case 1:
+                MediaCntroller_Player_Repeat_btn.Source = "repeat_on.png";
+                break;
+            case 0:
+                MediaCntroller_Player_Repeat_btn.Source = "repeat_off.png";
+                break;
+        }
+
+        await Task.WhenAll(MediaCntroller_Player_Repeat_btn.FadeTo(1, 500, Easing.SinOut));
+    }
+    private async void MediaCntroller_Player_Shuffle_btn_Clicked(object sender, EventArgs e)
+    {
+        MauiProgram.mediaService.ToggleShuffle();
+        MediaCntroller_Player_Shuffle_btn.Opacity = 0;
+        if (MauiProgram.mediaService.shuffleOn)
+        {
+            MediaCntroller_Player_Shuffle_btn.Source = "shuffle_on.png";
+        }
+        else
+        {
+            MediaCntroller_Player_Shuffle_btn.Source = "shuffle.png";
+        }
+        await MediaCntroller_Player_Shuffle_btn.FadeTo(1, 500, Easing.SinOut);
+    }
+    private async void MediaCntroller_Player_Previous_btn_Clicked(object sender, EventArgs e)
+    {
+        MauiProgram.mediaService.NextTrack();
+        MediaCntroller_Player_Previous_btn.Opacity = 0;
+        await MediaCntroller_Player_Previous_btn.FadeTo(1, 500, Easing.SinOut);
+    }
+
+    private async void MediaCntroller_Player_Next_btn_Clicked(object sender, EventArgs e)
+    {
+        MauiProgram.mediaService.PreviousTrack();
+        MediaCntroller_Player_Next_btn.Opacity = 0;
+        await MediaCntroller_Player_Next_btn.FadeTo(1, 500, Easing.SinOut);
     }
     private void Button_Clicked(object sender, EventArgs e)
     {

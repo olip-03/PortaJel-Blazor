@@ -10,7 +10,7 @@ namespace PortaJel_Blazor.Classes
     public class SongQueue
     {
         private Queue<Song> songQueue = new Queue<Song>();
-
+        private List<Song> nextUpQueue = new List<Song>();
         public void QueueSong(Song _song)
         {
             Song? lastSong = songQueue.FirstOrDefault();
@@ -28,53 +28,29 @@ namespace PortaJel_Blazor.Classes
                 // Refresh UI
             }
         }
-        public void QueueSong(Song[] _songList)
+        public void QueueRange(Song[] _songList)
         {
-            bool refreshUi = false;
             foreach (var _song in _songList)
             {
-                Song? lastSong = songQueue.FirstOrDefault();
                 songQueue.Enqueue(_song);
-
-                if (lastSong != null)
-                {
-                    if (lastSong != songQueue.FirstOrDefault())
-                    {
-                        refreshUi = true;
-                        // Refresh UI
-                    }
-                }
-                else
-                {
-                    refreshUi = true;
-                    // Refresh UI
-                }
             }
-            // Refresh UI
         }
         public Song DequeueSong()
         {
-            Song? lastSong = songQueue.FirstOrDefault();
             Song dequeued = songQueue.Dequeue();
-
-            if (lastSong != null)
-            {
-                if (lastSong != dequeued)
-                {
-                    // Refresh UI
-                }
-            }
-            else
-            {
-
-            }
-
             return dequeued;
         }
-        public void Clear()
+        /// <summary>
+        /// Moves all items in the queue, to the top of the 'next up' queue
+        /// </summary>
+        public void ShiftQueueToNextUp()
+        {
+            nextUpQueue.InsertRange(0, songQueue.ToList());
+            ClearQueue();
+        }
+        public void ClearQueue()
         {
             songQueue.Clear();
-            // Refresh UI
         }
         public int Count()
         {

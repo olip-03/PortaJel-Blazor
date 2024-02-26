@@ -410,14 +410,21 @@ namespace PortaJel_Blazor.Classes
                 throw;
             }
 
-            if (songResult == null || token.IsCancellationRequested)
+            Album getAlbum = Album.Empty;
+            BaseItemDto albumResultItem = new();
+
+            // Null checking
+            if (albumResult.Items.FirstOrDefault() == null || token.IsCancellationRequested)
             {
                 cancelTokenSource = new();
                 return Album.Empty;
             }
+            BaseItemDto? result = albumResult.Items.FirstOrDefault();
+            if (result != null)
+            {
+                albumResultItem = result;
+            }
 
-            BaseItemDto albumResultItem = albumResult.Items.FirstOrDefault();
-            Album getAlbum = Album.Empty;
 
             if (fetchFullArtist == true)
             {
@@ -427,6 +434,7 @@ namespace PortaJel_Blazor.Classes
             {
                 getAlbum = AlbumBuilder(albumResultItem);
             }
+            getAlbum.image = MusicItemImageBuilder(albumResultItem);
 
             // Set Song information
             List<Song> songList = new List<Song>();
@@ -449,6 +457,7 @@ namespace PortaJel_Blazor.Classes
                     setIsFavourite: item.UserData.IsFavorite,
                     setDiskNum: 0 //TODO: Add disk number
                     );
+                newSong.image = MusicItemImageBuilder(item);
 
                 // Add to song dictionary
                 if (!MauiProgram.songDictionary.ContainsKey(item.Id))

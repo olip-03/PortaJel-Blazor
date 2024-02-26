@@ -10,6 +10,8 @@ namespace PortaJel_Blazor.Classes.Services
     public partial class MediaService
     {
         public bool isPlaying = false;
+        public int repeatMode = 0;
+        public bool shuffleOn = false;
         public SongQueue songQueue = new();
         public partial void Initalize();
         public partial void Play();

@@ -1,14 +1,10 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Graphics.Drawables;
-using Android.Opengl;
 using Android.OS;
 using Android.Support.V4.Media.Session;
 using AndroidX.Core.App;
-using AndroidX.Core.Graphics.Drawable;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Source;
-using Com.Google.Android.Exoplayer2.UI;
 using Com.Google.Android.Exoplayer2.Upstream;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
@@ -36,6 +32,7 @@ namespace PortaJel_Blazor.Classes.Services
         public partial void Initalize()
         {
             isPlaying = false;
+
             CheckPermissions();
             //Android.Content.Intent intent = new Android.Content.Intent(Android.Provider.Settings.ActionNotificationPolicyAccessSettings);
             //intent.AddFlags(ActivityFlags.NewTask);
@@ -46,6 +43,7 @@ namespace PortaJel_Blazor.Classes.Services
             if(Platform.AppContext != null && MainDataSource != null)
             {
                 Exoplayer = new IExoPlayer.Builder(Platform.AppContext).SetMediaSourceFactory(MainDataSource).Build();
+                Exoplayer.RepeatMode = IPlayer.RepeatModeOff;
 
                 mediaSession = new MediaSessionCompat(Platform.AppContext, "PlayerService");
                 mediaStyle.SetMediaSession((Android.Media.Session.MediaSession.Token)mediaSession.SessionToken.GetToken());
@@ -154,19 +152,46 @@ namespace PortaJel_Blazor.Classes.Services
         }
         public partial void ToggleShuffle()
         {
-
+            if (Exoplayer != null)
+            {
+                Exoplayer.ShuffleModeEnabled = !Exoplayer.ShuffleModeEnabled;
+                shuffleOn = Exoplayer.ShuffleModeEnabled;
+            }
         }
         public partial void ToggleRepeat()
         {
-
+            if (Exoplayer != null)
+            {
+                switch (Exoplayer.RepeatMode)
+                {
+                    case IPlayer.RepeatModeAll:
+                        Exoplayer.RepeatMode = IPlayer.RepeatModeOff;
+                        repeatMode = 0;
+                        break;
+                    case IPlayer.RepeatModeOne:
+                        Exoplayer.RepeatMode = IPlayer.RepeatModeAll;
+                        repeatMode = 2;
+                        break;
+                    case IPlayer.RepeatModeOff:
+                        Exoplayer.RepeatMode = IPlayer.RepeatModeOne;
+                        repeatMode = 1;
+                        break;
+                }
+            }
         }
         public partial void NextTrack()
         {
-
+            if (Exoplayer != null)
+            {
+                Exoplayer.Next();
+            }
         }
         public partial void PreviousTrack()
         {
-
+            if (Exoplayer != null)
+            {
+                Exoplayer.Previous();
+            }
         }
     }
 }

@@ -11,14 +11,7 @@
     </button>
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
         <div class="imageContainer">
-            @if (album != null)
-            {
-                <img src="@album.imageSrc" class="albumImage" />
-            }
-            else
-            {
-                <img src="" class="albumImage" />
-            }
+            <img src="@album.image.source" class="albumImage" onerror="this.src='/images/emptyAlbum.png'" />
         </div>
 
         @if (album != null)
@@ -83,7 +76,7 @@
 }
 
 @code {
-    [Parameter] public string albumId { get; set; }
+    [Parameter] public string albumId { get; set; } = String.Empty;
 
     private Album album { get; set; }
     private bool loaded = false;
@@ -138,9 +131,16 @@
         StateHasChanged();
         await MauiProgram.servers[0].FavouriteItem(album.id, album.isFavourite);
     }
-    private void PlayAlbum()
+    private async void PlayAlbum()
     {
-        
+        // Move all items in the current queue to the Next Up Queue, to ensure that
+        // this item is prioritised, without losing the current queue 
+        if (MauiProgram.mediaService.songQueue.Count() > 0)
+        {
+            MauiProgram.mediaService.songQueue.ShiftQueueToNextUp();
+        }
+        MauiProgram.mediaService.songQueue.QueueRange(album.songs);
+        await MauiProgram.mainPage.RefreshMiniPlayer();
     }
 }
 
