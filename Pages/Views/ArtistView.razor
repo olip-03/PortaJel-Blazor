@@ -200,14 +200,14 @@
         if(artist != null)
         {
             int screenWidth = (int)Application.Current.Windows.FirstOrDefault().Width;
-            backgroundImgUrl = artist.backgroundImgAtResolution(screenWidth);
+            backgroundImgUrl = artist.backgroundImage.SourceAtResolution(screenWidth);
 
             int imgScale = (int)(Application.Current.Windows.FirstOrDefault().Width * 0.4);
-            imgUrl = artist.imageAtResolution(imgScale);
+            imgUrl = artist.image.SourceAtResolution(imgScale);
 
             artistAlbums = artist.artistAlbums;
 
-            logoUrl = artist.logoImgSrc;
+            logoUrl = artist.logoImage.source;
             if (logoUrl != string.Empty)
             {
                 hasLogo = true;

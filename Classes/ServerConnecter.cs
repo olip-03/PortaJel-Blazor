@@ -1171,8 +1171,8 @@ namespace PortaJel_Blazor.Classes
             newArtist.image = MusicItemImageBuilder(baseItem);
             newArtist.isPartial = false;
 
-            newArtist.backgroundImage = MusicItemImageBuilder(baseItem);
-            newArtist.logoImage = MusicItemImageBuilder(baseItem);
+            newArtist.backgroundImage = MusicItemImageBuilder(baseItem, ImageBuilderImageType.Backdrop);
+            newArtist.logoImage = MusicItemImageBuilder(baseItem, ImageBuilderImageType.Logo);
 
             return newArtist;
         }
@@ -1216,51 +1216,89 @@ namespace PortaJel_Blazor.Classes
             });
 
         }
-        private MusicItemImage MusicItemImageBuilder(BaseItemDto baseItem)
+        public enum ImageBuilderImageType
+        {
+            Primary,
+            Backdrop,
+            Logo
+        }
+        private MusicItemImage MusicItemImageBuilder(BaseItemDto baseItem, ImageBuilderImageType? imageType = ImageBuilderImageType.Primary)
         {
             MusicItemImage image = new();
             image.musicItemImageType = MusicItemImage.MusicItemImageType.url;
-            
-            if(baseItem.Type == BaseItemKind.MusicAlbum)
+
+            string imgType = "Primary";
+            switch (imageType)
             {
-                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
+                case ImageBuilderImageType.Backdrop:
+                    imgType = "Backdrop";
+                    break;
+                case ImageBuilderImageType.Logo:
+                    imgType = "Logo";
+                    break;
+                default:
+                    imgType = "Primary";
+                    break;
+            }
+
+            if (baseItem.Type == BaseItemKind.MusicAlbum)
+            {
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
             }
             else if(baseItem.Type == BaseItemKind.Playlist)
             {
-                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
             else if (baseItem.Type == BaseItemKind.Audio)
             {
                 if(baseItem.AlbumId != null)
                 {
-                    image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
+                    image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
                 }
                 else
                 {
-                    image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
+                    image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
                 }
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
+            else if(baseItem.Type == BaseItemKind.MusicArtist)
+            {
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
+            }
             else if(baseItem.Type == BaseItemKind.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
             {
-                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
                 image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
             else if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
             {
-                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/Primary?format=jpg";
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
                 image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
             else if (baseItem.ImageBlurHashes.Primary != null)
             {
-                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/Primary?format=jpg";
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id.ToString() + "/Images/" + imgType;
                 image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
             else if (baseItem.ArtistItems != null)
             {
-                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/Primary?format=jpg";
+                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/" + imgType;
             }
+
+            switch (imageType)
+            {
+                case ImageBuilderImageType.Backdrop:
+                    image.source += "?format=jpg";
+                    break;
+                case ImageBuilderImageType.Logo:
+                    imgType = "Logo";
+                    break;
+                default:
+                    image.source += "?format=jpg";
+                    break;
+            }
+            
 
             return image;
         }
