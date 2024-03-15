@@ -23,24 +23,31 @@
                     foreach (var item in searchResults)
                     {
                         <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                            <SearchResultItem musicObject="@item" />
+                            <SearchResultItem musicObject="@item" cacheAsRecentItem=true/>
                         </Animate>
 
                         itemFadeInDelay += 0.1f;
                     }
                 }
-                else if (searchQuery != null)
+                else if (searchResults.Count() <= 0 && !String.IsNullOrWhiteSpace(searchQuery))
                 {
-                    <p>Nothing found...</p>
+                    <p>Nothing found</p>
                 }
-                else
+                else if (String.IsNullOrWhiteSpace(searchQuery))
                 {
-                    @* TODO: Show recent results (things the user has searched for and clicked on) *@
-                    <p>Recent searches: </p>
+                    itemFadeInDelay = 0;
+                    <p>Recent searches</p>
+                    foreach (var item in MauiProgram.recentSearchResults)
+                    {
+                        <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                            <SearchResultItem musicObject="@item" cacheAsRecentItem=true />
+                        </Animate>
+
+                        itemFadeInDelay += 0.1f;
+                    }
                 }
             </div>
         }
-
     </div>
 </Animate>
 

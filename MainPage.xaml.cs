@@ -22,6 +22,7 @@ public partial class MainPage : ContentPage
     private bool musicControlsFirstOpen = true;
     private bool waitingForPageLoad = false;
     private List<Song> queue = new List<Song>();
+    private List<Song> queueNextUp = new List<Song>();
     private Song currentlyPlaying = Song.Empty;
 
     private uint animationSpeed = 550;
@@ -156,6 +157,8 @@ public partial class MainPage : ContentPage
         MauiProgram.MusicPlayerIsQueueOpen = false;
         MediaController_Player.IsVisible = true;
 
+        MediaController_Player_PlayingFromInfo.IsVisible = MauiProgram.mediaService.nextUpIsAvaliable;
+
         MediaController_Queue.TranslationY = 0;
         await MediaController_Queue.TranslateTo(0, screenHeight, animationSpeed, Easing.SinIn);
     }
@@ -171,7 +174,7 @@ public partial class MainPage : ContentPage
 
         MediaController_Player.IsVisible = false;
     }
-    public async Task<bool> RefreshMiniPlayer()
+    public async Task<bool> RefreshPlayer()
     {
         queue.Clear();
         queue = MauiProgram.mediaService.songQueue.GetQueue().ToList();
@@ -196,17 +199,40 @@ public partial class MainPage : ContentPage
         );
         return true;
     }
+    public async void RefreshPlayState(bool? animate = true)
+    {
+        Player_Btn_PlayToggle.Opacity = 0;
+        MediaController_Player_Play_btn.Opacity = 0;
+        if (MauiProgram.mediaService.isPlaying)
+        {
+            MediaController_Player_Play_btn.Source = "pause.png";
+            Player_Btn_PlayToggle.Source = "pause.png";
+        }
+        else
+        {
+            MediaController_Player_Play_btn.Source = "play.png";
+            Player_Btn_PlayToggle.Source = "play.png";
+        }
+        if(animate == true)
+        {
+            await Task.WhenAll(
+                Player_Btn_PlayToggle.FadeTo(1, 500, Easing.SinOut),
+                MediaController_Player_Play_btn.FadeTo(1, 500, Easing.SinOut));
+        }
+    }
     public void RefreshQueue()
     {
         queue.Clear();
         queue = MauiProgram.mediaService.songQueue.GetQueue().ToList();
-        currentlyPlaying = queue[0];
+        queueNextUp = MauiProgram.mediaService.songQueue.GetNextUp().ToList();
+        currentlyPlaying = queue.First();
 
         queue_currentlyplaying_img.Source = currentlyPlaying.image.source;
         queue_currentlyplaying_title_lbl.Text = currentlyPlaying.name;
         queue_currentlyplaying_artisttitle_lbl.Text = currentlyPlaying.artistCongregate;
 
         MediaController_Queue_List.ItemsSource = queue;
+        MediaController_NextUp_List.ItemsSource = queueNextUp;
     }
     public async void CloseMusicController()
     {
@@ -224,6 +250,20 @@ public partial class MainPage : ContentPage
         MauiProgram.MusicPlayerIsOpen = true;
 
         screenHeight = AllContent.Height;
+
+        if (MauiProgram.mediaService.nextUpIsAvaliable && MauiProgram.mediaService.nextUpItem != null)
+        {
+            MediaController_Player_PlayingFromInfo.IsVisible = MauiProgram.mediaService.nextUpIsAvaliable;
+            MediaController_Player_PlayingFromInfo_PlayingFromText.Text = MauiProgram.mediaService.nextUpItem.name;
+            if (MauiProgram.mediaService.nextUpItem is Album)
+            {
+                MediaController_Player_PlayingFromInfo_PlayingFromType.Text = "Playing from Album";
+            }
+            else if (MauiProgram.mediaService.nextUpItem is Playlist)
+            {
+                MediaController_Player_PlayingFromInfo_PlayingFromType.Text = "Playing from Playlist";
+            }
+        }
 
         MediaController.IsVisible = true;
         if (musicControlsFirstOpen)
@@ -338,21 +378,7 @@ public partial class MainPage : ContentPage
     private async void Player_Btn_PlayToggle_Clicked(object sender, EventArgs e)
     {
         MauiProgram.mediaService.TogglePlay();
-        Player_Btn_PlayToggle.Opacity = 0;
-        MediaController_Player_Play_btn.Opacity = 0;
-        if (MauiProgram.mediaService.isPlaying)
-        {
-            MediaController_Player_Play_btn.Source = "pause.png";
-            Player_Btn_PlayToggle.Source = "pause.png";
-        }
-        else
-        {
-            MediaController_Player_Play_btn.Source = "play.png";
-            Player_Btn_PlayToggle.Source = "play.png";
-        }
-        await Task.WhenAll(
-            Player_Btn_PlayToggle.FadeTo(1, 500, Easing.SinOut),
-            MediaController_Player_Play_btn.FadeTo(1, 500, Easing.SinOut));
+        RefreshPlayState();
     }
     private async void MediaCntroller_Player_Repeat_btn_Clicked(object sender, EventArgs e)
     {
@@ -564,6 +590,25 @@ public partial class MainPage : ContentPage
                 break;
         }
 #endif
+    }
+    private async void Queue_PinchUpdated(object sender, PanUpdatedEventArgs e)
+    {
+        #if !WINDOWS
+        switch (e.StatusType)
+        {
+            case GestureStatus.Running:
+                double newLocation = ContextMenu.TranslationY + e.TotalY;
+                if(newLocation >= 0)
+                {
+                    ContextMenu.TranslationY = newLocation;
+                }
+                break;
+
+            case GestureStatus.Completed:
+                await ContextMenu.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
+                break;
+        }
+        #endif
     }
     #endregion
 }

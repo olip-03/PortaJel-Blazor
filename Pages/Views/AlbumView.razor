@@ -1,5 +1,6 @@
 ﻿@using PortaJel_Blazor.Data;
 @using BlazorAnimate;
+@using PortaJel_Blazor.Classes.Services;
 @inject IJSRuntime JS;
 
 @page "/AlbumView/{albumId}"
@@ -18,7 +19,7 @@
         {
             <div class="item-title">
                 <div class="title-text">
-                    <h2>@album.name</h2>
+                    <h2 style="margin: 0px">@album.name</h2>
                     <div class="artistInfo" @onclick="() => SelectArtist(album.artists.FirstOrDefault().id)">
                         @album.GetArtistName()
                     </div>
@@ -47,30 +48,78 @@
                         <img class="playback-controls-btn-img" src="/images/shuffle.svg">
                     </div>
                     <div class="playback-controls-btn playbtn" @onclick=PlayAlbum>
-                        <img class="playback-controls-btn-img" src="/images/play.svg">
+                        @if (isCurrentAlbum && MauiProgram.mediaService.isPlaying)
+                        {
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <img class="playback-controls-btn-img" src="/images/pause.svg">
+                            </Animate>
+                        }
+                        else
+                        {
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <img class="playback-controls-btn-img" src="/images/play.svg">
+                            </Animate>
+                        }
                     </div>
+
                 </div>
             </div>
 
             foreach (var song in album.songs)
             {
-                <hr />
-                <div>
-                    <p class="songTitle">@song.name</p>
-                    <p class="songArtistTitle">
-                    <p>@album.artistCongregate</p>
-                    </p>
+                <div class="songContainer">
+                    <div>
+                        <p class="songTitle">@song.name</p>
+                        <p class="songArtistTitle">@song.artistCongregate</p>
+                    </div>
+                    <!-- Add like and context menu button -->
+                    <div class="songitem-options">
+                        @if (song.isFavourite)
+                        {
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <svg class="playback-controls-btn-img favbtn mr-1" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M 480 -120 L 422 -172 C 354.667 -232.667 299 -285 255 -329 C 211 -373 176 -412.5 150 -447.5 C 124 -482.5 105.833 -514.667 95.5 -544 C 85.167 -573.333 80 -603.333 80 -634 C 80 -696.667 101 -749 143 -791 C 185 -833 237.333 -854 300 -854 C 334.667 -854 367.667 -846.667 399 -832 C 430.333 -817.333 457.333 -796.667 480 -770 C 502.667 -796.667 529.667 -817.333 561 -832 C 592.333 -846.667 625.333 -854 660 -854 C 722.667 -854 775 -833 817 -791 C 859 -749 880 -696.667 880 -634 C 880 -603.333 874.833 -573.333 864.5 -544 C 854.167 -514.667 836 -482.5 810 -447.5 C 784 -412.5 749 -373 705 -329 C 661 -285 605.333 -232.667 538 -172 L 480 -120 Z M 480 -501 Z" fill="currentColor" transform="matrix(1, 0, 0, 1, 7.105427357601002e-15, 1.1368683772161603e-13)" />
+                                </svg>
+                            </Animate>
+                        }
+                        else
+                        {
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <img class="playback-controls-btn-img mr-1" src="/images/heart.svg">
+                            </Animate>
+                        }
+                        <img class="playback-controls-btn-img" src="/images/more-vert.svg">
+                    </div>
                 </div>
             }
-            <hr />
 
-            foreach (Artist artist in album.artists)
+            int forcount = 0;
+            foreach (var artist in album.artists)
             {
                 <div class="artistInfo" @onclick="() => SelectArtist(artist.id)">
-                    <img src="@artist.imageAtResolution(40)" class="artistInfoImg">
+                    <img src="@artist.image.SourceAtResolution(40)" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
                     @artist.name
                 </div>
+                if(forcount < album.artists.Count())
+                {
+                    <br />
+                }
+                forcount++;
             }
+@*             <hr />
+            <h2>Recommended Artists</h2>
+            <div class="recommended-artists">
+                
+                <div class="artists-list">
+                    @foreach (string reco in similarArtists)
+                    {
+                        <div class="artist">
+                            <div class="artist-image"></div>
+                            <p class="artist-name">@reco</p>
+                        </div>
+                    }
+                </div>
+            </div>  *@
         }
     </Animate>
 }
@@ -78,8 +127,17 @@
 @code {
     [Parameter] public string albumId { get; set; } = String.Empty;
 
+    // GUID records of items that may be in the queue
+    private Guid? currentAlbumGuid { get; set; } = null;
+    private Guid? currentSongGuid { get; set; } = null;
+    public bool isCurrentAlbum = false;
+
+    // This bullshit we need to do cause the fucking artists arent loading properly in the razor page
+    private Dictionary<Guid, KeyValuePair<string, string>> artistData = new();
+
     private Album album { get; set; }
     private bool loaded = false;
+    private string[] similarArtists = new string[0];
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,21 +145,33 @@
         MauiProgram.mainLayout.currentUri = $"/AlbumView/{albumId}";
         MauiProgram.mainLayout.showHeader = false;
 
-        Guid parseId = Guid.Parse(albumId);
-        if (albumId != null)
+        try
         {
-            album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist:true);
-        }
-        if (album != null)
-        {
-            foreach (Song albumSongs in album.songs)
+            currentAlbumGuid = MauiProgram.currentAlbumGuid;
+            currentSongGuid = MauiProgram.currentSongGuid;
+            if (currentAlbumGuid != null && currentAlbumGuid != Guid.Empty && currentAlbumGuid == album.id)
             {
-                Artist[]? songArtists = await albumSongs.GetArtistAsync();
-                if (songArtists != null)
-                {
-                    albumSongs.artists = songArtists;
-                }
+                isCurrentAlbum = true;
             }
+            else
+            {
+                isCurrentAlbum = false;
+            }
+
+            Guid parseId = Guid.Parse(albumId);
+            if (albumId != null)
+            {
+                album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
+            }
+
+            // GnodService reccomendations = new();
+            // similarArtists = await reccomendations.QueryGnod(album.artists.First().name);
+        }
+        catch (Exception ex)
+        {
+            Album dummyUp = new();
+            dummyUp.name = ex.Message;
+            // TODO : Implement 'Something went wrong, please try again'
         }
 
         loaded = true;
@@ -135,12 +205,23 @@
     {
         // Move all items in the current queue to the Next Up Queue, to ensure that
         // this item is prioritised, without losing the current queue 
-        if (MauiProgram.mediaService.songQueue.Count() > 0)
+        MauiProgram.mediaService.nextUpItem = album;
+
+        MauiProgram.currentAlbumGuid = album.id;
+        MauiProgram.currentSongGuid = album.songs.First().id;
+
+        if (MauiProgram.currentAlbumGuid == album.id)
         {
-            MauiProgram.mediaService.songQueue.ShiftQueueToNextUp();
+            isCurrentAlbum = true;
+            MauiProgram.mediaService.TogglePlay();
         }
-        MauiProgram.mediaService.songQueue.QueueRange(album.songs);
-        await MauiProgram.mainPage.RefreshMiniPlayer();
+        else
+        {
+            isCurrentAlbum = false;
+            MauiProgram.mediaService.Play();
+        }
+
+        await MauiProgram.mainPage.RefreshPlayer();
+        StateHasChanged();
     }
 }
-

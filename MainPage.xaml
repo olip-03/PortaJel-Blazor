@@ -14,9 +14,9 @@
                 <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
             </BlazorWebView.RootComponents>
         </BlazorWebView>
-        
+
         <!-- Loading blockout -->
-        <Grid x:Name="LoadingBlockout" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="true">
+        <Grid x:Name="LoadingBlockout" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="false">
             <ActivityIndicator x:Name="save_activityIndicator" IsRunning="True" IsVisible="True" HeightRequest="80" WidthRequest="80" VerticalOptions="Center" HorizontalOptions="Center"/>
 
             <Grid.GestureRecognizers>
@@ -27,60 +27,86 @@
         </Grid>
 
 
-        <!-- Navigation Bar & MiniPlayer -->
-        <StackLayout Orientation="Vertical" x:Name="Navbar" HeightRequest="120" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" InputTransparent="False" IsVisible="false">
-            <!-- MiniPlayer -->
-            <Border x:Name="Player"
-                    Stroke="LightGray"
-                    StrokeThickness="0"
-                    StrokeShape="RoundRectangle 5,5,5,5"
-                    Margin="10, 0, 10, 0"
-                    ZIndex="5">
-                <Border.Shadow>
-                    <Shadow Brush="Black"
-                            Offset="5,5"
-                            Radius="15"
-                            Opacity="0.7" />
-                </Border.Shadow>
-                <Grid>
-                    <FlexLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White" HeightRequest="60" AlignItems="Center">
-                        <!-- Image -->
-                        <Border FlexLayout.Shrink="0" WidthRequest="50" HeightRequest="50" StrokeThickness="0" Margin="2.5, 0, 2.5, 0" StrokeShape="RoundRectangle 5,5,5,5">
-                            <Image x:Name="Player_Img" Aspect="Fill" Source="emptyAlbum.png" WidthRequest="50" HeightRequest="50"></Image>
+        <!-- Navigation Bar, MiniPlayer & Status Indicator -->
+        <StackLayout Orientation="Vertical" x:Name="Navbar"  VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" InputTransparent="False" IsVisible="false">
+            <VerticalStackLayout x:Name="Player">
+                <!-- Status Indicator  -->
+                <Border x:Name="Player_Status"
+                        Stroke="LightGray"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 5,5,5,5"
+                        Margin="10, 0, 10, 5"
+                        ZIndex="5" 
+                        IsVisible="False">
+                    <Border.Shadow>
+                        <Shadow Brush="Black"
+                                Offset="5,5"
+                                Radius="15"
+                                Opacity="0.7" />
+                    </Border.Shadow>
+                    <Grid BackgroundColor="White" HeightRequest="25">
+                        <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                            <Image  x:Name="Player_status_Img" Aspect="Fill" Margin="2.5, 0, 2.5, 0" Source="offline24x24.png" WidthRequest="20" HeightRequest="20"></Image>
+
+                            <!-- Status Text-->
+                            <Label VerticalOptions="Center" x:Name="Player_status_txt" Text="Unable to connect to https://media.olisshittyserver.xyz/" MaxLines="1" FontSize="14" TextColor="Black"/>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+                <!-- MiniPlayer -->
+                <Border Stroke="LightGray"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 5,5,5,5"
+                        Margin="10, 0, 10, 0"
+                        ZIndex="5"
+                        IsVisible="False">
+                    <Border.Shadow>
+                        <Shadow Brush="Black"
+                                Offset="5,5"
+                                Radius="15"
+                                Opacity="0.7" />
+                    </Border.Shadow>
+                    <Grid>
+                        <FlexLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White" HeightRequest="60" AlignItems="Center">
+                            <!-- Image -->
+                            <Border FlexLayout.Shrink="0" WidthRequest="50" HeightRequest="50" StrokeThickness="0" Margin="2.5, 0, 2.5, 0" StrokeShape="RoundRectangle 5,5,5,5">
+                                <Image x:Name="Player_Img" Aspect="Fill" Source="emptyAlbum.png" WidthRequest="50" HeightRequest="50"></Image>
+                            </Border>
+                            <!-- Song and Artist Text-->
+                            <Grid FlexLayout.Basis="50%" FlexLayout.Grow="1" VerticalOptions="FillAndExpand">
+                                <Label VerticalOptions="Start" x:Name="Player_Txt_Title" Grid.Row="0" Text="Current Playing Song Title" MaxLines="1" FontSize="15" TextColor="Black"/>
+                                <Label VerticalOptions="End" x:Name="Player_Txt_Artist" Grid.Row="1" Text="Current Playing Artist" MaxLines="1" FontSize="12" TextColor="Gray"/>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                            </Grid>
+                            <!-- Playback Controls -->
+                            <StackLayout Orientation="Horizontal" FlexLayout.Grow="0" HeightRequest="50" Margin="2.5, 0, 2.5, 0">
+                                <ImageButton x:Name="Player_Btn_FavToggle" Clicked="Player_Btn_FavToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="heart.png"/>
+                                <ImageButton x:Name="Player_Btn_PlayToggle" Clicked="Player_Btn_PlayToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="play.png"/>
+                            </StackLayout>
+                        </FlexLayout>
+
+                        <Border StrokeThickness="0"
+                                StrokeShape="RoundRectangle 2,2,2,2"
+                                Margin="20, 0, 20, 0"
+                                BackgroundColor="Transparent"
+                                VerticalOptions="End">
+                            <ProgressBar Progress="0.7" HeightRequest="4" BackgroundColor="Transparent"/>
                         </Border>
-                        <!-- Song and Artist Text-->
-                        <Grid FlexLayout.Basis="50%" FlexLayout.Grow="1" VerticalOptions="FillAndExpand">
-                            <Label VerticalOptions="Start" x:Name="Player_Txt_Title" Grid.Row="0" Text="Current Playing Song Title" MaxLines="1" FontSize="15" TextColor="Black"/>
-                            <Label VerticalOptions="End" x:Name="Player_Txt_Artist" Grid.Row="1" Text="Current Playing Artist" MaxLines="1" FontSize="12" TextColor="Gray"/>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                        </Grid>
-                        <!-- Playback Controls -->
-                        <StackLayout Orientation="Horizontal" FlexLayout.Grow="0" HeightRequest="50" Margin="2.5, 0, 2.5, 0">
-                            <ImageButton x:Name="Player_Btn_FavToggle" Clicked="Player_Btn_FavToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="heart.png"/>
-                            <ImageButton x:Name="Player_Btn_PlayToggle" Clicked="Player_Btn_PlayToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="play.png"/>
-                        </StackLayout>
-                    </FlexLayout>
 
-                    <Border StrokeThickness="0"
-                            StrokeShape="RoundRectangle 2,2,2,2"
-                            Margin="20, 0, 20, 0"
-                            BackgroundColor="Transparent"
-                            VerticalOptions="End">
-                        <ProgressBar Progress="0.7" HeightRequest="4" BackgroundColor="Transparent"/>
-                    </Border>
+                        <Grid.GestureRecognizers>
+                            <PanGestureRecognizer PanUpdated="Navbar_PinchUpdated"/>
+                            <TapGestureRecognizer Tapped="MiniPlayer_Clicked"/>
+                            <SwipeGestureRecognizer Direction="Up" Swiped="MiniPlayer_Clicked"></SwipeGestureRecognizer>
+                        </Grid.GestureRecognizers>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
 
-                    <Grid.GestureRecognizers>
-                        <PanGestureRecognizer PanUpdated="Navbar_PinchUpdated"/>
-                        <TapGestureRecognizer Tapped="MiniPlayer_Clicked"/>
-                        <SwipeGestureRecognizer Direction="Up" Swiped="MiniPlayer_Clicked"></SwipeGestureRecognizer>
-                    </Grid.GestureRecognizers>
-                </Grid>
-            </Border>
             <!-- Navigation Buttons -->
-            <FlexLayout HeightRequest="60" HorizontalOptions="Fill" VerticalOptions="Fill" JustifyContent="SpaceEvenly" AlignItems="Center">
+            <FlexLayout HeightRequest="60" HorizontalOptions="Fill" VerticalOptions="EndAndExpand" JustifyContent="SpaceEvenly" AlignItems="Center">
                 <ImageButton x:Name="btn_navnar_home" Source="home.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_home_click"/>
                 <ImageButton x:Name="btn_navnar_search" Source="search.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_search_click"/>
                 <ImageButton x:Name="btn_navnar_library" Source="library.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_library_click"/>
@@ -97,7 +123,7 @@
             </StackLayout.Background>
         </StackLayout>
 
-        <!-- Media Player Controls -->
+        <!-- Media Player Controls & Queue -->
         <Grid x:Name="MediaController" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="false">
             <!-- Controller -->
             <Grid x:Name="MediaController_Player" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
@@ -108,9 +134,9 @@
                             <TapGestureRecognizer Tapped="Button_Clicked"></TapGestureRecognizer>
                         </ImageButton.GestureRecognizers>
                     </ImageButton>
-                    <StackLayout Grid.Column="1" VerticalOptions="Center">
-                        <Label Text="Playing from Album" TextColor="Black" FontSize="16" HorizontalOptions="Center"></Label>
-                        <Label Text="Album Name" TextColor="Black" FontSize="14" HorizontalOptions="Center"></Label>
+                    <StackLayout x:Name="MediaController_Player_PlayingFromInfo" Grid.Column="1" VerticalOptions="Center" IsVisible="False">
+                        <Label x:Name="MediaController_Player_PlayingFromInfo_PlayingFromType" Text="Playing from Album" TextColor="Black" FontSize="16" HorizontalOptions="Center"></Label>
+                        <Label x:Name="MediaController_Player_PlayingFromInfo_PlayingFromText" Text="Album Name" TextColor="Black" FontSize="14" HorizontalOptions="Center"></Label>
                     </StackLayout>
                     <ImageButton Clicked="MediaController_Btn_ContextMenu" WidthRequest="40" HeightRequest="40" Source="more_horiz.png" Grid.Column="2">
                         <ImageButton.GestureRecognizers>
@@ -196,36 +222,38 @@
                         <ColumnDefinition Width="70"/>
                     </Grid.ColumnDefinitions>
                 </Grid>
-                
+
                 <!-- Main Queue -->
-                <Grid InputTransparent="False" Grid.Row="1">
-                    <Grid Padding="20, 0, 20, 0">
-                        <!-- Currently playing -->
-                        <Grid Grid.Row="0">
-                            <Label Grid.Row="0" FontAttributes="Bold" FontSize="16" TextColor="Black">Currently Playing</Label>
-                            <!-- Currently Playing Image -->
-                            <Grid x:Name="queue_currentlyplaying" Padding="0, 10, 0, 0" Grid.Row="1">
-                                <Border Grid.Row="0"
+                <ScrollView InputTransparent="False" Grid.Row="1">
+                    <VerticalStackLayout>
+                        <Grid Padding="20, 0, 20, 0">
+                            <!-- Currently playing -->
+                            <Grid Grid.Row="0">
+                                <Label Grid.Row="0" FontAttributes="Bold" FontSize="16" TextColor="Black">Currently Playing</Label>
+                                <!-- Currently Playing Image -->
+                                <Grid x:Name="queue_currentlyplaying" Padding="0, 10, 0, 0" Grid.Row="1">
+                                    <Border Grid.Row="0"
                                     Grid.Column="0"
                                     Grid.RowSpan="2" 
                                     HeightRequest="50"
                                     WidthRequest="50" 
+                                    StrokeThickness="0"
                                     StrokeShape="RoundRectangle 3,3,3,3"
                                     Margin="0, 0, 5, 0">
-                                    <Image x:Name="queue_currentlyplaying_img"
+                                        <Image x:Name="queue_currentlyplaying_img"
                                        Grid.RowSpan="2"
-                                       Source="{Binding image.source}"
+                                       Source="{Binding image.sourceAtResolution}"
                                        Aspect="AspectFill"/>
-                                </Border>
+                                    </Border>
 
-                                <Label x:Name="queue_currentlyplaying_title_lbl"
+                                    <Label x:Name="queue_currentlyplaying_title_lbl"
                                    Grid.Row="0"
                                    Grid.Column="1"
                                    Text="{Binding name}"
                                    FontAttributes="Bold" 
                                    TextColor="Black"
                                    VerticalOptions="End"/>
-                                <Label x:Name="queue_currentlyplaying_artisttitle_lbl"
+                                    <Label x:Name="queue_currentlyplaying_artisttitle_lbl"
                                    Grid.Row="1"
                                    Grid.Column="1"
                                    Text="{Binding artistCongregate}"
@@ -233,36 +261,6 @@
                                    VerticalOptions="Start"
                                    TextColor="Black"/>
 
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                            </Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                        </Grid>
-                        <!-- Queue Start Label -->
-                        <Grid Grid.Row="1">
-                            <Label VerticalOptions="Center" Grid.Row="1" FontAttributes="Bold" FontSize="16" TextColor="Black">Queue</Label>
-                            <Button Grid.Row="1" BorderColor="LightGray" BorderWidth="1" HeightRequest="35" WidthRequest="75" BackgroundColor="White" TextColor="Black" HorizontalOptions="End" Text="Clear"></Button>
-                        </Grid>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                    </Grid>
-                        
-                    <CollectionView Grid.Row="1" CanReorderItems="True" x:Name="MediaController_Queue_List" InputTransparent="False" >
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Padding="20, 0, 0, 5">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
@@ -271,38 +269,114 @@
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
+                                </Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                            </Grid>
 
-                                    <Border Grid.RowSpan="2" 
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                        </Grid>
+                        
+                        <!-- Queue Start Label -->
+                        <Grid Padding="20, 10, 20, 0" Grid.Row="1">
+                            <Label VerticalOptions="Center" Grid.Row="1" FontAttributes="Bold" FontSize="16" TextColor="Black">Queue</Label>
+                            <Button Grid.Row="1" BorderColor="LightGray" BorderWidth="1" HeightRequest="35" WidthRequest="75" BackgroundColor="White" TextColor="Black" HorizontalOptions="End" Text="Clear"></Button>
+                        </Grid>
+                        
+                        <CollectionView Grid.Row="1" CanReorderItems="True" x:Name="MediaController_Queue_List" InputTransparent="False" >
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="20, 0, 0, 5">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Grid.RowSpan="2" 
                                             HeightRequest="50"
                                             WidthRequest="50" 
                                             StrokeShape="RoundRectangle 3,3,3,3"
+                                            StrokeThickness="0"
                                             Margin="0, 0, 5, 0">
-                                        <Image Grid.RowSpan="2"
-                                               Source="{Binding image.source}"
+                                            <Image Grid.RowSpan="2"
+                                               Source="{Binding image.sourceAtResolution}"
                                                Aspect="AspectFill"/>
-                                    </Border>
-                                    
-                                    <Label Grid.Column="1"
+                                        </Border>
+
+                                        <Label Grid.Column="1"
                                            Text="{Binding name}"
                                            FontAttributes="Bold" 
                                            TextColor="Black"
                                            VerticalOptions="End"/>
-                                    <Label Grid.Row="1"
+                                        <Label Grid.Row="1"
                                            Grid.Column="1"
                                            Text="{Binding artistCongregate}"
                                            FontAttributes="Italic"
                                            VerticalOptions="Start"
                                            TextColor="Black"/>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="120"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
 
+                        <!-- Queue Start Label -->
+                        <Grid Padding="20, 10, 20, 0" Grid.Row="1">
+                            <Label VerticalOptions="Center" Grid.Row="1" FontAttributes="Bold" FontSize="16" TextColor="Black">Next Up</Label>
+                            <Button Grid.Row="1" BorderColor="LightGray" BorderWidth="1" HeightRequest="35" WidthRequest="75" BackgroundColor="White" TextColor="Black" HorizontalOptions="End" Text="Clear"></Button>
+                        </Grid>
+
+                        <CollectionView Grid.Row="1" CanReorderItems="True" x:Name="MediaController_NextUp_List" InputTransparent="False" >
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="20, 0, 0, 5">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Grid.RowSpan="2" 
+                                            HeightRequest="50"
+                                            WidthRequest="50" 
+                                            StrokeShape="RoundRectangle 3,3,3,3"
+                                            StrokeThickness="0"
+                                            Margin="0, 0, 5, 0">
+                                            <Image Grid.RowSpan="2"
+                                               Source="{Binding image.sourceAtResolution}"
+                                               Aspect="AspectFill"/>
+                                        </Border>
+
+                                        <Label Grid.Column="1"
+                                           Text="{Binding name}"
+                                           FontAttributes="Bold" 
+                                           TextColor="Black"
+                                           VerticalOptions="End"/>
+                                        <Label Grid.Row="1"
+                                           Grid.Column="1"
+                                           Text="{Binding artistCongregate}"
+                                           FontAttributes="Italic"
+                                           VerticalOptions="Start"
+                                           TextColor="Black"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </ScrollView>
+                
+                <!-- Playback Controls -->
                 <Grid Grid.Row="2">
                     <Border StrokeThickness="0"
                             StrokeShape="RoundRectangle 2,2,2,2"
@@ -390,6 +464,9 @@
                     <GradientStop Color="Black" Offset="1.0" />
                 </LinearGradientBrush>
             </Grid.Background>
+            <Grid.GestureRecognizers>
+                <PanGestureRecognizer PanUpdated="Queue_PinchUpdated"/>
+            </Grid.GestureRecognizers>
         </Grid>
     </Grid>
 </ContentPage>

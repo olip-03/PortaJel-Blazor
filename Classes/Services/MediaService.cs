@@ -13,6 +13,18 @@ namespace PortaJel_Blazor.Classes.Services
         public int repeatMode = 0;
         public bool shuffleOn = false;
         public SongQueue songQueue = new();
+        public bool nextUpIsAvaliable {
+            get
+            {
+                if (nextUpItem == null)
+                {
+                    return false;
+                }
+                return true;
+            }
+            private set { }
+        }
+        public BaseMusicItem? nextUpItem = null;
         public partial void Initalize();
         public partial void Play();
         public partial void Pause();

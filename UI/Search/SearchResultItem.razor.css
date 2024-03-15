@@ -37,6 +37,10 @@
 .album-name {
     font-weight: bold;
 }
+.artist-name {
+    font-weight: bold;
+    text-align: center;
+}
 
 /* Style for the album artist */
 .album-artist {
@@ -77,6 +81,12 @@
     aspect-ratio: 1 / 1;
     border-radius: 0.4rem;
 }
+.grid-artist-cover {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+}
 .grid-album-img {
     width: 100%;
     height: auto;
@@ -89,7 +99,6 @@
     height: auto;
     border-radius: 50%;
     aspect-ratio: 1 / 1;
-    border-radius: 0.4rem;
     object-fit: cover;
 }
 .grid-album-name {

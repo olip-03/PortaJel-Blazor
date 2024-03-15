@@ -1,19 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Jellyfin.Sdk;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
+﻿using Jellyfin.Sdk;
 using PortaJel_Blazor.Data;
-using PortaJel_Blazor.Shared.Music_Displays;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -29,6 +15,7 @@ namespace PortaJel_Blazor.Classes
         private SdkClientSettings _sdkClientSettings = null;
         private ArtistsClient _artistsClient;
         private ItemsClient _itemsClient;
+        private ItemLookupClient _itemLookupClient;
         private ItemUpdateClient _itemUpdateClient;
         private PlaylistsClient _playlistsClient;
         private PlaylistCreationResult _playlistCreationResult;
@@ -140,6 +127,7 @@ namespace PortaJel_Blazor.Classes
                 _userLibraryClient = new(_sdkClientSettings, _httpClient);
                 _mediaInfoClient = new(_sdkClientSettings, _httpClient);
                 _itemUpdateClient = new(_sdkClientSettings, _httpClient);
+                _itemLookupClient = new(_sdkClientSettings, _httpClient);
 
                 _playlistCreationResult = new();
                 Username = username;
@@ -213,7 +201,7 @@ namespace PortaJel_Blazor.Classes
 
             return albums.ToArray();
         }
-        public async Task<Album[]> FetchFavouritesAddedAsync(int? _startIndex = null, int? _limit = null)
+        public async Task<BaseMusicItem[]> FetchFavouritesAddedAsync(int? _startIndex = null, int? _limit = null)
         {
             // Create a list containing only the "Album" item type
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio };
@@ -235,23 +223,27 @@ namespace PortaJel_Blazor.Classes
             if (songResult == null || token.IsCancellationRequested)
             {
                 cancelTokenSource = new();
-                return new Album[0];
+                return new BaseMusicItem[0];
             }
 
-            List<Album> albums = new List<Album>();
+            List<BaseMusicItem> musicItems = new List<BaseMusicItem>();
             foreach (var item in songResult.Items)
             {
-                try
+                switch (item.Type)
                 {
-                    albums.Add(AlbumBuilder(item));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
+                    case BaseItemKind.MusicAlbum:
+                        musicItems.Add(AlbumBuilder(item));
+                        break;
+                    case BaseItemKind.Audio:
+                        musicItems.Add(SongBuilder(item));
+                        break;
+                    case BaseItemKind.Playlist:
+                        musicItems.Add(PlaylistBuilder(item));
+                        break;
                 }
 
             }
-            return albums.ToArray();
+            return musicItems.ToArray();
         }
         public async Task<Album[]> FetchRecentlyPlayedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false)
         {
@@ -401,17 +393,13 @@ namespace PortaJel_Blazor.Classes
             try
             {
                 albumResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _filterIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _albumItemTypes, recursive: true, enableImages: true, cancellationToken: token);
-                if (token.IsCancellationRequested) { cancelTokenSource = new(); return Album.Empty; }
                 songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _songItemTypes, parentId: albumId, recursive: true, enableImages: true, cancellationToken: token);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                throw;
+                return Album.Empty;
             }
-
-            Album getAlbum = Album.Empty;
-            BaseItemDto albumResultItem = new();
 
             // Null checking
             if (albumResult.Items.FirstOrDefault() == null || token.IsCancellationRequested)
@@ -419,90 +407,38 @@ namespace PortaJel_Blazor.Classes
                 cancelTokenSource = new();
                 return Album.Empty;
             }
+
+            Album getAlbum = Album.Empty;
+            BaseItemDto albumResultItem = new();
             BaseItemDto? result = albumResult.Items.FirstOrDefault();
-            if (result != null)
-            {
-                albumResultItem = result;
-            }
+            if (result != null)  { albumResultItem = result; }
 
-
-            if (fetchFullArtist == true)
-            {
-                getAlbum = await AlbumBuilder(albumResultItem, true);
-            }
-            else
-            {
-                getAlbum = AlbumBuilder(albumResultItem);
-            }
-            getAlbum.image = MusicItemImageBuilder(albumResultItem);
+            getAlbum = await AlbumBuilder(albumResultItem, true);
 
             // Set Song information
             List<Song> songList = new List<Song>();
-            foreach (var item in songResult.Items)
+            foreach (var song in songResult.Items)
             {
-                // Preliminary info 
-                List<Guid> artistIds = new();
-                foreach (var artist in item.AlbumArtists)
-                {
-                    artistIds.Add(artist.Id);
-                }
-
                 // Create object
-                Song newSong = new Song(
-                    setGuid: item.Id,
-                    setServerId: item.ServerId,
-                    setName: item.Name,
-                    setArtistIds: artistIds.ToArray(),
-                    setAlbumID: getAlbum.id,
-                    setIsFavourite: item.UserData.IsFavorite,
-                    setDiskNum: 0 //TODO: Add disk number
-                    );
-                newSong.image = MusicItemImageBuilder(item);
+                Song newSong = SongBuilder(song);
+                newSong.album = getAlbum;
+
+                List<Artist> partialArtistList = new List<Artist>();
+                foreach (NameGuidPair partialArtist in song.ArtistItems)
+                {
+                    // TOOD: Check if we already have a complete record in the cached data
+                    partialArtistList.Add(ArtistBuilder(partialArtist));
+                }
+                newSong.artists = partialArtistList.ToArray();
 
                 // Add to song dictionary
-                if (!MauiProgram.songDictionary.ContainsKey(item.Id))
+                if (!MauiProgram.songDictionary.ContainsKey(song.Id))
                 {
-                    MauiProgram.songDictionary.Add(item.Id, newSong);
+                    MauiProgram.songDictionary.Add(song.Id, newSong);
                 }
                 songList.Add(newSong);
             }
             getAlbum.songs = songList.ToArray();
-
-            // Set Artist information
-            List<Artist> artistList = new List<Artist>();
-            if (fetchFullArtist == true)
-            {
-                List<Guid> ids = new List<Guid>();
-                foreach (var artist in albumResultItem.AlbumArtists)
-                {
-                    Artist newArtists = new Artist();
-                    newArtists.id = artist.Id;
-                    newArtists.name = artist.Name;
-                    artistList.Add(newArtists);
-
-                    if (!MauiProgram.artistDictionary.ContainsKey(artist.Id))
-                    {
-                        MauiProgram.artistDictionary.Add(artist.Id, newArtists);
-                    }
-                }
-                getAlbum.artists = artistList.ToArray();
-            }
-            else
-            {
-                foreach (var artist in albumResultItem.AlbumArtists)
-                {
-                    Artist newArtists = new Artist();
-                    newArtists.id = artist.Id;
-                    newArtists.name = artist.Name;
-                    artistList.Add(newArtists);
-
-                    if (!MauiProgram.artistDictionary.ContainsKey(artist.Id))
-                    {
-                        MauiProgram.artistDictionary.Add(artist.Id, newArtists);
-                    }
-                }
-                getAlbum.artists = artistList.ToArray();
-            }
 
             return getAlbum;
         }
@@ -1159,7 +1095,7 @@ namespace PortaJel_Blazor.Classes
         {
             if(baseItem == null)
             {
-                return null;
+                return Album.Empty;
             }
 
             Album newAlbum = new();
@@ -1167,15 +1103,6 @@ namespace PortaJel_Blazor.Classes
             newAlbum.id = baseItem.Id;
             newAlbum.songs = null; // TODO: Implement songs
             newAlbum.image = MusicItemImageBuilder(baseItem);
-
-            if (baseItem.Type != BaseItemKind.MusicAlbum)
-            {
-                newAlbum.isSong = true;
-                if (baseItem.AlbumId != null)
-                {
-                    newAlbum.id = (Guid)baseItem.AlbumId;
-                }
-            }
 
             // Artists
             if(baseItem.Type != BaseItemKind.MusicArtist) 
@@ -1199,7 +1126,7 @@ namespace PortaJel_Blazor.Classes
                     foreach (var artist in artistFetchRequest.Items)
                     {
                         Artist newArist = ArtistBuilder(artist);
-                         artists.Add(newArist);
+                        artists.Add(newArist);
                     }
                     newAlbum.artists = artists.ToArray();
                 }
@@ -1235,40 +1162,32 @@ namespace PortaJel_Blazor.Classes
             {
                 return null;
             }
+
             Artist newArtist= new();
             newArtist.name = baseItem.Name;
             newArtist.id = baseItem.Id;
             newArtist.description = baseItem.Overview;
             newArtist.isFavourite = baseItem.UserData.IsFavorite;
+            newArtist.image = MusicItemImageBuilder(baseItem);
+            newArtist.isPartial = false;
 
-            // 69c72555-b29b-443d-9a17-01d735bd6f9f
-            // https://media.olisshittyserver.xyz/Items/cc890a31-1449-ec9c-b428-24ec98127fdb/Images/Primary
+            newArtist.backgroundImage = MusicItemImageBuilder(baseItem);
+            newArtist.logoImage = MusicItemImageBuilder(baseItem);
 
-            // Set primary image
-            if (baseItem.ImageBlurHashes.Primary != null)
+            return newArtist;
+        }
+        private Artist ArtistBuilder(NameGuidPair nameGuidPair)
+        {
+            if (nameGuidPair == null)
             {
-                newArtist.imgSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Primary?format=jpg";
-            }
-            else
-            {
-                newArtist.imgSrc = "/images/emptyAlbum.png";
-            }
-
-            // Set background
-            if (baseItem.ImageBlurHashes.Backdrop != null)
-            {
-                newArtist.backgroundImgSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Backdrop?format=jpg";
-            }
-            else if (baseItem.ImageBlurHashes.Primary != null)
-            {
-                newArtist.backgroundImgSrc = newArtist.imgSrc;
+                return Artist.Empty;
             }
 
-            // Set logo
-            if (baseItem.ImageBlurHashes.Logo != null)
-            {
-                newArtist.logoImgSrc = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/Logo";
-            }
+            Artist newArtist = new();
+            newArtist.name = nameGuidPair.Name;
+            newArtist.id = nameGuidPair.Id;
+            newArtist.image = MusicItemImageBuilder(nameGuidPair);
+            newArtist.isPartial = true;
 
             return newArtist;
         }
@@ -1345,6 +1264,15 @@ namespace PortaJel_Blazor.Classes
 
             return image;
         }
+        private MusicItemImage MusicItemImageBuilder(NameGuidPair nameGuidPair)
+        {
+            MusicItemImage image = new();
+
+            image.musicItemImageType = MusicItemImage.MusicItemImageType.url;
+            image.source = _sdkClientSettings.BaseUrl + "/Items/" + nameGuidPair.Id + "/Images/Primary?format=jpg";
+
+            return image;
+        }
         private Playlist PlaylistBuilder(BaseItemDto baseItem)
         {
             return PlaylistBuilder(baseItem, false).Result;
@@ -1382,6 +1310,7 @@ namespace PortaJel_Blazor.Classes
                     setAlbumID: baseItem.AlbumId,
                     setDiskNum: 0, //TODO: Fix disk num
                     setIsFavourite: baseItem.UserData.IsFavorite);
+            newSong.image = MusicItemImageBuilder(baseItem);
             return newSong;
         }
     }

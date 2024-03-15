@@ -21,6 +21,8 @@ public static class MauiProgram
     private static string fileName = "usrdata.bin";
     private static string filePath = System.IO.Path.Combine(mainDir, fileName);
 
+    public static StyleSettings styleSettings = new();
+
     public static bool isConnected = false;
     public static bool firstLoginComplete = false;
     public static bool webViewInitalized = false;
@@ -40,6 +42,9 @@ public static class MauiProgram
     public static Dictionary<Guid, Album> albumDictionary = new Dictionary<Guid, Album>();
     public static Dictionary<Guid, Artist> artistDictionary = new Dictionary<Guid, Artist>();
     public static Dictionary<Guid, Playlist> playlistDictionary = new Dictionary<Guid, Playlist>();
+
+    public static Guid currentAlbumGuid = Guid.Empty;
+    public static Guid currentSongGuid = Guid.Empty;
 
     // Data for context menu
     public static List<ContextMenuItem> ContextMenuTaskList = new List<ContextMenuItem>();
@@ -61,6 +66,9 @@ public static class MauiProgram
     // Direct access to the media element
     public static BlazorWebView webView = null;
 
+    // Stored data for Search Page
+    public static List<BaseMusicItem> recentSearchResults = new();
+
     // Stored data for library page
     public static int librarySortMethod = 0;
     public static int libraryItemView = 0;
@@ -77,10 +85,10 @@ public static class MauiProgram
     public static List<Song> favouriteSongs = new();
 
     // Index page cached data
-    public static Album[] favouritesPlayData { get; set; } = new Album[0];
-    public static Album[] recentPlayData { get; set; } = new Album[0];
-    public static Album[] mostPlayData { get; set; } = new Album[0];
-    public static Album[] recentAddedData { get; set; } = new Album[0];
+    public static BaseMusicItem[] favouritesPlayData { get; set; } = new BaseMusicItem[0];
+    public static BaseMusicItem[] recentPlayData { get; set; } = new BaseMusicItem[0];
+    public static BaseMusicItem[] mostPlayData { get; set; } = new BaseMusicItem[0];
+    public static BaseMusicItem[] recentAddedData { get; set; } = new BaseMusicItem[0];
 
     public static MauiApp CreateMauiApp()
 	{

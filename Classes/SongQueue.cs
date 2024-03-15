@@ -10,7 +10,7 @@ namespace PortaJel_Blazor.Classes
     public class SongQueue
     {
         private Queue<Song> songQueue = new Queue<Song>();
-        private List<Song> nextUpQueue = new List<Song>();
+        private Queue<Song> nextUpQueue = new Queue<Song>();
         public void QueueSong(Song _song)
         {
             Song? lastSong = songQueue.FirstOrDefault();
@@ -40,13 +40,16 @@ namespace PortaJel_Blazor.Classes
             Song dequeued = songQueue.Dequeue();
             return dequeued;
         }
-        /// <summary>
-        /// Moves all items in the queue, to the top of the 'next up' queue
-        /// </summary>
-        public void ShiftQueueToNextUp()
+        public void QueueNextUp(Song _song)
         {
-            nextUpQueue.InsertRange(0, songQueue.ToList());
-            ClearQueue();
+            nextUpQueue.Enqueue(_song);
+        }
+        public void QueueNextUpRange(Song[] _songList)
+        {
+            foreach (var _song in _songList)
+            {
+                nextUpQueue.Enqueue(_song);
+            }
         }
         public void ClearQueue()
         {
@@ -67,6 +70,10 @@ namespace PortaJel_Blazor.Classes
         public Song[] GetQueue()
         {
             return songQueue.ToArray();
+        }
+        public Song[] GetNextUp()
+        {
+            return nextUpQueue.ToArray();
         }
     }
 

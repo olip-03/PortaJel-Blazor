@@ -126,7 +126,7 @@ public partial class PlaylistViewEditor : ContentPage
                         unorderedList.RemoveAt(i);
                         unorderedList.Insert(newIndex, item);
 
-                        bool passed = MauiProgram.servers[0].MovePlaylistItem(playlist.id, item.playlistId, newIndex).Result;
+                        bool passed = await MauiProgram.servers[0].MovePlaylistItem(playlist.id, item.playlistId, newIndex);
                         if (!passed)
                         {
                             // wah wah

@@ -13,17 +13,20 @@
         <img src="@albumImg" class="albumImage" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="OpenContextMenu" onerror="this.src='/images/emptyAlbum.png'" />
     </div>
 
-    <p class="albumText" @onclick="NavigateToAlbum">
-        @if (musicObject is Song)
-        { // Show the little song icon
-            <img src="/images/song.svg" />
-        }
-        else
-        {
-            <img src="/images/album.svg" />
-        }
-        @musicObject.name • @artistName
-    </p>
+    @if(musicObject != null)
+    {
+        <p class="albumText" @onclick="NavigateToAlbum">
+            @if (musicObject is Song)
+            { // Show the little song icon
+                <img src="/images/song.svg" />
+            }
+            else
+            {
+                <img src="/images/album.svg" />
+            }
+            @musicObject.name • @artistName
+        </p>
+    }
 </div>
 
 <style>
@@ -50,26 +53,38 @@
 
     protected override async Task OnInitializedAsync()
     {
-        albumImg = musicObject.image.SourceAtResolution(resolution);
-        backImg = musicObject.image.SourceAtResolution(25);
-        if(musicObject is Album)
+        if(musicObject != null)
         {
-            Album album = musicObject as Album;
-            artistName = album.artistCongregate;
+            albumImg = musicObject.image.SourceAtResolution(resolution);
+            backImg = musicObject.image.SourceAtResolution(25);
+            if (musicObject is Album)
+            {
+                Album album = musicObject as Album;
+                artistName = album.artistCongregate;
+            }
+            if (musicObject is Song)
+            {
+                Song song = musicObject as Song;
+                artistName = song.artistCongregate;
+            }
+            StateHasChanged();
         }
-        if (musicObject is Song)
-        {
-            Album album = musicObject as Album;
-            artistName = album.artistCongregate;
-        }
-        StateHasChanged();
     }
 
     private void NavigateToAlbum()
     {
         if (musicObject != null)
         {
-            MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
+            if (musicObject is Album)
+            {
+                Album album = musicObject as Album;
+                MauiProgram.mainLayout.NavigateAlbum(album.id);
+            }
+            if (musicObject is Song)
+            {
+                Song song = musicObject as Song;
+                MauiProgram.mainLayout.NavigateAlbum(song.album.id);
+            }
         }
     }
 

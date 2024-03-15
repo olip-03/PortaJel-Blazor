@@ -21,13 +21,15 @@
                 </div>
             </div>
         }
-
         <article class="mainContent">
             <div class="bodyContainer">
                 @Body
-            </div>
-            <div style="height:4rem;"></div>
-
+            </div>  
+            @if(MauiProgram.mediaService.songQueue.Count() > 0)
+            { // TODO: Implement some legitiemate system for checking if the miniplayer
+              // should be open or not
+                <div style="height:7rem;"></div>
+            }
         </article>
     </main>
 </div>
@@ -66,10 +68,6 @@
 
     private string _pageTitle = "PortaJel";
     private bool _showHeader = true;
-
-    private string serverAddress { get; set; }
-    private string username { get; set; }
-    private string password { get; set; }
 
     private bool waiting { get; set; }
     private bool showError { get; set; }

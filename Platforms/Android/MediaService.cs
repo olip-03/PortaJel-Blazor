@@ -6,6 +6,7 @@ using AndroidX.Core.App;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Upstream;
+using PortaJel_Blazor.Data;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 
@@ -124,11 +125,43 @@ namespace PortaJel_Blazor.Classes.Services
         }
         public partial void Play()
         {
-            ThrowNotification(AppInfo.PackageName);
-
+            // ThrowNotification(AppInfo.PackageName);
+            UpdateCurrentlyPlaying();
             if (Exoplayer!= null)
             {
+                isPlaying = true;
                 Exoplayer.Play();
+
+                MauiProgram.mainPage.RefreshPlayState();
+            }
+        }
+        public async void UpdateCurrentlyPlaying()
+        {
+            Song? getSong = null;
+            Album? getAlbum = null;
+
+            // im not happy with it either 
+            if(songQueue.GetQueue().Count() > 0)
+            {
+                getSong = songQueue.GetQueue().First();
+            }
+            if (getSong != null)
+            {
+                // await getSong.GetAlbumAsync();
+
+                //getAlbum = await getSong.GetAlbumAsync();
+                if(getSong.album != Album.Empty)
+                {
+                    MauiProgram.currentAlbumGuid = getSong.album.id;
+                }
+                else
+                {
+                    MauiProgram.currentAlbumGuid = Guid.Empty;
+                }
+            }
+            else
+            {
+                MauiProgram.currentAlbumGuid = Guid.Empty;
             }
         }
         public partial void Pause()
@@ -136,6 +169,8 @@ namespace PortaJel_Blazor.Classes.Services
             if (Exoplayer != null)
             {
                 Exoplayer.Pause();
+
+                MauiProgram.mainPage.RefreshPlayState();
             }
         }
         public partial void TogglePlay()

@@ -9,10 +9,16 @@ namespace PortaJel_Blazor.Data
 {
     public class Artist : BaseMusicItem
     {
+        /// <summary>
+        /// Boolean variable to determin if the information in this class is not complete
+        /// </summary>
+        public bool isPartial { get; set; } = false;
         public string description { get; set; } = String.Empty;
         public string imgSrc { get; set; } = String.Empty;
         public string backgroundImgSrc { get; set; } = String.Empty;
         public string logoImgSrc { get; set; } = String.Empty;
+        public MusicItemImage backgroundImage { get; set; } = new();
+        public MusicItemImage logoImage { get; set; } = new();
         public Album[] artistAlbums { get; set; } = new Album[0];
 
         public static Artist Empty = new Artist(); 

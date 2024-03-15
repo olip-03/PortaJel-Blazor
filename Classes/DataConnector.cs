@@ -13,6 +13,9 @@ namespace PortaJel_Blazor.Classes
     /// </summary>
     public class DataConnector
     {
+        /// <summary>
+        /// List of connectors that data is pulled from. Key is the URL of the server, ServerConnector is the connector itself.
+        /// </summary>
         private Dictionary<string, ServerConnecter> connecters = new();
         /// <summary>
         /// Adds a new server to access data from.
@@ -28,10 +31,18 @@ namespace PortaJel_Blazor.Classes
             }
             return false;
         }
+        /// <summary>
+        /// Removs a particular server from sources of info. 
+        /// </summary>
+        /// <param name="server">The ServerConnector to be removed.</param>
         public void RemoveServer(ServerConnecter server) 
         { 
             connecters.Remove(server.GetBaseAddress());
         }
+        /// <summary>
+        /// Removs a particular server from sources of info. 
+        /// </summary>
+        /// <param name="address">The URL of the ServerConnector to be removed.</param>
         public void RemoveServer(string address)
         {
             ServerConnecter[] enumerate = connecters.Values.ToArray();
@@ -43,10 +54,15 @@ namespace PortaJel_Blazor.Classes
                 }
             }
         }
+        /// <summary>
+        /// Gets all the servers we're currently connected to.
+        /// </summary>
+        /// <returns>ServerConnecter[] (ServerConnecter array) containing all ServerConnectors added to the DataConnector</returns>
         public ServerConnecter[] GetServers()
         {
             return connecters.Values.ToArray();
         }
+        
         #region AlbumEndpoints
         /// <summary>
         /// Retreieves all albums from connected servers. 

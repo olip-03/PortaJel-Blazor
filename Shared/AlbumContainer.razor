@@ -15,19 +15,14 @@
     <div class="scrollmenu">
         @for (int i = 0; i < itemCount; i++)
         {
-            Album showRecord = new();
-
-            if (albumData != null)
+            if (albumData != null && albumData.Count() >= itemCount)
             {
-                if(i < albumData.Count())
-                {
-                    showRecord = albumData[i];
-                    <AlbumCard musicObject="showRecord" />
-                }
+                BaseMusicItem showRecord = albumData[i];
+                <AlbumCard musicObject="showRecord" />
             }
             else
             {
-                <AlbumCard musicObject="showRecord" />
+                <AlbumCard musicObject="null" />
             }
         }
         <div class="scrollmenu-showall">
@@ -39,9 +34,9 @@
 
 @code {
     // Demonstrates how a parent component can supply parameters
-    [Parameter] public string Title { get; set; }
-    [Parameter] public Album[] albumData { get; set; }
-    [Parameter] public int itemCount { get; set; }
+    [Parameter] public string Title { get; set; } = String.Empty;
+    [Parameter] public BaseMusicItem[] albumData { get; set; } = new BaseMusicItem[0];
+    [Parameter] public int itemCount { get; set; } = 0;
 
     private List<BaseItemKind> acceptedTypes = new List<BaseItemKind>
     {

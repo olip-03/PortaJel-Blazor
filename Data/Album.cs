@@ -11,12 +11,7 @@ namespace PortaJel_Blazor.Data
     public class Album : BaseMusicItem, IComparable<Album>
     {
         public string imageSrc { get; set; } = "/images/emptyAlbum.png";
-        public string lowResImageSrc { get; set; } = "/images/emptyAlbum.png";
-        public bool isSong { get; set; } = false;
-        public bool isArtist { get; set; } = false;
-        
-        public bool isM3u = false;
-        public Artist[] artists { get; set; }
+        public Artist[] artists { get; set; } = new Artist[0];
         public string artistCongregate
         {
             get
@@ -38,7 +33,7 @@ namespace PortaJel_Blazor.Data
 
             }
         }
-        public Song[] songs { get; set; }
+        public Song[] songs { get; set; } = new Song[0];
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;
         public string serverAddress { get; set; } = string.Empty;
         public enum AlbumSortMethod

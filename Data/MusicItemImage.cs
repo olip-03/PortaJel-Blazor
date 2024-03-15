@@ -11,6 +11,13 @@ namespace PortaJel_Blazor.Data
         // Variables
         public string source { get; set; } = String.Empty;
         public string blurHash { get; set; } = String.Empty;
+        public int soureResolution { get; set; } = 50;
+        public string sourceAtResolution { get
+            {
+                return SourceAtResolution(soureResolution);
+            }
+            private set { }
+        }
         public MusicItemImageType musicItemImageType { get; set; } = MusicItemImageType.url;
         public enum MusicItemImageType
         {
