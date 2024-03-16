@@ -51,20 +51,21 @@
     private string backImg { get; set; } = String.Empty;
 
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         if(musicObject != null)
         {
             albumImg = musicObject.image.SourceAtResolution(resolution);
             backImg = musicObject.image.SourceAtResolution(25);
+
             if (musicObject is Album)
             {
-                Album album = musicObject as Album;
+                Album album = (Album)musicObject;
                 artistName = album.artistCongregate;
             }
             if (musicObject is Song)
             {
-                Song song = musicObject as Song;
+                Song song = (Song)musicObject;
                 artistName = song.artistCongregate;
             }
             StateHasChanged();
@@ -77,13 +78,17 @@
         {
             if (musicObject is Album)
             {
-                Album album = musicObject as Album;
+                Album album = (Album)musicObject;
                 MauiProgram.mainLayout.NavigateAlbum(album.id);
             }
             if (musicObject is Song)
             {
-                Song song = musicObject as Song;
-                MauiProgram.mainLayout.NavigateAlbum(song.album.id);
+                Song song = (Song)musicObject;
+                Album? album = song.album;
+                if(album != null)
+                {
+                    MauiProgram.mainLayout.NavigateAlbum(album.id);
+                }
             }
         }
     }

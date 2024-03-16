@@ -1,6 +1,8 @@
 ﻿@using PortaJel_Blazor.Data;
 @using BlazorAnimate;
 @using PortaJel_Blazor.Classes.Services;
+@using Blurhash;
+@using System.Drawing.Common;
 @inject IJSRuntime JS;
 
 @page "/AlbumView/{albumId}"
@@ -121,6 +123,7 @@
                 </div>
             </div>  *@
         }
+        @errormessage
     </Animate>
 }
 
@@ -138,6 +141,8 @@
     private Album album { get; set; }
     private bool loaded = false;
     private string[] similarArtists = new string[0];
+
+    private string errormessage = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -164,19 +169,51 @@
                 album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
             }
 
-            // GnodService reccomendations = new();
+            Pixel[,] pixels = new Pixel[0, 0];
+            Blurhash.Core.Decode(album.image.blurHash, pixels);
+
+            GnodService reccomendations = new();
             // similarArtists = await reccomendations.QueryGnod(album.artists.First().name);
         }
         catch (Exception ex)
         {
             Album dummyUp = new();
             dummyUp.name = ex.Message;
+            errormessage = ex.ToString();
             // TODO : Implement 'Something went wrong, please try again'
         }
 
         loaded = true;
         await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.mainLayout.isLoading = false;
+    }
+    public static string BlurhashToBase64(Blurhash.Pixel[,] blurhashArray)
+    {
+        // Decode the Blurhash string to obtain pixel values
+        int width = blurhashArray.GetLength(1);
+        int height = blurhashArray.GetLength(0);
+        System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(width, height);
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                System.Drawing.Color pixelColor = System.Drawing.Color.FromArgb(
+                    (int)blurhashArray[y, x].Red,
+                    (int)blurhashArray[y, x].Green,
+                    (int)blurhashArray[y, x].Blue
+                );
+                bitmap.SetPixel(x, y, pixelColor);
+            }
+        }
+
+        // Convert the image to a base64 encoded string
+        using (MemoryStream memoryStream = new MemoryStream())
+        {
+            bitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+            byte[] imageBytes = memoryStream.ToArray();
+            string base64String = Convert.ToBase64String(imageBytes);
+            return base64String;
+        }
     }
     private void SelectArtist(Guid artistId)
     {

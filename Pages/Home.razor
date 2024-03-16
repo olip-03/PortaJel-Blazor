@@ -62,6 +62,8 @@
         MauiProgram.mainLayout.currentUri = "/home";
         MauiProgram.mainLayout.showHeader = true;
 
+        bool doneRandom = false;
+
         // Load all the stored fucking data
         if (MauiProgram.favouritesPlayData.Count() > 0 &&
             MauiProgram.recentPlayData.Count() > 0 &&
@@ -79,8 +81,7 @@
             MauiProgram.mainLayout.isLoading = false;
 
             randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 20);
-
-            return;
+            doneRandom = true;
         }
 
         MauiProgram.mainLayout.cancellationSource = new();
@@ -98,7 +99,10 @@
             recentAddedData = await MauiProgram.servers[0].FetchRecentlyAddedAsync(_startIndex: 0, _limit: 20);
             MauiProgram.recentAddedData = recentAddedData;
 
-            randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 20);
+            if (!doneRandom)
+            {
+                randomData = await MauiProgram.servers[0].FetchRandomAsync(_startIndex: 0, _limit: 20);
+            }
 
             // Only collects SONGS, need to collect album information as well
             recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 75);

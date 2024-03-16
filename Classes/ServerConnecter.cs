@@ -271,35 +271,31 @@ namespace PortaJel_Blazor.Classes
                 return new Album[0];
             }
 
-            List<Album> albums = new List<Album>();
-            foreach (var item in songResult.Items)
+            List<Guid> itemIds = new();
+            foreach (var songInfo in songResult.Items)
             {
-                // Only collects songs, so we'll need to check to make sure we're only storing info on the album it's from.
-                try
+                if(songInfo.AlbumId != null)
                 {
-                    // item.AlbumId = {395f708f-1c7a-cd4b-377d-5c13bd74bfa6}
-
-                    Album newAlbum = AlbumBuilder(item);
-                    if(item.Album != null) { newAlbum.name = item.Album.ToString(); }
-                    newAlbum.sortMethod = Album.AlbumSortMethod.id;
-
-
-                    albums.Sort();
-                    if (albums.BinarySearch(newAlbum) < 0)
-                    { // Check that item isnt in the list already
-                        albums.Add(newAlbum); // TODO: Fix this shit I'm 99% sure i've fucked everything up
+                    Guid albumid = (Guid)songInfo.AlbumId;
+                    if (!itemIds.Contains(albumid))
+                    {
+                        itemIds.Add(albumid);
                     }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
                 }
 
             }
 
+            BaseItemDtoQueryResult albumReqults = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: itemIds, sortBy: _sortTypes, sortOrder: _sortOrder, limit: 8, recursive: true, enableImages: true, cancellationToken: token);
+            List<Album> albums = new List<Album>();
+            foreach (var item in albumReqults.Items)
+            {
+                Album newAlbum = AlbumBuilder(item);
+                albums.Add(newAlbum);
+            }
+
             return albums.ToArray();
         }
-        public async Task<Album[]> FetchMostPlayedAsync(int? _startIndex = null, int? _limit = null)
+        public async Task<BaseMusicItem[]> FetchMostPlayedAsync(int? _startIndex = null, int? _limit = null)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
             List<String> _sortTypes = new List<string> { "PlayCount" };
@@ -323,21 +319,24 @@ namespace PortaJel_Blazor.Classes
                 return new Album[0];
             }
 
-            List<Album> albums = new List<Album>();
+            List<BaseMusicItem> musicItems = new List<BaseMusicItem>();
             foreach (var item in songResult.Items)
             {
-                try
+                switch (item.Type)
                 {
-                    albums.Add(AlbumBuilder(item));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
+                    case BaseItemKind.MusicAlbum:
+                        musicItems.Add(AlbumBuilder(item));
+                        break;
+                    case BaseItemKind.Audio:
+                        musicItems.Add(SongBuilder(item));
+                        break;
+                    case BaseItemKind.Playlist:
+                        musicItems.Add(PlaylistBuilder(item));
+                        break;
                 }
 
             }
-
-            return albums.ToArray();
+            return musicItems.ToArray();
         }
         public async Task<Album[]> FetchRandomAsync(int? _startIndex = null, int? _limit = null)
         {
@@ -381,7 +380,7 @@ namespace PortaJel_Blazor.Classes
         public async Task<Album> FetchAlbumByIDAsync(Guid albumId, bool? fetchFullArtist = false)
         {
             List<BaseItemKind> _songItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
-            List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+            List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio };
 
             List<String> _sortTypes = new List<string> { "SortName" };
             List<Guid> _filterIds = new List<Guid> { albumId };
@@ -402,10 +401,16 @@ namespace PortaJel_Blazor.Classes
             }
 
             // Null checking
-            if (albumResult.Items.FirstOrDefault() == null || token.IsCancellationRequested)
+            // Other error checking too
+            BaseItemDto? firstReturn = albumResult.Items.FirstOrDefault();
+            if(firstReturn == null)
             {
-                cancelTokenSource = new();
                 return Album.Empty;
+            }
+            else if (firstReturn != null && firstReturn.Type == BaseItemKind.Audio && firstReturn.ParentId != null)
+            {
+                Guid id = (Guid)firstReturn.ParentId;
+                return await FetchAlbumByIDAsync(id, true);
             }
 
             Album getAlbum = Album.Empty;
@@ -1243,7 +1248,16 @@ namespace PortaJel_Blazor.Classes
 
             if (baseItem.Type == BaseItemKind.MusicAlbum)
             {
-                image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                if(baseItem.ImageBlurHashes.Primary != null)
+                {
+                    image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                    image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                }
+                else
+                {
+                    image.source = "emptyAlbum.png";
+                    image.blurHash = String.Empty;
+                }
             }
             else if(baseItem.Type == BaseItemKind.Playlist)
             {
@@ -1349,6 +1363,13 @@ namespace PortaJel_Blazor.Classes
                     setDiskNum: 0, //TODO: Fix disk num
                     setIsFavourite: baseItem.UserData.IsFavorite);
             newSong.image = MusicItemImageBuilder(baseItem);
+
+            List<Artist> artists = new List<Artist>();
+            foreach (var item in baseItem.AlbumArtists)
+            {
+                artists.Add(ArtistBuilder(item));
+            }
+            newSong.artists = artists.ToArray();
             return newSong;
         }
     }
