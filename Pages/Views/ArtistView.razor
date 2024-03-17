@@ -10,12 +10,16 @@
     </button>
 
 <div class="artistImgHolder">
+    <!-- Background image -->
     <div class="backgroundImg" style="background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(255, 255, 255, 1)), url(@backgroundImgUrl)" />
+
     <div class="artistImageContainer">
+        <!-- Album Image -->
         <img src="@imgUrl" class="artistImg" loading="eager" />
         <div class="artistNameContainer">
             @if (hasLogo)
             {
+                <!-- Logo image -->
                 <img src="@logoUrl" class="logoImg" loading="eager" />
             }
             <h1 class="artistName">@artist.name</h1>
@@ -128,7 +132,7 @@
                 {
                     item = artistAlbums[i];
                 }
-                <SearchResultItem musicObject="@item" isGrid=@showGrid />
+                <SearchResultItem musicObject="@item" isGrid=@showGrid placeholderBase64="@placeholderImages[i]"/>
             }
         }
         else
@@ -150,7 +154,6 @@
     [Parameter] public string artistId { get; set; }
     private Artist artist { get; set; } = Artist.Empty;
 
-
     private string backgroundImgUrl = string.Empty;
     private string imgUrl = string.Empty;
     private string logoUrl = string.Empty;
@@ -158,6 +161,7 @@
 
     // List view stuff
     public Album[] artistAlbums = new Album[0];
+    private string[] placeholderImages = new string[0];
     private int totalRecordCount = 0;
     private bool isLoading = false;
 
@@ -206,6 +210,18 @@
             imgUrl = artist.image.SourceAtResolution(imgScale);
 
             artistAlbums = artist.artistAlbums;
+            placeholderImages = new string[artistAlbums.Length];
+            for (int i = 0; i < artistAlbums.Length; i++)
+            {
+                try
+                {
+                    placeholderImages[i] = await artistAlbums[i].image.BlurhashToBase64Async(20, 20);
+                }
+                catch (Exception)
+                {
+                    placeholderImages[i] = string.Empty;
+                }
+            }
 
             logoUrl = artist.logoImage.source;
             if (logoUrl != string.Empty)
@@ -216,6 +232,10 @@
 
         await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.mainLayout.isLoading = false;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeAsync<string>("InitAllImages");
     }
     private async void SelectPage(int page)
     {

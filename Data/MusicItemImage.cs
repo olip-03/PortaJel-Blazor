@@ -47,7 +47,7 @@ namespace PortaJel_Blazor.Data
             }
             return source;
         }
-        public string BlurhashToBase64(int width = 0, int height = 0)
+        public Task<string> BlurhashToBase64Async(int width = 0, int height = 0)
         {
             // Assuming you have a method to decode the blurhash into a pixel array
             Pixel[,] pixels = new Pixel[width, height];
@@ -89,7 +89,7 @@ namespace PortaJel_Blazor.Data
                     data.SaveTo(stream);
                     byte[] imageBytes = stream.ToArray();
                     string base64String = Convert.ToBase64String(imageBytes);
-                    return base64String;
+                    return Task.FromResult<string>(base64String);
                 }
             }
         }

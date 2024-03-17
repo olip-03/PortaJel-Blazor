@@ -17,7 +17,7 @@
 
         <div class="image-container">
             <img src="data:image/png;base64, @base64BlurHash" class="placeholder" alt="Placeholder Image">
-            <img src="@album.image.source" id="@album.id" class="albumImage full-size" onerror="this.src='/images/emptyAlbum.png'" alt="@album.name album cover">
+            <img src="@album.image.source" id="@album.id" class="album-cover-img" onerror="this.src='/images/emptyAlbum.png'" alt="@album.name album cover">
         </div>
 
         @if (album != null)
@@ -173,7 +173,7 @@
                 album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
             }
 
-            base64BlurHash = album.image.BlurhashToBase64(20, 20);
+            base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
 
             // GnodService reccomendations = new();
             // similarArtists = await reccomendations.QueryGnod(album.artists.First().name);
@@ -192,7 +192,7 @@
     {
         if(album != null)
         {
-            await JS.InvokeAsync<string>("InitImageLoader", album.id);
+            await JS.InvokeAsync<string>("InitAllImages", album.id);
         }
     }
     private void SelectArtist(Guid artistId)

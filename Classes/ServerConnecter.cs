@@ -1237,12 +1237,48 @@ namespace PortaJel_Blazor.Classes
             {
                 case ImageBuilderImageType.Backdrop:
                     imgType = "Backdrop";
+                    if (baseItem.ImageBlurHashes.Backdrop != null)
+                    {
+                        string? hash = baseItem.ImageBlurHashes.Backdrop.FirstOrDefault().Value;
+                        if (hash != null)
+                        {
+                            image.blurHash = hash;
+                        }
+                    }
+                    else
+                    {
+                        image.blurHash = String.Empty;
+                    }
                     break;
                 case ImageBuilderImageType.Logo:
                     imgType = "Logo";
+                    if (baseItem.ImageBlurHashes.Logo != null)
+                    {
+                        string? hash = baseItem.ImageBlurHashes.Logo.FirstOrDefault().Value;
+                        if (hash != null)
+                        {
+                            image.blurHash = hash;
+                        }
+                    }
+                    else
+                    {
+                        image.blurHash = String.Empty;
+                    }
                     break;
                 default:
                     imgType = "Primary";
+                    if (baseItem.ImageBlurHashes.Primary != null)
+                    {
+                        string? hash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                        if (hash != null)
+                        {
+                            image.blurHash = hash;
+                        }
+                    }
+                    else
+                    {
+                        image.blurHash = String.Empty;
+                    }
                     break;
             }
 
@@ -1251,17 +1287,16 @@ namespace PortaJel_Blazor.Classes
                 if(baseItem.ImageBlurHashes.Primary != null)
                 {
                     image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
-                    image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
                 }
                 else
                 {
                     image.source = "emptyAlbum.png";
-                    image.blurHash = String.Empty;
                 }
             }
             else if(baseItem.Type == BaseItemKind.Playlist)
             {
                 image.source = _sdkClientSettings.BaseUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
+
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
             else if (baseItem.Type == BaseItemKind.Audio)

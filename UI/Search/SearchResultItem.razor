@@ -5,120 +5,39 @@
 @using PortaJel_Blazor.Classes;
 @using BlazorAnimate;
 
-@if (isGrid && musicObject != null)
+@if (musicObject != null)
 {
-    <div class="grid-album-container" @oncontextmenu=OpenContextMenu>
-        @if (musicObject is Artist)
-        {
-            Artist artist = (Artist)musicObject;
-            <div class="grid-artist-cover" @onclick=NavigateToArtist>
-                <img class="grid-artist-img" src="@artist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToArtist>
-                <div class="artist-name">@artist.name</div>
-            </div>
-        }
-        else if (musicObject is Album)
-        {
-            Album album = (Album)musicObject;
-            <div class="grid-album-cover" @onclick=NavigateToAlbum>
-                <img class="grid-album-img" src="@album.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToArtist>
-                <div class="album-name">@album.name</div>
-                <div class="album-artist">@album.artistCongregate</div>
-            </div>
-        }
-        else if (musicObject is Playlist)
-        {
-            Playlist playlist = (Playlist)musicObject;
-            <div class="grid-album-cover" @onclick=NavigateToPlaylist>
-                <img class="grid-album-img" src="@playlist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToArtist>
-                <div class="album-name">@playlist.name</div>
-            </div>
-        }
-        else if (musicObject is Song)
-        {
-            Song song = (Song)musicObject;
-            <div class="grid-album-cover" @onclick=NavigateToArtist>
-                <img class="grid-album-img" src="@song.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToArtist>
-                <div class="album-name">@song.name</div>
-                <div class="album-artist">@song.artistCongregate</div>
-            </div>
-        }
-        else if (musicObject is Genre)
-        {
-            Genre genre = (Genre)musicObject;
-            <div class="grid-album-cover" @onclick=NavigateToArtist>
-                <img class="grid-album-img" src="@genre.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToArtist>
-                <div class="album-name">@genre.name</div>
-            </div>
-        }
-    </div>
-}
-else if (musicObject != null)
-{
-    <div class="album-container" @oncontextmenu=OpenContextMenu>
-        @if (musicObject is Artist)
-        {
-            Artist artist = (Artist)musicObject;
-            <div class="artist-cover" @onclick=NavigateToArtist>
-                <img class="artist-cover" src="@artist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToArtist>
-                <div class="album-name">@artist.name</div>
-            </div>
-        }
-        else if(musicObject is Album)
-        {
-            Album album = (Album)musicObject;
-            <div class="album-cover" @onclick=NavigateToAlbum>
-                <img class="album-cover" src="@album.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToAlbum>
-                <div class="album-name">@album.name</div>
-                <div class="album-artist">@album.artistCongregate</div>
-            </div>
-        }
-        else if(musicObject is Playlist)
-        {
-            Playlist playlist = (Playlist)musicObject;
-            <div class="album-cover" @onclick=NavigateToPlaylist>
-                <img class="album-cover" src="@playlist.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToPlaylist>
-                <div class="album-name">@playlist.name</div>
-            </div>
-        }
-        else if(musicObject is Song)
-        {
-            Song song = (Song)musicObject;
-            <div class="album-cover" @onclick=NavigateToAlbum>
-                <img class="album-cover" src="@song.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToAlbum>
-                <div class="album-name">@song.name</div>
-                <div class="album-artist">@song.artistCongregate</div>
-            </div>
-        }
-        else if(musicObject is Genre)
-        {
-            Genre genre = (Genre)musicObject;
-            <div class="album-cover" @onclick=NavigateToAlbum>
-                <img class="album-cover" src="@genre.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            </div>
-            <div @onclick=NavigateToAlbum>
-                <div class="album-name">@genre.name</div>
-            </div>
-        }
+    <div class="album-container @(isGrid == true ? "gridLayout" : "")" @oncontextmenu=OpenContextMenu @onclick=NavigateTo>
+        <div class="artist-cover @(isGrid == true ? "gridLayout" : "")">
+            @if (String.IsNullOrWhiteSpace(placeholderBase64))
+            {
+                <img class="album-cover-img @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@musicObject.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
+            }
+            else
+            { // Do yer placeholder here
+                <img class="album-cover-img opacityTransition @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" src="@musicObject.image.source" onerror="this.src='/images/emptyAlbum.png'" />
+                <img class="album-cover-placeholder @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@musicObject.id" onerror="this.style.opacity=0" />
+            }
+        </div>
+        <div>
+            @{
+                string artistName = string.Empty;
+                if (musicObject is Album )
+                {
+                    Album album = (Album)musicObject;
+                    artistName = album.artistCongregate;
+                }
+                if (musicObject is Song)
+                {
+                    Song song = (Song)musicObject;
+                    artistName = song.artistCongregate;
+                }
+            }
+            <b>@musicObject.name</b>
+            <div>@artistName</div>
+        </div>
 
-        @if(musicObject is not Genre)
+        @if (musicObject is not Genre && !isGrid)
         {
             <div class="favorite-button" @onclick=FavouriteItem>
                 @if (MauiProgram.styleSettings.listItemsContextMenu)
@@ -149,47 +68,51 @@ else if (musicObject != null)
 
 @code {
     [Parameter] public BaseMusicItem? musicObject { get; set; } = null;
+    [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
     [Parameter] public bool isGrid { get; set; } = false;
     [Parameter] public bool cacheAsRecentItem { get; set; } = false;
-
     private int resolution = 300;
-    private void SetBlueHash()
-    {
-        if (musicObject!=null)
-        {
-            // TODO: Fix the fucking blur hash
-            // Image image = Blurhasher.Decode(musicObject.image.blurHash, 32, 32);
+    private string errorMsg = string.Empty;
 
-            // SixLabors.ImageSharp.Formats.IImageFormat format = Image.DetectFormatAsync(image);
-            // image.ToBase64String(format);
-        }
-    }
-
-    private void NavigateToAlbum()
+    private void NavigateTo()
     {
         if (musicObject != null)
         {
-            if (musicObject.id == Guid.Empty) { return; }
-            if(cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
-            MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
-        }
-    }
-    private void NavigateToArtist()
-    {
-        if (musicObject != null)
-        {
-            if (musicObject.id == Guid.Empty) { return; }
-            if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
-            MauiProgram.mainLayout.NavigateArtist(musicObject.id);
-        }
-    }
-    private void NavigateToPlaylist()
-    {
-        if (musicObject != null)
-        {
-            if (musicObject.id == Guid.Empty) { return; }
-            if(cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
-            MauiProgram.mainLayout.NavigatePlaylist(musicObject.id);
+            var typeHandle = musicObject.GetType().Name;
+            switch (typeHandle)
+            {
+                case "Album":
+                    if (musicObject.id == Guid.Empty) { return; }
+                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
+                    MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
+                    break;
+                case "Artist":
+                    if (musicObject.id == Guid.Empty) { return; }
+                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
+                    MauiProgram.mainLayout.NavigateArtist(musicObject.id);
+                    break;
+                case "Song":
+                    if (musicObject.id == Guid.Empty) { return; }
+                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
+                    MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
+                    break;
+                case "PlaylistSong":
+                    if (musicObject.id == Guid.Empty) { return; }
+                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
+                    MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
+                    break;
+                case "Genre":
+                    // TODO: Configure genre page
+                    break;
+                case "Playlist":
+                    if (musicObject.id == Guid.Empty) { return; }
+                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
+                    MauiProgram.mainLayout.NavigatePlaylist(musicObject.id);
+                    break;
+                default:
+                    // TODO: Configure error message
+                    break;
+            }
         }
     }
     private async void FavouriteItem()

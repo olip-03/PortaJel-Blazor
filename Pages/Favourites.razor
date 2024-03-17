@@ -1,6 +1,7 @@
 ﻿@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared.Resources;
 @using BlazorAnimate;
+@inject IJSRuntime JS;
 @page "/favourites"
 
 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
@@ -112,7 +113,7 @@
                     { // Load information
                         for (int i = 0; i < data.Length; i++)
                         {
-                            <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid="@showGrid" />
+                            <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid="@showGrid" placeholderBase64="@placeholderImages[i]" />
                         }
                     }
                 </Animate>
@@ -123,6 +124,7 @@
 
 @code {
     private BaseMusicItem[]? data = new Album[20];
+    private string[] placeholderImages = new string[0];
     private int totalRecordCount = 0;
     private bool isLoading = false;
 
@@ -171,7 +173,10 @@
         await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.mainLayout.isLoading = false;
     }
-
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeAsync<string>("InitAllImages");
+    }
     private void ToggleSort()
     {
         if (sort >= sortMethod.byActivity)
@@ -230,6 +235,19 @@
                     default:
                         data = new BaseMusicItem[0];
                         break;
+                }
+
+                placeholderImages = new string[data.Length];
+                for (int i = 0; i < data.Length; i++)
+                {
+                    try
+                    {
+                        placeholderImages[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+                    }
+                    catch (Exception)
+                    {
+                        placeholderImages[i] = string.Empty;
+                    }
                 }
 
                 if (queued != PlaylistSelectable.none)
