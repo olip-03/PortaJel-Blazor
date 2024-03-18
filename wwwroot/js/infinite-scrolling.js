@@ -1,46 +1,32 @@
-﻿export function initialize(lastItemIndicator, componentInstance) {
-    const options = {
-        root: findClosestScrollContainer(lastItemIndicator),
-        rootMargin: '0px',
-        threshold: 0,
-    };
+﻿// Define the target element you want to observe
+const targetElement = document.querySelector('.your-div-class');
 
-    const observer = new IntersectionObserver(async (entries) => {
-        // When the lastItemIndicator element is visible => invoke the C# method `LoadMoreItems`
-        for (const entry of entries) {
-            if (entry.isIntersecting) {
-                observer.unobserve(lastIndicator);
-                await componentInstance.invokeMethodAsync("LoadMoreItems");
-            }
+// Define the options for the Intersection Observer
+const options = {
+    root: null, // use the viewport as the root
+    rootMargin: '0px', // no margin around the root
+    threshold: 0.5 // trigger when 50% of the target is visible
+};
+
+// Create a new Intersection Observer
+const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        // Check if the target element is intersecting with the viewport
+        if (entry.isIntersecting) {
+            // Call your function when the target element is visible
+            yourFunction();
+
+            // Stop observing after the function is called if needed
+            // observer.unobserve(entry.target);
         }
-    }, options);
+    });
+}, options);
 
-    observer.observe(lastItemIndicator);
+// Start observing the target element
+observer.observe(targetElement);
 
-    // Allow to cleanup resources when the Razor component is removed from the page
-    return {
-        dispose: () => dispose(observer),
-        onNewItems: () => {
-            observer.unobserve(lastIndicator);
-            observer.observe(lastIndicator);
-        },
-    };
-}
-
-// Cleanup resources
-function dispose(observer) {
-    observer.disconnect();
-}
-
-// Find the parent element with a vertical scrollbar
-// This container should be use as the root for the IntersectionObserver
-function findClosestScrollContainer(element) {
-    while (element) {
-        const style = getComputedStyle(element);
-        if (style.overflowY !== 'visible') {
-            return element;
-        }
-        element = element.parentElement;
-    }
-    return null;
+// Define your function to be called when the div is visible
+function yourFunction() {
+    // Your function logic here
+    console.log('Div is visible!');
 }

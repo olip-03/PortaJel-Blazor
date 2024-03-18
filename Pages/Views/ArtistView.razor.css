@@ -1,46 +1,101 @@
-﻿.artistImg {
+﻿.artistInfoContainer{
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16/9;
+}
+.album-cover-img {
+    /* functionally does nothing*/
+    transition: opacity 0.5s ease-in-out; /* Smooth transition */
+}
+.artistImgContainer {
     border-radius: 50%;
+    position: relative;
     width: 40%;
-    z-index: 10;
+    height: auto;
     aspect-ratio: 1/1;
+    display: flex;
+    flex-direction: row;
+    z-index: 10;
     object-fit: cover;
-    margin-left: 1rem;
-    margin-right: 1rem;
+    overflow: hidden;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+.artistImgPlaceholder {
+    width: 100%;
+    height: 100%;
+    position:absolute;
+    top: 0;
+    border-radius: 50%;
+}
+.artistImg {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    border-radius: 50%;
+    z-index: 10;
 }
 .artistNameContainer {
-    width: fit-content;
+    width: 60%;
     margin: auto;
+    margin-left: 1rem;
+    margin-right: 1rem;
 }
 .artistName {
     font-size: 2rem;
     text-align:center;
     margin: auto;
-    padding-right: 1rem;
     width: fit-content;
+}
+.logoImgContainer{
+    position: relative;
+    display: flex;
 }
 .logoImg {
     margin: auto;
     width: 90%;
     height: auto;
+    opacity: 0;
 }
-.artistImageContainer {
+.logoImgPlaceholder {
+    margin: auto;
+    width: 90%;
+    height: auto;
     position: absolute;
-    top: 50%;
     display: flex;
-    flex-direction: row;
-    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    top: 0;
+    left: 0;
 }
-.backgroundImg {
-    width: 100%;
+.backgroundImgContainer {
+    width: 100vw;
     height: auto;
     aspect-ratio: 16/9;
     object-fit: cover;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: -1rem;
+    left: -1rem;
     z-index: -10;
     background-size: cover;
+    overflow: hidden;
     mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+    display: flex;
+}
+.backgroundImg {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    opacity: 0;
+}
+.backgroundImgPlaceholder {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -10;
 }
 .artistImgHolder {
     width: 100vw;

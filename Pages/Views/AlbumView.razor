@@ -72,7 +72,7 @@
 
             foreach (var song in album.songs)
             {
-                <div class="songContainer">
+                <div class="songContainer" @onclick="() => PlaySong(song.id)">
                     <div>
                         <p class="songTitle">@song.name</p>
                         <p class="songArtistTitle">@song.artistCongregate</p>
@@ -192,7 +192,8 @@
     {
         if(album != null)
         {
-            await JS.InvokeAsync<string>("InitAllImages", album.id);
+            await JS.InvokeAsync<string>("InitAllImages");
+            await JS.InvokeAsync<string>("InitImageLoader", album.id);
         }
     }
     private void SelectArtist(Guid artistId)
@@ -239,6 +240,8 @@
         // Move all items in the current queue to the Next Up Queue, to ensure that
         // this item is prioritised, without losing the current queue 
         MauiProgram.mediaService.nextUpItem = album;
+        MauiProgram.mediaService.songQueue.ClearNextUp();
+        MauiProgram.mediaService.songQueue.QueueNextUpRange(album.songs);
 
         MauiProgram.currentAlbumGuid = album.id;
         MauiProgram.currentSongGuid = album.songs.First().id;
@@ -256,5 +259,9 @@
 
         await MauiProgram.mainPage.RefreshPlayer();
         StateHasChanged();
+    }
+    private async void PlaySong(Guid songId)
+    { // Play selected song, and queue the rest of the album
+        
     }
 }

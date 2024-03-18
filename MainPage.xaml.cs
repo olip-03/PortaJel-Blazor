@@ -7,6 +7,7 @@ using System;
 using Microsoft.Maui.Controls.Shapes;
 using Jellyfin.Sdk;
 using System.Collections.Generic;
+using System.Linq;
 
 #if ANDROID
 using Android;
@@ -21,9 +22,12 @@ public partial class MainPage : ContentPage
     private double screenHeight = 0;
     private bool musicControlsFirstOpen = true;
     private bool waitingForPageLoad = false;
+
+
     private List<Song> queue = new List<Song>();
     private List<Song> queueNextUp = new List<Song>();
     private Song currentlyPlaying = Song.Empty;
+    private bool hideMidiPlayer = true;
 
     private uint animationSpeed = 550;
 
@@ -177,9 +181,27 @@ public partial class MainPage : ContentPage
     public async Task<bool> RefreshPlayer()
     {
         queue.Clear();
+        queueNextUp.Clear();
         queue = MauiProgram.mediaService.songQueue.GetQueue().ToList();
-        currentlyPlaying = queue[0];
+        queueNextUp = MauiProgram.mediaService.songQueue.GetNextUp().ToList();
 
+        // Queue takes priority. If there are items in the queue
+        // ALWAYS pick from the top for the currently playing track
+        if (queue.Count() > 0)
+        {
+            currentlyPlaying = queue.First();
+            hideMidiPlayer = false;
+        }
+        else if(queueNextUp.Count() > 0)
+        {
+            currentlyPlaying = queueNextUp.First();
+            hideMidiPlayer = false;
+        }
+        else
+        {
+            return false;
+        }
+        
         Player_Txt_Title.Opacity = 0;
         Player_Txt_Artist.Opacity = 0;
         Player_Img.Opacity = 0;
@@ -192,11 +214,18 @@ public partial class MainPage : ContentPage
         Player_Txt_Artist.Text = currentlyPlaying.artistCongregate;
         Player_Img.Source = currentlyPlaying.image.source;
 
+        if (!hideMidiPlayer)
+        {
+            MiniPlayer.IsEnabled = !hideMidiPlayer;
+        }
+
         await Task.WhenAll(
-        Player_Txt_Title.FadeTo(1, animationSpeed, Easing.SinOut),
-        Player_Txt_Artist.FadeTo(1, animationSpeed, Easing.SinOut),
-        Player_Img.FadeTo(1, animationSpeed, Easing.SinOut)
+            Player_Txt_Title.FadeTo(1, animationSpeed, Easing.SinOut),
+            Player_Txt_Artist.FadeTo(1, animationSpeed, Easing.SinOut),
+            Player_Img.FadeTo(1, animationSpeed, Easing.SinOut),
+            MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut)
         );
+
         return true;
     }
     public async void RefreshPlayState(bool? animate = true)
@@ -225,7 +254,19 @@ public partial class MainPage : ContentPage
         queue.Clear();
         queue = MauiProgram.mediaService.songQueue.GetQueue().ToList();
         queueNextUp = MauiProgram.mediaService.songQueue.GetNextUp().ToList();
-        currentlyPlaying = queue.First();
+
+        if(queue.Count > 0)
+        {
+            currentlyPlaying = queue.First();
+        }
+        else if(queueNextUp.Count > 0)
+        {
+            currentlyPlaying = queueNextUp.First();
+        }
+        else
+        {
+            return;
+        }
 
         queue_currentlyplaying_img.Source = currentlyPlaying.image.source;
         queue_currentlyplaying_title_lbl.Text = currentlyPlaying.name;

@@ -128,7 +128,10 @@
                         {
                             if (data[i] != null)
                             {
-                                <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@placeholderImages[i]" />
+                                string base64 = string.Empty;
+                                try { base64 = placeholderImages[i]; }
+                                catch (Exception) { base64 = string.Empty; }
+                                <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64"/>
                             }
                         }
                     }
@@ -141,7 +144,7 @@
         }
 
         @* Load page numbers *@
-        @if (!isLoading)
+        @if (false == true) // Disabled temporarily 
         {
             // Disabling current pagination class as I have another idea for how this could work
             // TODO: This works however overflow:x does NOT allow for you to scroll to the left.
@@ -258,7 +261,6 @@
 
         StateHasChanged();
     }
-
     private async void SelectPage(selectable page)
     {
         MauiProgram.libraryItemView = (int)page;
@@ -327,5 +329,9 @@
 
         isLoading = false;
         await InvokeAsync(StateHasChanged);
+    }
+    private async void LoadNext()
+    {
+        
     }
 }

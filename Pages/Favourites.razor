@@ -262,118 +262,14 @@
         });
 
         isLoading = false;
-        await InvokeAsync(StateHasChanged);
-    }
-    private async void SelectAlbums()
-    {
-        if (selected != PlaylistSelectable.albums)
+        try
         {
-            startFromIndex = 0;
-            selectedPage = 0;
+            await InvokeAsync(StateHasChanged);
+            await JS.InvokeAsync<string>("InitAllImages");
         }
-
-        isLoading = true;
-        selected = PlaylistSelectable.albums;
-        MauiProgram.favouritesItemView = (int)selected;
-        isPlaylist = false;
-
-        // Fetch Album information
-        Album[] albums = await MauiProgram.api.GetAllAlbumsAsync(limit: itemsPerPage, startIndex: startFromIndex, isFavourite: true);
-        totalRecordCount = await MauiProgram.servers[0].GetTotalAlbumCount();
-
-        data = albums;
-        MauiProgram.favouriteAlbums = albums.ToList();
-
-        double number = (double)totalRecordCount / (double)itemsPerPage;
-        int roundedNumber = (int)Math.Ceiling(number);
-        pages = roundedNumber;
-
-        isLoading = false;
-        startFromIndex = 0;
-        StateHasChanged();
-    }
-    private async void SelectArtists()
-    {
-        if (selected != PlaylistSelectable.artists)
+        catch (Exception)
         {
-            startFromIndex = 0;
-            selectedPage = 0;
+            // We're cool just chill            
         }
-
-        isLoading = true;
-        selected = PlaylistSelectable.artists;
-        MauiProgram.favouritesItemView = (int)selected;
-        isPlaylist = false;
-
-        // Fetch Artist information
-        Artist[] artists = await MauiProgram.servers[0].GetAllArtistsAsync(limit: itemsPerPage, startFromIndex: startFromIndex, favourites: true);
-        totalRecordCount = await MauiProgram.servers[0].GetTotalArtistCount();
-
-        data = artists;
-        MauiProgram.favouriteArtist = artists.ToList();
-
-        double number = (double)totalRecordCount / (double)itemsPerPage;
-        int roundedNumber = (int)Math.Ceiling(number);
-        pages = roundedNumber;
-
-        isLoading = false;
-        startFromIndex = 1;
-        StateHasChanged();
-    }
-    private async void SelectSongs()
-    {
-        if (selected != PlaylistSelectable.songs)
-        {
-            startFromIndex = 0;
-            selectedPage = 0;
-        }
-
-        isLoading = true;
-        selected = PlaylistSelectable.songs;
-        MauiProgram.favouritesItemView = (int)selected;
-        isPlaylist = false;
-
-        // Fetch Song information
-        Song[] songs = await MauiProgram.api.GetAllSongsAsync(limit: itemsPerPage, startIndex: startFromIndex, isFavourite: true);
-        totalRecordCount = await MauiProgram.servers[0].GetTotalSongCount();
-
-        data = songs;
-        MauiProgram.favouriteSongs = songs.ToList();
-
-        double number = (double)totalRecordCount / (double)itemsPerPage;
-        int roundedNumber = (int)Math.Ceiling(number);
-        pages = roundedNumber;
-
-        isLoading = false;
-        startFromIndex = 1;
-        StateHasChanged();
-    }
-    private async void SelectPlaylist()
-    {
-        if (selected != PlaylistSelectable.playlists)
-        {
-            startFromIndex = 0;
-            selectedPage = 0;
-        }
-
-        isLoading = true;
-        selected = PlaylistSelectable.playlists;
-        MauiProgram.favouritesItemView = (int)selected;
-        isPlaylist = true;
-
-        // Fetch Album information
-        Playlist[] playlists = await MauiProgram.servers[0].GetPlaylistsAsycn(limit: itemsPerPage, startFromIndex: startFromIndex);
-        totalRecordCount = await MauiProgram.servers[0].GetTotalPlaylistCount();
-
-        data = playlists;
-        MauiProgram.favouritePlaylists = playlists.ToList();
-
-        double number = (double)totalRecordCount / (double)itemsPerPage;
-        int roundedNumber = (int)Math.Ceiling(number);
-        pages = roundedNumber;
-
-        isLoading = false;
-        startFromIndex = 0;
-        StateHasChanged();
     }
 }

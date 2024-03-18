@@ -1238,16 +1238,21 @@ namespace PortaJel_Blazor.Classes
                 case ImageBuilderImageType.Backdrop:
                     imgType = "Backdrop";
                     if (baseItem.ImageBlurHashes.Backdrop != null)
-                    {
+                    { // Set backdrop img 
                         string? hash = baseItem.ImageBlurHashes.Backdrop.FirstOrDefault().Value;
                         if (hash != null)
                         {
                             image.blurHash = hash;
                         }
                     }
-                    else
-                    {
-                        image.blurHash = String.Empty;
+                    else if (baseItem.ImageBlurHashes.Primary != null)
+                    { // if there is no backdrop, fall back to primary image
+                        string? hash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                        imgType = "Primary";
+                        if (hash != null)
+                        {
+                            image.blurHash = hash;
+                        }
                     }
                     break;
                 case ImageBuilderImageType.Logo:
@@ -1263,6 +1268,7 @@ namespace PortaJel_Blazor.Classes
                     else
                     {
                         image.blurHash = String.Empty;
+                        return image; // bascially returning nothing if no logo is found
                     }
                     break;
                 default:

@@ -55,6 +55,10 @@ namespace PortaJel_Blazor.Classes
         {
             songQueue.Clear();
         }
+        public void ClearNextUp()
+        {
+            nextUpQueue.Clear();
+        }
         public int Count()
         {
             return songQueue.Count();

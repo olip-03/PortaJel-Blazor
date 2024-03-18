@@ -54,12 +54,14 @@
                     </Grid>
                 </Border>
                 <!-- MiniPlayer -->
-                <Border Stroke="LightGray"
+                <Border x:Name="MiniPlayer" 
+                        Stroke="LightGray"
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 5,5,5,5"
                         Margin="10, 0, 10, 0"
                         ZIndex="5"
-                        IsVisible="False">
+                        Opacity="0"
+                        IsEnabled="false">
                     <Border.Shadow>
                         <Shadow Brush="Black"
                                 Offset="5,5"
