@@ -178,6 +178,7 @@ public partial class MainPage : ContentPage
 
         MediaController_Player.IsVisible = false;
     }
+    private Song songLastRefresh = Song.Empty;
     public async Task<bool> RefreshPlayer()
     {
         queue.Clear();
@@ -201,31 +202,36 @@ public partial class MainPage : ContentPage
         {
             return false;
         }
-        
-        Player_Txt_Title.Opacity = 0;
-        Player_Txt_Artist.Opacity = 0;
-        Player_Img.Opacity = 0;
 
-        MainPlayer_MainImage.Source = currentlyPlaying.image.source;
+        if(MainPlayer_MainImage.Source.ToString() != currentlyPlaying.image.source) { MainPlayer_MainImage.Source = currentlyPlaying.image.source; }
         MainPlayer_SongTitle.Text = currentlyPlaying.name;
         MainPlayer_ArtistTitle.Text = currentlyPlaying.artistCongregate;
 
+        if (Player_Img.Source.ToString() != currentlyPlaying.image.source) { Player_Img.Source = currentlyPlaying.image.source; }
         Player_Txt_Title.Text = currentlyPlaying.name;
         Player_Txt_Artist.Text = currentlyPlaying.artistCongregate;
-        Player_Img.Source = currentlyPlaying.image.source;
 
         if (!hideMidiPlayer)
         {
             MiniPlayer.IsEnabled = !hideMidiPlayer;
         }
 
-        await Task.WhenAll(
-            Player_Txt_Title.FadeTo(1, animationSpeed, Easing.SinOut),
-            Player_Txt_Artist.FadeTo(1, animationSpeed, Easing.SinOut),
-            Player_Img.FadeTo(1, animationSpeed, Easing.SinOut),
-            MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut)
-        );
+        if(currentlyPlaying != songLastRefresh)
+        {
+            Player_Txt_Title.Opacity = 0;
+            Player_Txt_Artist.Opacity = 0;
+            Player_Img.Opacity = 0;
 
+            await Task.WhenAll(
+                Player_Txt_Title.FadeTo(1, animationSpeed, Easing.SinOut),
+                Player_Txt_Artist.FadeTo(1, animationSpeed, Easing.SinOut),
+                Player_Img.FadeTo(1, animationSpeed, Easing.SinOut),
+                MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut)
+            );
+        }
+
+
+        songLastRefresh = currentlyPlaying;
         return true;
     }
     public async void RefreshPlayState(bool? animate = true)
@@ -257,10 +263,22 @@ public partial class MainPage : ContentPage
 
         if(queue.Count > 0)
         {
+            MediaController_Queue_Header.IsVisible = true;
+            MediaController_Queue_List.IsVisible = true;
             currentlyPlaying = queue.First();
+            if(queueNextUp.Count <= 0)
+            {
+                MediaController_NextUp_Header.IsVisible = false;
+                MediaController_NextUp_List.IsVisible = false;
+            }
         }
         else if(queueNextUp.Count > 0)
         {
+            MediaController_NextUp_Header.IsVisible = true;
+            MediaController_NextUp_List.IsVisible = true;
+
+            MediaController_Queue_Header.IsVisible = false;
+            MediaController_Queue_List.IsVisible = false;
             currentlyPlaying = queueNextUp.First();
         }
         else

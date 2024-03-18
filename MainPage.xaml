@@ -285,7 +285,7 @@
                         </Grid>
                         
                         <!-- Queue Start Label -->
-                        <Grid Padding="20, 10, 20, 0" Grid.Row="1">
+                        <Grid Padding="20, 10, 20, 0" Grid.Row="1" x:Name="MediaController_Queue_Header">
                             <Label VerticalOptions="Center" Grid.Row="1" FontAttributes="Bold" FontSize="16" TextColor="Black">Queue</Label>
                             <Button Grid.Row="1" BorderColor="LightGray" BorderWidth="1" HeightRequest="35" WidthRequest="75" BackgroundColor="White" TextColor="Black" HorizontalOptions="End" Text="Clear"></Button>
                         </Grid>
@@ -330,8 +330,8 @@
                             </CollectionView.ItemTemplate>
                         </CollectionView>
 
-                        <!-- Queue Start Label -->
-                        <Grid Padding="20, 10, 20, 0" Grid.Row="1">
+                        <!-- NextUp Start Label -->
+                        <Grid Padding="20, 10, 20, 0" Grid.Row="1"  x:Name="MediaController_NextUp_Header">
                             <Label VerticalOptions="Center" Grid.Row="1" FontAttributes="Bold" FontSize="16" TextColor="Black">Next Up</Label>
                             <Button Grid.Row="1" BorderColor="LightGray" BorderWidth="1" HeightRequest="35" WidthRequest="75" BackgroundColor="White" TextColor="Black" HorizontalOptions="End" Text="Clear"></Button>
                         </Grid>

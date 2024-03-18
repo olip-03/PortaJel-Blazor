@@ -32,7 +32,6 @@ namespace PortaJel_Blazor.Data
 
             }
         }
-        
         /// <summary>
         /// Reference to the album this song belongs to.
         /// </summary>
