@@ -242,13 +242,6 @@
     {
         // Move all items in the current queue to the Next Up Queue, to ensure that
         // this item is prioritised, without losing the current queue 
-        MauiProgram.mediaService.nextUpItem = album;
-        MauiProgram.mediaService.songQueue.ClearNextUp();
-        MauiProgram.mediaService.songQueue.QueueNextUpRange(album.songs);
-
-        MauiProgram.currentAlbumGuid = album.id;
-        MauiProgram.currentSongGuid = album.songs.First().id;
-
         if (MauiProgram.currentAlbumGuid == album.id)
         {
             isCurrentAlbum = true;
@@ -256,8 +249,15 @@
         }
         else
         {
-            isCurrentAlbum = false;
+            isCurrentAlbum = true;
             MauiProgram.mediaService.Play();
+
+            MauiProgram.mediaService.nextUpItem = album;
+            MauiProgram.mediaService.songQueue.ClearNextUp();
+            MauiProgram.mediaService.songQueue.QueueNextUpRange(album.songs);
+
+            MauiProgram.currentAlbumGuid = album.id;
+            MauiProgram.currentSongGuid = album.songs.First().id;
         }
 
         await MauiProgram.mainPage.RefreshPlayer();
@@ -265,6 +265,30 @@
     }
     private async void PlaySong(Guid songId)
     { // Play selected song, and queue the rest of the album
-        
+        List<Song> toQueue = new();
+        bool queueRest = false;
+        foreach (Song song in album.songs)
+        {
+            if(song.id == songId)
+            {
+                queueRest = true;
+            }
+            if (queueRest)
+            {
+                toQueue.Add(song);
+            }
+        }
+
+        MauiProgram.mediaService.nextUpItem = album;
+        MauiProgram.mediaService.songQueue.ClearNextUp();
+        MauiProgram.mediaService.songQueue.QueueNextUpRange(toQueue.ToArray());
+
+        MauiProgram.currentAlbumGuid = album.id;
+        MauiProgram.currentSongGuid = songId;
+
+        isCurrentAlbum = true;
+        MauiProgram.mediaService.Play();
+        await MauiProgram.mainPage.RefreshPlayer();
+        StateHasChanged();
     }
 }

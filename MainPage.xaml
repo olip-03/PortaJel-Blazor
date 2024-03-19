@@ -153,11 +153,29 @@
                 </Grid>
                 <!-- Image and item text -->
                 <Grid Grid.Row="1">
-                    <StackLayout Margin="50, 0, 50, 0" VerticalOptions="Center">
-                        <Image x:Name="MainPlayer_MainImage" Source="emptyAlbum.png" MaximumHeightRequest="350"></Image>
-                        <Label x:Name="MainPlayer_SongTitle" TextColor="Black" Text="Song Title" FontSize="28" HorizontalOptions="Center"></Label>
-                        <Label x:Name="MainPlayer_ArtistTitle" TextColor="Black" Text="Artist Name" FontSize="20" HorizontalOptions="Center"></Label>
-                    </StackLayout>
+                    <Grid x:Name="MainPlayer_ImgContainer" VerticalOptions="Center" HorizontalOptions="FillAndExpand">
+                        <StackLayout x:Name="MainPlayer_PreviousContainer" HorizontalOptions="Start">
+                            <Image x:Name="MainPlayer_PreviousMainImage" Source="emptyAlbum.png" MaximumHeightRequest="350"></Image>
+                            <Label x:Name="MainPlayer_PreviousSongTitle" TextColor="Black" Text="Prev Song Title" FontSize="28" HorizontalOptions="Center"></Label>
+                            <Label x:Name="MainPlayer_PreviousArtistTitle" TextColor="Black" Text="Artist Name" FontSize="20" HorizontalOptions="Center"></Label>
+                        </StackLayout>
+
+                        <StackLayout x:Name="MainPlayer_CurrentContainer" HorizontalOptions="Center">
+                            <Image x:Name="MainPlayer_MainImage" Source="emptyAlbum.png" MaximumHeightRequest="350"></Image>
+                            <Label x:Name="MainPlayer_SongTitle" TextColor="Black" Text="Song Title" FontSize="28" HorizontalOptions="Center"></Label>
+                            <Label x:Name="MainPlayer_ArtistTitle" TextColor="Black" Text="Artist Name" FontSize="20" HorizontalOptions="Center"></Label>
+                        </StackLayout>
+
+                        <StackLayout x:Name="MainPlayer_NextContainer" HorizontalOptions="End">
+                            <Image x:Name="MainPlayer_NextMainImage" Source="emptyAlbum.png" MaximumHeightRequest="350"></Image>
+                            <Label x:Name="MainPlayer_NextSongTitle" TextColor="Black" Text="Next Song Title" FontSize="28" HorizontalOptions="Center"></Label>
+                            <Label x:Name="MainPlayer_NextArtistTitle" TextColor="Black" Text="Artist Name" FontSize="20" HorizontalOptions="Center"></Label>
+                        </StackLayout>
+
+                        <Grid.GestureRecognizers>
+                            <PanGestureRecognizer PanUpdated="MainPlayer_ImgContainer_PinchUpdated"/>
+                        </Grid.GestureRecognizers>
+                    </Grid>
                 </Grid>
                 <!-- Playback controls -->
                 <Grid Grid.Row="2">

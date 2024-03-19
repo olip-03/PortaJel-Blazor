@@ -4,7 +4,9 @@ using Android.OS;
 using Android.Support.V4.Media.Session;
 using AndroidX.Core.App;
 using Com.Google.Android.Exoplayer2;
+using Com.Google.Android.Exoplayer2.Extractor;
 using Com.Google.Android.Exoplayer2.Source;
+using Com.Google.Android.Exoplayer2.Source.Hls;
 using Com.Google.Android.Exoplayer2.Upstream;
 using PortaJel_Blazor.Data;
 
@@ -48,6 +50,7 @@ namespace PortaJel_Blazor.Classes.Services
 
                 mediaSession = new MediaSessionCompat(Platform.AppContext, "PlayerService");
                 mediaStyle.SetMediaSession((Android.Media.Session.MediaSession.Token)mediaSession.SessionToken.GetToken());
+
                 notificationBuilder = new(Platform.AppContext);
                 // var playPauseIntent = new Android.Content.Intent(Platform.AppContext, );
 
@@ -144,6 +147,18 @@ namespace PortaJel_Blazor.Classes.Services
             if(songQueue.GetQueue().Count() > 0)
             {
                 getSong = songQueue.GetQueue().First();
+
+                // Assuming you have an ExoPlayer instance named 'player'
+
+                // Create a data source factory
+                // var dataSourceFactory = new DefaultDataSourceFactory(Platform.AppContext, "user-agent");
+                // var mediaIteam = new HlsMediaSource.Factory(dataSourceFactory).CreateMediaSource(MediaItem.FromUri(mediaUri));
+                // Create an extractor media source
+
+                // Prepare the player with the media source
+                // Exoplayer.AddMediaSource(mediaIteam);
+                // Start playback
+                Exoplayer.PlayWhenReady = true;
             }
             if (getSong != null)
             {

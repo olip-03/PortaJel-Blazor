@@ -8,6 +8,8 @@ using Microsoft.Maui.Controls.Shapes;
 using Jellyfin.Sdk;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using SkiaSharp;
 
 #if ANDROID
 using Android;
@@ -183,6 +185,7 @@ public partial class MainPage : ContentPage
     {
         queue.Clear();
         queueNextUp.Clear();
+
         queue = MauiProgram.mediaService.songQueue.GetQueue().ToList();
         queueNextUp = MauiProgram.mediaService.songQueue.GetNextUp().ToList();
 
@@ -192,22 +195,41 @@ public partial class MainPage : ContentPage
         {
             currentlyPlaying = queue.First();
             hideMidiPlayer = false;
+            MauiProgram.MiniPlayerIsOpen = true;
         }
         else if(queueNextUp.Count() > 0)
         {
             currentlyPlaying = queueNextUp.First();
             hideMidiPlayer = false;
+            MauiProgram.MiniPlayerIsOpen = true;
         }
         else
         {
+            MauiProgram.MiniPlayerIsOpen = false;
             return false;
         }
 
-        if(MainPlayer_MainImage.Source.ToString() != currentlyPlaying.image.source) { MainPlayer_MainImage.Source = currentlyPlaying.image.source; }
+        if(MainPlayer_MainImage.Source.ToString() != currentlyPlaying.image.source) 
+        {
+            // TODO: Fix blurhash working 
+            //using (var stream = currentlyPlaying.image.BlurHashToStream(20, 20))
+            //{
+            //    MainPlayer_MainImage.Source = ImageSource.FromStream(() => stream);
+            //}
+            MainPlayer_MainImage.Source = currentlyPlaying.image.source; 
+        }
         MainPlayer_SongTitle.Text = currentlyPlaying.name;
         MainPlayer_ArtistTitle.Text = currentlyPlaying.artistCongregate;
 
-        if (Player_Img.Source.ToString() != currentlyPlaying.image.source) { Player_Img.Source = currentlyPlaying.image.source; }
+        if (Player_Img.Source.ToString() != currentlyPlaying.image.source) 
+        {
+            // TODO: Fix blurhash working 
+            //using (var stream = currentlyPlaying.image.BlurHashToStream(20, 20))
+            //{
+            //    Player_Img.Source = ImageSource.FromStream(() => stream);
+            //}
+            Player_Img.Source = currentlyPlaying.image.source; 
+        }
         Player_Txt_Title.Text = currentlyPlaying.name;
         Player_Txt_Artist.Text = currentlyPlaying.artistCongregate;
 
@@ -221,12 +243,14 @@ public partial class MainPage : ContentPage
             Player_Txt_Title.Opacity = 0;
             Player_Txt_Artist.Opacity = 0;
             Player_Img.Opacity = 0;
+            MiniPlayer.TranslationY = 120;
 
             await Task.WhenAll(
                 Player_Txt_Title.FadeTo(1, animationSpeed, Easing.SinOut),
                 Player_Txt_Artist.FadeTo(1, animationSpeed, Easing.SinOut),
                 Player_Img.FadeTo(1, animationSpeed, Easing.SinOut),
-                MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut)
+                MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut),
+                MiniPlayer.TranslateTo(0, 0, animationSpeed, Easing.SinOut)
             );
         }
 
@@ -329,6 +353,15 @@ public partial class MainPage : ContentPage
         {
             MediaController.TranslationY = screenHeight;
         }
+
+        // MainPlayer_PreviousMainImage
+        double spacing = (AllContent.Width - 350) / 2;
+
+        MainPlayer_PreviousContainer.TranslationX = MainPlayer_PreviousContainer.TranslationX - (350 + spacing);
+        MainPlayer_NextContainer.TranslationX = MainPlayer_NextContainer.TranslationX + (350 + spacing);
+
+        // MainPlayer_ImgContainer.Spacing = ;
+        // MainPlayer_ImgContainer.TranslationX = translation; // center this 
 
         await Task.WhenAny<bool>
         (
@@ -604,7 +637,43 @@ public partial class MainPage : ContentPage
     {
         ShowContextMenu();
     }
+    private async void MainPlayer_ImgContainer_PinchUpdated(object sender, PanUpdatedEventArgs e)
+    {
+        #if !WINDOWS
+        switch (e.StatusType)
+        {
+            case GestureStatus.Running:
+                double h = Microsoft.Maui.Devices.DeviceDisplay.Current.MainDisplayInfo.Height;
+
+                MainPlayer_ImgContainer.TranslationX = MainPlayer_ImgContainer.TranslationX + e.TotalX;
+                distance = Player.TranslationX;
+                break;
+
+            case GestureStatus.Completed:
+                await MainPlayer_ImgContainer.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
+                //if (distance < 0) { distance *= -1; }
+                //uint speed = (uint)distance;
+                //lockUpDown = false;
+
+                //screenHeight = AllContent.Height;
+                //if (distance > screenHeight / 3)
+                //{
+                //    musicControlsFirstOpen = false;
+                //    ShowMusicController();
+                //}
+                //else
+                //{
+                //    CloseMusicController();
+                //}
+                break;
+        }
+        #endif
+    }
+
+    bool upDown = true; bool lockUpDown = false;
     double distance = 0;
+    double lastX = 0;
+    double lastY = 0;
     private void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
     {
 #if !WINDOWS
@@ -614,27 +683,59 @@ public partial class MainPage : ContentPage
                 double h = Microsoft.Maui.Devices.DeviceDisplay.Current.MainDisplayInfo.Height;
                 MediaController.IsVisible = true;
 
-                Player.TranslationY = Player.TranslationY + e.TotalY;
-                MediaController.TranslationY = Player.TranslationY + MediaController.Height - 50;
+                double xDiff = lastX - e.TotalX;
+                double yDiff = lastY - e.TotalY;
+                double angle = Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
 
-                double vis = 0;
-                if (Player.TranslationY < 0)
+                if (angle < 0) { angle += 360; }
+
+                var directions = new string[] { "LR", "UD", "UD", "UD" };
+                var index = (int)Math.Round((angle % 360) / 45) % 4;
+
+                if(directions[index] == "LR" && !lockUpDown)
                 {
-                    double check = ((Player.TranslationY * -1)+60) / MediaController.Height;
-                    if(check > 0)
-                    {
-                        vis = check;
-                    }
+                    upDown = false;
+                    lockUpDown = true;
+                }
+                else if(!lockUpDown)
+                {
+                    upDown = true;
+                    lockUpDown = true;
                 }
 
-                distance = Player.TranslationY;
+                lastX = e.TotalX;
+                lastY = e.TotalY;
+
+                if (upDown)
+                {
+                    Player.TranslationY = Player.TranslationY + e.TotalY;
+                    MediaController.TranslationY = Player.TranslationY + MediaController.Height - 50;
+
+                    double vis = 0;
+                    if (Player.TranslationY < 0)
+                    {
+                        double check = ((Player.TranslationY * -1) + 60) / MediaController.Height;
+                        if (check > 0)
+                        {
+                            vis = check;
+                        }
+                    }
+
+                    distance = Player.TranslationY;
+                    MediaController.Opacity = vis;
+                }
+                else
+                {
+                    // handle song skip animation
+                }
+
                 //Player_Txt_Title.Text = distance.ToString();
-                MediaController.Opacity = vis;
                 break;
 
             case GestureStatus.Completed:
                 if (distance < 0) { distance *= -1; }
                 uint speed = (uint)distance;
+                lockUpDown = false;
 
                 screenHeight = AllContent.Height;
                 if (distance > screenHeight / 3)

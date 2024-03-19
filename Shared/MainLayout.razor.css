@@ -79,6 +79,9 @@ main {
 
     align-items: center; /* Vertically center the images within the toolbar */
     justify-content: space-between; /* Distribute the images evenly along the toolbar */
+
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 .toolbar-img {

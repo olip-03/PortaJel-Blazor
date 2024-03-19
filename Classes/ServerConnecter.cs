@@ -20,7 +20,8 @@ namespace PortaJel_Blazor.Classes
         private PlaylistsClient _playlistsClient;
         private PlaylistCreationResult _playlistCreationResult;
         private MediaInfoClient _mediaInfoClient;
-        private UserLibraryClient _userLibraryClient; 
+        private UserLibraryClient _userLibraryClient;
+        private AudioClient _audioClient;
         private ImageClient _imageClient;
         private MusicGenresClient _genresClient;
         private SearchClient _searchClient;
@@ -128,6 +129,7 @@ namespace PortaJel_Blazor.Classes
                 _mediaInfoClient = new(_sdkClientSettings, _httpClient);
                 _itemUpdateClient = new(_sdkClientSettings, _httpClient);
                 _itemLookupClient = new(_sdkClientSettings, _httpClient);
+                _audioClient = new(_sdkClientSettings, _httpClient);
 
                 _playlistCreationResult = new();
                 Username = username;

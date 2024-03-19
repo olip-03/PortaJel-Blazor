@@ -56,6 +56,7 @@ public static class MauiProgram
     public static bool ContextMenuRoundImage = false;
 
     // Data for MusicPlayer
+    public static bool MiniPlayerIsOpen = false;
     public static bool MusicPlayerIsOpen = false;
     public static bool MusicPlayerIsQueueOpen = false;
 
