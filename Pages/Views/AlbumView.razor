@@ -253,8 +253,8 @@
             MauiProgram.mediaService.Play();
 
             MauiProgram.mediaService.nextUpItem = album;
-            MauiProgram.mediaService.songQueue.ClearNextUp();
-            MauiProgram.mediaService.songQueue.QueueNextUpRange(album.songs);
+            MauiProgram.mediaService.nextUpQueue.Clear();
+            MauiProgram.mediaService.nextUpQueue.QueueRange(album.songs);
 
             MauiProgram.currentAlbumGuid = album.id;
             MauiProgram.currentSongGuid = album.songs.First().id;
@@ -280,8 +280,8 @@
         }
 
         MauiProgram.mediaService.nextUpItem = album;
-        MauiProgram.mediaService.songQueue.ClearNextUp();
-        MauiProgram.mediaService.songQueue.QueueNextUpRange(toQueue.ToArray());
+        MauiProgram.mediaService.nextUpQueue.Clear();
+        MauiProgram.mediaService.nextUpQueue.QueueRange(toQueue.ToArray());
 
         MauiProgram.currentAlbumGuid = album.id;
         MauiProgram.currentSongGuid = songId;
