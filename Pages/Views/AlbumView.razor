@@ -2,7 +2,6 @@
 @using BlazorAnimate;
 @using PortaJel_Blazor.Classes.Services;
 @using Blurhash;
-@using System.Drawing.Common;
 @inject IJSRuntime JS;
 
 @page "/AlbumView/{albumId}"
@@ -252,7 +251,7 @@
             isCurrentAlbum = true;
             MauiProgram.mediaService.Play();
 
-            MauiProgram.mediaService.nextUpItem = album;
+            /// MauiProgram.mediaService.nextUpItem = album;
             MauiProgram.mediaService.nextUpQueue.Clear();
             MauiProgram.mediaService.nextUpQueue.QueueRange(album.songs);
 
@@ -279,7 +278,7 @@
             }
         }
 
-        MauiProgram.mediaService.nextUpItem = album;
+        // MauiProgram.mediaService.nextUpItem = album;
         MauiProgram.mediaService.nextUpQueue.Clear();
         MauiProgram.mediaService.nextUpQueue.QueueRange(toQueue.ToArray());
 

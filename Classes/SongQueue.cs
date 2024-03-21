@@ -10,22 +10,21 @@ namespace PortaJel_Blazor.Classes
     public class SongQueue
     {
         private Queue<Song> songQueue = new Queue<Song>();
-        private List<Song> dequeued = new List<Song>();
+        public List<Song> dequeuedList = new List<Song>();
         public void QueueSong(Song _song)
         {
             Song? lastSong = songQueue.FirstOrDefault();
             songQueue.Enqueue(_song);
+        }
+        public void QueueAtFront(Song _song)
+        {
+            List<Song> toSet = songQueue.ToList();
+            toSet.Insert(0, _song);
 
-            if (lastSong != null)
+            songQueue.Clear();
+            foreach (Song item in toSet)
             {
-                if (lastSong != songQueue.FirstOrDefault())
-                {
-                    // Refresh UI
-                }
-            }
-            else
-            {
-                // Refresh UI
+                songQueue.Enqueue(item);
             }
         }
         public void QueueRange(Song[] _songList)
@@ -38,6 +37,7 @@ namespace PortaJel_Blazor.Classes
         public Song DequeueSong()
         {
             Song dequeued = songQueue.Dequeue();
+            dequeuedList.Add(dequeued);
             return dequeued;
         }
         public void Clear()

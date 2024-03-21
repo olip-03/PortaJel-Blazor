@@ -42,7 +42,6 @@
         set
         {
             _pageTitle = value;
-            StateHasChanged();
         }
     }
     public bool showHeader
@@ -51,7 +50,6 @@
         set
         {
             _showHeader = value;
-            StateHasChanged();
         }
     }
     private bool loading { get; set; } = true;
@@ -84,7 +82,14 @@
     protected override void OnInitialized()
     {
         MauiProgram.mainLayout = this;
-        MauiProgram.webViewInitalized = true;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender == true)
+        {
+            MauiProgram.webViewInitalized = true;
+        }
     }
 
     public void UpdateState()

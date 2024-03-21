@@ -20,6 +20,7 @@ public static class MauiProgram
     private static string mainDir = FileSystem.Current.AppDataDirectory;
     private static string fileName = "usrdata.bin";
     private static string filePath = System.IO.Path.Combine(mainDir, fileName);
+    public static bool dataLoadFinished = false;
 
     public static StyleSettings styleSettings = new();
 
@@ -93,7 +94,9 @@ public static class MauiProgram
 
     public static MauiApp CreateMauiApp()
 	{
-        if(api == null)
+        Task.Run(() => MauiProgram.LoadData());
+
+        if (api == null)
         {
             api = new DataConnector();
         }
@@ -213,6 +216,7 @@ public static class MauiProgram
             }
         });
 
+        dataLoadFinished = true;
         return true;
     }
     public static async Task<bool> SaveData()

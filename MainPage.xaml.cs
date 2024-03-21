@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using SkiaSharp;
+using Microsoft.Maui.Dispatching;
 
 #if ANDROID
 using Android;
@@ -27,10 +28,13 @@ public partial class MainPage : ContentPage
 
     private List<Song> queue = new List<Song>();
     private List<Song> queueNextUp = new List<Song>();
-    private Song currentlyPlaying = Song.Empty;
+    private Song? previouslyPlaying = Song.Empty;
+    private Song? currentlyPlaying = Song.Empty;
+    private Song? nextPlaying = Song.Empty;
     private bool hideMidiPlayer = true;
 
     private uint animationSpeed = 550;
+
 
     public MainPage(bool? initalize = true)
 	{
@@ -40,7 +44,6 @@ public partial class MainPage : ContentPage
         }
 
         InitializeComponent();
-        Initialize();
         MauiProgram.mainPage = this;
         #if ANDROID
         btn_navnar_home.HeightRequest = 30;
@@ -57,18 +60,8 @@ public partial class MainPage : ContentPage
         #endif
         MauiProgram.webView = blazorWebView;
     }
-    private async void Initialize()
+    public async void Initialize()
     {
-        await MauiProgram.LoadData();
-
-        await Task.Run(() =>
-        {
-            while (!MauiProgram.webViewInitalized)
-            {
-
-            }
-        });
-
         if (MauiProgram.api.GetServers().Count() <= 0)
         {
             AddServerView addServerView = new();
@@ -89,9 +82,9 @@ public partial class MainPage : ContentPage
     }
     private void Bwv_BlazorWebViewInitialized(object sender, Microsoft.AspNetCore.Components.WebView.BlazorWebViewInitializedEventArgs e)
     {
-        #if ANDROID
+#if ANDROID
                e.WebView.Settings.MixedContentMode = Android.Webkit.MixedContentHandling.AlwaysAllow;
-        #endif
+#endif
     }
     protected override void OnHandlerChanged()
     {
@@ -168,7 +161,7 @@ public partial class MainPage : ContentPage
         MauiProgram.MusicPlayerIsQueueOpen = false;
         MediaController_Player.IsVisible = true;
 
-        MediaController_Player_PlayingFromInfo.IsVisible = MauiProgram.mediaService.nextUpIsAvaliable;
+        //MediaController_Player_PlayingFromInfo.IsVisible = MauiProgram.mediaService.nextUpIsAvaliable;
 
         MediaController_Queue.TranslationY = 0;
         await MediaController_Queue.TranslateTo(0, screenHeight, animationSpeed, Easing.SinIn);
@@ -186,23 +179,53 @@ public partial class MainPage : ContentPage
         MediaController_Player.IsVisible = false;
     }
     private Song songLastRefresh = Song.Empty;
+    /// <summary>
+    ///  Responsible for refresing the main page of the music controller
+    /// </summary>
+    /// <returns></returns>
     public async Task<bool> RefreshPlayer()
     {
-        RefreshQueue();
+        List<Task> animations = new List<Task>{
+                Player_Txt_Title.FadeTo(1, animationSpeed, Easing.SinOut),
+                Player_Txt_Artist.FadeTo(1, animationSpeed, Easing.SinOut),
+                Player_Img.FadeTo(1, animationSpeed, Easing.SinOut)
+            };
+        if (!MauiProgram.MiniPlayerIsOpen)
+        {
+            MiniPlayer.TranslationY = 120;
 
-        // Queue takes priority. If there are items in the queue
-        // ALWAYS pick from the top for the currently playing track
+            animations.Add(MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut));
+            animations.Add(MiniPlayer.TranslateTo(0, 0, animationSpeed, Easing.SinOut));
+        }
+
+        // Update the song that is currently playing
         if (MauiProgram.mediaService.songQueue.Count() > 0)
         {
             currentlyPlaying = MauiProgram.mediaService.songQueue.GetQueue().ToList().First();
             hideMidiPlayer = false;
             MauiProgram.MiniPlayerIsOpen = true;
+            if (MauiProgram.mediaService.songQueue.Count() > 1)
+            {
+                nextPlaying = MauiProgram.mediaService.songQueue.GetQueue().ToList()[1];
+            }
+            else
+            {
+                nextPlaying = null;
+            }
         }
         else if(MauiProgram.mediaService.nextUpQueue.Count() > 0)
         {
             currentlyPlaying = MauiProgram.mediaService.nextUpQueue.GetQueue().ToList().First();
             hideMidiPlayer = false;
             MauiProgram.MiniPlayerIsOpen = true;
+            if (MauiProgram.mediaService.nextUpQueue.Count() > 1)
+            {
+                nextPlaying = MauiProgram.mediaService.nextUpQueue.GetQueue().ToList()[1];
+            }
+            else
+            {
+                nextPlaying = null;
+            }
         }
         else
         {
@@ -212,32 +235,61 @@ public partial class MainPage : ContentPage
         }
 
         // Set main player source
-        if(MainPlayer_MainImage.Source.ToString() != currentlyPlaying.image.source) 
+        if(currentlyPlaying != null)
         {
-            // TODO: Fix blurhash working 
-            //using (var stream = currentlyPlaying.image.BlurHashToStream(20, 20))
-            //{
-            //    MainPlayer_MainImage.Source = ImageSource.FromStream(() => stream);
-            //}
-            MainPlayer_MainImage.Source = currentlyPlaying.image.source;
-            MainPlayer_NextMainImage.Source = currentlyPlaying.image.source;
-        }
-        MainPlayer_SongTitle.Text = currentlyPlaying.name;
-        MainPlayer_ArtistTitle.Text = currentlyPlaying.artistCongregate;
-        MainPlayer_NextSongTitle.Text = currentlyPlaying.name;
-        MainPlayer_NextArtistTitle.Text = currentlyPlaying.artistCongregate;
+            if (MainPlayer_MainImage.Source.ToString() != currentlyPlaying.image.source)
+            {
+                // TODO: Fix blurhash working 
+                //using (var stream = currentlyPlaying.image.BlurHashToStream(20, 20))
+                //{
+                //    MainPlayer_MainImage.Source = ImageSource.FromStream(() => stream);
+                //}
+                MainPlayer_MainImage.Source = currentlyPlaying.image.source;
+                MainPlayer_NextMainImage.Source = currentlyPlaying.image.source;
+            }
+            MainPlayer_SongTitle.Text = currentlyPlaying.name;
+            MainPlayer_ArtistTitle.Text = currentlyPlaying.artistCongregate;
 
-        if (Player_Img.Source.ToString() != currentlyPlaying.image.source) 
-        {
-            // TODO: Fix blurhash working 
-            //using (var stream = currentlyPlaying.image.BlurHashToStream(20, 20))
-            //{
-            //    Player_Img.Source = ImageSource.FromStream(() => stream);
-            //}
-            Player_Img.Source = currentlyPlaying.image.source; 
+            if (Player_Img.Source.ToString() != currentlyPlaying.image.source)
+            {
+                // TODO: Fix blurhash working 
+                //using (var stream = currentlyPlaying.image.BlurHashToStream(20, 20))
+                //{
+                //    Player_Img.Source = ImageSource.FromStream(() => stream);
+                //}
+                Player_Img.Source = currentlyPlaying.image.source;
+            }
+            Player_Txt_Title.Text = currentlyPlaying.name;
+            Player_Txt_Artist.Text = currentlyPlaying.artistCongregate;
         }
-        Player_Txt_Title.Text = currentlyPlaying.name;
-        Player_Txt_Artist.Text = currentlyPlaying.artistCongregate;
+        if(nextPlaying != null)
+        {
+            MainPlayer_NextContainer.IsVisible = true;
+            MainPlayer_NextSongTitle.Text = nextPlaying.name;
+            MainPlayer_NextArtistTitle.Text = nextPlaying.artistCongregate;
+            if (nextPlaying.image.source != currentlyPlaying.image.source)
+            {
+                MainPlayer_NextMainImage.Source = nextPlaying.image.source;
+            }
+        }
+        else
+        {
+            MainPlayer_NextContainer.IsVisible = false;
+        }
+        if (previouslyPlaying != null)
+        {
+            MainPlayer_PreviousContainer.IsVisible = true;
+            MainPlayer_PreviousSongTitle.Text = previouslyPlaying.name;
+            MainPlayer_PreviousArtistTitle.Text = previouslyPlaying.artistCongregate;
+            if (previouslyPlaying.image.source != currentlyPlaying.image.source)
+            {
+                MainPlayer_PreviousMainImage.Source = previouslyPlaying.image.source;
+            }
+        }
+        else
+        {
+            MainPlayer_PreviousContainer.IsVisible = false;
+        }
 
         if (!hideMidiPlayer)
         {
@@ -249,21 +301,18 @@ public partial class MainPage : ContentPage
             Player_Txt_Title.Opacity = 0;
             Player_Txt_Artist.Opacity = 0;
             Player_Img.Opacity = 0;
-            MiniPlayer.TranslationY = 120;
 
-            await Task.WhenAll(
-                Player_Txt_Title.FadeTo(1, animationSpeed, Easing.SinOut),
-                Player_Txt_Artist.FadeTo(1, animationSpeed, Easing.SinOut),
-                Player_Img.FadeTo(1, animationSpeed, Easing.SinOut),
-                MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut),
-                MiniPlayer.TranslateTo(0, 0, animationSpeed, Easing.SinOut)
-            );
+            await Task.WhenAll(animations);
         }
 
+        RefreshQueue();
 
         songLastRefresh = currentlyPlaying;
         return true;
     }
+    /// <summary>
+    ///  Responsible for Refreshing the queue 
+    /// </summary>
     public void RefreshQueue()
     {
         queue.Clear();
@@ -276,7 +325,6 @@ public partial class MainPage : ContentPage
 
             MediaController_Queue_Header.IsVisible = true;
             MediaController_Queue_List.IsVisible = true;
-            currentlyPlaying = queue.First();
             if(queueNextUp.Count <= 0)
             {
                 MediaController_NextUp_Header.IsVisible = false;
@@ -292,12 +340,17 @@ public partial class MainPage : ContentPage
 
             MediaController_Queue_Header.IsVisible = false;
             MediaController_Queue_List.IsVisible = false;
-            currentlyPlaying = queueNextUp.First();
+            if (queueNextUp.Count <= 0)
+            {
+                MediaController_NextUp_Header.IsVisible = false;
+                MediaController_NextUp_List.IsVisible = false;
+            }
         }
         else
         {
             return;
         }
+
 
         queue_currentlyplaying_img.Source = currentlyPlaying.image.source;
         queue_currentlyplaying_title_lbl.Text = currentlyPlaying.name;
@@ -344,19 +397,19 @@ public partial class MainPage : ContentPage
 
         screenHeight = AllContent.Height;
 
-        if (MauiProgram.mediaService.nextUpIsAvaliable && MauiProgram.mediaService.nextUpItem != null)
-        {
-            MediaController_Player_PlayingFromInfo.IsVisible = MauiProgram.mediaService.nextUpIsAvaliable;
-            MediaController_Player_PlayingFromInfo_PlayingFromText.Text = MauiProgram.mediaService.nextUpItem.name;
-            if (MauiProgram.mediaService.nextUpItem is Album)
-            {
-                MediaController_Player_PlayingFromInfo_PlayingFromType.Text = "Playing from Album";
-            }
-            else if (MauiProgram.mediaService.nextUpItem is Playlist)
-            {
-                MediaController_Player_PlayingFromInfo_PlayingFromType.Text = "Playing from Playlist";
-            }
-        }
+        //if (MauiProgram.mediaService.nextUpQueue.Count() > 0)
+        //{
+        //    MediaController_Player_PlayingFromInfo.IsVisible = true;
+        //    MediaController_Player_PlayingFromInfo_PlayingFromText.Text = MauiProgram.mediaService.nextUpQueue.FirstOrDefault().name;
+        //    if (MauiProgram.mediaService.nextUpItem is Album)
+        //    {
+        //        MediaController_Player_PlayingFromInfo_PlayingFromType.Text = "Playing from Album";
+        //    }
+        //    else if (MauiProgram.mediaService.nextUpItem is Playlist)
+        //    {
+        //        MediaController_Player_PlayingFromInfo_PlayingFromType.Text = "Playing from Playlist";
+        //    }
+        //}
 
         MediaController.IsVisible = true;
         if (musicControlsFirstOpen)
@@ -465,6 +518,86 @@ public partial class MainPage : ContentPage
         LoadingBlockout.IsVisible = value;
         LoadingBlockout.IsEnabled = value;
     }
+    private async void SkipTrack()
+    {
+        if ((nextPlaying == null) ^ (currentlyPlaying == null))
+        {
+            await MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut);
+            isSkipping = false;
+            return;
+        }
+
+        await MainPlayer_ImgContainer.TranslateTo(imgDragDistance, 0, 0);
+
+        previouslyPlaying = currentlyPlaying;
+
+        MauiProgram.mediaService.NextTrack();
+        currentlyPlaying = MauiProgram.mediaService.nextSong; 
+        MediaCntroller_Player_Next_btn.Opacity = 0;
+
+        // Play transform animations on images
+        double spacing = (AllContent.Width - 350) / 2;
+        await Task.WhenAny<bool>
+        (
+             MainPlayer_ImgContainer.TranslateTo(-350 - (spacing * 2), 0, animationSpeed / 2, Easing.SinOut),
+             MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
+        );
+
+        if(currentlyPlaying.image.source != nextPlaying.image.source)
+        {
+            MainPlayer_MainImage.Source = nextPlaying.image.source;
+        }
+        MainPlayer_SongTitle.Text = nextPlaying.name;
+        MainPlayer_ArtistTitle.Text = nextPlaying.artistCongregate;
+
+        await Task.Delay(100);
+        await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
+
+        await Task.Run(() =>
+        {
+            Application.Current.Dispatcher.Dispatch(async () => await RefreshPlayer());
+        });
+    }
+    private async void PrevTrack()
+    {
+        if (previouslyPlaying == null || currentlyPlaying == null)
+        {
+            await MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut);
+            isSkipping = false;
+            return;
+        }
+
+        await MainPlayer_ImgContainer.TranslateTo(imgDragDistance, 0, 0);
+
+        previouslyPlaying = currentlyPlaying;
+
+        MauiProgram.mediaService.PreviousTrack();
+        currentlyPlaying = MauiProgram.mediaService.previousSong;
+        MediaCntroller_Player_Next_btn.Opacity = 0;
+
+        // Play transform animations on images
+        double spacing = (AllContent.Width - 350) / 2;
+        await Task.WhenAny<bool>
+        (
+             MainPlayer_ImgContainer.TranslateTo(350 + (spacing * 2), 0, animationSpeed / 2, Easing.SinOut),
+             MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
+        );
+
+        if (currentlyPlaying.image.source != nextPlaying.image.source)
+        {
+            MainPlayer_MainImage.Source = nextPlaying.image.source;
+        }
+        MainPlayer_SongTitle.Text = nextPlaying.name;
+        MainPlayer_ArtistTitle.Text = nextPlaying.artistCongregate;
+
+        await Task.Delay(100);
+        await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
+
+        await Task.Run(() =>
+        {
+            Application.Current.Dispatcher.Dispatch(async () => await RefreshPlayer());
+        });
+    }
     #endregion
     #region Interactions
     private void Player_Btn_FavToggle_Clicked(object sender, EventArgs e)
@@ -517,22 +650,9 @@ public partial class MainPage : ContentPage
             return;
         }
         isSkipping = true;
-        await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
 
-        MauiProgram.mediaService.NextTrack();
-        MediaCntroller_Player_Previous_btn.Opacity = 0;
+        PrevTrack();
 
-        double spacing = (AllContent.Width - 350) / 2;
-        await Task.WhenAny<bool>
-        (
-             MainPlayer_ImgContainer.TranslateTo(350 + (spacing * 2), 0, animationSpeed / 2, Easing.SinIn),
-             MediaCntroller_Player_Previous_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
-        );
-
-        await Task.Delay(100);
-        await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
-
-        RefreshQueue();
         isSkipping = false;
     }
     private async void MediaCntroller_Player_Next_btn_Clicked(object sender, EventArgs e)
@@ -543,50 +663,8 @@ public partial class MainPage : ContentPage
         }
         isSkipping = true;
 
-        Song nextTune = Song.Empty;
+        SkipTrack();
 
-        //TODO Change to main queue source instead of having a local one. We have it for a reason
-        if (MauiProgram.mediaService.songQueue.Count() > 1)
-        {
-            nextTune = MauiProgram.mediaService.songQueue.DequeueSong();
-        }
-        else if(MauiProgram.mediaService.nextUpQueue.Count() > 0)
-        {
-            nextTune = MauiProgram.mediaService.nextUpQueue.DequeueSong();
-        }
-        else
-        {
-            await MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut);
-            isSkipping = false;
-            return;
-        }
-
-        // TODO: Change this to be updated when the main image would be (on refresh i believe)?
-        MainPlayer_NextMainImage.Source = nextTune.image.source;
-        MainPlayer_NextSongTitle.Text = nextTune.name;
-        MainPlayer_NextArtistTitle.Text = nextTune.artistCongregate;
-
-        await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
-
-        MauiProgram.mediaService.PreviousTrack();
-        MediaCntroller_Player_Next_btn.Opacity = 0;
-
-        // Play transform animations on images
-        double spacing = (AllContent.Width - 350) / 2;
-        await Task.WhenAny<bool>
-        (
-             MainPlayer_ImgContainer.TranslateTo(-350 - (spacing * 2), 0, animationSpeed / 2, Easing.SinIn),
-             MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
-        );
-
-        MainPlayer_MainImage.Source = nextTune.image.source;
-        MainPlayer_SongTitle.Text = nextTune.name;
-        MainPlayer_ArtistTitle.Text = nextTune.artistCongregate;
-
-        await Task.Delay(100);
-        await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
-
-        RefreshQueue();
         isSkipping = false;
     }
     private void Button_Clicked(object sender, EventArgs e)
@@ -708,6 +786,7 @@ public partial class MainPage : ContentPage
     {
         ShowContextMenu();
     }
+    private double imgDragDistance = 0;
     private async void MainPlayer_ImgContainer_PinchUpdated(object sender, PanUpdatedEventArgs e)
     {
         #if !WINDOWS
@@ -717,25 +796,25 @@ public partial class MainPage : ContentPage
                 double h = Microsoft.Maui.Devices.DeviceDisplay.Current.MainDisplayInfo.Height;
 
                 MainPlayer_ImgContainer.TranslationX = MainPlayer_ImgContainer.TranslationX + e.TotalX;
-                distance = Player.TranslationX;
+                // distance = Player.TranslationX;
+
+                imgDragDistance = MainPlayer_ImgContainer.TranslationX;
                 break;
 
             case GestureStatus.Completed:
-                await MainPlayer_ImgContainer.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
-                //if (distance < 0) { distance *= -1; }
-                //uint speed = (uint)distance;
-                //lockUpDown = false;
-
-                //screenHeight = AllContent.Height;
-                //if (distance > screenHeight / 3)
-                //{
-                //    musicControlsFirstOpen = false;
-                //    ShowMusicController();
-                //}
-                //else
-                //{
-                //    CloseMusicController();
-                //}
+                // 
+                if (imgDragDistance < -100) 
+                {
+                    SkipTrack();
+                }
+                else if (imgDragDistance > 100)
+                {
+                    PrevTrack();
+                }
+                else
+                {
+                    await MainPlayer_ImgContainer.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
+                }
                 break;
         }
         #endif
