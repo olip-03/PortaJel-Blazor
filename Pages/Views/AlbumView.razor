@@ -249,14 +249,15 @@
         else
         {
             isCurrentAlbum = true;
-            MauiProgram.mediaService.Play();
 
-            /// MauiProgram.mediaService.nextUpItem = album;
+            // When a user clicks on an album to listen to the songs go into the next up list
             MauiProgram.mediaService.nextUpQueue.Clear();
             MauiProgram.mediaService.nextUpQueue.QueueRange(album.songs);
 
             MauiProgram.currentAlbumGuid = album.id;
             MauiProgram.currentSongGuid = album.songs.First().id;
+
+            MauiProgram.mediaService.Play();
         }
 
         await MauiProgram.mainPage.RefreshPlayer();
@@ -266,6 +267,7 @@
     { // Play selected song, and queue the rest of the album
         List<Song> toQueue = new();
         bool queueRest = false;
+        MauiProgram.mediaService.nextUpQueue.dequeuedList.Clear();
         foreach (Song song in album.songs)
         {
             if(song.id == songId)
@@ -275,6 +277,10 @@
             if (queueRest)
             {
                 toQueue.Add(song);
+            }
+            else
+            {
+                MauiProgram.mediaService.nextUpQueue.dequeuedList.Add(song);
             }
         }
 

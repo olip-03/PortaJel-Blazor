@@ -49,5 +49,9 @@ namespace PortaJel_Blazor.Classes.Services
         {
 
         }
+        public partial void SeekTo(long position)
+        {
+
+        }
     }
 }

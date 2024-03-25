@@ -911,6 +911,11 @@ namespace PortaJel_Blazor.Classes
 
             return songs.ToArray();
         }
+        public async Task<string> GetSongStreamUrl(Song toFetch)
+        {
+            FileResponse resposne = await _audioClient.GetAudioStreamAsync(toFetch.id);
+            return string.Empty;
+        }
         public async Task<int> GetTotalGenreCount()
         {
             if (TotalGenreRecordCount == -1)
@@ -1406,6 +1411,8 @@ namespace PortaJel_Blazor.Classes
                     setDiskNum: 0, //TODO: Fix disk num
                     setIsFavourite: baseItem.UserData.IsFavorite);
             newSong.image = MusicItemImageBuilder(baseItem);
+            //_sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/" + imgType;
+            newSong.streamUrl = _sdkClientSettings.BaseUrl + "/Audio/" + baseItem.Id + "/stream";
 
             List<Artist> artists = new List<Artist>();
             foreach (var item in baseItem.AlbumArtists)

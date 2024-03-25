@@ -183,4 +183,8 @@
 	  <PackageReference Update="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.7" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Platforms\Android\EventListeners\" />
+	</ItemGroup>
+
 </Project>

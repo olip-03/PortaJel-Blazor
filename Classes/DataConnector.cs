@@ -125,6 +125,14 @@ namespace PortaJel_Blazor.Classes
 
             return songsReturn.ToArray();
         }
+        public async Task<string> GetSongStreamUrl(Song toFetch)
+        {
+            string toReturn = string.Empty;
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                toReturn = await server.Value.GetSongStreamUrl(toFetch);
+            });
+            return toReturn;
+        }
         #endregion
         #region GenreEndpoints
         public async Task<Genre[]> GetAllGenresAsync(int? limit = 50, int? startIndex = 0, CancellationToken? cancellationToken = null)

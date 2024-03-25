@@ -87,10 +87,10 @@ public static class MauiProgram
     public static List<Song> favouriteSongs = new();
 
     // Index page cached data
-    public static BaseMusicItem[] favouritesPlayData { get; set; } = new BaseMusicItem[0];
-    public static BaseMusicItem[] recentPlayData { get; set; } = new BaseMusicItem[0];
-    public static BaseMusicItem[] mostPlayData { get; set; } = new BaseMusicItem[0];
-    public static BaseMusicItem[] recentAddedData { get; set; } = new BaseMusicItem[0];
+    public static BaseMusicItem[] favouritesPlayData { get; set; } = Array.Empty<BaseMusicItem>();
+    public static BaseMusicItem[] recentPlayData { get; set; } = Array.Empty<BaseMusicItem>();
+    public static BaseMusicItem[] mostPlayData { get; set; } = Array.Empty<BaseMusicItem>();
+    public static BaseMusicItem[] recentAddedData { get; set; } = Array.Empty<BaseMusicItem>();
 
     public static MauiApp CreateMauiApp()
 	{

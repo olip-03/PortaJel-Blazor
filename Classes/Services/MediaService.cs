@@ -17,29 +17,23 @@ namespace PortaJel_Blazor.Classes.Services
         /// <summary>
         /// Bool represents true if the song came from the queue, false if it came from nextup
         /// </summary>
-        private List<KeyValuePair<bool, Song>> dequeuedSongs = new();
         public Song? previousSong { 
             get
             {
                 Song? toReturn = null;
-                if (dequeuedSongs.Count > 0)
+                if (songQueue.dequeuedList.Count > 0)
                 {
-                    if(dequeuedSongs.Last().Key == true)
-                    {
-                        // remove song from dequeue list 
-                        toReturn = dequeuedSongs.Last().Value;
-                        songQueue.dequeuedList.RemoveAt(songQueue.dequeuedList.Count - 1);
-                        dequeuedSongs.RemoveAt(dequeuedSongs.Count() - 1);
-                        songQueue.QueueAtFront(toReturn);
-                        // add song back to the front of queues 
-                    }
+                    // remove song from dequeue list 
+                    toReturn = songQueue.dequeuedList.Last();
+                    songQueue.dequeuedList.RemoveAt(songQueue.dequeuedList.Count - 1);
+                    songQueue.QueueAtFront(toReturn);
+                    // add song back to the front of queues
                 }
                 else if (nextUpQueue.dequeuedList.Count > 0)
                 {
                     // remove song from dequeue list 
                     toReturn = nextUpQueue.dequeuedList.Last();
                     nextUpQueue.dequeuedList.RemoveAt(nextUpQueue.dequeuedList.Count - 1);
-                    dequeuedSongs.RemoveAt(dequeuedSongs.Count() - 1);
                     nextUpQueue.QueueAtFront(toReturn);
                 }
                 return toReturn;
@@ -50,19 +44,45 @@ namespace PortaJel_Blazor.Classes.Services
             get
             {
                 Song? toReturn = null;
-                if (songQueue.dequeuedList.Count > 0)
+                if (songQueue.Count() > 0)
                 {
                     toReturn = songQueue.DequeueSong();
-                    dequeuedSongs.Add(new KeyValuePair<bool, Song>(true, toReturn));
                 }
-                else if (nextUpQueue.dequeuedList.Count > 0)
+                else if (nextUpQueue.Count() > 0)
                 {
                     toReturn = nextUpQueue.DequeueSong();
-                    dequeuedSongs.Add(new KeyValuePair<bool, Song>(false, toReturn));
                 }
                 return toReturn;
             }
             private set { }
+        }
+        public Song? PeekPreviousSong()
+        {
+            Song? toReturn = null;
+            if (songQueue.dequeuedList.Count > 0)
+            {
+                toReturn = songQueue.dequeuedList.Last();
+
+            }
+            else if (nextUpQueue.dequeuedList.Count > 0)
+            {
+                // remove song from dequeue list 
+                toReturn = nextUpQueue.dequeuedList.Last();
+            }
+            return toReturn;
+        }
+        public Song? PeekNextSong()
+        {
+            Song? toReturn = null;
+            if (songQueue.Count() > 0)
+            {
+                toReturn = songQueue.PeekSong();
+            }
+            else if (nextUpQueue.Count() > 0)
+            {
+                toReturn = nextUpQueue.PeekSong();
+            }
+            return toReturn;
         }
         public partial void Initalize();
         public partial void Play();
@@ -72,5 +92,6 @@ namespace PortaJel_Blazor.Classes.Services
         public partial void ToggleRepeat();
         public partial void NextTrack();
         public partial void PreviousTrack();
+        public partial void SeekTo(long position);
     }
 }

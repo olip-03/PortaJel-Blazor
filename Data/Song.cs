@@ -125,6 +125,11 @@ namespace PortaJel_Blazor.Data
             }
             return album;
         }
+        public async Task<string> GetStreamUrl()
+        {
+
+            return string.Empty;
+        }
         #endregion
     }
 }

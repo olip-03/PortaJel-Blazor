@@ -60,7 +60,6 @@
     {
         MauiProgram.mainLayout.pageTitle = "PortaJel";
         MauiProgram.mainLayout.currentUri = "/home";
-        MauiProgram.mainLayout.showHeader = true;
 
         bool doneRandom = false;
 
@@ -114,6 +113,7 @@
         }
 
         isLoading = false;
+        MauiProgram.mainLayout.showHeader = true;
         await InvokeAsync(() => StateHasChanged());
         await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.mainLayout.isLoading = false;

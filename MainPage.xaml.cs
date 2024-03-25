@@ -32,9 +32,9 @@ public partial class MainPage : ContentPage
     private Song? currentlyPlaying = Song.Empty;
     private Song? nextPlaying = Song.Empty;
     private bool hideMidiPlayer = true;
+    long lastSeekPosition = 0;
 
     private uint animationSpeed = 550;
-
 
     public MainPage(bool? initalize = true)
 	{
@@ -183,6 +183,7 @@ public partial class MainPage : ContentPage
     ///  Responsible for refresing the main page of the music controller
     /// </summary>
     /// <returns></returns>
+    private string lastImageSource = String.Empty;
     public async Task<bool> RefreshPlayer()
     {
         List<Task> animations = new List<Task>{
@@ -204,28 +205,12 @@ public partial class MainPage : ContentPage
             currentlyPlaying = MauiProgram.mediaService.songQueue.GetQueue().ToList().First();
             hideMidiPlayer = false;
             MauiProgram.MiniPlayerIsOpen = true;
-            if (MauiProgram.mediaService.songQueue.Count() > 1)
-            {
-                nextPlaying = MauiProgram.mediaService.songQueue.GetQueue().ToList()[1];
-            }
-            else
-            {
-                nextPlaying = null;
-            }
         }
         else if(MauiProgram.mediaService.nextUpQueue.Count() > 0)
         {
             currentlyPlaying = MauiProgram.mediaService.nextUpQueue.GetQueue().ToList().First();
             hideMidiPlayer = false;
             MauiProgram.MiniPlayerIsOpen = true;
-            if (MauiProgram.mediaService.nextUpQueue.Count() > 1)
-            {
-                nextPlaying = MauiProgram.mediaService.nextUpQueue.GetQueue().ToList()[1];
-            }
-            else
-            {
-                nextPlaying = null;
-            }
         }
         else
         {
@@ -234,10 +219,40 @@ public partial class MainPage : ContentPage
             return false;
         }
 
-        // Set main player source
-        if(currentlyPlaying != null)
+        // Update the song that will be playing next
+        if (MauiProgram.mediaService.songQueue.Count() > 1)
         {
-            if (MainPlayer_MainImage.Source.ToString() != currentlyPlaying.image.source)
+            nextPlaying = MauiProgram.mediaService.songQueue.GetQueue().ToList()[1];
+        }
+        else if (MauiProgram.mediaService.nextUpQueue.Count() > 1)
+        {
+            nextPlaying = MauiProgram.mediaService.nextUpQueue.GetQueue().ToList()[1];
+        }
+        else
+        {
+            nextPlaying = null;
+        }
+
+        // Update the song that played last, and the UI
+        previouslyPlaying = MauiProgram.mediaService.PeekPreviousSong();
+        if (previouslyPlaying != null)
+        {
+            MainPlayer_PreviousSongTitle.Text = previouslyPlaying.name;
+            MainPlayer_PreviousArtistTitle.Text = previouslyPlaying.artistCongregate;
+            if (previouslyPlaying.image.source != lastImageSource)
+            {
+                MainPlayer_PreviousMainImage.Source = previouslyPlaying.image.source;
+            }
+        }
+        else
+        {
+            MainPlayer_PreviousContainer.IsVisible = false;
+        }
+
+        // Update the UI for the song that is currently playing
+        if (currentlyPlaying != null)
+        {
+            if (lastImageSource != currentlyPlaying.image.source)
             {
                 // TODO: Fix blurhash working 
                 //using (var stream = currentlyPlaying.image.BlurHashToStream(20, 20))
@@ -262,9 +277,9 @@ public partial class MainPage : ContentPage
             Player_Txt_Title.Text = currentlyPlaying.name;
             Player_Txt_Artist.Text = currentlyPlaying.artistCongregate;
         }
+        // Update the UI for the song that is playing next
         if(nextPlaying != null)
         {
-            MainPlayer_NextContainer.IsVisible = true;
             MainPlayer_NextSongTitle.Text = nextPlaying.name;
             MainPlayer_NextArtistTitle.Text = nextPlaying.artistCongregate;
             if (nextPlaying.image.source != currentlyPlaying.image.source)
@@ -275,20 +290,6 @@ public partial class MainPage : ContentPage
         else
         {
             MainPlayer_NextContainer.IsVisible = false;
-        }
-        if (previouslyPlaying != null)
-        {
-            MainPlayer_PreviousContainer.IsVisible = true;
-            MainPlayer_PreviousSongTitle.Text = previouslyPlaying.name;
-            MainPlayer_PreviousArtistTitle.Text = previouslyPlaying.artistCongregate;
-            if (previouslyPlaying.image.source != currentlyPlaying.image.source)
-            {
-                MainPlayer_PreviousMainImage.Source = previouslyPlaying.image.source;
-            }
-        }
-        else
-        {
-            MainPlayer_PreviousContainer.IsVisible = false;
         }
 
         if (!hideMidiPlayer)
@@ -306,7 +307,7 @@ public partial class MainPage : ContentPage
         }
 
         RefreshQueue();
-
+        lastImageSource = currentlyPlaying.image.source;
         songLastRefresh = currentlyPlaying;
         return true;
     }
@@ -518,39 +519,84 @@ public partial class MainPage : ContentPage
         LoadingBlockout.IsVisible = value;
         LoadingBlockout.IsEnabled = value;
     }
-    private async void SkipTrack()
+    private bool mediaCntrollerSliderDragging = false;
+    public async void UpdatePlaystate(long duration, long position)
     {
-        if ((nextPlaying == null) ^ (currentlyPlaying == null))
+        if (!mediaCntrollerSliderDragging)
         {
-            await MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut);
+            MediaCntroller_Slider.Maximum = duration;
+            MediaCntroller_Slider.Value = position;
+
+            double progressPercent = ((double)position / duration);
+            Miniplayer_Progress.Progress = progressPercent;
+
+            MediaCntroller_Slider_DurationTxt.Text = ConvertToTimeFormat(duration);
+            MediaCntroller_Slider_PositionTxt.Text = ConvertToTimeFormat(position);
+        }
+    }
+    private string ConvertToTimeFormat(long milliseconds)
+    {
+        // Convert milliseconds to seconds
+        long totalSeconds = milliseconds / 1000;
+
+        // Calculate minutes and seconds
+        long minutes = totalSeconds / 60;
+        long seconds = totalSeconds % 60;
+
+        // Format the time as mm:ss
+        return string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+    /// <summary>
+    /// Skips to the next song
+    /// </summary>
+    public async void SkipTrack(bool? informExoPlayer = false)
+    {
+        MediaCntroller_Player_Next_btn.Opacity = 0;
+        // Get and dequeue the next song from the media service
+        if (nextPlaying == null ^ currentlyPlaying == null)
+        {
+            await Task.WhenAll(
+                MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut),
+                MainPlayer_ImgContainer.TranslateTo(0, 0, animationSpeed, Easing.SinOut)
+                );
             isSkipping = false;
             return;
         }
 
+        // Reset position of images
         await MainPlayer_ImgContainer.TranslateTo(imgDragDistance, 0, 0);
 
-        previouslyPlaying = currentlyPlaying;
-
+        // this updates the media service queue
+        currentlyPlaying = MauiProgram.mediaService.nextSong;
+        Song? nextSongFromQueue = MauiProgram.mediaService.PeekNextSong();
+        // Tell the media service to start playing the next song
         MauiProgram.mediaService.NextTrack();
-        currentlyPlaying = MauiProgram.mediaService.nextSong; 
-        MediaCntroller_Player_Next_btn.Opacity = 0;
 
-        // Play transform animations on images
-        double spacing = (AllContent.Width - 350) / 2;
-        await Task.WhenAny<bool>
-        (
-             MainPlayer_ImgContainer.TranslateTo(-350 - (spacing * 2), 0, animationSpeed / 2, Easing.SinOut),
-             MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
-        );
-
-        if(currentlyPlaying.image.source != nextPlaying.image.source)
+        // Updating the current to appear to have 'skipped' desipite snapping back 
+        if (nextSongFromQueue != null && currentlyPlaying != null)
         {
-            MainPlayer_MainImage.Source = nextPlaying.image.source;
-        }
-        MainPlayer_SongTitle.Text = nextPlaying.name;
-        MainPlayer_ArtistTitle.Text = nextPlaying.artistCongregate;
+            MainPlayer_NextContainer.IsVisible = true;
+            MainPlayer_NextContainer.IsEnabled = true;
+            MainPlayer_NextContainer.Opacity = 1;
 
-        await Task.Delay(100);
+            // Play transform animations on images, this moves the next item to the current
+            double spacing = (AllContent.Width - 350) / 2;
+            await Task.WhenAny<bool>
+            (
+                 MainPlayer_ImgContainer.TranslateTo(-350 - (spacing * 2), 0, animationSpeed / 2, Easing.SinOut),
+                 MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
+            );
+
+            if (currentlyPlaying.image.source != nextSongFromQueue.image.source)
+            {
+                MainPlayer_MainImage.Source = nextSongFromQueue.image.source;
+            }
+            MainPlayer_SongTitle.Text = nextSongFromQueue.name;
+            MainPlayer_ArtistTitle.Text = nextSongFromQueue.artistCongregate;
+        }
+
+        // Reset the position after updating the UI 
+        // await Task.Delay(100);
         await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
 
         await Task.Run(() =>
@@ -558,39 +604,48 @@ public partial class MainPage : ContentPage
             Application.Current.Dispatcher.Dispatch(async () => await RefreshPlayer());
         });
     }
-    private async void PrevTrack()
+    public async void PrevTrack(bool? informExoPlayer = false)
     {
+        MediaCntroller_Player_Previous_btn.Opacity = 0;
         if (previouslyPlaying == null || currentlyPlaying == null)
         {
-            await MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut);
+            await MediaCntroller_Player_Previous_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut);
             isSkipping = false;
             return;
         }
 
+        // Reset position of images
         await MainPlayer_ImgContainer.TranslateTo(imgDragDistance, 0, 0);
 
-        previouslyPlaying = currentlyPlaying;
-
-        MauiProgram.mediaService.PreviousTrack();
+        // this updates the media service queue
+        Song lastSong = currentlyPlaying;
         currentlyPlaying = MauiProgram.mediaService.previousSong;
-        MediaCntroller_Player_Next_btn.Opacity = 0;
+        // Tell the media service to start playing the last song
+        MauiProgram.mediaService.PreviousTrack();
 
-        // Play transform animations on images
-        double spacing = (AllContent.Width - 350) / 2;
-        await Task.WhenAny<bool>
-        (
-             MainPlayer_ImgContainer.TranslateTo(350 + (spacing * 2), 0, animationSpeed / 2, Easing.SinOut),
-             MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
-        );
-
-        if (currentlyPlaying.image.source != nextPlaying.image.source)
+        // Updating the current to appear to have 'skipped' desipite snapping back 
+        if (currentlyPlaying != null)
         {
-            MainPlayer_MainImage.Source = nextPlaying.image.source;
-        }
-        MainPlayer_SongTitle.Text = nextPlaying.name;
-        MainPlayer_ArtistTitle.Text = nextPlaying.artistCongregate;
+            MainPlayer_PreviousContainer.IsVisible = true;
+            MainPlayer_PreviousContainer.IsEnabled = true;
+            MainPlayer_PreviousContainer.Opacity = 1;
 
-        await Task.Delay(100);
+            // Play transform animations on images
+            double spacing = (AllContent.Width - 350) / 2;
+            await Task.WhenAny<bool>
+            (
+                 MainPlayer_ImgContainer.TranslateTo(350 + (spacing * 2), 0, animationSpeed / 2, Easing.SinOut),
+                 MediaCntroller_Player_Previous_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
+            );
+
+            if (currentlyPlaying.image.source != lastSong.image.source)
+            {
+                MainPlayer_MainImage.Source = currentlyPlaying.image.source;
+            }
+            MainPlayer_SongTitle.Text = currentlyPlaying.name;
+            MainPlayer_ArtistTitle.Text = currentlyPlaying.artistCongregate;
+        }
+
         await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
 
         await Task.Run(() =>
@@ -649,6 +704,7 @@ public partial class MainPage : ContentPage
         {
             return;
         }
+        imgDragDistance = 0;
         isSkipping = true;
 
         PrevTrack();
@@ -661,6 +717,7 @@ public partial class MainPage : ContentPage
         {
             return;
         }
+        imgDragDistance = 0;
         isSkipping = true;
 
         SkipTrack();
@@ -803,17 +860,17 @@ public partial class MainPage : ContentPage
 
             case GestureStatus.Completed:
                 // 
-                if (imgDragDistance < -100) 
+                if (imgDragDistance < -60) 
                 {
                     SkipTrack();
                 }
-                else if (imgDragDistance > 100)
+                else if (imgDragDistance > 60)
                 {
                     PrevTrack();
                 }
                 else
                 {
-                    await MainPlayer_ImgContainer.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
+                    await MainPlayer_ImgContainer.TranslateTo(0, 0, animationSpeed, Easing.SinInOut);
                 }
                 break;
         }
@@ -919,6 +976,24 @@ public partial class MainPage : ContentPage
                 break;
         }
         #endif
+    }
+
+    private void MediaCntroller_Slider_DragStarted(object sender, EventArgs e)
+    {
+        mediaCntrollerSliderDragging = true;
+        // MediaCntroller_Slider_PositionTxt.Text = ConvertToTimeFormat(position);
+    }
+
+    private void MediaCntroller_Slider_DragCompleted(object sender, EventArgs e)
+    {
+        mediaCntrollerSliderDragging = false;
+        MauiProgram.mediaService.SeekTo(lastSeekPosition);
+    }
+    private void MediaCntroller_Slider_ValueChanged(object sender, ValueChangedEventArgs e)
+    {
+        long value = (long)e.NewValue;
+        lastSeekPosition = value;
+        MediaCntroller_Slider_PositionTxt.Text = ConvertToTimeFormat(value);
     }
     #endregion
 }

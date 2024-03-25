@@ -40,6 +40,10 @@ namespace PortaJel_Blazor.Classes
             dequeuedList.Add(dequeued);
             return dequeued;
         }
+        public Song PeekSong()
+        {
+            return songQueue.Peek();
+        }
         public void Clear()
         {
             songQueue.Clear();
