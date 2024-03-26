@@ -70,8 +70,8 @@
 
             foreach (var song in album.songs)
             {
-                <div class="songContainer" @onclick="() => PlaySong(song.id)">
-                    <div>
+                <div class="songContainer" @oncontextmenu="() => OpenContextMenu(song)">
+                    <div @onclick="() => PlaySong(song.id)" style="width: 100%;">
                         <p class="songTitle">@song.name</p>
                         <p class="songArtistTitle">@song.artistCongregate</p>
                     </div>
@@ -91,7 +91,7 @@
                                 <img class="playback-controls-btn-img mr-1" src="/images/heart.svg">
                             </Animate>
                         }
-                        <img class="playback-controls-btn-img" src="/images/more-vert.svg">
+                        <img class="playback-controls-btn-img" src="/images/more-vert.svg" @onclick="() => OpenContextMenu(song)">
                     </div>
                 </div>
             }
@@ -294,6 +294,19 @@
         isCurrentAlbum = true;
         MauiProgram.mediaService.Play();
         await MauiProgram.mainPage.RefreshPlayer();
+        StateHasChanged();
+    }
+    private async void OpenContextMenu(BaseMusicItem musicItem)
+    {
+        await MauiProgram.mainPage.OpenContextMenu(musicItem, 250);
+        await Task.Run(() =>
+        {
+            // Literally just waiting for the fucking thing to close before we refresh
+            while (MauiProgram.ContextMenuIsOpen == true)
+            {
+
+            }
+        });
         StateHasChanged();
     }
 }

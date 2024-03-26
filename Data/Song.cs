@@ -1,5 +1,6 @@
-﻿using System.Data.SqlTypes;
-
+﻿using PortaJel_Blazor.Classes;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 namespace PortaJel_Blazor.Data
 {
     /// <summary>
@@ -125,10 +126,69 @@ namespace PortaJel_Blazor.Data
             }
             return album;
         }
-        public async Task<string> GetStreamUrl()
+        public List<ContextMenuItem> GetContextMenuItems()
         {
+            contextMenuItems.Clear();
 
-            return string.Empty;
+            if (this.isFavourite)
+            {
+                contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
+                {
+                    this.isFavourite = false;
+                    await MauiProgram.servers[0].FavouriteItem(this.id, false);
+                })));
+            }
+            else
+            {
+                contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
+                {
+                    this.isFavourite = true;
+                    await MauiProgram.servers[0].FavouriteItem(this.id, true);
+                })));
+            }
+            contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
+            {
+                // TODO: implement download manager and all
+            })));
+            contextMenuItems.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
+            {
+                // TODO: implement adding to playlist feature
+            })));
+            contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(async () =>
+            {
+                MauiProgram.mediaService.songQueue.QueueSong(this);
+
+                #if !WINDOWS
+                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+                string text = $"{this.name} added to queue.";
+                ToastDuration duration = ToastDuration.Short;
+                double fontSize = 14;
+
+                var toast = Toast.Make(text, duration, fontSize);
+                await toast.Show(cancellationTokenSource.Token);
+                #endif
+            })));
+            contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(async () =>
+            {
+                MauiProgram.mainPage.CloseContextMenu();
+                await MauiProgram.mainLayout.FlagLoading();
+                await MauiProgram.mainPage.AwaitContextMenuClose();
+                MauiProgram.mainLayout.NavigateAlbum(this.id);
+            })));
+            contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async () =>
+            {
+                MauiProgram.mainPage.CloseContextMenu();
+                await MauiProgram.mainLayout.FlagLoading();
+                await MauiProgram.mainPage.AwaitContextMenuClose();
+                MauiProgram.mainLayout.NavigateArtist(this.artists.FirstOrDefault().id);
+            })));
+            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+            {
+                MauiProgram.mainPage.CloseContextMenu();
+            })));
+
+            return contextMenuItems;
         }
         #endregion
     }

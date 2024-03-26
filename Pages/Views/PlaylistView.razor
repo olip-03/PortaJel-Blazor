@@ -142,51 +142,7 @@
     }
     private async void ShowPlaylistContextMenu()
     {
-        MauiProgram.ContextMenuTaskList.Clear();
-        MauiProgram.ShowContextMenuImage = true;
-        MauiProgram.ContextMenuMainText = playlist.name;
-        MauiProgram.ContextMenuImage = playlist.image.SourceAtResolution(500);
-
-        if (playlist.isFavourite)
-        {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
-            {
-                playlist.isFavourite = false;
-                await MauiProgram.servers[0].FavouriteItem(playlist.id, false);
-                StateHasChanged();
-            })));
-        }
-        else
-        {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
-            {
-                playlist.isFavourite = true;
-                await MauiProgram.servers[0].FavouriteItem(playlist.id, true);
-                StateHasChanged();
-            })));
-        }
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Edit Playlist", "light_edit.png", new Task(() =>
-        {
-            MauiProgram.mainPage.NavigateToPlaylistEdit(playlist);
-        })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
-        {
-
-        })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
-        {
-
-        })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
-        {
-
-        })));
-        MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
-        {
-            MauiProgram.mainPage.CloseContextMenu();
-        })));
-
-        await MauiProgram.mainLayout.OpenContextMenu();
+        await MauiProgram.mainPage.OpenContextMenu(playlist, 250);
     }
     private async void FavouriteItem()
     {

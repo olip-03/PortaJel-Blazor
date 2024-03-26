@@ -55,7 +55,7 @@ namespace PortaJel_Blazor.Data
             })));
             contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async() =>
             {
-                await MauiProgram.mainPage.CloseContextMenu();
+                MauiProgram.mainPage.CloseContextMenu();
             })));
 
             return contextMenuItems;

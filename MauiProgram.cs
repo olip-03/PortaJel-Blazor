@@ -1,4 +1,6 @@
-﻿using Jellyfin.Sdk;
+﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Core;
+using Jellyfin.Sdk;
 using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
@@ -11,6 +13,10 @@ using System.Text.Json;
 using System.Threading;
 
 namespace PortaJel_Blazor;
+
+// Notes for me to go over when I can be bothered to fix things
+// https://github.com/villagra/jellyfin-apiclient-dotnet
+// https://www.sharpnado.com/xamarin-forms-maui-collectionview-performance-the-10-golden-rule/
 
 public static class MauiProgram
 {
@@ -104,6 +110,8 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
+            .UseMauiCommunityToolkitCore()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -241,5 +249,3 @@ public static class MauiProgram
         return true;
     }
 }
-
-// https://github.com/villagra/jellyfin-apiclient-dotnet

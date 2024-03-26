@@ -1103,7 +1103,7 @@ namespace PortaJel_Blazor.Classes
         {
             return AlbumBuilder(baseItem, false).Result;
         }
-        private async Task<Album> AlbumBuilder(BaseItemDto baseItem, bool fetchFullArtists)
+        private async Task<Album> AlbumBuilder(BaseItemDto baseItem, bool fetchFullArtists, Song[]? songs = null)
         {
             if(baseItem == null)
             {
@@ -1113,11 +1113,19 @@ namespace PortaJel_Blazor.Classes
             Album newAlbum = new();
             newAlbum.name = baseItem.Name;
             newAlbum.id = baseItem.Id;
-            newAlbum.songs = null; // TODO: Implement songs
             newAlbum.image = MusicItemImageBuilder(baseItem);
 
+            if(songs == null)
+            {
+                newAlbum.songs = new Song[0]; // TODO: Implement songs
+            }
+            else
+            {
+                newAlbum.songs = songs;
+            }
+
             // Artists
-            if(baseItem.Type != BaseItemKind.MusicArtist) 
+            if (baseItem.Type != BaseItemKind.MusicArtist) 
             {
                 if (fetchFullArtists == true && baseItem.AlbumArtists.Count > 0)
                 {

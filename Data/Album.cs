@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 
 namespace PortaJel_Blazor.Data
 {
@@ -114,21 +117,35 @@ namespace PortaJel_Blazor.Data
             {
 
             })));
-            contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
+            contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(async () =>
             {
+                Album FullAlbum = await MauiProgram.api.GetAlbumById(id, true);
+                this.songs = FullAlbum.songs;
 
+                MauiProgram.mediaService.songQueue.QueueRange(FullAlbum.songs);
+
+                #if !WINDOWS
+                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+                string text = $"{songs.Count()} songs added to queue.";
+                ToastDuration duration = ToastDuration.Short;
+                double fontSize = 14;
+
+                var toast = Toast.Make(text, duration, fontSize);
+                await toast.Show(cancellationTokenSource.Token);
+                #endif
             })));
             contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(async() =>
             {
+                MauiProgram.mainPage.CloseContextMenu();
                 await MauiProgram.mainLayout.FlagLoading();
-                await MauiProgram.mainPage.CloseContextMenu();
                 await MauiProgram.mainPage.AwaitContextMenuClose();
                 MauiProgram.mainLayout.NavigateAlbum(this.id);
             })));
             contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async() =>
             {
+                MauiProgram.mainPage.CloseContextMenu();
                 await MauiProgram.mainLayout.FlagLoading();
-                await MauiProgram.mainPage.CloseContextMenu();
                 await MauiProgram.mainPage.AwaitContextMenuClose();
                 MauiProgram.mainLayout.NavigateArtist(this.artists.FirstOrDefault().id);
             })));

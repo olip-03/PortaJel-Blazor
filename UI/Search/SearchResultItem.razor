@@ -4,9 +4,14 @@
 @using PortaJel_Blazor.Classes;
 @using BlazorAnimate;
 
+@if(OnViewAction != null)
+{
+    @inject IJSRuntime JS;
+}
+
 @if (musicObject != null)
 {
-    <div class="album-container @(isGrid == true ? "gridLayout" : "")" @oncontextmenu=OpenContextMenu @onclick=NavigateTo>
+    <div id="@elementId" class="album-container @(isGrid == true ? "gridLayout" : "")" @oncontextmenu=OpenContextMenu @onclick=NavigateTo>
         <div class="artist-cover @(isGrid == true ? "gridLayout" : "")">
             @if (String.IsNullOrWhiteSpace(placeholderBase64))
             {
@@ -70,9 +75,20 @@
     [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
     [Parameter] public bool isGrid { get; set; } = false;
     [Parameter] public bool cacheAsRecentItem { get; set; } = false;
+    [Parameter] public Action? OnViewAction { get; set; } = null;
     private int resolution = 300;
     private string errorMsg = string.Empty;
+    Guid elementId = Guid.NewGuid();
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (OnViewAction != null)
+        {
+            var lDotNetReference = DotNetObjectReference.Create(this);
+            await JS.InvokeAsync<string>("InfiniteScrollInitObserver", new object[2] { lDotNetReference, elementId });
+            // Need to add event listener on this componenet to have it call the LoadMore function
+        }
+    }
     private void NavigateTo()
     {
         if (musicObject != null)
@@ -125,57 +141,7 @@
     }
     private async void OpenContextMenu()
     {
-        MauiProgram.ContextMenuTaskList.Clear();
-        MauiProgram.ShowContextMenuImage = true;
-
-        if(musicObject is Album)
-        {
-            Album album = (Album)musicObject;
-            album.image.soureResolution = resolution;
-
-            MauiProgram.ContextMenuMainText = album.name;
-            MauiProgram.ContextMenuSubText = album.artistCongregate;
-            MauiProgram.ContextMenuImage = album.image.sourceAtResolution;
-            MauiProgram.ContextMenuTaskList = album.GetContextMenuItems();
-            MauiProgram.ContextMenuRoundImage = false;
-        }
-        else if(musicObject is Artist)
-        {
-            Artist artist = (Artist)musicObject;
-            artist.image.soureResolution = resolution;
-
-            MauiProgram.ContextMenuTaskList = artist.GetContextMenuItems();
-            MauiProgram.ContextMenuMainText = artist.name;
-            MauiProgram.ContextMenuSubText = String.Empty;
-            MauiProgram.ContextMenuImage = artist.image.sourceAtResolution;
-            MauiProgram.ContextMenuRoundImage = true;
-        }
-        else if(musicObject is Playlist)
-        {
-            Playlist playlist = (Playlist)musicObject;
-            MauiProgram.ContextMenuTaskList = playlist.GetContextMenuItems();
-            MauiProgram.ContextMenuImage = playlist.image.SourceAtResolution(resolution);
-            MauiProgram.ContextMenuSubText = String.Empty;
-            MauiProgram.ContextMenuMainText = playlist.name;
-            MauiProgram.ContextMenuRoundImage = false;
-        }
-        else if (musicObject is Song)
-        {
-            Song song = (Song)musicObject;
-            //MauiProgram.ContextMenuTaskList = song.GetContextMenuItems();
-            MauiProgram.ContextMenuImage = song.image.SourceAtResolution(resolution);
-            MauiProgram.ContextMenuSubText = song.artistCongregate;
-            MauiProgram.ContextMenuMainText = song.name;
-            MauiProgram.ContextMenuRoundImage = false;
-        }
-        else if (musicObject != null)
-        {
-            MauiProgram.ContextMenuMainText = musicObject.name;
-            MauiProgram.ContextMenuImage = musicObject.image.SourceAtResolution(resolution);
-            MauiProgram.ContextMenuRoundImage = false;
-        }
-
-        await MauiProgram.mainPage.ShowContextMenu();
+        await MauiProgram.mainPage.OpenContextMenu(musicObject, 250);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh 
@@ -185,5 +151,14 @@
             }
         });
         StateHasChanged();
+    }
+    
+    [JSInvokable("OnView")]
+    public async void OnView()
+    {
+        if(OnViewAction != null)
+        {
+            OnViewAction.Invoke();
+        }
     }
 }

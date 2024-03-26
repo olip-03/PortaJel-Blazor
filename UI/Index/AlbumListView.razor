@@ -37,53 +37,7 @@
     }
     private async void OpenContextMenu()
     {
-        MauiProgram.ContextMenuTaskList.Clear();
-        MauiProgram.ShowContextMenuImage = true;
-
-        if (musicItem is Album)
-        {
-            Album album = (Album)musicItem;
-            MauiProgram.ContextMenuMainText = album.name;
-            MauiProgram.ContextMenuSubText = album.artistCongregate;
-            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
-            MauiProgram.ContextMenuTaskList = album.GetContextMenuItems();
-            MauiProgram.ContextMenuRoundImage = false;
-        }
-        else if (musicItem is Artist)
-        {
-            Artist artist = (Artist)musicItem;
-            MauiProgram.ContextMenuTaskList = artist.GetContextMenuItems();
-            MauiProgram.ContextMenuMainText = artist.name;
-            MauiProgram.ContextMenuSubText = String.Empty;
-            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
-            MauiProgram.ContextMenuRoundImage = true;
-        }
-        else if (musicItem is Playlist)
-        {
-            Playlist playlist = (Playlist)musicItem;
-            MauiProgram.ContextMenuTaskList = playlist.GetContextMenuItems();
-            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
-            MauiProgram.ContextMenuSubText = String.Empty;
-            MauiProgram.ContextMenuMainText = playlist.name;
-            MauiProgram.ContextMenuRoundImage = false;
-        }
-        else if (musicItem is Song)
-        {
-            Song song = (Song)musicItem;
-            //MauiProgram.ContextMenuTaskList = song.GetContextMenuItems();
-            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
-            MauiProgram.ContextMenuSubText = song.artistCongregate;
-            MauiProgram.ContextMenuMainText = song.name;
-            MauiProgram.ContextMenuRoundImage = false;
-        }
-        else if (musicItem != null)
-        {
-            MauiProgram.ContextMenuMainText = musicItem.name;
-            MauiProgram.ContextMenuImage = musicItem.image.SourceAtResolution(250);
-            MauiProgram.ContextMenuRoundImage = false;
-        }
-
-        await MauiProgram.mainPage.ShowContextMenu();
+        await MauiProgram.mainPage.OpenContextMenu(musicItem, 250);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh

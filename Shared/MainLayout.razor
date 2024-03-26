@@ -28,7 +28,7 @@
             @if (MauiProgram.MiniPlayerIsOpen)
             { // TODO: Implement some legitiemate system for checking if the miniplayer
               // should be open or not
-                <div style="height:7rem;"></div>
+                <div style="height:3rem;"></div>
             }
         </article>
     </main>
@@ -42,6 +42,7 @@
         set
         {
             _pageTitle = value;
+            StateHasChanged();
         }
     }
     public bool showHeader
@@ -50,6 +51,7 @@
         set
         {
             _showHeader = value;
+            StateHasChanged();
         }
     }
     private bool loading { get; set; } = true;
@@ -60,7 +62,7 @@
         {
             loading = value;
             MauiProgram.mainPage.ShowLoadingScreen(loading);
-            // StateHasChanged();
+            StateHasChanged();
         }
     }
 
@@ -228,15 +230,5 @@
     {
         MauiProgram.MusicPlayerIsQueueOpen = false;
         await JS.InvokeAsync<string>("closeQueue");
-    }
-    public async Task OpenContextMenu()
-    {
-        MauiProgram.ContextMenuIsOpen = true;
-        await MauiProgram.mainPage.ShowContextMenu();
-    }
-    public async Task CloseContextMenu()
-    {
-        MauiProgram.ContextMenuIsOpen = false;
-        await MauiProgram.mainPage.CloseContextMenu();
     }
 }

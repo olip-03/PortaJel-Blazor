@@ -332,7 +332,7 @@
                         <CollectionView Grid.Row="1" CanReorderItems="True" x:Name="MediaController_Queue_List" InputTransparent="False" >
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Padding="20, 0, 0, 5">
+                                    <Grid Padding="20, 0, 0, 5" HeightRequest="55">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="Auto" />

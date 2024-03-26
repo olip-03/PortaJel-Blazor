@@ -11,6 +11,10 @@ using System.Linq;
 using System.IO;
 using SkiaSharp;
 using Microsoft.Maui.Dispatching;
+using System.Collections.ObjectModel;
+using CommunityToolkit.Maui.Core.Extensions;
+
+
 
 #if ANDROID
 using Android;
@@ -26,8 +30,8 @@ public partial class MainPage : ContentPage
     private bool musicControlsFirstOpen = true;
     private bool waitingForPageLoad = false;
 
-    private List<Song> queue = new List<Song>();
-    private List<Song> queueNextUp = new List<Song>();
+    private ObservableCollection<Song> queue = new ObservableCollection<Song>();
+    private ObservableCollection<Song> queueNextUp = new ObservableCollection<Song>();
     private Song? previouslyPlaying = Song.Empty;
     private Song? currentlyPlaying = Song.Empty;
     private Song? nextPlaying = Song.Empty;
@@ -317,8 +321,8 @@ public partial class MainPage : ContentPage
     public void RefreshQueue()
     {
         queue.Clear();
-        queue = MauiProgram.mediaService.songQueue.GetQueue().ToList();
-        queueNextUp = MauiProgram.mediaService.nextUpQueue.GetQueue().ToList();
+        queue = MauiProgram.mediaService.songQueue.GetQueue().ToObservableCollection();
+        queueNextUp = MauiProgram.mediaService.nextUpQueue.GetQueue().ToObservableCollection();
 
         if (queue.Count > 0)
         {
@@ -431,16 +435,6 @@ public partial class MainPage : ContentPage
         RefreshQueue();
         musicControlsFirstOpen = false;
     }
-    public async Task CloseContextMenu()
-    {
-        isClosing = true;
-
-        double h = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
-        await ContextMenu.TranslateTo(ContextMenu.X, ContextMenu.Y + h, animationSpeed, Easing.SinIn);
-        MauiProgram.ContextMenuIsOpen = false;
-        ContextMenu.IsVisible = false;
-        isClosing = false;
-    }
     public Task AwaitContextMenuClose()
     {
         while (MauiProgram.ContextMenuIsOpen)
@@ -456,43 +450,6 @@ public partial class MainPage : ContentPage
 
         }
         return Task.CompletedTask;
-    }
-    public async Task ShowContextMenu()
-    {
-        ContextMenu_imagecontainer.IsVisible = MauiProgram.ShowContextMenuImage;
-        ContextMenu_MainText.Text = MauiProgram.ContextMenuMainText;
-        ContextMenu_SubText.Text = MauiProgram.ContextMenuSubText;
-        ContextMenu_image.Source = MauiProgram.ContextMenuImage;
-        ContextMenu_List.ItemsSource = null;
-        if (MauiProgram.ContextMenuRoundImage)
-        {
-            ContextMenu_imageBorder.StrokeShape = new RoundRectangle
-            {
-                CornerRadius = new CornerRadius(125, 125, 125, 125)
-            };
-        }
-        else
-        {
-            ContextMenu_imageBorder.StrokeShape = new RoundRectangle
-            {
-                CornerRadius = new CornerRadius(5, 5, 5, 5)
-            };
-        }
-
-        if (MauiProgram.ContextMenuTaskList.Count <= 0) 
-        {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
-            {
-                await MauiProgram.mainPage.CloseContextMenu();
-            })));
-        }
-
-        ContextMenu_List.ItemsSource = MauiProgram.ContextMenuTaskList;
-        ContextMenu_List.SelectedItem = null;
-        ContextMenu.IsVisible = true;
-        ContextMenu.TranslationY = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
-        await ContextMenu.TranslateTo(ContextMenu.X, 0, animationSpeed, Easing.SinOut);
-        MauiProgram.ContextMenuIsOpen = true;
     }
     public async void ShowLoadingScreen(bool value)
     {
@@ -654,6 +611,109 @@ public partial class MainPage : ContentPage
         });
     }
     #endregion
+
+    #region ContextMenuMethods
+    public async Task<bool> OpenContextMenu(BaseMusicItem baseMusicItem, int imgResolution)
+    {
+        MauiProgram.ContextMenuTaskList.Clear();
+        MauiProgram.ShowContextMenuImage = true;
+
+        if (baseMusicItem is Album)
+        {
+            Album album = (Album)baseMusicItem;
+            album.image.soureResolution = imgResolution;
+
+            MauiProgram.ContextMenuMainText = album.name;
+            MauiProgram.ContextMenuSubText = album.artistCongregate;
+            MauiProgram.ContextMenuImage = album.image.sourceAtResolution;
+            MauiProgram.ContextMenuTaskList = album.GetContextMenuItems();
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+        else if (baseMusicItem is Artist)
+        {
+            Artist artist = (Artist)baseMusicItem;
+            artist.image.soureResolution = imgResolution;
+
+            MauiProgram.ContextMenuTaskList = artist.GetContextMenuItems();
+            MauiProgram.ContextMenuMainText = artist.name;
+            MauiProgram.ContextMenuSubText = String.Empty;
+            MauiProgram.ContextMenuImage = artist.image.sourceAtResolution;
+            MauiProgram.ContextMenuRoundImage = true;
+        }
+        else if (baseMusicItem is Playlist)
+        {
+            Playlist playlist = (Playlist)baseMusicItem;
+            MauiProgram.ContextMenuTaskList = playlist.GetContextMenuItems();
+            MauiProgram.ContextMenuImage = playlist.image.SourceAtResolution(imgResolution);
+            MauiProgram.ContextMenuSubText = String.Empty;
+            MauiProgram.ContextMenuMainText = playlist.name;
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+        else if (baseMusicItem is Song)
+        {
+            Song song = (Song)baseMusicItem;
+            MauiProgram.ContextMenuTaskList = song.GetContextMenuItems();
+            MauiProgram.ContextMenuImage = song.image.SourceAtResolution(imgResolution);
+            MauiProgram.ContextMenuSubText = song.artistCongregate;
+            MauiProgram.ContextMenuMainText = song.name;
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+        else if (baseMusicItem != null)
+        {
+            MauiProgram.ContextMenuMainText = baseMusicItem.name;
+            MauiProgram.ContextMenuImage = baseMusicItem.image.SourceAtResolution(imgResolution);
+            MauiProgram.ContextMenuRoundImage = false;
+        }
+
+        ContextMenu_imagecontainer.IsVisible = MauiProgram.ShowContextMenuImage;
+        ContextMenu_MainText.Text = MauiProgram.ContextMenuMainText;
+        ContextMenu_SubText.Text = MauiProgram.ContextMenuSubText;
+        ContextMenu_image.Source = MauiProgram.ContextMenuImage;
+        ContextMenu_List.ItemsSource = null;
+        if (MauiProgram.ContextMenuRoundImage)
+        {
+            ContextMenu_imageBorder.StrokeShape = new RoundRectangle
+            {
+                CornerRadius = new CornerRadius(125, 125, 125, 125)
+            };
+        }
+        else
+        {
+            ContextMenu_imageBorder.StrokeShape = new RoundRectangle
+            {
+                CornerRadius = new CornerRadius(5, 5, 5, 5)
+            };
+        }
+
+        if (MauiProgram.ContextMenuTaskList.Count <= 0)
+        {
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
+            {
+                MauiProgram.mainPage.CloseContextMenu();
+            })));
+        }
+
+        ContextMenu_List.ItemsSource = MauiProgram.ContextMenuTaskList;
+        ContextMenu_List.SelectedItem = null;
+        ContextMenu.IsVisible = true;
+        ContextMenu.TranslationY = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
+        await ContextMenu.TranslateTo(ContextMenu.X, 0, animationSpeed, Easing.SinOut);
+        MauiProgram.ContextMenuIsOpen = true;
+
+        return true;
+    }
+    public async void CloseContextMenu()
+    {
+        isClosing = true;
+
+        double h = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
+        await ContextMenu.TranslateTo(ContextMenu.X, ContextMenu.Y + h, animationSpeed, Easing.SinIn);
+        MauiProgram.ContextMenuIsOpen = false;
+        ContextMenu.IsVisible = false;
+        isClosing = false;
+    }
+    #endregion
+
     #region Interactions
     private void Player_Btn_FavToggle_Clicked(object sender, EventArgs e)
     {
@@ -750,14 +810,14 @@ public partial class MainPage : ContentPage
                 }
                 catch (Exception)
                 {
-                    await CloseContextMenu();
+                    CloseContextMenu();
                 }
             }
         }
 
         if (!isClosing)
         {
-            await CloseContextMenu();
+            CloseContextMenu();
         }
     }
     private void MediaController_Queue_Show(object sender, EventArgs e)
@@ -841,7 +901,8 @@ public partial class MainPage : ContentPage
     }
     private void MediaController_Btn_ContextMenu(object sender, EventArgs args)
     {
-        ShowContextMenu();
+        // TODO: Update this to show current item
+        // OpenContextMenu();
     }
     private double imgDragDistance = 0;
     private async void MainPlayer_ImgContainer_PinchUpdated(object sender, PanUpdatedEventArgs e)

@@ -113,7 +113,14 @@
                     { // Load information
                         for (int i = 0; i < data.Length; i++)
                         {
-                            <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid="@showGrid" placeholderBase64="@placeholderImages[i]" />
+                            if (i < placeholderImages.Length)
+                            {
+                                <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid="@showGrid" placeholderBase64="@placeholderImages[i]" />
+                            }
+                            else
+                            {
+                                <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid="@showGrid"/>
+                            }
                         }
                     }
                 </Animate>
@@ -123,7 +130,7 @@
 </Animate>
 
 @code {
-    private BaseMusicItem[]? data = new Album[20];
+    private BaseMusicItem[]? data = new Album[192009387];
     private string[] placeholderImages = new string[0];
     private int totalRecordCount = 0;
     private bool isLoading = false;
@@ -163,6 +170,8 @@
         MauiProgram.mainLayout.pageTitle = "Favourites";
         MauiProgram.mainLayout.currentUri = "/favourites";
         MauiProgram.mainLayout.showHeader = true;
+
+        return;
 
         MauiProgram.mainLayout.cancellationSource = new();
         MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;

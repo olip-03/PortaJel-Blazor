@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PortaJel_Blazor.Classes
@@ -86,6 +87,14 @@ namespace PortaJel_Blazor.Classes
             }
 
             return albumsReturn.ToArray();
+        }
+        public async Task<Album> GetAlbumById(Guid albumId, bool? fetchFullArtist = false)
+        {
+            Album toReturn = Album.Empty;
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                toReturn = await server.Value.FetchAlbumByIDAsync(albumId, fetchFullArtist);
+            });
+            return toReturn;
         }
         #endregion
         #region ArtistEndoings

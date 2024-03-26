@@ -121,17 +121,23 @@
         {
             <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
                 <div class="album-list">
-                    @if (data.Length > 0)
+                    @if (data.Count() > 0)
                     { // Load information
-
-                        @for (int i = 0; i < data.Length; i++)
+                        @for (int i = 0; i < data.Count(); i++)
                         {
                             if (data[i] != null)
                             {
                                 string base64 = string.Empty;
                                 try { base64 = placeholderImages[i]; }
                                 catch (Exception) { base64 = string.Empty; }
-                                <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64"/>
+                                if (i == lastAmount)
+                                {
+                                    <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
+                                }
+                                else
+                                {
+                                    <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64"/>
+                                }
                             }
                         }
                     }
@@ -142,53 +148,14 @@
                 </div>
             </Animate>
         }
-
-        @* Load page numbers *@
-        @if (false == true) // Disabled temporarily 
-        {
-            // Disabling current pagination class as I have another idea for how this could work
-            // TODO: This works however overflow:x does NOT allow for you to scroll to the left.
-            // try to address this at a later stage when it's actually important. Not a priority atm cause
-            // it looks pretty. I've set it to overflow:hidden so the scroll function is gone completely this
-            // just needs to be fixed at some point
-            <div class="grid-pgnator-container">
-                <!-- Items to the left -->
-                <div class="grid-pgnator-items-l">
-                    @for (int i = selectedPage; i >= 0; i--)
-                    { // operation should be done in revese because flex-direction:row-reverse
-                        if (i != selectedPage)
-                        {
-                            int tempInt = i;
-                            int displayNum = tempInt + 1;
-                            //<div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
-                        }
-                    }
-                </div>
-                <!-- Centered active item -->
-                <div class="grid-pgnator-items">
-                    @{
-                        int pgnNumInt = selectedPage;
-                        int displayPgNum = pgnNumInt + 1;
-                        <div class="pagination-item active">@displayPgNum</div>
-                    }
-                </div>
-                <!-- Items to the right -->
-                <div class="grid-pgnator-items-r">
-                    @for (int i = selectedPage + 1; i < pages; i++)
-                    {
-                        int tempInt = i;
-                        int displayNum = tempInt + 1;
-                        //<div class="pagination-item" @onclick="() => SelectPage(tempInt)">@displayNum</div>
-                    }
-                </div>
-            </div>
-            <p>Showing @data.Length of @totalRecordCount</p>
-        }
     </div>
 </Animate>
 
 @code {
-    private BaseMusicItem[] data = new BaseMusicItem[0];
+    // TODO: Better infinite scroll implementation
+    // current version's still too buggy. Not bad tho.
+
+    private List<BaseMusicItem> data = new();
     private string[] placeholderImages = new string[0];
     private int totalRecordCount = 0;
     private bool isLoading = false;
@@ -196,9 +163,11 @@
 
     private bool showGrid = MauiProgram.libraryShowGrid;
 
+    private int loadLimit = 100;
+    private int loadRecordIndex = 25;
     private int itemsPerPage = 100;
     private int startFromIndex = 0;
-    private int selectedPage = 0;
+    private int lastAmount = 0;
     private int pages = 0;
 
     private int lowerPages = 0;
@@ -264,6 +233,7 @@
     private async void SelectPage(selectable page)
     {
         MauiProgram.libraryItemView = (int)page;
+        selected = page;
 
         if (isLoading)
         { // Still waiting for previous iteration to complete
@@ -281,30 +251,33 @@
             bool isCompleted = false;
             while (!isCompleted)
             {
+                BaseMusicItem[] results = new BaseMusicItem[0];
                 switch (page)
                 {
                     case selectable.none:
-                        data = new BaseMusicItem[0];
+                        data = new();
                         break;
                     case selectable.albums:
-                        data = await MauiProgram.api.GetAllAlbumsAsync(limit: 50);
+                        results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit);
                         break;
                     case selectable.artists:
-                        data = await MauiProgram.api.GetAllArtistsAsync(limit: 50);
+                        results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit);
                         break;
                     case selectable.songs:
-                        data = await MauiProgram.api.GetAllSongsAsync(limit: 50);
+                        results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit);
                         break;
                     case selectable.genres:
-                        data = await MauiProgram.api.GetAllGenresAsync(limit: 50);
+                        results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit);
                         break;
                     default:
-                        data = new BaseMusicItem[0];
+                        results = new BaseMusicItem[0];
                         break;
                 }
+                startFromIndex = data.Count();
+                data = results.ToList();
 
-                placeholderImages = new string[data.Length];
-                for (int i = 0; i < data.Length; i++)
+                placeholderImages = new string[data.Count()];
+                for (int i = 0; i < data.Count(); i++)
                 {
                     try
                     {
@@ -330,8 +303,49 @@
         isLoading = false;
         await InvokeAsync(StateHasChanged);
     }
-    private async void LoadNext()
+    private async void LoadMore()
     {
-        
+        Console.WriteLine("start");
+        await Task.Run(async () =>
+        {
+            BaseMusicItem[] results = new BaseMusicItem[0];
+            switch (selected)
+            {
+                case selectable.albums:
+                    results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit, startIndex: startFromIndex);
+                    break;
+                case selectable.artists:
+                    results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit, startIndex: startFromIndex);
+                    break;
+                case selectable.songs:
+                    results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit, startIndex: startFromIndex);
+                    break;
+                case selectable.genres:
+                    results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: startFromIndex);
+                    break;
+                default:
+                    results = new BaseMusicItem[0];
+                    break;
+            }
+            lastAmount = data.Count();
+            data.AddRange(results);
+
+            placeholderImages = new string[data.Count()];
+            for (int i = 0; i < data.Count(); i++)
+            {
+                try
+                {
+                    placeholderImages[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+                }
+                catch (Exception)
+                {
+                    placeholderImages[i] = string.Empty;
+                }
+            }
+
+            startFromIndex = data.Count() - 1;
+        });
+        Console.WriteLine("done");
+        StateHasChanged();
     }
 }
