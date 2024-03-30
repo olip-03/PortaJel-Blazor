@@ -8,8 +8,8 @@
 
 <div class="containerImg">
     <div class="imageHolder">
-        <img src="@backImg" class="albumImage lowRes" />
-        <img src="@albumImg" class="albumImage" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="OpenContextMenu" onerror="this.src='/images/emptyAlbum.png'" />
+        <img src="data:image/png;base64, @placeholderBase64" class="albumImage lowRes" />
+        <img src="@albumImg" class="albumImage album-cover-img opacityTransition" loading="lazy" @onclick="NavigateToAlbum" @oncontextmenu="OpenContextMenu" onerror="this.src='/images/emptyAlbum.png'" />
     </div>
 
     @if(musicObject != null)
@@ -40,15 +40,15 @@
 
 @code {
     [Parameter] public BaseMusicItem musicObject { get; set; } = new Album();
+    [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
     [Parameter] public int? albumResolutionpx { get; set; } = 160;
-    string albumText = null;
+    string? albumText = null;
     string? artistName = null;
 
     private int resolution = 250;
 
     private string albumImg { get; set; } = String.Empty;
     private string backImg { get; set; } = String.Empty;
-
 
     protected override void OnInitialized()
     {

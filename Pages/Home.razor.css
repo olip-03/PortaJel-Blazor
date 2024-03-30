@@ -95,13 +95,57 @@ img:after {
     height: 100vh;
 }
 
-/*.shimmerBG {
-    animation-duration: 2.2s;
-    animation-fill-mode: forwards;
-    animation-iteration-count: infinite;
-    animation-name: shimmer;
-    animation-timing-function: linear;
-    background: #ddd;
-    background: linear-gradient(to right, #F6F6F6 8%, #F0F0F0 18%, #F6F6F6 33%);
-    background-size: 1200px 100%;
-}*/
+/* Horizontal scroll view styling */
+.horizScroll-scrollmenu {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap; /* Prevent items from wrapping */
+    min-height: 13rem;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+    .horizScroll-scrollmenu::-webkit-scrollbar {
+        display: none;
+    }
+
+.horizScroll-scrollmenu-showall {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-direction: column;
+    max-height: 160px;
+}
+
+.horizScroll-showall-img {
+    margin-left: 0.25rem;
+    height: 1.5rem;
+}
+
+.horizScroll-menuTitleContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+    .horizScroll-menuTitleContainer h3:first-child {
+        flex: 1;
+        text-align: left;
+    }
+
+    .horizScroll-menuTitleContainer h3:last-child {
+        text-align: right;
+    }
+
+.horizScroll-albumContainer {
+    width: 160px;
+    height: 160px;
+    margin-right: 10px;
+    border-radius: 25px;
+    background-color: darkgrey;
+    flex-shrink: 0;
+    position: relative;
+    animation: shimmer 1.5s infinite linear;
+}

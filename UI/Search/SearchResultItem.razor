@@ -89,6 +89,7 @@
             // Need to add event listener on this componenet to have it call the LoadMore function
         }
     }
+
     private void NavigateTo()
     {
         if (musicObject != null)
@@ -130,6 +131,7 @@
             }
         }
     }
+   
     private async void FavouriteItem()
     {
         if (musicObject != null)
@@ -139,6 +141,7 @@
         }
         StateHasChanged();
     }
+    
     private async void OpenContextMenu()
     {
         await MauiProgram.mainPage.OpenContextMenu(musicObject, 250);
@@ -154,7 +157,7 @@
     }
     
     [JSInvokable("OnView")]
-    public async void OnView()
+    public void OnView()
     {
         if(OnViewAction != null)
         {

@@ -155,23 +155,23 @@
     // TODO: Better infinite scroll implementation
     // current version's still too buggy. Not bad tho.
 
-    private List<BaseMusicItem> data = new();
-    private string[] placeholderImages = new string[0];
-    private int totalRecordCount = 0;
-    private bool isLoading = false;
-    private Task? queuedTask = null;
+    private List<BaseMusicItem> data = MauiProgram.libraryCache.data;
+    private string[] placeholderImages = MauiProgram.libraryCache.placeholderImages;
+    private int totalRecordCount = MauiProgram.libraryCache.totalRecordCount;
+    private bool isLoading = MauiProgram.libraryCache.isLoading;
+    private Task? queuedTask = MauiProgram.libraryCache.queuedTask;
 
-    private bool showGrid = MauiProgram.libraryShowGrid;
+    private bool showGrid = MauiProgram.libraryCache.showGrid;
 
-    private int loadLimit = 100;
-    private int loadRecordIndex = 25;
-    private int itemsPerPage = 100;
-    private int startFromIndex = 0;
-    private int lastAmount = 0;
-    private int pages = 0;
+    private int loadLimit = MauiProgram.libraryCache.loadLimit;
+    private int loadRecordIndex = MauiProgram.libraryCache.loadRecordIndex;
+    private int itemsPerPage = MauiProgram.libraryCache.itemsPerPage;
+    private int startFromIndex = MauiProgram.libraryCache.startFromIndex;
+    private int lastAmount = MauiProgram.libraryCache.lastAmount;
+    private int pages = MauiProgram.libraryCache.pages;
 
-    private int lowerPages = 0;
-    private int higherPages = 0;
+    private int lowerPages = MauiProgram.libraryCache.lowerPages;
+    private int higherPages = MauiProgram.libraryCache.higherPages;
 
     private enum selectable
     {
@@ -275,6 +275,7 @@
                 }
                 startFromIndex = data.Count();
                 data = results.ToList();
+                UpdateCache();
 
                 placeholderImages = new string[data.Count()];
                 for (int i = 0; i < data.Count(); i++)
@@ -329,6 +330,7 @@
             }
             lastAmount = data.Count();
             data.AddRange(results);
+            UpdateCache();
 
             placeholderImages = new string[data.Count()];
             for (int i = 0; i < data.Count(); i++)
@@ -342,10 +344,33 @@
                     placeholderImages[i] = string.Empty;
                 }
             }
+            MauiProgram.libraryCache.placeholderImages = placeholderImages;
 
             startFromIndex = data.Count() - 1;
         });
         Console.WriteLine("done");
         StateHasChanged();
     }
+    public void UpdateCache()
+    {
+        // Update each variable in MauiProgram.libraryCache with its corresponding value
+        MauiProgram.libraryCache.data = new List<BaseMusicItem>(data);
+        MauiProgram.libraryCache.placeholderImages = (string[])placeholderImages.Clone();
+        MauiProgram.libraryCache.totalRecordCount = totalRecordCount;
+        MauiProgram.libraryCache.isLoading = isLoading;
+        MauiProgram.libraryCache.queuedTask = queuedTask;
+
+        MauiProgram.libraryCache.showGrid = showGrid;
+
+        MauiProgram.libraryCache.loadLimit = loadLimit;
+        MauiProgram.libraryCache.loadRecordIndex = loadRecordIndex;
+        MauiProgram.libraryCache.itemsPerPage = itemsPerPage;
+        MauiProgram.libraryCache.startFromIndex = startFromIndex;
+        MauiProgram.libraryCache.lastAmount = lastAmount;
+        MauiProgram.libraryCache.pages = pages;
+
+        MauiProgram.libraryCache.lowerPages = lowerPages;
+        MauiProgram.libraryCache.higherPages = higherPages;
+    }
+
 }

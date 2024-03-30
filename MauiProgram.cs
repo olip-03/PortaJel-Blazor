@@ -10,6 +10,7 @@ using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Shared;
 using System.Collections.Generic;
 using System.Text.Json;
+using PortaJel_Blazor.Pages;
 using System.Threading;
 
 namespace PortaJel_Blazor;
@@ -74,10 +75,14 @@ public static class MauiProgram
     // Direct access to the media element
     public static BlazorWebView webView = null;
 
+    // Stored data for Home Page 
+    public static HomeCache homeCache = HomeCache.Empty;
+
     // Stored data for Search Page
     public static List<BaseMusicItem> recentSearchResults = new();
 
     // Stored data for library page
+    public static LibraryCache libraryCache = new();
     public static int librarySortMethod = 0;
     public static int libraryItemView = 0;
     public static bool libraryShowGrid = false;
@@ -212,22 +217,22 @@ public static class MauiProgram
             {
                 File.Delete(filePath);
             }
-        }
+        }   
 
         // Validate connection data and log into servers
         await Parallel.ForEachAsync(api.GetServers(), async (server, ct) => {
             firstLoginComplete = true; // double-check set true if any servers exist 
-            server.isOffline = !await server.AuthenticateAddressAsync();
+            // server.isOffline = !await server.AuthenticateAddressAsync();
             if (!server.isOffline)
             {
-                bool UserPassed = await server.AuthenticateUser();
+                bool UserPassed = await server.AuthenticateUserAsync();
             }
         });
 
         dataLoadFinished = true;
         return true;
     }
-    public static async Task<bool> SaveData()
+    public static Task<bool> SaveData()
     {
         // TODO: Change to json file type
         using (BinaryWriter binWriter = new BinaryWriter(File.Open(filePath, FileMode.Create)))
@@ -246,6 +251,6 @@ public static class MauiProgram
             // SAVE FIRSTLOGIN DATA
             binWriter.Write(firstLoginComplete);
         }
-        return true;
+        return Task.FromResult(true);
     }
 }

@@ -37,9 +37,9 @@ namespace PortaJel_Blazor.Data
                     await MauiProgram.servers[0].FavouriteItem(this.id, true);
                 })));
             }
-            contextMenuItems.Add(new ContextMenuItem("Edit Playlist", "light_edit.png", new Task(() =>
+            contextMenuItems.Add(new ContextMenuItem("Edit Playlist", "light_edit.png", new Task(async () =>
             {
-                MauiProgram.mainPage.NavigateToPlaylistEdit(this.id);
+                await MauiProgram.mainPage.NavigateToPlaylistEdit(this.id);
             })));
             contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
             {
@@ -53,7 +53,7 @@ namespace PortaJel_Blazor.Data
             {
 
             })));
-            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async() =>
+            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
             {
                 MauiProgram.mainPage.CloseContextMenu();
             })));

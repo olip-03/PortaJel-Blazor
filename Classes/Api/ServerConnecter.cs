@@ -1,5 +1,7 @@
 ﻿using Jellyfin.Sdk;
+using Newtonsoft.Json.Linq;
 using PortaJel_Blazor.Data;
+using System.Collections.Generic;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -10,26 +12,24 @@ namespace PortaJel_Blazor.Classes
     // /Users/{userId}/Items/Latest endpoint to fetch MOST RECENT media added to the server
     public class ServerConnecter
     {
-        private UserDto userDto = null;
+        private UserDto? userDto = null;
 
-        private SdkClientSettings _sdkClientSettings = null;
-        private ArtistsClient _artistsClient;
-        private ItemsClient _itemsClient;
-        private ItemLookupClient _itemLookupClient;
-        private ItemUpdateClient _itemUpdateClient;
-        private PlaylistsClient _playlistsClient;
-        private PlaylistCreationResult _playlistCreationResult;
-        private MediaInfoClient _mediaInfoClient;
-        private UserLibraryClient _userLibraryClient;
-        private AudioClient _audioClient;
-        private ImageClient _imageClient;
-        private MusicGenresClient _genresClient;
-        private SearchClient _searchClient;
+        private SdkClientSettings _sdkClientSettings = new();
+        private ArtistsClient? _artistsClient = null;
+        private ItemsClient? _itemsClient = null;
+        private ItemLookupClient? _itemLookupClient = null;
+        private ItemUpdateClient? _itemUpdateClient = null;
+        private PlaylistsClient? _playlistsClient = null;
+        private PlaylistCreationResult? _playlistCreationResult = null;
+        private MediaInfoClient? _mediaInfoClient = null;
+        private UserLibraryClient? _userLibraryClient = null;
+        private AudioClient? _audioClient = null;
+        private ImageClient? _imageClient = null;
+        private MusicGenresClient? _genresClient = null;
+        private SearchClient? _searchClient = null;
 
-        private ISystemClient _systemClient;
-        private IUserClient _userClient;
-
-        private IUserViewsClient _userViewsClient;
+        private ISystemClient? _systemClient = null;
+        private IUserClient? _userClient = null;
 
         private string Username = String.Empty;
         private string StoredPassword = String.Empty;
@@ -40,12 +40,13 @@ namespace PortaJel_Blazor.Classes
         private int TotalSongRecordCount = -1;
         private int TotalGenreRecordCount = -1;
 
-        public bool isOffline = false;
-        public bool isRunningTask = false;
+        public bool isOffline { get; private set; } = false;
+        public bool aggressiveCacheRefresh { get; private set; } = false;
+
         public CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
         private CancellationToken token;
 
-        HttpClient _httpClient;
+        HttpClient _httpClient = new();
         public ServerConnecter()
         {
             _sdkClientSettings = new();
@@ -57,15 +58,41 @@ namespace PortaJel_Blazor.Classes
             _sdkClientSettings.ClientVersion = MauiProgram.applicationClientVersion;
 
             token = cancelTokenSource.Token;
-        }
-        public async Task<bool> AuthenticateAddressAsync(string address)
-        {
-            _sdkClientSettings.BaseUrl = address;
 
             _systemClient = new SystemClient(_sdkClientSettings, _httpClient);
+            _userClient = new UserClient(_sdkClientSettings, _httpClient);
+            _itemsClient = new(_sdkClientSettings, _httpClient);
+            _imageClient = new(_sdkClientSettings, _httpClient);
+            _searchClient = new(_sdkClientSettings, _httpClient);
+            _artistsClient = new(_sdkClientSettings, _httpClient);
+            _genresClient = new(_sdkClientSettings, _httpClient);
+            _playlistsClient = new(_sdkClientSettings, _httpClient);
+            _userLibraryClient = new(_sdkClientSettings, _httpClient);
+            _mediaInfoClient = new(_sdkClientSettings, _httpClient);
+            _itemUpdateClient = new(_sdkClientSettings, _httpClient);
+            _itemLookupClient = new(_sdkClientSettings, _httpClient);
+            _audioClient = new(_sdkClientSettings, _httpClient);
+        }
+
+        #region Authentication
+        /// <summary>
+        /// Asynchronously authenticates the provided address by setting it as the base URL, 
+        /// initializing a SystemClient instance, and attempting to retrieve public system 
+        /// information to verify that the URL points to a Jellyfin server.
+        /// </summary>
+        /// <param name="address">The address to authenticate.</param>
+        /// <returns>A task representing the asynchronous operation. The task result is true if 
+        /// authentication is successful, otherwise false.</returns>
+        public async Task<bool> AuthenticateAddressAsync(string address)
+        {
+            if (_systemClient == null)
+            {
+                return false;
+            }
+
             try
             {
-                // Get public system info to verify that the url points to a Jellyfin server.
+                _sdkClientSettings.BaseUrl = address;
                 var systemInfo = await _systemClient.GetPublicSystemInfoAsync(token).ConfigureAwait(false);
                 if (token.IsCancellationRequested)
                 {
@@ -79,80 +106,401 @@ namespace PortaJel_Blazor.Classes
                 return false;
             }
         }
+
+        /// <summary>
+        /// Asynchronously authenticates the base URL set in the SDK client settings by initializing 
+        /// a SystemClient instance and attempting to retrieve public system information to verify 
+        /// that the URL points to a Jellyfin server.
+        /// </summary>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result is true if authentication 
+        /// is successful, otherwise false.
+        /// </returns>
+        /// 
         public async Task<bool> AuthenticateAddressAsync()
         {
             return await AuthenticateAddressAsync(_sdkClientSettings.BaseUrl);
         }
-        public async Task<bool> AuthenticateUser(string username, string password)
+
+        /// <summary>
+        /// Asynchronously authenticates a user with the provided username and password.
+        /// </summary>
+        /// <param name="username">The username of the user to authenticate.</param>
+        /// <param name="password">The password of the user to authenticate.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result is true if authentication 
+        /// is successful, otherwise false.
+        /// </returns>
+        /// 
+        public async Task<bool> AuthenticateUserAsync(string username, string password)
         {
-            if (_systemClient == null)
+            if (_systemClient == null || _userClient == null)
             {
                 return false;
             }
 
-            try
-            {
-                // Get public system info to verify that the url points to a Jellyfin server.
-                var systemInfo = await _systemClient.GetPublicSystemInfoAsync(token).ConfigureAwait(false);
-                if (token.IsCancellationRequested)
-                {
-                    cancelTokenSource = new();
-                    return false;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            var validUser = false;
-            _userClient = new UserClient(_sdkClientSettings, _httpClient);
             try
             {
                 // Authenticate user.
-                var authenticationResult = await _userClient.AuthenticateUserByNameAsync(new AuthenticateUserByName
+                AuthenticationResult authenticationResult = await _userClient.AuthenticateUserByNameAsync(new AuthenticateUserByName
                 {
                     Username = username,
                     Pw = password,
-                }, token).ConfigureAwait(false);
+                }, token);
 
                 _sdkClientSettings.AccessToken = authenticationResult.AccessToken;
                 userDto = authenticationResult.User;
 
-                _itemsClient = new(_sdkClientSettings, _httpClient);
-                _imageClient = new(_sdkClientSettings, _httpClient);
-                _searchClient = new(_sdkClientSettings, _httpClient);
-                _artistsClient = new(_sdkClientSettings, _httpClient);
-                _genresClient = new(_sdkClientSettings, _httpClient);
-                _playlistsClient = new(_sdkClientSettings, _httpClient);
-                _userLibraryClient = new(_sdkClientSettings, _httpClient);
-                _mediaInfoClient = new(_sdkClientSettings, _httpClient);
-                _itemUpdateClient = new(_sdkClientSettings, _httpClient);
-                _itemLookupClient = new(_sdkClientSettings, _httpClient);
-                _audioClient = new(_sdkClientSettings, _httpClient);
-
-                _playlistCreationResult = new();
                 Username = username;
                 StoredPassword = password;
-                validUser = true;
-
-                if (token.IsCancellationRequested)
-                {
-                    cancelTokenSource = new();
-                    return false;
-                }
+                isOffline = false;
             }
             catch (Exception)
             {
+                isOffline = true;
                 return false;
             }
-
-            return validUser;
+            return true;
         }
-        public async Task<bool> AuthenticateUser()
+        
+        /// <summary>
+        /// Asynchronously authenticates a user with the stored username and password.
+        /// </summary>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result is true if authentication 
+        /// is successful, otherwise false.
+        /// </returns>
+        /// 
+        public async Task<bool> AuthenticateUserAsync()
         {
-            return await AuthenticateUser(Username, StoredPassword);
+            return await AuthenticateUserAsync(Username, StoredPassword);
         }
+        #endregion
+
+        #region Albums
+        private Dictionary<Guid, Album> albumCache = new();
+
+        /// <summary>
+        /// Retrieves all albums based on the specified parameters asynchronously.
+        /// </summary>
+        /// <param name="setLimit">The maximum number of albums to retrieve.</param>
+        /// <param name="setStartIndex">The index from which to start retrieving albums.</param>
+        /// <param name="setFavourites">A boolean value indicating whether to retrieve only favorite albums.</param>
+        /// <param name="setSortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
+        /// <param name="setSortOrder">The sort order for the albums.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result is an array of albums 
+        /// matching the specified criteria.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the server connector has not been initialized. Ensure that 
+        /// AuthenticateUserAsync method has been called.
+        /// </exception>
+        public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, IEnumerable<String>? setSortTypes = null, SortOrder setSortOrder = SortOrder.Descending)
+        {
+            if (_itemsClient == null || userDto == null)
+            {
+                throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
+            }
+
+            List<Album> toReturn = new();
+            // Function to run that returns data from the cache
+            void ReturnFromCache()
+            {
+                // Filter the cache based on the provided parameters
+                List<Album> filteredCache = albumCache.Values.ToList();
+
+                // Apply filters based on parameters
+                if (setFavourites == true)
+                {
+                    filteredCache = filteredCache.Where(album => album.isFavourite == setFavourites.Value).ToList();
+                }
+
+                // Apply sorting if sort types are provided
+                if (setSortTypes != null && setSortTypes.Any())
+                {
+                    foreach (var sortType in setSortTypes)
+                    {
+                        switch (sortType)
+                        {
+                            // Implement sorting logic based on sort types
+                            // For example, sorting by album name
+                            case "Name":
+                                filteredCache = setSortOrder == SortOrder.Ascending ?
+                                    filteredCache.OrderBy(album => album.name).ToList() :
+                                    filteredCache.OrderByDescending(album => album.name).ToList();
+                                break;
+                                // Add cases for other sort types if needed
+                        }
+                    }
+                }
+
+                // Apply count limits
+                if (setStartIndex.HasValue)
+                {
+                    filteredCache = filteredCache.Skip(setStartIndex.Value).ToList();
+                }
+                if (setLimit.HasValue)
+                {
+                    filteredCache = filteredCache.Take(setLimit.Value).ToList();
+                }
+
+                // Update toReturn with filtered and sorted cache items
+                toReturn.AddRange(filteredCache);
+            }
+
+            if (isOffline)
+            { // If offline, return all from the cache
+                ReturnFromCache();
+            }
+            else
+            { // Call server
+                try
+                {
+                    // Make server call
+                    BaseItemDtoQueryResult serverResults = await _itemsClient.GetItemsAsync(
+                        userId: userDto.Id,
+                        isFavorite: setFavourites,
+                        sortBy: setSortTypes,
+                        sortOrder: new List<SortOrder> { setSortOrder },
+                        includeItemTypes: new List<BaseItemKind> { BaseItemKind.MusicAlbum },
+                        limit: setLimit,
+                        startIndex: setStartIndex,
+                        recursive: true,
+                        enableImages: true,
+                        enableTotalRecordCount: true);
+                    for (int i = 0; i < serverResults.Items.Count(); i++)
+                    {
+                        Album newAlbum = AlbumBuilder(serverResults.Items[i]);
+                        toReturn.Add(newAlbum);
+                        if (albumCache.ContainsKey(newAlbum.id))
+                            albumCache.Add(newAlbum.id, newAlbum);
+                    }
+                }
+                catch (Exception)
+                {
+                    isOffline = true;
+                    ReturnFromCache();
+                }
+            }
+
+            return toReturn.ToArray();
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves an album from the server.
+        /// </summary>
+        /// <param name="setId">The optional ID of the album to retrieve. If null, returns an empty album.</param>
+        /// <returns>Returns the retrieved album asynchronously.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the server connector has not been initialized. Ensure that AuthenticateUserAsync has been called.</exception>
+        public async Task<Album> GetAlbumAsync(Guid? setId = null)
+        {
+            Album toReturn = Album.Empty;
+            if(setId == null)
+            {
+                return Album.Empty;
+            }
+            if(_itemsClient == null || userDto == null)
+            {
+                throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
+            }
+
+            void ReturnFromCache()
+            {
+                // Filter the cache based on the provided parameters
+                Album? fromCache = Album.Empty;
+                albumCache.TryGetValue((Guid)setId, out fromCache);
+                if(fromCache != null)
+                {
+                    toReturn = fromCache;
+                }
+            }
+
+            if (isOffline)
+            {
+                ReturnFromCache();
+            }
+            else
+            {
+                try
+                {
+                    Task<BaseItemDtoQueryResult> albumResult = _itemsClient.GetItemsAsync(
+                        userId: userDto.Id,
+                        ids: new List<Guid> { (Guid)setId },
+                        includeItemTypes: new List<BaseItemKind> { BaseItemKind.MusicAlbum },
+                        recursive: true,
+                        enableImages: true,
+                        cancellationToken: token);
+                    Task<BaseItemDtoQueryResult> songResult = _itemsClient.GetItemsAsync(
+                        userId: userDto.Id,
+                        includeItemTypes: new List<BaseItemKind> { BaseItemKind.Audio },
+                        parentId: setId,
+                        recursive: true,
+                        enableImages: true,
+                        cancellationToken: token);
+                    // TODO: Include artistResults, and call API synchronously
+                    await Task.WhenAll(albumResult, songResult);
+
+                    BaseItemDto? album = albumResult.Result.Items.FirstOrDefault();
+                    if (album == null)
+                    {
+                        return Album.Empty;
+                    }
+                    toReturn = await AlbumBuilder(album, true);
+
+                    // Set Song information
+                    List<Song> songList = new List<Song>();
+                    foreach (var song in songResult.Result.Items)
+                    {
+                        // Create object
+                        Song newSong = SongBuilder(song);
+                        newSong.album = toReturn;
+
+                        // Create Artists
+                        List<Artist> partialArtistList = new List<Artist>();
+                        foreach (NameGuidPair partialArtist in song.ArtistItems)
+                        {
+                            // TOOD: Check if we already have a complete record in the cached data
+                            partialArtistList.Add(ArtistBuilder(partialArtist));
+                        }
+                        newSong.artists = partialArtistList.ToArray();
+
+                        // Add to song dictionary
+                        if (!MauiProgram.songDictionary.ContainsKey(song.Id))
+                        {
+                            MauiProgram.songDictionary.Add(song.Id, newSong);
+                        }
+                        songList.Add(newSong);
+                    }
+                    toReturn.songs = songList.ToArray();
+                }
+                catch (Exception)
+                {
+                    isOffline = true;
+                    ReturnFromCache();
+                }
+
+            }
+
+            return toReturn;
+        }
+        #endregion
+
+        #region Songs
+        private Dictionary<Guid, Song> songCache = new();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="setLimit"></param>
+        /// <param name="setStartIndex"></param>
+        /// <param name="setFavourites"></param>
+        /// <param name="setSortTypes"></param>
+        /// <param name="setSortOrder"></param>
+        /// <returns></returns>
+        public async Task<Song[]> GetAllSongsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, IEnumerable<String>? setSortTypes = null, SortOrder setSortOrder = SortOrder.Descending)
+        {
+            if (_itemsClient == null || userDto == null)
+            {
+                throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
+            }
+
+            List<Song> toReturn = new();
+            // Function to run that returns data from the cache
+            void ReturnFromCache()
+            {
+                // Filter the cache based on the provided parameters
+                List<Song> filteredCache = songCache.Values.ToList();
+
+                // Apply filters based on parameters
+                if (setFavourites == true)
+                {
+                    filteredCache = filteredCache.Where(song => song.isFavourite == setFavourites.Value).ToList();
+                }
+
+                // Apply sorting if sort types are provided
+                if (setSortTypes != null && setSortTypes.Any())
+                {
+                    foreach (var sortType in setSortTypes)
+                    {
+                        switch (sortType)
+                        {
+                            // Implement sorting logic based on sort types
+                            // For example, sorting by album name
+                            case "Name":
+                                filteredCache = setSortOrder == SortOrder.Ascending ?
+                                    filteredCache.OrderBy(song => song.name).ToList() :
+                                    filteredCache.OrderByDescending(song => song.name).ToList();
+                                break;
+                                // Add cases for other sort types if needed
+                        }
+                    }
+                }
+
+                // Apply count limits
+                if (setStartIndex.HasValue)
+                {
+                    filteredCache = filteredCache.Skip(setStartIndex.Value).ToList();
+                }
+                if (setLimit.HasValue)
+                {
+                    filteredCache = filteredCache.Take(setLimit.Value).ToList();
+                }
+
+                // Update toReturn with filtered and sorted cache items
+                toReturn.AddRange(filteredCache);
+            }
+
+            if (isOffline)
+            { // If offline, return all from the cache
+                ReturnFromCache();
+            }
+            else
+            { // Call server
+                try
+                {
+                    // Make server call
+                    BaseItemDtoQueryResult serverResults = await _itemsClient.GetItemsAsync(
+                        userId: userDto.Id,
+                        isFavorite: setFavourites,
+                        sortBy: setSortTypes,
+                        sortOrder: new List<SortOrder> { setSortOrder },
+                        includeItemTypes: new List<BaseItemKind> { BaseItemKind.Audio },
+                        limit: setLimit,
+                        startIndex: setStartIndex,
+                        recursive: true,
+                        enableImages: true,
+                        enableTotalRecordCount: true);
+                    for (int i = 0; i < serverResults.Items.Count(); i++)
+                    {
+                        Song newSong = SongBuilder(serverResults.Items[i]);
+                        toReturn.Add(newSong);
+                        if (songCache.ContainsKey(newSong.id))
+                            songCache.Add(newSong.id, newSong);
+                    }
+                }
+                catch (Exception)
+                {
+                    isOffline = true;
+                    ReturnFromCache();
+                }
+            }
+
+            return toReturn.ToArray();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="setId"></param>
+        /// <returns></returns>
+        public async Task<Song> GetSongAsync(Guid? setId = null)
+        {
+            Song toReturn = Song.Empty;
+
+            return toReturn;
+        }
+        #endregion
         public async Task<Album[]> FetchRecentlyAddedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false, bool? fetchFullArtist = false)
         {
             // Create a list containing only the "Album" item type
@@ -449,7 +797,7 @@ namespace PortaJel_Blazor.Classes
 
             return getAlbum;
         }
-        public async Task<Playlist[]> GetPlaylistsAsycn(int? limit = 50, int? startFromIndex = 0)
+        public async Task<Playlist[]> GetPlaylistsAsync(int? limit = 50, int? startFromIndex = 0)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Playlist };
             List<String> _sortTypes = new List<string> { "SortName" };
@@ -727,7 +1075,7 @@ namespace PortaJel_Blazor.Classes
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
             List<String> _sortTypes = new List<string> { "SortName" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
 
             CancellationToken ctoken = new();
             if(cancellationToken != null) { ctoken = (CancellationToken)cancellationToken; }
@@ -1083,22 +1431,6 @@ namespace PortaJel_Blazor.Classes
         {
             return _sdkClientSettings.BaseUrl;
         }
-        public UserDto GetUserDto()
-        {
-            return userDto;
-        }
-        public ImageClient GetImageClient()
-        {
-            return _imageClient;
-        }
-        public ItemsClient GetItemsClient()
-        {
-            return _itemsClient;
-        }
-        public ArtistsClient GetArtistClient()
-        {
-            return _artistsClient;
-        }
         private Album AlbumBuilder(BaseItemDto baseItem)
         {
             return AlbumBuilder(baseItem, false).Result;
@@ -1395,7 +1727,6 @@ namespace PortaJel_Blazor.Classes
                 newPlaylist.isFavourite = baseItem.UserData.IsFavorite;
                 newPlaylist.songs = null; // TODO: Implement songs
 
-
                 if (baseItem.Type != BaseItemKind.MusicAlbum)
                 {
                     if (baseItem.AlbumId != null)
@@ -1419,7 +1750,6 @@ namespace PortaJel_Blazor.Classes
                     setDiskNum: 0, //TODO: Fix disk num
                     setIsFavourite: baseItem.UserData.IsFavorite);
             newSong.image = MusicItemImageBuilder(baseItem);
-            //_sdkClientSettings.BaseUrl + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/" + imgType;
             newSong.streamUrl = _sdkClientSettings.BaseUrl + "/Audio/" + baseItem.Id + "/stream";
 
             List<Artist> artists = new List<Artist>();

@@ -3,10 +3,13 @@
 
 <li class="music-item" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
     <div class="image-container">
-        <img class="album-image"
+        <img class="album-image album-cover-img opacityTransition"
              src="@musicItem.image.SourceAtResolution(100)"
              loading="lazy"
              onerror="this.src='/images/emptyAlbum.png'" />
+        <img class="album-image-placeholder"
+             src="data:image/png;base64, @placeholderBase64" 
+             onerror="this.style.opacity=0" />
     </div>
     <div class="music-details">
         @if(musicItem is Album)
@@ -20,6 +23,8 @@
 
 @code {
     [Parameter] public BaseMusicItem musicItem { get; set; } = new Album();
+    [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
+
     private void NavigateToAlbum()
     {
         if (musicItem != null)

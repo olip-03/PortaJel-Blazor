@@ -35,6 +35,14 @@ p.albumText {
     left: 0;
 }
 
+.album-cover-img {
+    opacity: 0;
+}
+
+.opacityTransition {
+    transition: opacity 0.5s ease-in-out; /* Smooth transition */
+}
+
 .imageHolder {
     overflow: hidden;
     position: relative;

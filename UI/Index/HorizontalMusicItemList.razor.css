@@ -1,5 +1,5 @@
 ﻿/* Style the container */
-.scrollmenu {
+.horizScroll-scrollmenu {
     display: flex;
     overflow-x: auto;
     white-space: nowrap; /* Prevent items from wrapping */
@@ -7,37 +7,37 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
 }
-    .scrollmenu::-webkit-scrollbar {
+    .horizScroll-scrollmenu::-webkit-scrollbar {
         display: none;
     }
-.scrollmenu-showall {
+.horizScroll-scrollmenu-showall {
     display: flex;
-    align-content:center;
+    align-content: center;
     justify-content: center;
-    flex-direction:column;
+    flex-direction: column;
     max-height: 160px;
 }
-.showall-img {
+.horizScroll-showall-img {
     margin-left: 0.25rem;
     height: 1.5rem;
 }
 
-.menuTitleContainer {
+.horizScroll-menuTitleContainer {
     display: flex;
     justify-content: space-between;
     align-items: center;
     justify-content: center;
     text-align: center;
 }
-    .menuTitleContainer h3:first-child {
+    .horizScroll-menuTitleContainer h3:first-child {
         flex: 1;
         text-align: left;
     }
-    .menuTitleContainer h3:last-child {
+    .horizScroll-menuTitleContainer h3:last-child {
         text-align: right;
     }
 
-.albumContainer {
+.horizScroll-albumContainer {
     width: 160px;
     height: 160px;
     margin-right: 10px;
@@ -46,25 +46,4 @@
     flex-shrink: 0;
     position: relative;
     animation: shimmer 1.5s infinite linear;
-}
-
-.shimmerBG {
-    animation-duration: 2.2s;
-    animation-fill-mode: forwards;
-    animation-iteration-count: infinite;
-    animation-name: shimmer;
-    animation-timing-function: linear;
-    background: #ddd;
-    background: linear-gradient(to right, #F6F6F6 8%, #F0F0F0 18%, #F6F6F6 33%);
-    background-size: 1200px 100%;
-}
-
-@keyframes shimmer {
-    0% {
-        background-position: -1200px 0;
-    }
-
-    100% {
-        background-position: 1200px 0;
-    }
 }

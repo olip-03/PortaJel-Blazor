@@ -1,41 +1,42 @@
 ﻿@using Jellyfin.Sdk;
-@using PortaJel_Blazor.Shared.Music_Displays;
+@using PortaJel_Blazor.UI.Index;
 @using PortaJel_Blazor.Data;
 @using BlazorAnimate
 
 <div>
-    <div class="menuTitleContainer">
+    <div class="horizScroll-menuTitleContainer">
         <h3>@Title</h3>
         <div style="display: flex;">
             View All
-            <img src="/images/showgrid.svg" class="showall-img">
+            <img src="/images/showgrid.svg" class="horizScroll-showall-img">
         </div>
     </div>
 
-    <div class="scrollmenu">
+    <div class="horizScroll-scrollmenu">
         @for (int i = 0; i < itemCount; i++)
         {
             if (albumData != null && albumData.Count() >= itemCount)
             {
                 BaseMusicItem showRecord = albumData[i];
-                <AlbumCard musicObject="showRecord" />
+                string base64 = albumBlurHashData[i];
+                <AlbumCard musicObject="@showRecord" placeholderBase64="@base64" />
             }
             else
             {
                 <AlbumCard musicObject="null" />
             }
         }
-        <div class="scrollmenu-showall">
+        <div class="horizScroll-scrollmenu-showall">
             <p style="margin: 1rem; color: darkgray;">Show All</p>
         </div>
     </div>
 </div>
 
-
 @code {
     // Demonstrates how a parent component can supply parameters
     [Parameter] public string Title { get; set; } = String.Empty;
     [Parameter] public BaseMusicItem[] albumData { get; set; } = new BaseMusicItem[0];
+    [Parameter] public string[] albumBlurHashData { get; set; } = new string[0];
     [Parameter] public int itemCount { get; set; } = 0;
 
     private List<BaseItemKind> acceptedTypes = new List<BaseItemKind>

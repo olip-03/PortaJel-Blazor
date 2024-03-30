@@ -5,7 +5,7 @@
     display: flex;
     align-items: center;
     max-width: 100%;
-    max-height: 80px; /* Adjust as needed */
+    max-height: 80px; 
     user-select: none;
 }
 image-container div {
@@ -13,6 +13,7 @@ image-container div {
     height: 3.6rem;
     overflow: hidden;
     user-select: none;
+    display: flex;
 }
 .album-image {
     min-width: 3.6rem;
@@ -21,6 +22,24 @@ image-container div {
     max-height: 3.5rem;
     margin-right: 0.5rem;
     user-select: none;
+}
+.album-cover-img{
+    opacity: 0;
+    z-index: 10;
+}
+.opacityTransition {
+    transition: opacity 0.5s ease-in-out; /* Smooth transition */
+}
+.album-image-placeholder {
+    min-width: 3.6rem;
+    min-height: 3.6rem;
+    max-width: 3.5rem;
+    max-height: 3.5rem;
+    margin-right: 0.5rem;
+    user-select: none;
+    position: absolute;
+    z-index: -5;
+    border-radius: 5px 0px 0px 5px;
 }
 .music-details {
     color: #555;

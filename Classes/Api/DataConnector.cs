@@ -18,10 +18,11 @@ namespace PortaJel_Blazor.Classes
         /// List of connectors that data is pulled from. Key is the URL of the server, ServerConnector is the connector itself.
         /// </summary>
         private Dictionary<string, ServerConnecter> connecters = new();
+        
         /// <summary>
         /// Adds a new server to access data from.
         /// </summary>
-        /// <param name="server">The ServerConnector to be added. This must be initalized and set up to be used in this class.</param>
+        /// <param name="server">The ServerConnector to be added. This must be initialized and set up to be used in this class.</param>
         /// <returns>True if the server was successfully added, false if otherwise. Will return false if duplicate keys (servers with the same address) are added.</returns>
         public bool AddServer(ServerConnecter server)
         {
@@ -32,16 +33,18 @@ namespace PortaJel_Blazor.Classes
             }
             return false;
         }
+
         /// <summary>
-        /// Removs a particular server from sources of info. 
+        /// Removes a particular server from sources of info. 
         /// </summary>
         /// <param name="server">The ServerConnector to be removed.</param>
         public void RemoveServer(ServerConnecter server) 
         { 
             connecters.Remove(server.GetBaseAddress());
         }
+        
         /// <summary>
-        /// Removs a particular server from sources of info. 
+        /// Removes a particular server from sources of info. 
         /// </summary>
         /// <param name="address">The URL of the ServerConnector to be removed.</param>
         public void RemoveServer(string address)
@@ -55,6 +58,7 @@ namespace PortaJel_Blazor.Classes
                 }
             }
         }
+        
         /// <summary>
         /// Gets all the servers we're currently connected to.
         /// </summary>
@@ -63,21 +67,25 @@ namespace PortaJel_Blazor.Classes
         {
             return connecters.Values.ToArray();
         }
-        
+
         #region AlbumEndpoints
         /// <summary>
-        /// Retreieves all albums from connected servers. 
+        /// Retrieves all albums from connected servers. 
         /// </summary>
-        /// <param name="limit">Total amount of albums that should be retuend. Depends on how many albums the requested server has at the specifiec index.</param>
-        /// <param name="startIndex">What index the server should start counting from</param>
+        /// <param name="limit">The maximum number of albums to retrieve.</param>
+        /// <param name="startIndex">The index from which to start retrieving albums.</param>
+        /// <param name="isFavourite">A boolean value indicating whether to retrieve only favorite albums.</param>
+        /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
+        /// <param name="sortOrder">The sort order for the albums.</param>
         /// <returns>Album[] (Album array) containing all albums as requested from all servers</returns>
-        public async Task<Album[]> GetAllAlbumsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
+        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, IEnumerable<String>? sortTypes = null, SortOrder sortOrder = SortOrder.Descending)
         {
             List<Album> albumsReturn = new List<Album>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite, cancellationToken: cancellationToken));
+                //albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite, cancellationToken: cancellationToken));
+                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: limit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder));
             });
-            //albumsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
+            //albumsReturn.Sort(); // TODO: Ensure sorting method is actually sorting, you know. 
 
             // Set return capacity to requested limit 
             if (albumsReturn.Count > limit) 
@@ -88,15 +96,25 @@ namespace PortaJel_Blazor.Classes
 
             return albumsReturn.ToArray();
         }
-        public async Task<Album> GetAlbumById(Guid albumId, bool? fetchFullArtist = false)
+
+        /// <summary>
+        /// Retrieves an album asynchronously based on the specified album ID.
+        /// </summary>
+        /// <param name="albumId">The unique identifier of the album to retrieve.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result is the album 
+        /// corresponding to the specified album ID.
+        /// </returns>
+        public async Task<Album> GetAlbumAsync(Guid albumId)
         {
             Album toReturn = Album.Empty;
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                toReturn = await server.Value.FetchAlbumByIDAsync(albumId, fetchFullArtist);
+                toReturn = await server.Value.GetAlbumAsync(setId: albumId);
             });
             return toReturn;
         }
         #endregion
+
         #region ArtistEndoings
         public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
         {
@@ -116,12 +134,22 @@ namespace PortaJel_Blazor.Classes
             return artistsReturn.ToArray();
         }
         #endregion
+
         #region SongsEndpoints
-        public async Task<Song[]> GetAllSongsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
+        /// <summary>
+        /// Retrieves all songs asynchronously.
+        /// </summary>
+        /// <param name="limit">The maximum number of songs to retrieve. Default is null.</param>
+        /// <param name="startIndex">The starting index for retrieving songs. Default is 0.</param>
+        /// <param name="isFavourite">Specifies whether to retrieve only favorite songs. Default is false.</param>
+        /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
+        /// <param name="sortOrder">The sort order for the retrieved songs. Default is descending.</param>
+        /// <returns>An array of songs.</returns>
+        public async Task<Song[]> GetAllSongsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, IEnumerable<String>? sortTypes = null, SortOrder sortOrder = SortOrder.Descending)
         {
             List<Song> songsReturn = new List<Song>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                songsReturn.AddRange(await server.Value.GetAllSongsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite, cancellationToken: cancellationToken));
+                songsReturn.AddRange(await server.Value.GetAllSongsAsync(setLimit: limit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder));
             });
             //songsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
 
@@ -134,15 +162,8 @@ namespace PortaJel_Blazor.Classes
 
             return songsReturn.ToArray();
         }
-        public async Task<string> GetSongStreamUrl(Song toFetch)
-        {
-            string toReturn = string.Empty;
-            await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                toReturn = await server.Value.GetSongStreamUrl(toFetch);
-            });
-            return toReturn;
-        }
         #endregion
+
         #region GenreEndpoints
         public async Task<Genre[]> GetAllGenresAsync(int? limit = 50, int? startIndex = 0, CancellationToken? cancellationToken = null)
         {
@@ -162,12 +183,13 @@ namespace PortaJel_Blazor.Classes
             return genresReturn.ToArray();
         }
         #endregion
+
         #region PlaylistsEndpoint
         public async Task<Playlist[]> GetAllPlaylistsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
         {
             List<Playlist> playlistsReturn = new List<Playlist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                playlistsReturn.AddRange(await server.Value.GetPlaylistsAsycn(limit: limit, startFromIndex: startIndex));
+                playlistsReturn.AddRange(await server.Value.GetPlaylistsAsync(limit: limit, startFromIndex: startIndex));
             });
 
             return playlistsReturn.ToArray();

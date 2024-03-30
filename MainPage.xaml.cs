@@ -13,6 +13,7 @@ using SkiaSharp;
 using Microsoft.Maui.Dispatching;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Maui.Core.Extensions;
+using System.Diagnostics;
 
 
 
@@ -183,6 +184,7 @@ public partial class MainPage : ContentPage
         MediaController_Player.IsVisible = false;
     }
     private Song songLastRefresh = Song.Empty;
+
     /// <summary>
     ///  Responsible for refresing the main page of the music controller
     /// </summary>
@@ -687,7 +689,7 @@ public partial class MainPage : ContentPage
 
         if (MauiProgram.ContextMenuTaskList.Count <= 0)
         {
-            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
+            MauiProgram.ContextMenuTaskList.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
             {
                 MauiProgram.mainPage.CloseContextMenu();
             })));
@@ -802,15 +804,16 @@ public partial class MainPage : ContentPage
 
         if (selected != null)
         {
-            if(selected.job != null)
+            if(selected.action != null)
             {
                 try
                 {
-                    selected.job.RunSynchronously();
+                    selected.action.Start(TaskScheduler.FromCurrentSynchronizationContext());
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     CloseContextMenu();
+                    await DisplayAlert("Error!", ex.Message, "Close");
                 }
             }
         }
@@ -836,8 +839,8 @@ public partial class MainPage : ContentPage
 
         }
         MauiProgram.mainLayout.isLoading = true;
-        waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateHome();
+        waitingForPageLoad = true;
         btn_navnar_home.Scale = 0.6;
         btn_navnar_home.Opacity = 0;
         await Task.WhenAny<bool>

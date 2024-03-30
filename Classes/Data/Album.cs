@@ -119,7 +119,7 @@ namespace PortaJel_Blazor.Data
             })));
             contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(async () =>
             {
-                Album FullAlbum = await MauiProgram.api.GetAlbumById(id, true);
+                Album FullAlbum = await MauiProgram.api.GetAlbumAsync(id);
                 this.songs = FullAlbum.songs;
 
                 MauiProgram.mediaService.songQueue.QueueRange(FullAlbum.songs);
