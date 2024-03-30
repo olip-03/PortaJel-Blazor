@@ -77,31 +77,31 @@
         {
             if (MauiProgram.homeCache.IsEmpty())
             {
-                // Collect recently played tunes
-                recentPlayData = await MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 75);
-                Task<string[]> runRecentPlayBlurhash = GenerateBlurHash(recentPlayData);
-                MauiProgram.homeCache.recentPlayData = recentPlayData;
-
-                // Collect favourites
-                favouritesPlayData = await MauiProgram.api.GetAllAlbumsAsync(limit: 50, startIndex: 0, isFavourite: true);
-                Task<string[]> runFavouritesBlurhash = GenerateBlurHash(favouritesPlayData);
-                MauiProgram.homeCache.favouritesPlayData = favouritesPlayData;
-
-                // Collect recently added
-                recentAddedData = await MauiProgram.api.GetAllAlbumsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "DateCreated" });
-                Task<string[]> runRecentAddedBlurhash = GenerateBlurHash(recentAddedData);
-                MauiProgram.homeCache.recentAddedData = recentAddedData;
-
-                // Collect most played
-                mostPlayData = await MauiProgram.api.GetAllSongsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "PlayCount" }, sortOrder: SortOrder.Descending);
-                Task<string[]> runMostPlayBlurhash = GenerateBlurHash(mostPlayData);
-                MauiProgram.homeCache.mostPlayData = mostPlayData;
-
-                // Collect random
-                randomData = await MauiProgram.api.GetAllSongsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "Random" }, sortOrder: SortOrder.Descending);
-                Task<string[]> runRandomBlurhash = GenerateBlurHash(randomData);
+                // Run data collection
+                Task<Album[]> runGetRecent = MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 75);
+                Task<Album[]> runGetFavourites = MauiProgram.api.GetAllAlbumsAsync(limit: 50, startIndex: 0, isFavourite: true);
+                Task<Album[]> runGetRecentlyAdded = MauiProgram.api.GetAllAlbumsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "DateCreated" });
+                Task<Song[]> runGetMostPlayed = MauiProgram.api.GetAllSongsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "PlayCount" }, sortOrder: SortOrder.Descending);
+                Task<Song[]> runGetRandom = MauiProgram.api.GetAllSongsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "Random" }, sortOrder: SortOrder.Descending);
+                await Task.WhenAll(
+                    runGetRecent,
+                    runGetFavourites,
+                    runGetRecentlyAdded,
+                    runGetMostPlayed,
+                    runGetRandom
+                );
+                recentPlayData = runGetRecent.Result;
+                favouritesPlayData = runGetFavourites.Result;
+                recentAddedData = runGetRecentlyAdded.Result;
+                mostPlayData = runGetMostPlayed.Result;
+                randomData = runGetRandom.Result;
 
                 // Run blurhashing
+                Task<string[]> runRecentPlayBlurhash = GenerateBlurHash(recentPlayData);
+                Task<string[]> runFavouritesBlurhash = GenerateBlurHash(favouritesPlayData);
+                Task<string[]> runRecentAddedBlurhash = GenerateBlurHash(recentAddedData);
+                Task<string[]> runMostPlayBlurhash = GenerateBlurHash(mostPlayData);
+                Task<string[]> runRandomBlurhash = GenerateBlurHash(randomData);
                 await Task.WhenAll(
                     runRecentPlayBlurhash,
                     runFavouritesBlurhash,
@@ -109,20 +109,17 @@
                     runMostPlayBlurhash,
                     runRandomBlurhash
                 );
-
                 recentPlayPlaceholderImages = runRecentPlayBlurhash.Result;
-                MauiProgram.homeCache.recentPlayPlaceholderImages = recentPlayPlaceholderImages;
-
                 favouritesPlaceholderImages = runFavouritesBlurhash.Result;
-                MauiProgram.homeCache.favouritesPlaceholderImages = favouritesPlaceholderImages;
-
                 recentAddedPlaceholderImages = runRecentAddedBlurhash.Result;
-                MauiProgram.homeCache.recentAddedPlaceholderImages = recentAddedPlaceholderImages;
-
                 mostPlayPlaceholderImages = runMostPlayBlurhash.Result;
+                randomPlaceholderImages = runRandomBlurhash.Result;
+
+                MauiProgram.homeCache.recentPlayPlaceholderImages = recentPlayPlaceholderImages;
+                MauiProgram.homeCache.favouritesPlaceholderImages = favouritesPlaceholderImages;
+                MauiProgram.homeCache.recentAddedPlaceholderImages = recentAddedPlaceholderImages;
                 MauiProgram.homeCache.mostPlayPlaceholderImages = mostPlayPlaceholderImages;
 
-                randomPlaceholderImages = runRandomBlurhash.Result;
                 randomLoaded = true;
             }
         }
