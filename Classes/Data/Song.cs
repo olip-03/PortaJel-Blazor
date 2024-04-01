@@ -38,7 +38,6 @@ namespace PortaJel_Blazor.Data
         /// </summary>
         public Album? album = Album.Empty;
         public string streamUrl { get; set; } = String.Empty;
-        public int playCount { get; set; } = 0;
         public int diskNum { get; set; }
         public string fileLocation { get; set; } = String.Empty;
         public bool isDownloaded { get; set; } = false;
@@ -109,23 +108,6 @@ namespace PortaJel_Blazor.Data
             }
             artists = toAdd.ToArray();
             return artists;
-        }
-        /// <summary>
-        /// Fetches the Album of this song based on if the Album has been returned by the API already. If not force fetch from API.
-        /// </summary>
-        /// <returns>Album of this object.</returns>
-        public async Task<Album?> GetAlbumAsync()
-        {
-            if (album == null) 
-            { 
-                return null; 
-            }
-            bool exists = MauiProgram.albumDictionary.TryGetValue(album.id, out album);
-            if (!exists)
-            {
-                album = await MauiProgram.servers[0].FetchAlbumByIDAsync(album.id);
-            }
-            return album;
         }
         public List<ContextMenuItem> GetContextMenuItems()
         {

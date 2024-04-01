@@ -12,6 +12,8 @@ namespace PortaJel_Blazor.Data
         public Guid id { get; set; } = Guid.Empty;
         public string name { get; set; } = String.Empty;
         public bool isFavourite { get; set; } = false;
+        public int playCount { get; set; } = 0;
+        public int dateAdded { get; set; } = 0;
         public MusicItemImage image { get; set; } = MusicItemImage.Empty;
         public List<ContextMenuItem> contextMenuItems { get; set; } = new();
     }

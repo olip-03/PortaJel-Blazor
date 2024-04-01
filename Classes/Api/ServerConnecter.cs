@@ -34,6 +34,12 @@ namespace PortaJel_Blazor.Classes
         private string Username = String.Empty;
         private string StoredPassword = String.Empty;
 
+        private Dictionary<Guid, Album> albumCache = new();
+        private Dictionary<Guid, Song> songCache = new();
+        public Dictionary<Guid, Artist> artistCache = new();
+        public Dictionary<Guid, Playlist> playlistCache = new();
+        public Dictionary<Guid, Genre> genreCache = new();
+
         private int TotalAlbumRecordCount = -1;
         private int TotalPlaylistRecordCount = -1;
         private int TotalArtistRecordCount = -1;
@@ -178,8 +184,6 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region Albums
-        private Dictionary<Guid, Album> albumCache = new();
-
         /// <summary>
         /// Retrieves all albums based on the specified parameters asynchronously.
         /// </summary>
@@ -391,17 +395,15 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region Songs
-        private Dictionary<Guid, Song> songCache = new();
-
         /// <summary>
-        /// 
+        /// Retrieves all songs asynchronously.
         /// </summary>
-        /// <param name="setLimit"></param>
-        /// <param name="setStartIndex"></param>
-        /// <param name="setFavourites"></param>
-        /// <param name="setSortTypes"></param>
-        /// <param name="setSortOrder"></param>
-        /// <returns></returns>
+        /// <param name="setLimit">Optional limit for the number of songs to retrieve.</param>
+        /// <param name="setStartIndex">Optional start index for retrieving songs.</param>
+        /// <param name="setFavourites">Optional flag to filter songs by favorites.</param>
+        /// <param name="setSortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
+        /// <param name="setSortOrder">Specifies the sort order for the songs.</param>
+        /// <returns>An array of songs.</returns>
         public async Task<Song[]> GetAllSongsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, IEnumerable<String>? setSortTypes = null, SortOrder setSortOrder = SortOrder.Descending)
         {
             if (_itemsClient == null || userDto == null)
@@ -510,10 +512,10 @@ namespace PortaJel_Blazor.Classes
         }
 
         /// <summary>
-        /// 
+        /// Retrieves a song asynchronously based on the provided ID.
         /// </summary>
-        /// <param name="setId"></param>
-        /// <returns></returns>
+        /// <param name="setId">The ID of the song to retrieve.</param>
+        /// <returns>The song corresponding to the provided ID, or an empty song if not found.</returns>
         public async Task<Song> GetSongAsync(Guid setId)
         {
             Song toReturn = Song.Empty;
@@ -577,22 +579,38 @@ namespace PortaJel_Blazor.Classes
         }
         #endregion
 
-        #region Aritists
-        public Dictionary<Guid, Artist> artistCache = new();
-        #endregion
-        public async Task<Album[]> FetchRecentlyPlayedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false)
+        #region Aritists      
+        // TODO: Update to include caching la la la
+        public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
         {
-            // Create a list containing only the "Album" item type
-            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
-            List<String> _sortTypes = new List<string> { "DatePlayed" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
-            List<ItemFilter> _itemFilter = new List<ItemFilter> { ItemFilter.IsPlayed };
+            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
+            List<String> _sortTypes = new List<string> { "SortName" };
+            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
 
-            BaseItemDtoQueryResult songResult;
+            CancellationToken ctoken = new();
+            if (cancellationToken != null) { ctoken = (CancellationToken)cancellationToken; }
+
+            BaseItemDtoQueryResult artistResult = new BaseItemDtoQueryResult();
             // Call GetItemsAsync with the specified parameters
             try
             {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, filters: _itemFilter, recursive: true, enableImages: true, isFavorite: _isFavourite, cancellationToken: token);
+                if (favourites == true)
+                {
+                    artistResult = await _itemsClient.GetItemsAsync(isFavorite: true, userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
+                }
+                else
+                {
+                    artistResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
+                }
+                TotalArtistRecordCount = artistResult.TotalRecordCount;
+            }
+            catch (Jellyfin.Sdk.ItemsException itemException)
+            {
+                if (itemException.StatusCode == 401)
+                {
+                    // UNAUTHORISED
+                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
+                }
             }
             catch (Exception ex)
             {
@@ -600,106 +618,80 @@ namespace PortaJel_Blazor.Classes
                 throw;
             }
 
-            if (songResult == null || token.IsCancellationRequested)
+            if (artistResult == null || ctoken.IsCancellationRequested) { return new Artist[0]; }
+            if (artistResult.Items == null || ctoken.IsCancellationRequested) { return new Artist[0]; }
+
+            List<Artist> artists = new List<Artist>();
+            foreach (var item in artistResult.Items)
             {
-                cancelTokenSource = new();
-                return new Album[0];
+                Artist toAdd = ArtistBuilder(item);
+                toAdd.image = MusicItemImageBuilder(item);
+                artists.Add(toAdd);
             }
 
-            List<Guid> itemIds = new();
-            foreach (var songInfo in songResult.Items)
-            {
-                if(songInfo.AlbumId != null)
-                {
-                    Guid albumid = (Guid)songInfo.AlbumId;
-                    if (!itemIds.Contains(albumid))
-                    {
-                        itemIds.Add(albumid);
-                    }
-                }
-
-            }
-
-            BaseItemDtoQueryResult albumReqults = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: itemIds, sortBy: _sortTypes, sortOrder: _sortOrder, limit: 8, recursive: true, enableImages: true, cancellationToken: token);
-            List<Album> albums = new List<Album>();
-            foreach (var item in albumReqults.Items)
-            {
-                Album newAlbum = AlbumBuilder(item);
-                albums.Add(newAlbum);
-            }
-
-            return albums.ToArray();
+            return artists.ToArray();
         }
-        public async Task<Album> FetchAlbumByIDAsync(Guid albumId, bool? fetchFullArtist = false)
-        {
-            List<BaseItemKind> _songItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
-            List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio };
 
+        // TODO: Update to include caching
+        public async Task<Artist> GetArtistAsync(Guid artistId)
+        {
+            List<BaseItemKind> _includeItemTypesArtist = new List<BaseItemKind> { BaseItemKind.MusicArtist };
+            List<BaseItemKind> _includeItemTypesAlbums = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
+
+            List<Guid> _searchIds = new List<Guid> { artistId };
             List<String> _sortTypes = new List<string> { "SortName" };
-            List<Guid> _filterIds = new List<Guid> { albumId };
             List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
 
-            BaseItemDtoQueryResult albumResult;
-            BaseItemDtoQueryResult songResult;
+            BaseItemDtoQueryResult artistInfo = new BaseItemDtoQueryResult();
+            BaseItemDtoQueryResult albumResult = new BaseItemDtoQueryResult();
+
             // Call GetItemsAsync with the specified parameters
             try
             {
-                albumResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _filterIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _albumItemTypes, recursive: true, enableImages: true, cancellationToken: token);
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _songItemTypes, parentId: albumId, recursive: true, enableImages: true, cancellationToken: token);
+                artistInfo = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _searchIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypesArtist, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
+                if (token.IsCancellationRequested) { return Artist.Empty; }
+                albumResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, artistIds: _searchIds, includeItemTypes: _includeItemTypesAlbums, recursive: true, cancellationToken: token);
+                // TotalArtistRecordCount = songResult.TotalRecordCount;
+            }
+            catch (Jellyfin.Sdk.ItemsException itemException)
+            {
+                if (itemException.StatusCode == 401)
+                {
+                    // UNAUTHORISED
+                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return Album.Empty;
+                throw;
             }
 
-            // Null checking
-            // Other error checking too
-            BaseItemDto? firstReturn = albumResult.Items.FirstOrDefault();
-            if(firstReturn == null)
+            // Catch blocks
+            if (artistInfo == null || token.IsCancellationRequested) { return Artist.Empty; }
+            if (artistInfo.Items.Count <= 0 || token.IsCancellationRequested) { return Artist.Empty; }
+
+            Artist returnArtist = new Artist();
+            foreach (var item in artistInfo.Items)
             {
-                return Album.Empty;
-            }
-            else if (firstReturn != null && firstReturn.Type == BaseItemKind.Audio && firstReturn.ParentId != null)
-            {
-                Guid id = (Guid)firstReturn.ParentId;
-                return await FetchAlbumByIDAsync(id, true);
-            }
-
-            Album getAlbum = Album.Empty;
-            BaseItemDto albumResultItem = new();
-            BaseItemDto? result = albumResult.Items.FirstOrDefault();
-            if (result != null)  { albumResultItem = result; }
-
-            getAlbum = await AlbumBuilder(albumResultItem, true);
-
-            // Set Song information
-            List<Song> songList = new List<Song>();
-            foreach (var song in songResult.Items)
-            {
-                // Create object
-                Song newSong = SongBuilder(song);
-                newSong.album = getAlbum;
-
-                List<Artist> partialArtistList = new List<Artist>();
-                foreach (NameGuidPair partialArtist in song.ArtistItems)
+                returnArtist = ArtistBuilder(item);
+                List<Album> albums = new List<Album>();
+                foreach (var album in albumResult.Items)
                 {
-                    // TOOD: Check if we already have a complete record in the cached data
-                    partialArtistList.Add(ArtistBuilder(partialArtist));
+                    albums.Add(AlbumBuilder(album));
                 }
-                newSong.artists = partialArtistList.ToArray();
-
-                // Add to song dictionary
-                if (!MauiProgram.songDictionary.ContainsKey(song.Id))
-                {
-                    MauiProgram.songDictionary.Add(song.Id, newSong);
-                }
-                songList.Add(newSong);
+                returnArtist.artistAlbums = albums.ToArray();
             }
-            getAlbum.songs = songList.ToArray();
 
-            return getAlbum;
+            if (!MauiProgram.artistDictionary.ContainsKey(returnArtist.id))
+            {
+                MauiProgram.artistDictionary.Add(returnArtist.id, returnArtist);
+            }
+
+            return returnArtist;
         }
+        #endregion
+
         public async Task<Playlist[]> GetPlaylistsAsync(int? limit = 50, int? startFromIndex = 0)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Playlist };
@@ -974,61 +966,6 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalAlbumRecordCount;
         }
-        public async Task<Album[]> GetAllAlbumsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
-        {
-            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
-            List<String> _sortTypes = new List<string> { "SortName" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
-
-            CancellationToken ctoken = new();
-            if(cancellationToken != null) { ctoken = (CancellationToken)cancellationToken; }
-
-            BaseItemDtoQueryResult songResult = new BaseItemDtoQueryResult();
-            // Call GetItemsAsync with the specified parameters
-            try
-            {  
-                if(favourites == true)
-                {
-                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, isFavorite: true, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
-                }
-                else
-                {
-                    songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
-                }
-                TotalAlbumRecordCount = songResult.TotalRecordCount;
-            }
-            catch (Jellyfin.Sdk.ItemsException itemException)
-            {
-                if(itemException.StatusCode == 401)
-                {
-                    // UNAUTHORISED
-                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            if (songResult == null || ctoken.IsCancellationRequested) { cancelTokenSource = new(); return new Album[0]; }
-            if (songResult.Items == null || ctoken.IsCancellationRequested) { cancelTokenSource = new(); return new Album[0]; }
-
-            List<Album> albums = new List<Album>();
-            foreach (var item in songResult.Items)
-            {
-                try
-                {
-                    albums.Add(AlbumBuilder(item));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-
-            return albums.ToArray();
-        }
         public async Task<int> GetTotalArtistCount()
         {
             if (TotalArtistRecordCount == -1)
@@ -1045,56 +982,6 @@ namespace PortaJel_Blazor.Classes
                 return recordCount.TotalRecordCount;
             }
             return TotalArtistRecordCount;
-        }
-        public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
-        {
-            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicArtist };
-            List<String> _sortTypes = new List<string> { "SortName" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
-
-            CancellationToken ctoken = new();
-            if (cancellationToken != null) { ctoken = (CancellationToken)cancellationToken; }
-
-            BaseItemDtoQueryResult artistResult = new BaseItemDtoQueryResult();
-            // Call GetItemsAsync with the specified parameters
-            try
-            {
-                if (favourites == true)
-                {
-                    artistResult = await _itemsClient.GetItemsAsync(isFavorite: true, userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
-                }
-                else
-                {
-                    artistResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: ctoken);
-                }
-                TotalArtistRecordCount = artistResult.TotalRecordCount;
-            }
-            catch (Jellyfin.Sdk.ItemsException itemException)
-            {
-                if (itemException.StatusCode == 401)
-                {
-                    // UNAUTHORISED
-                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            if (artistResult == null || ctoken.IsCancellationRequested) { return new Artist[0]; }
-            if (artistResult.Items == null || ctoken.IsCancellationRequested) { return new Artist[0]; }
-
-            List<Artist> artists = new List<Artist>();
-            foreach (var item in artistResult.Items)
-            {
-                Artist toAdd = ArtistBuilder(item);
-                toAdd.image = MusicItemImageBuilder(item);
-                artists.Add(toAdd);
-            }
-
-            return artists.ToArray();
         }
         public async Task<int> GetTotalSongCount()
         {
@@ -1162,11 +1049,6 @@ namespace PortaJel_Blazor.Classes
 
             return songs.ToArray();
         }
-        public async Task<string> GetSongStreamUrl(Song toFetch)
-        {
-            FileResponse resposne = await _audioClient.GetAudioStreamAsync(toFetch.id);
-            return string.Empty;
-        }
         public async Task<int> GetTotalGenreCount()
         {
             if (TotalGenreRecordCount == -1)
@@ -1224,63 +1106,6 @@ namespace PortaJel_Blazor.Classes
             }
 
             return genres.ToArray();
-        }
-        public async Task<Artist> GetArtistAsync(Guid artistId)
-        {
-            List<BaseItemKind> _includeItemTypesArtist = new List<BaseItemKind> { BaseItemKind.MusicArtist };
-            List<BaseItemKind> _includeItemTypesAlbums = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
-
-            List<Guid> _searchIds = new List<Guid> { artistId };
-            List<String> _sortTypes = new List<string> { "SortName" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Ascending };
-
-            BaseItemDtoQueryResult artistInfo = new BaseItemDtoQueryResult();
-            BaseItemDtoQueryResult albumResult = new BaseItemDtoQueryResult();
-
-            // Call GetItemsAsync with the specified parameters
-            try
-            {
-                artistInfo = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _searchIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypesArtist, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
-                if (token.IsCancellationRequested) { return Artist.Empty; }
-                albumResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, artistIds: _searchIds, includeItemTypes: _includeItemTypesAlbums, recursive: true, cancellationToken: token);
-                // TotalArtistRecordCount = songResult.TotalRecordCount;
-            }
-            catch (Jellyfin.Sdk.ItemsException itemException)
-            {
-                if (itemException.StatusCode == 401)
-                {
-                    // UNAUTHORISED
-                    // TODO: Add specific message for this error (what the fuck why are we getting this???)
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            // Catch blocks
-            if (artistInfo == null || token.IsCancellationRequested) { return Artist.Empty; }
-            if (artistInfo.Items.Count <= 0 || token.IsCancellationRequested) { return Artist.Empty; }
-
-            Artist returnArtist = new Artist();
-            foreach (var item in artistInfo.Items)
-            {
-                returnArtist = ArtistBuilder(item);
-                List<Album> albums = new List<Album>();
-                foreach (var album in albumResult.Items)
-                {
-                    albums.Add(AlbumBuilder(album));
-                }
-                returnArtist.artistAlbums = albums.ToArray();
-            }
-
-            if (!MauiProgram.artistDictionary.ContainsKey(returnArtist.id))
-            {
-                MauiProgram.artistDictionary.Add(returnArtist.id, returnArtist);
-            }
-            
-            return returnArtist;
         }
         public async Task FavouriteItem(Guid id, bool setState)
         {

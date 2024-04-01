@@ -114,13 +114,25 @@
     }
     public void NavigateLibrary()
     {
-        if (currentUri != "/library")
+        if (currentUri != "/library/false")
         {
             isLoading = true;
             showHeader = true;
             pageTitle = "Library";
-            currentUri = "/library";
+            currentUri = "/library/false";
 
+            NavManager.NavigateTo(currentUri);
+        }
+    }
+    public void NavigateFavourites()
+    {
+        if (currentUri != "/library/true")
+        {
+            isLoading = true;
+            showHeader = true;
+            pageTitle = "Favourites";
+            currentUri = "/library/true";
+            
             NavManager.NavigateTo(currentUri);
         }
     }
@@ -132,18 +144,6 @@
             showHeader = true;
             pageTitle = "Search";
             currentUri = "/search";
-
-            NavManager.NavigateTo(currentUri);
-        }
-    }
-    public void NavigateFavourites()
-    {
-        if (currentUri != "/favourites")
-        {
-            isLoading = true;
-            showHeader = true;
-            pageTitle = "Favourites";
-            currentUri = "/favourites";
 
             NavManager.NavigateTo(currentUri);
         }

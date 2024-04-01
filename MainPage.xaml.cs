@@ -833,12 +833,6 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_home_click(object sender, EventArgs e)
     {
-        if (waitingForPageLoad)
-        { // If we're waiting before the requested page is loading, another task is still running and needs to be canned
-            MauiProgram.mainLayout.CancelLoading();
-
-        }
-        MauiProgram.mainLayout.isLoading = true;
         MauiProgram.mainLayout.NavigateHome();
         waitingForPageLoad = true;
         btn_navnar_home.Scale = 0.6;
@@ -851,12 +845,6 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_search_click(object sender, EventArgs e)
     {
-        if (MauiProgram.mainLayout.isLoading)
-        { // If we're waiting before the requested page is loading, another task is still running and needs to be canned
-            MauiProgram.mainLayout.CancelLoading();
-        }
-        MauiProgram.mainLayout.isLoading = true;
-        waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateSearch();
         btn_navnar_search.Scale = 0.6;
         btn_navnar_search.Opacity = 0;
@@ -868,13 +856,6 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_library_click(object sender, EventArgs e)
     {
-        if (waitingForPageLoad)
-        { // If we're waiting before the requested page is loading, another task is still running and needs to be canned
-            // Call Cancellation token
-            // Recreate cancellation token
-        }
-        MauiProgram.mainLayout.isLoading = true;
-        waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateLibrary();
         btn_navnar_library.Scale = 0.6;
         btn_navnar_library.Opacity = 0;
@@ -886,13 +867,6 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_favourite_click(object sender, EventArgs e)
     {
-        if (waitingForPageLoad)
-        { // If we're waiting before the requested page is loading, another task is still running and needs to be canned
-            // Call Cancellation token
-            // Recreate cancellation token
-        }
-        MauiProgram.mainLayout.isLoading = true;
-        waitingForPageLoad = true;
         MauiProgram.mainLayout.NavigateFavourites();
         btn_navnar_favourites.Scale = 0.6;
         btn_navnar_favourites.Opacity = 0;

@@ -1,4 +1,4 @@
-﻿@page "/library"
+﻿@page "/library/{showFavourites}"
 @using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared.Resources;
 @using PortaJel_Blazor;
@@ -8,47 +8,61 @@
 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
     <div>
         <div class="button-container boxed">
-            @if (selected == selectable.albums)
+            @if (selected == Selectable.playlists)
             {
-                <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(selectable.albums)">
+                <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
             }
             else
             {
-                <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(selectable.albums)">
+                <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
+            }
+            <label for="playlists">Playlists</label>
+
+
+            @if (selected == Selectable.albums)
+            {
+                <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(Selectable.albums)">
+            }
+            else
+            {
+                <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(Selectable.albums)">
             }
             <label for="albums">Albums</label>
 
-            @if (selected == selectable.artists)
+            @if (selected == Selectable.artists)
             {
-                <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(selectable.artists)">
+                <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(Selectable.artists)">
             }
             else
             {
-                <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(selectable.artists)">
+                <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(Selectable.artists)">
             }
             <label for="artists">Artists</label>
 
 
-            @if (selected == selectable.songs)
+            @if (selected == Selectable.songs)
             {
-                <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(selectable.songs)">
+                <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(Selectable.songs)">
             }
             else
             {
-                <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(selectable.songs)">
+                <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(Selectable.songs)">
             }
             <label for="songs">Songs</label>
 
+            @if (!isFavouritesPage)
+            {
+                if (selected == Selectable.genres)
+                {
+                    <input checked type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(Selectable.genres)">
+                }
+                else
+                {
+                    <input type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(Selectable.genres)">
+                }
+                <label for="genres">Genres</label>
+            }
 
-            @if (selected == selectable.genres)
-            {
-                <input checked type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(selectable.genres)">
-            }
-            else
-            {
-                <input type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(selectable.genres)">
-            }
-            <label for="genres">Genres</label>
         </div>
 
         <div class="quickplay-container">
@@ -152,8 +166,8 @@
 </Animate>
 
 @code {
-    // TODO: Better infinite scroll implementation
-    // current version's still too buggy. Not bad tho.
+    [Parameter] public string showFavourites { get; set; } = "false";
+    private bool isFavouritesPage = false;
 
     private List<BaseMusicItem> data = MauiProgram.libraryCache.data;
     private string[] placeholderImages = MauiProgram.libraryCache.placeholderImages;
@@ -173,16 +187,17 @@
     private int lowerPages = MauiProgram.libraryCache.lowerPages;
     private int higherPages = MauiProgram.libraryCache.higherPages;
 
-    private enum selectable
+    private enum Selectable
     {
+        playlists,
         albums,
         artists,
         songs,
         genres,
         none
     }
-    selectable selected = (selectable)Enum.ToObject(typeof(selectable), MauiProgram.libraryItemView);
-    selectable queued = selectable.none;
+    Selectable selected = (Selectable)Enum.ToObject(typeof(Selectable), MauiProgram.libraryItemView);
+    Selectable queued = Selectable.none;
 
     private enum sortMethod
     {
@@ -192,18 +207,32 @@
     }
     sortMethod sort = (sortMethod)Enum.ToObject(typeof(sortMethod), MauiProgram.librarySortMethod);
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
+        isFavouritesPage = Boolean.Parse(showFavourites);
+
         MauiProgram.mainLayout.cancellationSource = new();
         MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;
 
-        MauiProgram.mainLayout.pageTitle = "Library";
-        MauiProgram.mainLayout.currentUri = "/library";
+        if (isFavouritesPage == true)
+        {
+            MauiProgram.mainLayout.pageTitle = "Favourites";
+            MauiProgram.mainLayout.currentUri = "/library/true";
+        }
+        else
+        {
+            MauiProgram.mainLayout.pageTitle = "Library";
+            MauiProgram.mainLayout.currentUri = "/library/false";
+        }
+
         MauiProgram.mainLayout.showHeader = true;
 
-        await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.mainLayout.isLoading = false;
         SelectPage(selected);
+    }
+    protected override void OnParametersSet()
+    {
+        OnInitialized();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -230,7 +259,7 @@
 
         StateHasChanged();
     }
-    private async void SelectPage(selectable page)
+    private async void SelectPage(Selectable page)
     {
         MauiProgram.libraryItemView = (int)page;
         selected = page;
@@ -254,19 +283,22 @@
                 BaseMusicItem[] results = new BaseMusicItem[0];
                 switch (page)
                 {
-                    case selectable.none:
+                    case Selectable.none:
                         data = new();
                         break;
-                    case selectable.albums:
-                        results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit);
+                    case Selectable.playlists:
+                        results = await MauiProgram.api.GetAllPlaylistsAsync(limit: loadLimit, isFavourite: isFavouritesPage);
                         break;
-                    case selectable.artists:
-                        results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit);
+                    case Selectable.albums:
+                        results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit, isFavourite: isFavouritesPage);
                         break;
-                    case selectable.songs:
-                        results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit);
+                    case Selectable.artists:
+                        results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit, isFavourite: isFavouritesPage);
                         break;
-                    case selectable.genres:
+                    case Selectable.songs:
+                        results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit, isFavourite: isFavouritesPage);
+                        break;
+                    case Selectable.genres:
                         results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit);
                         break;
                     default:
@@ -290,10 +322,10 @@
                     }
                 }
 
-                if (queued != selectable.none)
+                if (queued != Selectable.none)
                 {
                     page = queued;
-                    queued = selectable.none;
+                    queued = Selectable.none;
                     continue;
                 }
 
@@ -312,16 +344,16 @@
             BaseMusicItem[] results = new BaseMusicItem[0];
             switch (selected)
             {
-                case selectable.albums:
+                case Selectable.albums:
                     results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit, startIndex: startFromIndex);
                     break;
-                case selectable.artists:
+                case Selectable.artists:
                     results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit, startIndex: startFromIndex);
                     break;
-                case selectable.songs:
+                case Selectable.songs:
                     results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit, startIndex: startFromIndex);
                     break;
-                case selectable.genres:
+                case Selectable.genres:
                     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: startFromIndex);
                     break;
                 default:
