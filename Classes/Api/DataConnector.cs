@@ -83,16 +83,16 @@ namespace PortaJel_Blazor.Classes
             List<Album> albumsReturn = new List<Album>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
                 //albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite, cancellationToken: cancellationToken));
-                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: limit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder));
+                int? actualLimit = null;
+                if (limit != null)
+                {
+                    actualLimit = (int)limit / connecters.Count;
+                }
+                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder));
             });
             //albumsReturn.Sort(); // TODO: Ensure sorting method is actually sorting, you know. 
 
-            // Set return capacity to requested limit 
-            if (albumsReturn.Count > limit) 
-            {
-                int capacity = (int)limit;
-                albumsReturn.RemoveRange(capacity, albumsReturn.Count); // Cap the count at the maximum requested.
-            }
+            // TODO: Also ensure we're capping the limit as set in the initali integer
 
             return albumsReturn.ToArray();
         }
@@ -152,13 +152,6 @@ namespace PortaJel_Blazor.Classes
                 songsReturn.AddRange(await server.Value.GetAllSongsAsync(setLimit: limit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder));
             });
             //songsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
-
-            // Set return capacity to requested limit 
-            if (songsReturn.Count > limit)
-            {
-                int capacity = (int)limit;
-                songsReturn.RemoveRange(capacity, songsReturn.Count); // Cap the count at the maximum requested.
-            }
 
             return songsReturn.ToArray();
         }

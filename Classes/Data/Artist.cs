@@ -22,15 +22,6 @@ namespace PortaJel_Blazor.Data
         public Album[] artistAlbums { get; set; } = new Album[0];
 
         public static Artist Empty = new Artist(); 
-
-        public string imageAtResolution(int px)
-        {
-            return imgSrc += $"&fillHeight={px}&fillWidth={px}&quality=96";
-        }
-        public string backgroundImgAtResolution(int px)
-        {
-            return backgroundImgSrc += $"&fillHeight={px}&fillWidth={px}&quality=96";
-        }
         public List<ContextMenuItem> GetContextMenuItems()
         {
             contextMenuItems.Clear();

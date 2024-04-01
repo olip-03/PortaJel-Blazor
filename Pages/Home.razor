@@ -42,6 +42,8 @@
 
         <!-- Horizontal container for Most Random Albums -->
         <HorizontalMusicItemList Title="Random" itemCount="50" albumData="@randomData" albumBlurHashData="@randomPlaceholderImages" />
+
+        @errorMessage
     </Animate>
 }
 
@@ -61,6 +63,8 @@
     private BaseMusicItem[] randomData = new Album[0];
     private string[] randomPlaceholderImages = new string[0];
 
+    public string errorMessage = string.Empty;
+    private int resultCount = 50;
     private bool isLoading = true;
     private float itemFadeInDelay = 0;
 
@@ -71,18 +75,22 @@
         MauiProgram.mainLayout.showHeader = true;
         MauiProgram.mainLayout.isLoading = true;
 
-        // Update all the stored data
-        bool randomLoaded = false;
+        if (!MauiProgram.homeCache.IsEmpty())
+        {
+            isLoading = false;
+            await InvokeAsync(() => StateHasChanged());
+        }
+
         try
         {
-            if (MauiProgram.homeCache.IsEmpty())
+            // Run data collection
+            await Task.Run(async () =>
             {
-                // Run data collection
-                Task<Album[]> runGetRecent = MauiProgram.servers[0].FetchRecentlyPlayedAsync(_startIndex: 0, _limit: 75);
-                Task<Album[]> runGetFavourites = MauiProgram.api.GetAllAlbumsAsync(limit: 50, startIndex: 0, isFavourite: true);
-                Task<Album[]> runGetRecentlyAdded = MauiProgram.api.GetAllAlbumsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "DateCreated" });
-                Task<Song[]> runGetMostPlayed = MauiProgram.api.GetAllSongsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "PlayCount" }, sortOrder: SortOrder.Descending);
-                Task<Song[]> runGetRandom = MauiProgram.api.GetAllSongsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "Random" }, sortOrder: SortOrder.Descending);
+                Task<Song[]> runGetRecent = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: new String[] { "DatePlayed" }, sortOrder: SortOrder.Descending);
+                Task<Album[]> runGetFavourites = MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, isFavourite: true);
+                Task<Album[]> runGetRecentlyAdded = MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, sortTypes: new String[] { "DateCreated" });
+                Task<Song[]> runGetMostPlayed = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: new String[] { "PlayCount" }, sortOrder: SortOrder.Descending);
+                Task<Song[]> runGetRandom = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: new String[] { "Random" }, sortOrder: SortOrder.Descending);
                 await Task.WhenAll(
                     runGetRecent,
                     runGetFavourites,
@@ -90,11 +98,38 @@
                     runGetMostPlayed,
                     runGetRandom
                 );
-                recentPlayData = runGetRecent.Result;
+
+                // Get albums from songs in last task.
+                List<Guid> songAlbumIDs = new();
+                List<Task<Album>> recentPlayAlbumTasks = new();
+                List<Album> getRecentAlbums = new();
+                foreach (Song song in runGetRecent.Result)
+                {
+                    if (song.album != null)
+                    {
+                        if (!songAlbumIDs.Contains(song.album.id))
+                        {
+                            songAlbumIDs.Add(song.album.id);
+                            recentPlayAlbumTasks.Add(MauiProgram.api.GetAlbumAsync(song.album.id));
+                        }
+                    }
+                }
+                await Task.WhenAll(recentPlayAlbumTasks);
+                for (int i = 0; i < recentPlayAlbumTasks.Count; i++)
+                {
+                    getRecentAlbums.Add(recentPlayAlbumTasks[i].Result);
+                }
+
+                recentPlayData = getRecentAlbums.ToArray();
                 favouritesPlayData = runGetFavourites.Result;
                 recentAddedData = runGetRecentlyAdded.Result;
                 mostPlayData = runGetMostPlayed.Result;
                 randomData = runGetRandom.Result;
+
+                MauiProgram.homeCache.recentPlayData = recentPlayData;
+                MauiProgram.homeCache.favouritesPlayData = favouritesPlayData;
+                MauiProgram.homeCache.recentAddedData = recentAddedData;
+                MauiProgram.homeCache.mostPlayData = mostPlayData;
 
                 // Run blurhashing
                 Task<string[]> runRecentPlayBlurhash = GenerateBlurHash(recentPlayData);
@@ -119,22 +154,21 @@
                 MauiProgram.homeCache.favouritesPlaceholderImages = favouritesPlaceholderImages;
                 MauiProgram.homeCache.recentAddedPlaceholderImages = recentAddedPlaceholderImages;
                 MauiProgram.homeCache.mostPlayPlaceholderImages = mostPlayPlaceholderImages;
+            });
 
-                randomLoaded = true;
-            }
+            isLoading = false;
+            await InvokeAsync(() => StateHasChanged());
         }
         catch (Exception ex)
         {
-            Console.Write(ex);
-        }
+            if (App.Current != null && App.Current.MainPage != null)
+            {
+                await App.Current.MainPage.DisplayAlert("Error!", ex.Message, "Continue");
+                errorMessage = ex.ToString();
 
-        isLoading = false;
-        await InvokeAsync(() => StateHasChanged());
-
-        if (!randomLoaded)
-        {
-            randomData = await MauiProgram.api.GetAllSongsAsync(limit: 50, startIndex: 0, sortTypes: new String[] { "Random" }, sortOrder: SortOrder.Descending);
-            randomPlaceholderImages = await GenerateBlurHash(randomData);
+                isLoading = false;
+                await InvokeAsync(() => StateHasChanged());
+            }
         }
     }
 

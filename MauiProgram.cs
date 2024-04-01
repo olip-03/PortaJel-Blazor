@@ -105,13 +105,10 @@ public static class MauiProgram
 
     public static MauiApp CreateMauiApp()
 	{
+        Console.WriteLine("CreateMauiApp(): Beginning load data");
         Task.Run(() => MauiProgram.LoadData());
 
-        if (api == null)
-        {
-            api = new DataConnector();
-        }
-
+        Console.WriteLine("CreateMauiApp(): Building application");
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -177,6 +174,7 @@ public static class MauiProgram
     /// </summary>
     public static async Task<bool> LoadData()
     {
+        Console.WriteLine("LoadData(): Starting data load");
         servers = new List<ServerConnecter>();
         api = new DataConnector();
 
@@ -203,6 +201,8 @@ public static class MauiProgram
                             serverConnector.SetBaseAddress(url);
                             serverConnector.SetUserDetails(user, pass);
 
+                            Console.WriteLine($"LoadData(): Loaded info for {url}");
+
                             servers.Add(serverConnector);
                             api.AddServer(serverConnector);
                             firstLoginComplete = true;
@@ -217,7 +217,7 @@ public static class MauiProgram
             {
                 File.Delete(filePath);
             }
-        }   
+        }
 
         // Validate connection data and log into servers
         await Parallel.ForEachAsync(api.GetServers(), async (server, ct) => {
@@ -226,9 +226,18 @@ public static class MauiProgram
             if (!server.isOffline)
             {
                 bool UserPassed = await server.AuthenticateUserAsync();
+                if(UserPassed) 
+                {
+                    Console.WriteLine($"LoadData(): Successfully logged into {server}");
+                }
+                else
+                {
+                    Console.WriteLine($"LoadData(): Login failed for {server}");
+                }
             }
         });
 
+        Console.WriteLine("LoadData(): Completed data load");
         dataLoadFinished = true;
         return true;
     }

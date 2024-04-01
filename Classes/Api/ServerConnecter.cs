@@ -216,7 +216,7 @@ namespace PortaJel_Blazor.Classes
                     filteredCache = filteredCache.Where(album => album.isFavourite == setFavourites.Value).ToList();
                 }
 
-                // Apply sorting if sort types are provided
+                // Apply sorting if sort types are providedObject reference not set to an instance of an object.'
                 if (setSortTypes != null && setSortTypes.Any())
                 {
                     foreach (var sortType in setSortTypes)
@@ -273,11 +273,17 @@ namespace PortaJel_Blazor.Classes
                     {
                         Album newAlbum = AlbumBuilder(serverResults.Items[i]);
                         toReturn.Add(newAlbum);
-                        if (albumCache.ContainsKey(newAlbum.id))
+                        if (!albumCache.ContainsKey(newAlbum.id))
+                        { // Add to cache
                             albumCache.Add(newAlbum.id, newAlbum);
+                        }
+                        else
+                        { // Update cache
+                            albumCache[newAlbum.id] = newAlbum;
+                        }
                     }
                 }
-                catch (Exception)
+                catch (HttpRequestException)
                 {
                     isOffline = true;
                     ReturnFromCache();
@@ -293,13 +299,9 @@ namespace PortaJel_Blazor.Classes
         /// <param name="setId">The optional ID of the album to retrieve. If null, returns an empty album.</param>
         /// <returns>Returns the retrieved album asynchronously.</returns>
         /// <exception cref="InvalidOperationException">Thrown when the server connector has not been initialized. Ensure that AuthenticateUserAsync has been called.</exception>
-        public async Task<Album> GetAlbumAsync(Guid? setId = null)
+        public async Task<Album> GetAlbumAsync(Guid setId)
         {
             Album toReturn = Album.Empty;
-            if(setId == null)
-            {
-                return Album.Empty;
-            }
             if(_itemsClient == null || userDto == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
@@ -308,8 +310,8 @@ namespace PortaJel_Blazor.Classes
             void ReturnFromCache()
             {
                 // Filter the cache based on the provided parameters
-                Album? fromCache = Album.Empty;
-                albumCache.TryGetValue((Guid)setId, out fromCache);
+                Album? fromCache = null;
+                albumCache.TryGetValue(setId, out fromCache);
                 if(fromCache != null)
                 {
                     toReturn = fromCache;
@@ -326,7 +328,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     Task<BaseItemDtoQueryResult> albumResult = _itemsClient.GetItemsAsync(
                         userId: userDto.Id,
-                        ids: new List<Guid> { (Guid)setId },
+                        ids: new List<Guid> { setId },
                         includeItemTypes: new List<BaseItemKind> { BaseItemKind.MusicAlbum },
                         recursive: true,
                         enableImages: true,
@@ -338,7 +340,6 @@ namespace PortaJel_Blazor.Classes
                         recursive: true,
                         enableImages: true,
                         cancellationToken: token);
-                    // TODO: Include artistResults, and call API synchronously
                     await Task.WhenAll(albumResult, songResult);
 
                     BaseItemDto? album = albumResult.Result.Items.FirstOrDefault();
@@ -354,27 +355,30 @@ namespace PortaJel_Blazor.Classes
                     {
                         // Create object
                         Song newSong = SongBuilder(song);
+                        if (songCache.ContainsKey(newSong.id))
+                        {
+                            songList.Add(songCache[newSong.id]);
+                            continue;
+                        }
                         newSong.album = toReturn;
 
                         // Create Artists
-                        List<Artist> partialArtistList = new List<Artist>();
+                        List<Artist> artistList = new List<Artist>();
                         foreach (NameGuidPair partialArtist in song.ArtistItems)
                         {
-                            // TOOD: Check if we already have a complete record in the cached data
-                            partialArtistList.Add(ArtistBuilder(partialArtist));
+                            if (artistCache.ContainsKey(partialArtist.Id))
+                            {
+                                artistList.Add(artistCache[partialArtist.Id]);
+                            }
+                            artistList.Add(ArtistBuilder(partialArtist));
                         }
-                        newSong.artists = partialArtistList.ToArray();
+                        newSong.artists = artistList.ToArray();
 
-                        // Add to song dictionary
-                        if (!MauiProgram.songDictionary.ContainsKey(song.Id))
-                        {
-                            MauiProgram.songDictionary.Add(song.Id, newSong);
-                        }
                         songList.Add(newSong);
                     }
                     toReturn.songs = songList.ToArray();
                 }
-                catch (Exception)
+                catch (HttpRequestException)
                 {
                     isOffline = true;
                     ReturnFromCache();
@@ -432,7 +436,17 @@ namespace PortaJel_Blazor.Classes
                                     filteredCache.OrderBy(song => song.name).ToList() :
                                     filteredCache.OrderByDescending(song => song.name).ToList();
                                 break;
-                                // Add cases for other sort types if needed
+                            case "PlayCount":
+                                filteredCache = setSortOrder == SortOrder.Ascending ?
+                                    filteredCache.OrderBy(song => song.playCount).ToList() :
+                                    filteredCache.OrderByDescending(song => song.playCount).ToList();
+                                break;
+
+                            case "Random":
+                                Random random = new Random();
+                                filteredCache = filteredCache.OrderBy(song => random.Next()).ToList();
+                                break;
+                            // Add cases as needed
                         }
                     }
                 }
@@ -476,10 +490,16 @@ namespace PortaJel_Blazor.Classes
                         Song newSong = SongBuilder(serverResults.Items[i]);
                         toReturn.Add(newSong);
                         if (songCache.ContainsKey(newSong.id))
+                        {
+                            songCache[newSong.id] = newSong;
+                        }
+                        else
+                        {
                             songCache.Add(newSong.id, newSong);
+                        }
                     }
                 }
-                catch (Exception)
+                catch (HttpRequestException)
                 {
                     isOffline = true;
                     ReturnFromCache();
@@ -494,107 +514,72 @@ namespace PortaJel_Blazor.Classes
         /// </summary>
         /// <param name="setId"></param>
         /// <returns></returns>
-        public async Task<Song> GetSongAsync(Guid? setId = null)
+        public async Task<Song> GetSongAsync(Guid setId)
         {
             Song toReturn = Song.Empty;
+            if (_itemsClient == null || userDto == null)
+            {
+                throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
+            }
+
+            void ReturnFromCache()
+            {
+                // Filter the cache based on the provided parameters
+                Song? fromCache = Song.Empty;
+                songCache.TryGetValue((Guid)setId, out fromCache);
+                if (fromCache != null)
+                {
+                    toReturn = fromCache;
+                }
+            }
+
+            if (isOffline)
+            {
+                ReturnFromCache();
+            }
+            else
+            {
+                try
+                {
+                    Task<BaseItemDtoQueryResult> songResult = _itemsClient.GetItemsAsync(
+                        userId: userDto.Id,
+                        includeItemTypes: new List<BaseItemKind> { BaseItemKind.Audio },
+                        ids: new List<Guid> { setId },
+                        recursive: true,
+                        enableImages: true,
+                        cancellationToken: token);
+                    // TODO: Include artistResults, and call API synchronously
+                    await Task.WhenAll(songResult);
+
+                    BaseItemDto? song = songResult.Result.Items.FirstOrDefault();
+                    if (song == null)
+                    {
+                        return Song.Empty;
+                    }
+                    toReturn = SongBuilder(song);
+                    if (songCache.ContainsKey(toReturn.id))
+                    { // Add item to cache
+                        songCache.Add(toReturn.id, toReturn);
+                    }
+                    else
+                    { // Update item in cache
+                        songCache[toReturn.id] = toReturn;
+                    }
+                }
+                catch (Exception)
+                {
+                    isOffline = true;
+                    ReturnFromCache();
+                }
+            }
 
             return toReturn;
         }
         #endregion
-        public async Task<Album[]> FetchRecentlyAddedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false, bool? fetchFullArtist = false)
-        {
-            // Create a list containing only the "Album" item type
-            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
-            List<String> _sortTypes = new List<string> { "DateCreated" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
 
-            BaseItemDtoQueryResult songResult;
-            // Call GetItemsAsync with the specified parameters
-            try
-            {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, recursive: true, enableImages: true, isFavorite: _isFavourite, cancellationToken: token);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            if (songResult == null || token.IsCancellationRequested)
-            {
-                cancelTokenSource = new();
-                return new Album[0];
-            }
-
-            List<Album> albums = new List<Album>();
-            foreach (var item in songResult.Items)
-            {
-                try
-                {
-                    if(fetchFullArtist == true)
-                    {
-                        Album newItem = await AlbumBuilder(item, true);
-                        albums.Add(newItem);
-                    }
-                    else
-                    {
-                        Album newItem = AlbumBuilder(item);
-                        albums.Add(newItem);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-
-            }
-
-            return albums.ToArray();
-        }
-        public async Task<BaseMusicItem[]> FetchFavouritesAddedAsync(int? _startIndex = null, int? _limit = null)
-        {
-            // Create a list containing only the "Album" item type
-            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum, BaseItemKind.Audio };
-            List<String> _sortTypes = new List<string> { "PlayCount" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
-
-            BaseItemDtoQueryResult songResult;
-            // Call GetItemsAsync with the specified parameters
-            try
-            {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, recursive: true, enableImages: true, isFavorite: true, cancellationToken: token);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            if (songResult == null || token.IsCancellationRequested)
-            {
-                cancelTokenSource = new();
-                return new BaseMusicItem[0];
-            }
-
-            List<BaseMusicItem> musicItems = new List<BaseMusicItem>();
-            foreach (var item in songResult.Items)
-            {
-                switch (item.Type)
-                {
-                    case BaseItemKind.MusicAlbum:
-                        musicItems.Add(AlbumBuilder(item));
-                        break;
-                    case BaseItemKind.Audio:
-                        musicItems.Add(SongBuilder(item));
-                        break;
-                    case BaseItemKind.Playlist:
-                        musicItems.Add(PlaylistBuilder(item));
-                        break;
-                }
-
-            }
-            return musicItems.ToArray();
-        }
+        #region Aritists
+        public Dictionary<Guid, Artist> artistCache = new();
+        #endregion
         public async Task<Album[]> FetchRecentlyPlayedAsync(int? _startIndex = null, int? _limit = null, bool? _isFavourite = false)
         {
             // Create a list containing only the "Album" item type
@@ -641,88 +626,6 @@ namespace PortaJel_Blazor.Classes
             {
                 Album newAlbum = AlbumBuilder(item);
                 albums.Add(newAlbum);
-            }
-
-            return albums.ToArray();
-        }
-        public async Task<BaseMusicItem[]> FetchMostPlayedAsync(int? _startIndex = null, int? _limit = null)
-        {
-            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Audio };
-            List<String> _sortTypes = new List<string> { "PlayCount" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
-            List<ItemFilter> _itemFilter = new List<ItemFilter> { ItemFilter.IsPlayed };
-
-            BaseItemDtoQueryResult songResult;
-            try
-            {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, filters: _itemFilter, recursive: true, enableImages: true, cancellationToken: token);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            if (songResult == null || token.IsCancellationRequested)
-            {
-                cancelTokenSource = new();
-                return new Album[0];
-            }
-
-            List<BaseMusicItem> musicItems = new List<BaseMusicItem>();
-            foreach (var item in songResult.Items)
-            {
-                switch (item.Type)
-                {
-                    case BaseItemKind.MusicAlbum:
-                        musicItems.Add(AlbumBuilder(item));
-                        break;
-                    case BaseItemKind.Audio:
-                        musicItems.Add(SongBuilder(item));
-                        break;
-                    case BaseItemKind.Playlist:
-                        musicItems.Add(PlaylistBuilder(item));
-                        break;
-                }
-
-            }
-            return musicItems.ToArray();
-        }
-        public async Task<Album[]> FetchRandomAsync(int? _startIndex = null, int? _limit = null)
-        {
-            List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.MusicAlbum };
-            List<String> _sortTypes = new List<string> { "Random" };
-            List<SortOrder> _sortOrder = new List<SortOrder> { SortOrder.Descending };
-
-            BaseItemDtoQueryResult songResult;
-            try
-            {
-                songResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: _limit, recursive: true, enableImages: true, cancellationToken: token);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            if (songResult == null || token.IsCancellationRequested)
-            {
-                cancelTokenSource = new();
-                return new Album[0];
-            }
-
-            List<Album> albums = new List<Album>();
-            foreach (var item in songResult.Items)
-            {
-                try
-                {
-                    albums.Add(AlbumBuilder(item));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-
             }
 
             return albums.ToArray();
@@ -1749,6 +1652,7 @@ namespace PortaJel_Blazor.Classes
                     setAlbumID: baseItem.AlbumId,
                     setDiskNum: 0, //TODO: Fix disk num
                     setIsFavourite: baseItem.UserData.IsFavorite);
+            newSong.playCount = baseItem.UserData.PlayCount;
             newSong.image = MusicItemImageBuilder(baseItem);
             newSong.streamUrl = _sdkClientSettings.BaseUrl + "/Audio/" + baseItem.Id + "/stream";
 
