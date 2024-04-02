@@ -99,7 +99,8 @@ namespace PortaJel_Blazor.Data
                 bool exists = MauiProgram.artistDictionary.TryGetValue(artists[i].id, out artist);
                 if (!exists)
                 {
-                    artist = await MauiProgram.servers[0].GetArtistAsync(artists[i].id);
+                    // artist = await MauiProgram.servers[0].GetArtistAsync(artists[i].id);
+                    artist = await MauiProgram.api.GetArtistAsync(artists[i].id);
                 }
                 if (artist != null)
                 {
@@ -155,16 +156,16 @@ namespace PortaJel_Blazor.Data
             contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(async () =>
             {
                 MauiProgram.mainPage.CloseContextMenu();
-                await MauiProgram.mainLayout.FlagLoading();
+                await MauiProgram.webView.FlagLoading();
                 await MauiProgram.mainPage.AwaitContextMenuClose();
-                MauiProgram.mainLayout.NavigateAlbum(this.id);
+                MauiProgram.webView.NavigateAlbum(this.id);
             })));
             contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async () =>
             {
                 MauiProgram.mainPage.CloseContextMenu();
-                await MauiProgram.mainLayout.FlagLoading();
+                await MauiProgram.webView.FlagLoading();
                 await MauiProgram.mainPage.AwaitContextMenuClose();
-                MauiProgram.mainLayout.NavigateArtist(this.artists.FirstOrDefault().id);
+                MauiProgram.webView.NavigateArtist(this.artists.FirstOrDefault().id);
             })));
             contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
             {

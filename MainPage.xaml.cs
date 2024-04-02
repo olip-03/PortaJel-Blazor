@@ -5,6 +5,7 @@ using PortaJel_Blazor.Pages.Xaml;
 using Microsoft.Maui.Platform;
 using System;
 using Microsoft.Maui.Controls.Shapes;
+using CommunityToolkit.Maui.Alerts;
 using Jellyfin.Sdk;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,10 @@ using Microsoft.Maui.Dispatching;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Maui.Core.Extensions;
 using System.Diagnostics;
+using Microsoft.Maui.Layouts;
+using CommunityToolkit.Maui.Core;
+
+
 
 
 
@@ -63,7 +68,7 @@ public partial class MainPage : ContentPage
         btn_navnar_favourites.HeightRequest = 30;
         btn_navnar_favourites.WidthRequest = 30;
         #endif
-        MauiProgram.webView = blazorWebView;
+        // MauiProgram.webView = blazorWebView;
     }
     public async void Initialize()
     {
@@ -83,7 +88,11 @@ public partial class MainPage : ContentPage
 
         ShowNavbar();
         MauiProgram.mediaService.Initalize();
-        MauiProgram.mainLayout.NavigateHome();
+        MauiProgram.webView.NavigateHome();
+    }
+    public void UpdateDebugText(string updateTo)
+    {
+        LoadingBlockout_DebugText.Text = updateTo;
     }
     private void Bwv_BlazorWebViewInitialized(object sender, Microsoft.AspNetCore.Components.WebView.BlazorWebViewInitializedEventArgs e)
     {
@@ -453,30 +462,28 @@ public partial class MainPage : ContentPage
         }
         return Task.CompletedTask;
     }
-    public async void ShowLoadingScreen(bool value)
+    public Task<bool> ShowLoadingScreen(bool value)
     {
-        if (value == true && LoadingBlockout.IsVisible)
-        { // If we're already visible, do nothin'
-            return;
-        }
-        if (value == false && !LoadingBlockout.IsVisible)
-        { // If we're not already visible, do nothin'
-            return;
-        }
-
-
-        if (value == true)
-        {
-            LoadingBlockout.Opacity = 1;
-        }
-
-        if(LoadingBlockout.IsVisible && value == false)
-        {
-            await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
-        }
-
-        LoadingBlockout.IsVisible = value;
         LoadingBlockout.IsEnabled = value;
+        LoadingBlockout.IsVisible = value;
+        if (value == true)
+        { // If we're already visible, do nothin'
+            LoadingBlockout.Opacity = 1; 
+            return Task.FromResult(true);
+        }
+        else
+        {
+            LoadingBlockout.Opacity = 0;
+            LoadingBlockout.InputTransparent = true;
+            return LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
+        }
+    }
+    public async void UpdateKeyboardLocation()
+    {
+        var keyboardHeight = AllContent.Height - AllContent.Bounds.Bottom + AllContent.Bounds.Top;
+
+        var toast = Toast.Make($"Keyboard height {keyboardHeight}", ToastDuration.Long, 14);
+        await toast.Show();
     }
     private bool mediaCntrollerSliderDragging = false;
     public async void UpdatePlaystate(long duration, long position)
@@ -833,19 +840,20 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_home_click(object sender, EventArgs e)
     {
-        MauiProgram.mainLayout.NavigateHome();
         waitingForPageLoad = true;
         btn_navnar_home.Scale = 0.6;
         btn_navnar_home.Opacity = 0;
         await Task.WhenAny<bool>
         (
             btn_navnar_home.FadeTo(1, 250),
-            btn_navnar_home.ScaleTo(1, 250)
+            btn_navnar_home.ScaleTo(1, 250),
+            ShowLoadingScreen(true)
         );
+        MauiProgram.webView.NavigateHome();
     }
     private async void btn_navnar_search_click(object sender, EventArgs e)
     {
-        MauiProgram.mainLayout.NavigateSearch();
+        MauiProgram.webView.NavigateSearch();
         btn_navnar_search.Scale = 0.6;
         btn_navnar_search.Opacity = 0;
         await Task.WhenAny<bool>
@@ -856,7 +864,7 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_library_click(object sender, EventArgs e)
     {
-        MauiProgram.mainLayout.NavigateLibrary();
+        MauiProgram.webView.NavigateLibrary();
         btn_navnar_library.Scale = 0.6;
         btn_navnar_library.Opacity = 0;
         await Task.WhenAny<bool>
@@ -867,7 +875,7 @@ public partial class MainPage : ContentPage
     }
     private async void btn_navnar_favourite_click(object sender, EventArgs e)
     {
-        MauiProgram.mainLayout.NavigateFavourites();
+        MauiProgram.webView.NavigateFavourites();
         btn_navnar_favourites.Scale = 0.6;
         btn_navnar_favourites.Opacity = 0;
         await Task.WhenAny<bool>

@@ -7,30 +7,33 @@
 
 <div class="page">
     <main>
-        @if (_showHeader)
-        {
-            <div class="content toolbar">
-                <h1 style="margin: 0;">@pageTitle</h1>
-                <div>
-                    <a @onclick="NavigateDownloads" style="margin-right: 1rem">
-                        <img class="toolbar-img" src="/images/download.svg" />
-                    </a>
-                    <a @onclick="NavigateSettings">
-                        <img class="toolbar-img" src="/images/settings.svg" />
-                    </a>
+        <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+            @if (_showHeader)
+            {
+                <div class="content toolbar">
+                    <h1 style="margin: 0;">@pageTitle</h1>
+                    <div>
+                        <a @onclick="NavigateDownloads" style="margin-right: 1rem">
+                            <img class="toolbar-img" src="/images/download.svg" />
+                        </a>
+                        <a @onclick="NavigateSettings">
+                            <img class="toolbar-img" src="/images/settings.svg" />
+                        </a>
+                    </div>
                 </div>
-            </div>
-        }
-        <article class="mainContent">
-            <div class="bodyContainer">
-                @Body
-            </div>  
-            @if (MauiProgram.MiniPlayerIsOpen)
-            { // TODO: Implement some legitiemate system for checking if the miniplayer
-              // should be open or not
-                <div style="height:3rem;"></div>
             }
-        </article>
+            <article class="mainContent">
+
+                <div class="bodyContainer">
+                    @Body
+                </div>
+                @if (MauiProgram.MiniPlayerIsOpen)
+                { // TODO: Implement some legitiemate system for checking if the miniplayer
+                  // should be open or not
+                    <div style="height:3rem;"></div>
+                }
+            </article>
+        </Animate>
     </main>
 </div>
 
@@ -83,7 +86,7 @@
 
     protected override void OnInitialized()
     {
-        MauiProgram.mainLayout = this;
+        MauiProgram.webView = this;
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -116,7 +119,7 @@
     {
         if (currentUri != "/library/false")
         {
-            isLoading = true;
+            isLoading = false;
             showHeader = true;
             pageTitle = "Library";
             currentUri = "/library/false";
@@ -128,11 +131,11 @@
     {
         if (currentUri != "/library/true")
         {
-            isLoading = true;
+            isLoading = false;
             showHeader = true;
             pageTitle = "Favourites";
             currentUri = "/library/true";
-            
+
             NavManager.NavigateTo(currentUri);
         }
     }
@@ -148,11 +151,23 @@
             NavManager.NavigateTo(currentUri);
         }
     }
+    public void NavigateSearch(string searchTerm)
+    {
+        if (currentUri != "/search")
+        {
+            isLoading = false; // FALSE here because this page takes no time to load
+            showHeader = true;
+            pageTitle = "Search";
+            currentUri = "/search";
+
+            NavManager.NavigateTo(currentUri + "/" + searchTerm, forceLoad: false);
+        }
+    }
     public void NavigateDownloads()
     {
         if (currentUri != "/downloads")
         {
-            isLoading = true;
+            isLoading = false;
             showHeader = true;
             pageTitle = "Downloads";
             currentUri = "/downloads";

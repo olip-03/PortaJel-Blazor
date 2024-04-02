@@ -205,20 +205,20 @@
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
-        MauiProgram.mainLayout.pageTitle = "Artist View";
-        MauiProgram.mainLayout.currentUri = $"/ArtistView/{artistId}";
-        MauiProgram.mainLayout.showHeader = false;
+        MauiProgram.webView.pageTitle = "Artist View";
+        MauiProgram.webView.currentUri = $"/ArtistView/{artistId}";
+        MauiProgram.webView.showHeader = false;
 
         try
         {
             Guid parseId = Guid.Parse(artistId);
             if (artistId != null)
             {
-                artist = await MauiProgram.servers[0].GetArtistAsync(parseId);
+                artist = await MauiProgram.api.GetArtistAsync(parseId);
             }
             else
             {
-                MauiProgram.mainLayout.NavigateHome();
+                MauiProgram.webView.NavigateHome();
                 return;
             }
 
@@ -259,7 +259,7 @@
             errorMsg = ex.ToString();
         }
         isLoading = false;
-        MauiProgram.mainLayout.isLoading = false;
+        MauiProgram.webView.isLoading = false;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -299,7 +299,7 @@
     }
     private async void GoBack()
     {
-        MauiProgram.mainLayout.isLoading = true;
+        MauiProgram.webView.isLoading = true;
         try
         {
             await JS.InvokeAsync<string>("goBack");
@@ -307,7 +307,7 @@
         catch (Exception ex)
         {
             bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
-            MauiProgram.mainLayout.NavigateHome();
+            MauiProgram.webView.NavigateHome();
         }
     }
 }

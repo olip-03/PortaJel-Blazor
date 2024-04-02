@@ -16,8 +16,11 @@
         </BlazorWebView>
 
         <!-- Loading blockout -->
-        <Grid x:Name="LoadingBlockout" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="false">
-            <ActivityIndicator x:Name="save_activityIndicator" IsRunning="True" IsVisible="True" HeightRequest="80" WidthRequest="80" VerticalOptions="Center" HorizontalOptions="Center"/>
+        <Grid x:Name="LoadingBlockout" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="True">
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                <ActivityIndicator x:Name="save_activityIndicator" IsRunning="True" IsVisible="True" HeightRequest="80" WidthRequest="80" />
+                <Label x:Name="LoadingBlockout_DebugText" Text="Default debug text." TextColor="Black"></Label>
+            </StackLayout>
 
             <Grid.GestureRecognizers>
                 <TapGestureRecognizer>

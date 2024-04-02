@@ -99,31 +99,31 @@
             {
                 case "Album":
                     if (musicObject.id == Guid.Empty) { return; }
-                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
-                    MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
+                    if (cacheAsRecentItem) { AddToRecentResult(); }
+                    MauiProgram.webView.NavigateAlbum(musicObject.id);
                     break;
                 case "Artist":
                     if (musicObject.id == Guid.Empty) { return; }
-                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
-                    MauiProgram.mainLayout.NavigateArtist(musicObject.id);
+                    if (cacheAsRecentItem) { AddToRecentResult(); }
+                    MauiProgram.webView.NavigateArtist(musicObject.id);
                     break;
                 case "Song":
                     if (musicObject.id == Guid.Empty) { return; }
-                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
-                    MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
+                    if (cacheAsRecentItem) { AddToRecentResult(); }
+                    MauiProgram.webView.NavigateAlbum(musicObject.id);
                     break;
                 case "PlaylistSong":
                     if (musicObject.id == Guid.Empty) { return; }
-                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
-                    MauiProgram.mainLayout.NavigateAlbum(musicObject.id);
+                    if (cacheAsRecentItem) { AddToRecentResult(); }
+                    MauiProgram.webView.NavigateAlbum(musicObject.id);
                     break;
                 case "Genre":
                     // TODO: Configure genre page
                     break;
                 case "Playlist":
                     if (musicObject.id == Guid.Empty) { return; }
-                    if (cacheAsRecentItem) { MauiProgram.recentSearchResults.Add(musicObject); }
-                    MauiProgram.mainLayout.NavigatePlaylist(musicObject.id);
+                    if (cacheAsRecentItem) { AddToRecentResult(); }
+                    MauiProgram.webView.NavigatePlaylist(musicObject.id);
                     break;
                 default:
                     // TODO: Configure error message
@@ -131,7 +131,7 @@
             }
         }
     }
-   
+
     private async void FavouriteItem()
     {
         if (musicObject != null)
@@ -141,7 +141,24 @@
         }
         StateHasChanged();
     }
-    
+
+    private void AddToRecentResult()
+    {
+        if (musicObject != null)
+        {
+            if (!MauiProgram.recentSearchResults.ContainsKey(musicObject.id))
+            {
+                MauiProgram.recentSearchResults.Add(musicObject.id, musicObject);
+            }
+            else
+            {
+                // delete and add :) Put shit back on top 
+                MauiProgram.recentSearchResults.Remove(musicObject.id);
+                MauiProgram.recentSearchResults.Add(musicObject.id, musicObject);
+            }
+        }    
+    }
+
     private async void OpenContextMenu()
     {
         await MauiProgram.mainPage.OpenContextMenu(musicObject, 250);

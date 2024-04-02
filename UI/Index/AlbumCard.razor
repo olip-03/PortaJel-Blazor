@@ -17,11 +17,11 @@
         <p class="albumText" @onclick="NavigateToAlbum">
             @if (musicObject is Song)
             { // Show the little song icon
-                <img src="/images/song.svg" />
+                <img src="/images/song.svg" style="height: 1rem; width: 1rem;"/>
             }
             else
             {
-                <img src="/images/album.svg" />
+                <img src="/images/album.svg" style="height: 1rem; width: 1rem;"/>
             }
             @musicObject.name • @artistName
         </p>
@@ -78,7 +78,7 @@
             if (musicObject is Album)
             {
                 Album album = (Album)musicObject;
-                MauiProgram.mainLayout.NavigateAlbum(album.id);
+                MauiProgram.webView.NavigateAlbum(album.id);
             }
             if (musicObject is Song)
             {
@@ -86,7 +86,7 @@
                 Album? album = song.album;
                 if(album != null)
                 {
-                    MauiProgram.mainLayout.NavigateAlbum(album.id);
+                    MauiProgram.webView.NavigateAlbum(album.id);
                 }
             }
         }

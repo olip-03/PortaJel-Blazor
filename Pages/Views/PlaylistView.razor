@@ -89,9 +89,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.mainLayout.pageTitle = "Playlist";
-        MauiProgram.mainLayout.currentUri = $"/PlaylistView/{playlistId}";
-        MauiProgram.mainLayout.showHeader = false;
+        MauiProgram.webView.pageTitle = "Playlist";
+        MauiProgram.webView.currentUri = $"/PlaylistView/{playlistId}";
+        MauiProgram.webView.showHeader = false;
 
         Guid parseId = Guid.Parse(playlistId);
         if (MauiProgram.playlistDictionary.ContainsKey(parseId))
@@ -120,16 +120,16 @@
 
         loaded = true;
         await Task.Run(() => { Thread.Sleep(250); });
-        MauiProgram.mainLayout.isLoading = false;
+        MauiProgram.webView.isLoading = false;
         StateHasChanged();
     }
     private void SelectArtist(Guid artistId)
     {
-        MauiProgram.mainLayout.NavigateArtist(artistId);
+        MauiProgram.webView.NavigateArtist(artistId);
     }
     private async void GoBack()
     {
-        MauiProgram.mainLayout.isLoading = true;
+        MauiProgram.webView.isLoading = true;
         try
         {
             await JS.InvokeAsync<string>("goBack");
@@ -137,7 +137,7 @@
         catch (Exception ex)
         {
             bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
-            MauiProgram.mainLayout.NavigateHome();
+            MauiProgram.webView.NavigateHome();
         }
     }
     private async void ShowPlaylistContextMenu()

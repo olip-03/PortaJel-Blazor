@@ -16,11 +16,11 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.mainLayout.pageTitle = "Downloads";
-        MauiProgram.mainLayout.currentUri = "/downloads";
-        MauiProgram.mainLayout.showHeader = true;
+        MauiProgram.webView.pageTitle = "Downloads";
+        MauiProgram.webView.currentUri = "/downloads";
+        MauiProgram.webView.showHeader = true;
 
         await Task.Run(() => { Thread.Sleep(250); });
-        MauiProgram.mainLayout.isLoading = false;
+        MauiProgram.webView.isLoading = false;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Jellyfin.Sdk;
 using Newtonsoft.Json.Linq;
 using PortaJel_Blazor.Data;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace PortaJel_Blazor.Classes
@@ -34,11 +35,11 @@ namespace PortaJel_Blazor.Classes
         private string Username = String.Empty;
         private string StoredPassword = String.Empty;
 
-        private Dictionary<Guid, Album> albumCache = new();
-        private Dictionary<Guid, Song> songCache = new();
-        public Dictionary<Guid, Artist> artistCache = new();
-        public Dictionary<Guid, Playlist> playlistCache = new();
-        public Dictionary<Guid, Genre> genreCache = new();
+        private ConcurrentDictionary<Guid, Album> albumCache = new();
+        private ConcurrentDictionary<Guid, Song> songCache = new();
+        public ConcurrentDictionary<Guid, Artist> artistCache = new();
+        public ConcurrentDictionary<Guid, Playlist> playlistCache = new();
+        public ConcurrentDictionary<Guid, Genre> genreCache = new();
 
         private int TotalAlbumRecordCount = -1;
         private int TotalPlaylistRecordCount = -1;
@@ -207,6 +208,7 @@ namespace PortaJel_Blazor.Classes
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
+
             List<Album> toReturn = new();
             // Function to run that returns data from the cache
             void ReturnFromCache()
@@ -253,6 +255,11 @@ namespace PortaJel_Blazor.Classes
                 toReturn.AddRange(filteredCache);
             }
 
+            if(setSortTypes == null)
+            {
+                setSortTypes = new List<String> { "Name" };
+            }
+
             if (isOffline)
             { // If offline, return all from the cache
                 ReturnFromCache();
@@ -277,12 +284,8 @@ namespace PortaJel_Blazor.Classes
                     {
                         Album newAlbum = AlbumBuilder(serverResults.Items[i]);
                         toReturn.Add(newAlbum);
-                        if (!albumCache.ContainsKey(newAlbum.id))
+                        if (!albumCache.TryAdd(newAlbum.id, newAlbum))
                         { // Add to cache
-                            albumCache.Add(newAlbum.id, newAlbum);
-                        }
-                        else
-                        { // Update cache
                             albumCache[newAlbum.id] = newAlbum;
                         }
                     }
@@ -340,6 +343,9 @@ namespace PortaJel_Blazor.Classes
                     Task<BaseItemDtoQueryResult> songResult = _itemsClient.GetItemsAsync(
                         userId: userDto.Id,
                         includeItemTypes: new List<BaseItemKind> { BaseItemKind.Audio },
+                        sortBy: new List<String> { "Album", "SortName" },
+                        fields: new List<ItemFields> { ItemFields.ParentId, ItemFields.Path },
+                        sortOrder: new List<SortOrder> { SortOrder.Ascending },
                         parentId: setId,
                         recursive: true,
                         enableImages: true,
@@ -491,13 +497,9 @@ namespace PortaJel_Blazor.Classes
                     {
                         Song newSong = SongBuilder(serverResults.Items[i]);
                         toReturn.Add(newSong);
-                        if (songCache.ContainsKey(newSong.id))
+                        if (!songCache.TryAdd(newSong.id, newSong))
                         {
                             songCache[newSong.id] = newSong;
-                        }
-                        else
-                        {
-                            songCache.Add(newSong.id, newSong);
                         }
                     }
                 }
@@ -559,12 +561,8 @@ namespace PortaJel_Blazor.Classes
                         return Song.Empty;
                     }
                     toReturn = SongBuilder(song);
-                    if (songCache.ContainsKey(toReturn.id))
+                    if (!songCache.TryAdd(toReturn.id, toReturn))
                     { // Add item to cache
-                        songCache.Add(toReturn.id, toReturn);
-                    }
-                    else
-                    { // Update item in cache
                         songCache[toReturn.id] = toReturn;
                     }
                 }
@@ -579,7 +577,7 @@ namespace PortaJel_Blazor.Classes
         }
         #endregion
 
-        #region Aritists      
+        #region Artists      
         // TODO: Update to include caching la la la
         public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
         {

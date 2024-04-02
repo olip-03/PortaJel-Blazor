@@ -29,7 +29,7 @@
     {
         if (musicItem != null)
         {
-            MauiProgram.mainLayout.NavigateAlbum(musicItem.id);
+            MauiProgram.webView.NavigateAlbum(musicItem.id);
         }
     }
     private void NavigateToArtist()
@@ -37,7 +37,7 @@
         if (musicItem != null)
         {
             // TODO: Update to artist ID
-            MauiProgram.mainLayout.NavigateArtist(musicItem.id);
+            MauiProgram.webView.NavigateArtist(musicItem.id);
         }
     }
     private async void OpenContextMenu()

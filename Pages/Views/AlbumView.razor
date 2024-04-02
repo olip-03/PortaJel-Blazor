@@ -148,9 +148,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.mainLayout.pageTitle = "Album";
-        MauiProgram.mainLayout.currentUri = $"/AlbumView/{albumId}";
-        MauiProgram.mainLayout.showHeader = false;
+        MauiProgram.webView.pageTitle = "Album";
+        MauiProgram.webView.currentUri = $"/AlbumView/{albumId}";
+        MauiProgram.webView.showHeader = false;
+        MauiProgram.UpdateDebugMessage("Page Loaded.");
 
         try
         {
@@ -171,9 +172,11 @@
                 if (albumId != null)
                 {
                     // album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
+                    MauiProgram.UpdateDebugMessage("Starting request for Album data.");
                     album = await MauiProgram.api.GetAlbumAsync(parseId);
                 }
 
+                MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
                 base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
             }
             // GnodService reccomendations = new();
@@ -197,18 +200,18 @@
         }
         if (loaded)
         {
-            MauiProgram.mainLayout.isLoading = false;
+            MauiProgram.webView.isLoading = false;
         }
     }
 
     private void SelectArtist(Guid artistId)
     {
-        MauiProgram.mainLayout.NavigateArtist(artistId);
+        MauiProgram.webView.NavigateArtist(artistId);
     }
 
     private async void GoBack()
     {
-        MauiProgram.mainLayout.isLoading = true;
+        MauiProgram.webView.isLoading = true;
         try
         {
             await JS.InvokeAsync<string>("goBack");
@@ -216,7 +219,7 @@
         catch (Exception ex)
         {
             bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
-            MauiProgram.mainLayout.NavigateHome();
+            MauiProgram.webView.NavigateHome();
         }
     }
 

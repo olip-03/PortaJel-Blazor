@@ -37,8 +37,14 @@
                         <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
                             <SearchResultItem musicObject="@musicItem" cacheAsRecentItem=true placeholderBase64="@placeholderImg" />
                         </Animate>
-
-                        itemFadeInDelay += 0.1f;
+                        
+                        if(i <= 6){
+                            itemFadeInDelay += 0.05f;
+                        }
+                        else
+                        {
+                            itemFadeInDelay = 0;
+                        }
                     }
                 }
                 else if (searchResults.Count() <= 0 && !String.IsNullOrWhiteSpace(searchQuery))
@@ -49,13 +55,20 @@
                 {
                     itemFadeInDelay = 0;
                     <p>Recent searches</p>
-                    foreach (var item in MauiProgram.recentSearchResults)
+                    for (int i = 0; i < MauiProgram.recentSearchResults.Count(); i++)
                     {
                         <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                            <SearchResultItem musicObject="@item" cacheAsRecentItem=true />
+                            <SearchResultItem musicObject="@MauiProgram.recentSearchResults.ToList()[i].Value" cacheAsRecentItem=true />
                         </Animate>
 
-                        itemFadeInDelay += 0.1f;
+                        if (i <= 6)
+                        {
+                            itemFadeInDelay += 0.05f;
+                        }
+                        else
+                        {
+                            itemFadeInDelay = 0;
+                        }
                     }
                 }
             </div>
@@ -75,18 +88,20 @@
 
     private bool waitingForResult = false;
     private float itemFadeInDelay = 0;
+    private bool isLoading = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        MauiProgram.mainLayout.pageTitle = "Search";
-        MauiProgram.mainLayout.currentUri = "/search";
-        MauiProgram.mainLayout.showHeader = true;
+        MauiProgram.webView.pageTitle = "Search";
+        MauiProgram.webView.currentUri = "/search";
+        MauiProgram.webView.showHeader = true;
 
-        MauiProgram.mainLayout.cancellationSource = new();
-        MauiProgram.mainLayout.cancellationToken = MauiProgram.mainLayout.cancellationSource.Token;
+        MauiProgram.webView.cancellationSource = new();
+        MauiProgram.webView.cancellationToken = MauiProgram.webView.cancellationSource.Token;
 
-        await Task.Run(() => { Thread.Sleep(250); });
-        MauiProgram.mainLayout.isLoading = false;
+        MauiProgram.webView.isLoading = false;
+        isLoading = false;
+        // MauiProgram.mainPage.UpdateKeyboardLocation();
     }
     private async void TextChange(string searchFor)
     {
@@ -177,8 +192,10 @@
     }
     protected override async void OnAfterRender(bool firstRender)
     {
-        base.OnAfterRender(firstRender);
-        await JS.InvokeAsync<string>("SearchPage_FocusOnInput");
+        if (!isLoading)
+        {
+            await JS.InvokeAsync<string>("SearchPage_FocusOnInput");
+        }
         await JS.InvokeAsync<string>("InitAllImages");
     }
 }

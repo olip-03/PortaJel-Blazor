@@ -39,7 +39,7 @@ public static class MauiProgram
     public static bool contentPage = false;
     public static string contentTitle = "";
 
-    public static MainLayout mainLayout = new();
+    public static MainLayout webView = new();
     public static MainPage mainPage = new(initalize: false);
 
     public static MediaService mediaService = new MediaService();
@@ -73,13 +73,13 @@ public static class MauiProgram
     public static DataConnector api = new();
 
     // Direct access to the media element
-    public static BlazorWebView webView = null;
+    // public static BlazorWebView webView = null;
 
     // Stored data for Home Page 
     public static HomeCache homeCache = HomeCache.Empty;
 
     // Stored data for Search Page
-    public static List<BaseMusicItem> recentSearchResults = new();
+    public static Dictionary<Guid, BaseMusicItem> recentSearchResults = new();
 
     // Stored data for library page
     public static LibraryCache libraryCache = new();
@@ -134,6 +134,15 @@ public static class MauiProgram
 
         return builder.Build();
 	}
+
+    public static void UpdateDebugMessage(string message)
+    {
+        Console.WriteLine(message);
+        if(Application.Current != null)
+        {
+            Application.Current.Dispatcher.Dispatch(() => mainPage.UpdateDebugText(message));
+        }
+    }
 
 	/// <summary>
 	/// Adds a server to the list of avaliable servers, and saves it to the device.

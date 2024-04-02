@@ -66,7 +66,7 @@ public class MainActivity : MauiAppCompatActivity
                 {
                     // Navigate back request
                     // Check if we should actually be doing this
-                    MauiProgram.mainLayout.isLoading = true;
+                    MauiProgram.webView.isLoading = true;
                 }
             }
             return base.DispatchKeyEvent(e);

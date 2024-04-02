@@ -133,6 +133,15 @@ namespace PortaJel_Blazor.Classes
 
             return artistsReturn.ToArray();
         }
+
+        public async Task<Artist> GetArtistAsync(Guid albumId)
+        {
+            Artist toReturn = Artist.Empty;
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                toReturn = await server.Value.GetArtistAsync(albumId);
+            });
+            return toReturn;
+        }
         #endregion
 
         #region SongsEndpoints

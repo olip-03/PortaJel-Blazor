@@ -65,12 +65,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.mainLayout.pageTitle = "Settings";
-        MauiProgram.mainLayout.currentUri = "/settings";
-        MauiProgram.mainLayout.showHeader = true;
+        MauiProgram.webView.pageTitle = "Settings";
+        MauiProgram.webView.currentUri = "/settings";
+        MauiProgram.webView.showHeader = true;
 
         await Task.Run(() => { Thread.Sleep(250); });
-        MauiProgram.mainLayout.isLoading = false;
+        MauiProgram.webView.isLoading = false;
     }
     private async void DeleteConnection(string srv)
     {
