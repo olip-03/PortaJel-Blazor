@@ -64,9 +64,20 @@ namespace PortaJel_Blazor.Data
                         for (int x = 0; x < width; x++)
                         {
                             var pixel = pixels[x, y];
-                            int scaledRed = (int)(pixel.Red * 255); scaledRed = Math.Clamp(scaledRed, 0, 255);
-                            int scaledGreen = (int)(pixel.Green * 255); scaledGreen = Math.Clamp(scaledGreen, 0, 255);
-                            int scaledBlue = (int)(pixel.Blue * 255); scaledBlue = Math.Clamp(scaledBlue, 0, 255);
+                            int scaledRed = (int)(pixel.Red * 255);
+                            int scaledGreen = (int)(pixel.Green * 255);
+                            int scaledBlue = (int)(pixel.Blue * 255);
+
+                            // Increase brightness by multiplying with a factor (e.g., 1.2 for 20% increase)
+                            float brightnessFactor = 2f; // Additional brightness
+                            scaledRed = (int)(scaledRed * brightnessFactor);
+                            scaledGreen = (int)(scaledGreen * brightnessFactor);
+                            scaledBlue = (int)(scaledBlue * brightnessFactor);
+
+                            // Clamp values to ensure they stay within the valid range (0-255)
+                            scaledRed = Math.Clamp(scaledRed, 0, 255);
+                            scaledGreen = Math.Clamp(scaledGreen, 0, 255);
+                            scaledBlue = Math.Clamp(scaledBlue, 0, 255);
 
                             // Convert int to byte
                             byte red = (byte)scaledRed;
@@ -76,7 +87,6 @@ namespace PortaJel_Blazor.Data
                             // Create SKColor
                             SKColor color = new SKColor(red, green, blue);
                             bitmap.SetPixel(x, y, color);
-                            // Set the pixel color
                         }
                     }
                 }

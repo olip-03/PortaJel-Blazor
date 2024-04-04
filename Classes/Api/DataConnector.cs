@@ -90,9 +90,8 @@ namespace PortaJel_Blazor.Classes
                 }
                 albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder));
             });
-            //albumsReturn.Sort(); // TODO: Ensure sorting method is actually sorting, you know. 
 
-            // TODO: Also ensure we're capping the limit as set in the initali integer
+            // TODO: ensure we're capping the limit as set in the initali integer
 
             return albumsReturn.ToArray();
         }

@@ -4,12 +4,67 @@
     position: relative;
     width: 100%;
     height: 100%;
-    aspect-ratio: 16/9;
 }
+.backgroundImgContainer {
+    width: 100vw;
+    height: auto;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    position: absolute;
+    top: -1rem;
+    left: -1rem;
+    z-index: -10;
+    background-size: cover;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+    display: flex;
+}
+
+.additional-info {
+    width: 100%;
+    border-radius: 0.5rem;
+    background-color: white;
+    padding: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    margin: 1rem 0 1rem 0;
+    box-shadow: 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.5);
+    transition: 0.3s ease; /* Added transition */
+}
+
+    .additional-info.expanded {
+        overflow: visible;
+        height: auto !important;
+    }
+
+.additional-info-text {
+    font-size: 1rem;
+    background: -webkit-linear-gradient(#333, #333, #eee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: background 0.3s ease, -webkit-background-clip 0.3s ease, -webkit-text-fill-color 0.3s ease; /* Added transition */
+}
+
+
+
+
+.GoBackImg {
+    margin: 0;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+}
+
+
+
 .album-cover-img {
     /* functionally does nothing*/
     transition: opacity 0.5s ease-in-out; /* Smooth transition */
 }
+
 .artistImgContainer {
     border-radius: 50%;
     position: relative;
@@ -71,20 +126,7 @@
     top: 0;
     left: 0;
 }
-.backgroundImgContainer {
-    width: 100vw;
-    height: auto;
-    aspect-ratio: 16/9;
-    object-fit: cover;
-    position: absolute;
-    top: -1rem;
-    left: -1rem;
-    z-index: -10;
-    background-size: cover;
-    overflow: hidden;
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
-    display: flex;
-}
+
 .backgroundImg {
     width: 100%;
     height: auto;
@@ -126,25 +168,7 @@
     width: 100%;
     height: 50%;
 }
-.GoBackButton {
-    margin: 0;
-    padding: 0;
-    position: static;
-    border-radius: 50%;
-    border-color: rgba(0, 0, 0, 0.2);
-    background-color: rgba(255, 255, 255, 0.3);
-    top: 1rem;
-    left: 1rem;
-    width: 2.5rem;
-    height: 2.5rem;
-}
 
-.GoBackImg {
-    margin: 0;
-    padding: 0;
-    width: 2rem;
-    height: 2rem;
-}
 
 
 
@@ -303,6 +327,9 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
+    /*    width: 100vw;
+    height: 5rem;
+    display: flex;*/
 }
 
 .playback-controls-btn {
@@ -330,9 +357,3 @@
     color: red;
 }
 
-.additional-info{
-    width: 100%;
-    border-radius: 1rem;
-    margin-top: 2rem;
-    background-color: lightgray;
-}

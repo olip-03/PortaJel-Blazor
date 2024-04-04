@@ -201,7 +201,7 @@ namespace PortaJel_Blazor.Classes
         /// Thrown when the server connector has not been initialized. Ensure that 
         /// AuthenticateUserAsync method has been called.
         /// </exception>
-        public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, IEnumerable<String>? setSortTypes = null, SortOrder setSortOrder = SortOrder.Descending)
+        public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, IEnumerable<String>? setSortTypes = null, SortOrder setSortOrder = SortOrder.Ascending)
         {
             if (_itemsClient == null || userDto == null)
             {
@@ -646,10 +646,30 @@ namespace PortaJel_Blazor.Classes
             // Call GetItemsAsync with the specified parameters
             try
             {
-                artistInfo = await _itemsClient.GetItemsAsync(userId: userDto.Id, ids: _searchIds, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypesArtist, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
-                if (token.IsCancellationRequested) { return Artist.Empty; }
-                albumResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, artistIds: _searchIds, includeItemTypes: _includeItemTypesAlbums, recursive: true, cancellationToken: token);
-                // TotalArtistRecordCount = songResult.TotalRecordCount;
+                Task<BaseItemDtoQueryResult> runArtistInfo = _itemsClient.GetItemsAsync(
+                    userId: userDto.Id,
+                    ids: _searchIds,
+                    sortBy: _sortTypes,
+                    sortOrder: _sortOrder,
+                    includeItemTypes: _includeItemTypesArtist,
+                    recursive: true,
+                    fields: new List<ItemFields> { ItemFields.Overview },
+                    enableImages: true,
+                    enableTotalRecordCount: true,
+                    cancellationToken: token);
+                Task<BaseItemDtoQueryResult> runAlbumInfo = _itemsClient.GetItemsAsync(
+                    userId: userDto.Id, 
+                    artistIds: _searchIds, 
+                    includeItemTypes: _includeItemTypesAlbums, 
+                    recursive: true, 
+                    cancellationToken: token);
+                await Task.WhenAll(
+                    runArtistInfo,
+                    runAlbumInfo
+                    );
+
+                artistInfo = runArtistInfo.Result;
+                albumResult = runAlbumInfo.Result;
             }
             catch (Jellyfin.Sdk.ItemsException itemException)
             {
@@ -699,7 +719,18 @@ namespace PortaJel_Blazor.Classes
             BaseItemDtoQueryResult playlistResult = new BaseItemDtoQueryResult();
             try
             {
-                playlistResult = await _itemsClient.GetItemsAsync(userId: userDto.Id, sortBy: _sortTypes, sortOrder: _sortOrder, includeItemTypes: _includeItemTypes, limit: limit, startIndex: startFromIndex, recursive: true, enableImages: true, enableTotalRecordCount: true, cancellationToken: token);
+                playlistResult = await _itemsClient.GetItemsAsync(
+                    userId: userDto.Id, 
+                    sortBy: _sortTypes, 
+                    sortOrder: _sortOrder, 
+                    includeItemTypes: _includeItemTypes, 
+                    limit: limit, 
+                    startIndex: startFromIndex, 
+                    recursive: true, 
+                    enableImages: true, 
+                    enableTotalRecordCount: true,
+                    fields: new List<ItemFields> { ItemFields.Path },
+                    cancellationToken: token);
                 TotalPlaylistRecordCount = playlistResult.TotalRecordCount;
             }
             catch (Jellyfin.Sdk.ItemsException itemException)
@@ -720,34 +751,22 @@ namespace PortaJel_Blazor.Classes
             if (playlistResult.Items == null || token.IsCancellationRequested) { return new Playlist[0]; }
 
             List<Playlist> playlists = new List<Playlist>();
-            await Parallel.ForEachAsync(playlistResult.Items, async (i, ct) => {
-                // Create new webClient and UserLibraryClient so we aren't still waiting on the last 
-                // HttpClient to finish :3
-                // This does cause the operation to run a fuckton slower but idek what to do about it
-                Playlist tempPlaylist = PlaylistBuilder(i);
+            foreach (BaseItemDto item in playlistResult.Items)
+            {
+                Playlist toAdd = PlaylistBuilder(item);
 
                 if (MauiProgram.hideM3u)
                 {
-                    HttpClient webClient = new();
-                    UserLibraryClient tempClient = new(_sdkClientSettings, webClient);
-                    BaseItemDto extraInfo = await tempClient.GetItemAsync(userId: userDto.Id, itemId: i.Id, cancellationToken: token);
-
-                    if (token.IsCancellationRequested)
+                    if (!toAdd.path.EndsWith(".m3u") && !toAdd.path.EndsWith(".m3u8"))
                     {
-                        return;
-                    }
-
-                    tempPlaylist.path = extraInfo.Path;
-                    if (!tempPlaylist.path.EndsWith(".m3u") && !tempPlaylist.path.EndsWith(".m3u8"))
-                    {
-                        playlists.Add(tempPlaylist);
+                        playlists.Add(toAdd);
                     }
                 }
                 else
                 {
-                    playlists.Add(tempPlaylist);
+                    playlists.Add(toAdd);
                 }
-            });
+            }
             return playlists.ToArray();
         }
         public async Task<Playlist?> FetchPlaylistByIDAsync(Guid playlistId)
@@ -1452,6 +1471,7 @@ namespace PortaJel_Blazor.Classes
                 newPlaylist.id = baseItem.Id;
                 newPlaylist.isFavourite = baseItem.UserData.IsFavorite;
                 newPlaylist.songs = null; // TODO: Implement songs
+                newPlaylist.path = baseItem.Path;
 
                 if (baseItem.Type != BaseItemKind.MusicAlbum)
                 {

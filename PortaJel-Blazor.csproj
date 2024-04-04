@@ -186,6 +186,9 @@
 
 	<ItemGroup>
 	  <Folder Include="Platforms\Android\EventListeners\" />
+	  <Folder Include="UI\Pages\" />
+	  <Folder Include="wwwroot\js\NewFolder1\" />
+	  <Folder Include="wwwroot\js\NewFolder\" />
 	</ItemGroup>
 
 </Project>

@@ -1,0 +1,82 @@
+﻿.header {
+    position: sticky;
+    z-index: 150;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 4rem;
+    display: flex;
+}
+
+.header-imgcontainer {
+    overflow: hidden;
+    position: absolute;
+    width: 100vw;
+    height: 4rem;
+    left: -1rem;
+}
+
+.header-background {
+    background-color: white;
+    width: 100vw;
+    height: auto;
+    transform: scale(2);
+    filter: blur(1.5rem);
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.hidden {
+    opacity: 0;
+}
+
+.header-text {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 1rem;
+    z-index: 200;
+    transition: opacity 0.25s ease-in-out; /* Smooth transition */
+    mix-blend-mode: difference;
+}
+
+.header-artisttext {
+
+}
+
+.album-cover-img {
+    /* functionally does nothing*/
+    transition: opacity 0.5s ease-in-out; /* Smooth transition */
+}
+
+.header-nameContainer{
+    z-index: 200;
+    position: relative;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 1rem;
+}
+
+h3.header-artisttext {
+    margin: 0;
+    mix-blend-mode: difference;
+}
+h5.header-artisttext {
+    margin-bottom: auto;
+    margin: 0;
+    font-weight: normal;
+    mix-blend-mode: difference;
+}
+
+.GoBackButton {
+    margin: 0;
+    padding: 0;
+    border-radius: 50%;
+    border-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 2.5rem;
+    height: 2.5rem;
+    z-index: 200;
+    margin-top: auto;
+    margin-bottom: auto;
+    position: relative;
+}

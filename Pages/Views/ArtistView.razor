@@ -1,5 +1,6 @@
 ﻿@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.UI.Search;
+@using PortaJel_Blazor.UI;
 @using BlazorAnimate;
 @inject IJSRuntime JS;
 @page "/ArtistView/{artistId}"
@@ -7,9 +8,8 @@
 @if (!isLoading)
 {
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-    <button class="GoBackButton" @onclick=GoBack>
-        <img src="/images/back.svg" class="">
-    </button>
+    
+    <ViewHeader backgroundImgUrl="@backgroundImgUrl" backgroundImgUrlPlaceholder="@backgroundImgUrlPlaceholder" baseMusicItem=@artist/>
 
     <!-- Container for background image-->
     <div class="backgroundImgContainer">
@@ -20,7 +20,7 @@
     <div class="artistInfoContainer">
         <!-- Artist Images -->
         <div class="artistImgContainer">
-            <img onload="myScript" class="artistImg album-cover-img" src="@imgUrl" />
+            <img class="artistImg album-cover-img" src="@imgUrl" />
             <img class="artistImgPlaceholder" src="data:image/png;base64, @imgUrlPlaceholder" />
         </div>
         <div class="artistNameContainer">
@@ -34,10 +34,17 @@
             }
             <h1 class="artistName">@artist.name</h1>
         </div>
-    </div>
 
+    </div>
+        @if (!String.IsNullOrWhiteSpace(artist.description))
+        {
+            <div class="additional-info" @onclick=ToggleExpandDescription>
+                <p class="additional-info-text">@artist.description</p>
+                <p style="position: absolute; bottom: 100%; left: 100%;">Read more</p>
+            </div>
+        }
     <div class="playback-controls">
-        <div @onclick=FavouriteItem>
+            <div @onclick=FavouriteItem id="playback-controls-fav">
             @if (artist.isFavourite)
             {
                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
@@ -53,7 +60,7 @@
                 </Animate>
             }
         </div>
-        <div class="playback-controls">
+            <div class="playback-controls" id="playback-controls-btns">
             <div class="playback-controls-btn">
                 <img class="playback-controls-btn-img" src="/images/shuffle.svg">
             </div>
@@ -151,13 +158,6 @@
             }
         </div>
     </div>
-
-    @if (@artist.description != String.Empty)
-    {
-        <div class="additional-info">
-            <p>@artist.description</p>
-        </div>
-    }
 
     <p>@errorMsg</p>
 </Animate>
@@ -264,6 +264,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JS.InvokeAsync<string>("InitAllImages");
+        await JS.InvokeAsync<string>("InitalizeArtistView");
     }
     private async void SelectPage(int page)
     {
@@ -290,6 +291,10 @@
         MauiProgram.libraryShowGrid = showGrid;
 
         StateHasChanged();
+    }
+    public async void ToggleExpandDescription()
+    {
+        await JS.InvokeAsync<string>("ToggleExpandDescription");
     }
     private async void FavouriteItem()
     {

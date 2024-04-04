@@ -1,0 +1,70 @@
+﻿@using PortaJel_Blazor.Data;
+@namespace PortaJel_Blazor.UI.Search
+@inject IJSRuntime JS;
+
+<div class="header">
+    <div class="header-imgcontainer" id="header-backgroundPlaceholder">
+        <img src="data:image/png;base64, @backgroundImgUrlPlaceholder" class="header-background" />
+    </div>
+
+    <div class="header-imgcontainer" id="header-backgroundImg">
+        <img src="@backgroundImgUrl" class="header-background album-cover-img" />
+    </div>
+
+    <button class="GoBackButton" @onclick=GoBack>
+        <img src="/images/back.svg" class="">
+    </button>
+
+    <div class="header-nameContainer" @onclick=GoToArtist>
+        @if (baseMusicItem != null)
+        {
+            if (baseMusicItem is Album)
+            {
+                Album item = (Album)baseMusicItem;
+                <h3 class="header-artisttext">@item.name</h3>
+                <h5 class="header-artisttext">@item.artistCongregate</h5>
+            }
+            else
+            {
+                <h3 id="header-text" class="header-text hidden">@baseMusicItem.name</h3>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string backgroundImgUrlPlaceholder { get; set; } = string.Empty;
+    [Parameter] public string backgroundImgUrl { get; set; } = string.Empty;
+    [Parameter] public BaseMusicItem? baseMusicItem { get; set; } = null;
+
+    private async void GoBack()
+    {
+        MauiProgram.webView.isLoading = true;
+        try
+        {
+            await JS.InvokeAsync<string>("goBack");
+        }
+        catch (Exception ex)
+        {
+            bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
+            MauiProgram.webView.NavigateHome();
+        }
+    }
+
+    private void GoToArtist()
+    {
+        if (baseMusicItem is Album)
+        {
+            Album item = (Album)baseMusicItem;
+            if (item != null && item.artists.First() != null)
+            {
+                MauiProgram.webView.NavigateArtist(item.artists.First().id);
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeAsync<string>("InitalizeArtistView");
+    }
+}
