@@ -139,6 +139,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="wwwroot\js\NewFolder1\**" />
+	  <Compile Remove="wwwroot\js\NewFolder\**" />
+	  <Content Remove="wwwroot\js\NewFolder1\**" />
+	  <Content Remove="wwwroot\js\NewFolder\**" />
+	  <EmbeddedResource Remove="wwwroot\js\NewFolder1\**" />
+	  <EmbeddedResource Remove="wwwroot\js\NewFolder\**" />
+	  <None Remove="wwwroot\js\NewFolder1\**" />
+	  <None Remove="wwwroot\js\NewFolder\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="AngleSharp" Version="1.1.0" />
 		<PackageReference Include="BlazorAnimate" Version="3.0.0" />
 		<PackageReference Include="Blurhash.Core" Version="2.0.0" />
@@ -169,8 +180,11 @@
 		<MauiXaml Update="Pages\Xaml\PlaylistViewEditor.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="UI\Drawables\CircularProgressBar.xaml">
-			<Generator>MSBuild:Compile</Generator>
+		<MauiXaml Update="Resources\Themes\DarkTheme.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Resources\Themes\LightTheme.xaml">
+		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 	</ItemGroup>
 
@@ -186,9 +200,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Platforms\Android\EventListeners\" />
-	  <Folder Include="UI\Pages\" />
-	  <Folder Include="wwwroot\js\NewFolder1\" />
-	  <Folder Include="wwwroot\js\NewFolder\" />
 	</ItemGroup>
 
 </Project>

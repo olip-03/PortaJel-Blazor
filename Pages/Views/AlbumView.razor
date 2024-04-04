@@ -1,8 +1,7 @@
 ﻿@using PortaJel_Blazor.Data;
 @using BlazorAnimate;
 @using PortaJel_Blazor.Classes.Services;
-@using PortaJel_Blazor.UI.Search;
-@using PortaJel_Blazor.UI;
+@using PortaJel_Blazor.Shared;
 @using Blurhash;
 @inject IJSRuntime JS;
 
@@ -104,10 +103,6 @@
                     <img src="@artist.image.SourceAtResolution(40)" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
                     @artist.name
                 </div>
-                if(forcount < album.artists.Count())
-                {
-                    <br />
-                }
                 forcount++;
             }
 @*             <hr />

@@ -741,6 +741,10 @@ namespace PortaJel_Blazor.Classes
                     // TODO: Add specific message for this error (what the fuck why are we getting this???)
                 }
             }
+            catch (HttpRequestException netEx)
+            { // NETWORK EXCEPTION, NETWORK FAILURE
+
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
