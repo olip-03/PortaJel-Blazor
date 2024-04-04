@@ -40,7 +40,11 @@
 }
 
 .header-artisttext {
-
+    overflow: hidden;
+    max-width: 80vw;
+    text-overflow: ellipsis;
+    width: fit-content;
+    white-space: nowrap;
 }
 
 .album-cover-img {

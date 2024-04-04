@@ -1,6 +1,6 @@
 ﻿@page "/library/{showFavourites}"
 @using PortaJel_Blazor.Data;
-@using PortaJel_Blazor.Shared.Resources;
+@using PortaJel_Blazor.Shared;
 @using PortaJel_Blazor;
 @using BlazorAnimate;
 @inject IJSRuntime JS;
@@ -145,11 +145,11 @@
                             catch (Exception) { base64 = string.Empty; }
                             if (i == lastAmount)
                             {
-                                <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
+                                <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
                             }
                             else
                             {
-                                <PortaJel_Blazor.UI.Search.SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" />
+                                <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" />
                             }
                         }
                     }
