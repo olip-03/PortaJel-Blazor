@@ -119,8 +119,8 @@
         }
 
         loaded = true;
-        await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.webView.isLoading = false;
+        MauiProgram.mainPage.ShowLoadingScreen(false);
         StateHasChanged();
     }
     private void SelectArtist(Guid artistId)

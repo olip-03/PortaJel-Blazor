@@ -232,6 +232,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JS.InvokeAsync<string>("InitAllImages");
+        MauiProgram.mainPage.ShowLoadingScreen(false);
     }
     private void ToggleSort()
     {

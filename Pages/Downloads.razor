@@ -10,9 +10,6 @@
     </div>
 </Animate>
 
-
-
-
 @code {
     protected override async Task OnInitializedAsync()
     {
@@ -20,7 +17,7 @@
         MauiProgram.webView.currentUri = "/downloads";
         MauiProgram.webView.showHeader = true;
 
-        await Task.Run(() => { Thread.Sleep(250); });
+        MauiProgram.mainPage.ShowLoadingScreen(false);
         MauiProgram.webView.isLoading = false;
     }
 }

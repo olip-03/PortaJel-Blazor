@@ -462,20 +462,19 @@ public partial class MainPage : ContentPage
         }
         return Task.CompletedTask;
     }
-    public Task<bool> ShowLoadingScreen(bool value)
+    public async void ShowLoadingScreen(bool value)
     {
-        LoadingBlockout.IsEnabled = value;
         LoadingBlockout.IsVisible = value;
         if (value == true)
         { // If we're already visible, do nothin'
+            LoadingBlockout.InputTransparent = false;
             LoadingBlockout.Opacity = 1; 
-            return Task.FromResult(true);
         }
         else
         {
-            LoadingBlockout.Opacity = 0;
             LoadingBlockout.InputTransparent = true;
-            return LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
+            LoadingBlockout.Opacity = 1; // make fully visible
+            await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
         }
     }
     public async void UpdateKeyboardLocation()
@@ -841,30 +840,31 @@ public partial class MainPage : ContentPage
     private async void btn_navnar_home_click(object sender, EventArgs e)
     {
         waitingForPageLoad = true;
+        ShowLoadingScreen(true);
         btn_navnar_home.Scale = 0.6;
         btn_navnar_home.Opacity = 0;
-        await Task.WhenAny<bool>
+        await Task.WhenAll<bool>
         (
             btn_navnar_home.FadeTo(1, 250),
-            btn_navnar_home.ScaleTo(1, 250),
-            ShowLoadingScreen(true)
+            btn_navnar_home.ScaleTo(1, 250)
         );
         MauiProgram.webView.NavigateHome();
     }
     private async void btn_navnar_search_click(object sender, EventArgs e)
     {
-        MauiProgram.webView.NavigateSearch();
+        ShowLoadingScreen(true);
         btn_navnar_search.Scale = 0.6;
         btn_navnar_search.Opacity = 0;
-        await Task.WhenAny<bool>
+        await Task.WhenAll<bool>
         (
             btn_navnar_search.FadeTo(1, 250),
             btn_navnar_search.ScaleTo(1, 250)
         );
+        MauiProgram.webView.NavigateSearch();
     }
     private async void btn_navnar_library_click(object sender, EventArgs e)
     {
-        MauiProgram.webView.NavigateLibrary();
+        ShowLoadingScreen(true);
         btn_navnar_library.Scale = 0.6;
         btn_navnar_library.Opacity = 0;
         await Task.WhenAny<bool>
@@ -872,10 +872,11 @@ public partial class MainPage : ContentPage
             btn_navnar_library.FadeTo(1, 250),
             btn_navnar_library.ScaleTo(1, 250)
         );
+        MauiProgram.webView.NavigateLibrary();
     }
     private async void btn_navnar_favourite_click(object sender, EventArgs e)
     {
-        MauiProgram.webView.NavigateFavourites();
+        ShowLoadingScreen(true);
         btn_navnar_favourites.Scale = 0.6;
         btn_navnar_favourites.Opacity = 0;
         await Task.WhenAny<bool>
@@ -883,6 +884,7 @@ public partial class MainPage : ContentPage
             btn_navnar_favourites.FadeTo(1, 250),
             btn_navnar_favourites.ScaleTo(1, 250)
         );
+        MauiProgram.webView.NavigateFavourites();
     }
     private void MediaController_Btn_ContextMenu(object sender, EventArgs args)
     {

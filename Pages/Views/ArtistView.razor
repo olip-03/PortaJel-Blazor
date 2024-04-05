@@ -264,6 +264,10 @@
     {
         await JS.InvokeAsync<string>("InitAllImages");
         await JS.InvokeAsync<string>("InitalizeArtistView");
+        if(!isLoading)
+        {
+            MauiProgram.mainPage.ShowLoadingScreen(false);
+        }
     }
     private async void SelectPage(int page)
     {

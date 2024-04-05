@@ -71,13 +71,14 @@
         }
     }
 
-    private void NavigateToAlbum()
+    private async void NavigateToAlbum()
     {
         if (musicObject != null)
         {
             if (musicObject is Album)
             {
                 Album album = (Album)musicObject;
+                MauiProgram.mainPage.ShowLoadingScreen(true);
                 MauiProgram.webView.NavigateAlbum(album.id);
             }
             if (musicObject is Song)
@@ -86,6 +87,7 @@
                 Album? album = song.album;
                 if(album != null)
                 {
+                    MauiProgram.mainPage.ShowLoadingScreen(true);
                     MauiProgram.webView.NavigateAlbum(album.id);
                 }
             }

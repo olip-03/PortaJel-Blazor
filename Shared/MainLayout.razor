@@ -65,7 +65,6 @@
         set
         {
             loading = value;
-            MauiProgram.mainPage.ShowLoadingScreen(loading);
             StateHasChanged();
         }
     }
@@ -108,7 +107,6 @@
     {
         if (currentUri != "/home")
         {
-            isLoading = true;
             showHeader = true;
             pageTitle = "PortaJel";
             currentUri = "/home";
@@ -120,7 +118,6 @@
     {
         if (currentUri != "/library/false")
         {
-            isLoading = false;
             showHeader = true;
             pageTitle = "Library";
             currentUri = "/library/false";
@@ -132,7 +129,6 @@
     {
         if (currentUri != "/library/true")
         {
-            isLoading = false;
             showHeader = true;
             pageTitle = "Favourites";
             currentUri = "/library/true";
@@ -144,7 +140,6 @@
     {
         if (currentUri != "/search")
         {
-            isLoading = false; // FALSE here because this page takes no time to load
             showHeader = true;
             pageTitle = "Search";
             currentUri = "/search";
@@ -156,7 +151,6 @@
     {
         if (currentUri != "/search")
         {
-            isLoading = false; // FALSE here because this page takes no time to load
             showHeader = true;
             pageTitle = "Search";
             currentUri = "/search";
@@ -168,7 +162,6 @@
     {
         if (currentUri != "/downloads")
         {
-            isLoading = false;
             showHeader = true;
             pageTitle = "Downloads";
             currentUri = "/downloads";
@@ -176,11 +169,12 @@
             NavManager.NavigateTo(currentUri);
         }
     }
-    public void NavigateSettings()
+    public async void NavigateSettings()
     {
+        MauiProgram.mainPage.ShowLoadingScreen(true);
+
         if (currentUri != "/settings")
         {
-            isLoading = true;
             showHeader = true;
             pageTitle = "Settings";
             currentUri = "/settings";
@@ -192,7 +186,6 @@
     {
         if (currentUri != $"/AlbumView/{guid}")
         {
-            isLoading = true;
             showHeader = false;
             pageTitle = "Album View";
             currentUri = "/settings";
@@ -204,7 +197,6 @@
     {
         if (currentUri != $"/ArtistView/{guid}")
         {
-            isLoading = true;
             showHeader = false;
             pageTitle = "Artist View";
             currentUri = $"/ArtistView/{guid}";
@@ -214,7 +206,6 @@
     }
     public void NavigatePlaylist(Guid guid)
     {
-        isLoading = true;
         showHeader = false;
         pageTitle = "Playlist";
         currentUri = $"/PlaylistView/{guid}";
@@ -223,7 +214,6 @@
     }
     public Task FlagLoading()
     {
-        isLoading = true;
         return Task.CompletedTask;
     }
     public void CancelLoading()

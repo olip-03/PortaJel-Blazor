@@ -90,7 +90,7 @@
     private float itemFadeInDelay = 0;
     private bool isLoading = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         MauiProgram.webView.pageTitle = "Search";
         MauiProgram.webView.currentUri = "/search";
@@ -100,6 +100,7 @@
         MauiProgram.webView.cancellationToken = MauiProgram.webView.cancellationSource.Token;
 
         MauiProgram.webView.isLoading = false;
+        MauiProgram.mainPage.ShowLoadingScreen(false);
         isLoading = false;
         // MauiProgram.mainPage.UpdateKeyboardLocation();
     }

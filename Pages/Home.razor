@@ -187,7 +187,7 @@
         await JS.InvokeAsync<string>("InitAllImages");
         if (isLoading == false)
         {
-            await MauiProgram.mainPage.ShowLoadingScreen(false);
+            MauiProgram.mainPage.ShowLoadingScreen(false);
             MauiProgram.webView.isLoading = false;
         }
     }

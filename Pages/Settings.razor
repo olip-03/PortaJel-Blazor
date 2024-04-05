@@ -70,9 +70,10 @@
         MauiProgram.webView.currentUri = "/settings";
         MauiProgram.webView.showHeader = true;
 
-        await Task.Run(() => { Thread.Sleep(250); });
         MauiProgram.webView.isLoading = false;
+        MauiProgram.mainPage.ShowLoadingScreen(false);
     }
+
     private async void DeleteConnection(string srv)
     {
         if(MauiProgram.api.GetServers().Count() <= 1)
