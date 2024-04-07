@@ -40,6 +40,7 @@
     private async void GoBack()
     {
         MauiProgram.webView.isLoading = true;
+        MauiProgram.mainPage.ShowLoadingScreen(true);
         try
         {
             await JS.InvokeAsync<string>("goBack");

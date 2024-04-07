@@ -16,11 +16,8 @@ namespace PortaJel_Blazor.Classes
             bool showMiniPlayer = songQueue.Count == 0;
             Song? lastSong = songQueue.FirstOrDefault();
             songQueue.Enqueue(_song);
-            if (showMiniPlayer)
-            {
-                await MauiProgram.mainPage.RefreshPlayer();
-            }
         }
+
         public async void QueueAtFront(Song _song)
         {
             bool showMiniPlayer = songQueue.Count == 0;
@@ -33,12 +30,8 @@ namespace PortaJel_Blazor.Classes
             {
                 songQueue.Enqueue(item);
             }
-
-            if (showMiniPlayer)
-            {
-                await MauiProgram.mainPage.RefreshPlayer();
-            }
         }
+
         public async void QueueRange(Song[] _songList)
         {
             bool showMiniPlayer = songQueue.Count == 0;
@@ -47,38 +40,40 @@ namespace PortaJel_Blazor.Classes
             {
                 songQueue.Enqueue(_song);
             }
-
-            if (showMiniPlayer)
-            {
-                await MauiProgram.mainPage.RefreshPlayer();
-            }
         }
+
         public Song DequeueSong()
         {
             Song dequeued = songQueue.Dequeue();
             dequeuedList.Add(dequeued);
             return dequeued;
         }
+
         public Song PeekSong()
         {
             return songQueue.Peek();
         }
+
         public void Clear()
         {
             songQueue.Clear();
         }
+
         public int Count()
         {
             return songQueue.Count();
         }
+
         public Song ElementAt(int i)
         {
             return songQueue.ElementAt(i);
         }
+
         public Song? FirstOrDefault()
         {
             return songQueue.FirstOrDefault();
         }
+
         public Song[] GetQueue()
         {
             return songQueue.ToArray();

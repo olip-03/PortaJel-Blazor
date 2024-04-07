@@ -1,13 +1,12 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Media;
 using Android.OS;
 using Android.Support.V4.Media.Session;
 using Android.Widget;
 using AndroidX.Core.App;
 using Com.Google.Android.Exoplayer2;
-using Com.Google.Android.Exoplayer2.Audio;
-using Com.Google.Android.Exoplayer2.Extractor;
-using Com.Google.Android.Exoplayer2.Metadata;
+using Android.Util;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Source.Hls;
 using Com.Google.Android.Exoplayer2.Text;
@@ -19,6 +18,7 @@ using Org.Apache.Commons.Logging;
 using PortaJel_Blazor.Data;
 using System.Timers;
 using static Android.App.LauncherActivity;
+using System.Dynamic;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 
@@ -27,6 +27,9 @@ using static Android.App.LauncherActivity;
 // https://putridparrot.com/blog/android-foreground-service-using-maui/
 // Might be able to dig through her to get some more info on how this shit's all supposed to work
 // https://github.com/Baseflow/XamarinMediaManager
+// Info on background services
+// https://fabcirablog.weebly.com/blog/creating-a-never-ending-background-service-in-android
+// https://learn.microsoft.com/en-us/xamarin/android/app-fundamentals/services/creating-a-service/bound-services#bound-services-overview
 
 // Oh my god fuck all of this
 // Carve out my fucking eyes I never want to read Kotlin again 
@@ -35,43 +38,19 @@ namespace PortaJel_Blazor.Classes.Services
     public partial class MediaService
     {
         [Obsolete] IExoPlayer? Exoplayer;
-        NotificationManager? notificationManager = null;
-        MediaSessionCompat? mediaSession;
-        Notification.MediaStyle mediaStyle = new();
-        Notification.Builder? notificationBuilder;
-        Notification.Action.Builder? notificationActionBuilder;
         System.Timers.Timer myTimer = null;
+        MediaServiceConnection serviceConnection = new();
 
         [Obsolete]
-        public partial void Initalize()
+        partial void Initalize()
         {
             isPlaying = false;
 
             CheckPermissions();
-            //Android.Content.Intent intent = new Android.Content.Intent(Android.Provider.Settings.ActionNotificationPolicyAccessSettings);
-            //intent.AddFlags(ActivityFlags.NewTask);
-            //Platform.AppContext.StartActivity(intent);
 
-            var HttpDataSourceFactory = new DefaultHttpDataSource.Factory().SetAllowCrossProtocolRedirects(true);
-            var MainDataSource = new ProgressiveMediaSource.Factory(HttpDataSourceFactory);
-            if(Platform.AppContext != null && MainDataSource != null)
-            {
-                Exoplayer = new IExoPlayer.Builder(Platform.AppContext).SetMediaSourceFactory(MainDataSource).Build();
-                Exoplayer.RepeatMode = IPlayer.RepeatModeOff;
-
-                mediaSession = new MediaSessionCompat(Platform.AppContext, "PlayerService");
-                mediaStyle.SetMediaSession((Android.Media.Session.MediaSession.Token)mediaSession.SessionToken.GetToken());
-
-                notificationBuilder = new(Platform.AppContext);
-                // var playPauseIntent = new Android.Content.Intent(Platform.AppContext, );
-
-                //MediaSessionC
-
-                // notification = notificationBuilder.SetStyle(mediaStyle).Build();
-                // notification.Actions.Add(pauseAction);
-
-                string deviceId = Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString();
-            }
+            // Creates background service
+            Intent mediaServiceIntent = new Intent(Platform.AppContext, typeof(AndroidMediaService));
+            Platform.AppContext.BindService(mediaServiceIntent, this.serviceConnection, Bind.AutoCreate);
 
             // Do yer notification channel stuffs 
             if (Build.VERSION.SdkInt < BuildVersionCodes.O)
@@ -81,16 +60,6 @@ namespace PortaJel_Blazor.Classes.Services
                 // channel on older versions of Android.
                 return;
             }
-
-            var channelName = "PortaJel";
-            var channelDescription = "Notification Channel for the PortaJel Music Streaming App for Jellyfin";
-            var channel = new NotificationChannel(AppInfo.PackageName, channelName, NotificationImportance.Default)
-            {
-                Description = channelDescription
-            };
-
-            notificationManager = (NotificationManager)Platform.AppContext.GetSystemService(MainActivity.NotificationService);
-            notificationManager.CreateNotificationChannel(channel);
         }
         
         private void CheckPermissions()
@@ -112,34 +81,7 @@ namespace PortaJel_Blazor.Classes.Services
                 Platform.CurrentActivity.RequestPermissions(notifPerms, requestLocationId);
             }
         }
-        
-        private void ThrowNotification(string CHANNEL_ID)
-        {
-            Intent intent = new Intent(Platform.AppContext, typeof(MainActivity));
-
-            // Create a PendingIntent; we're only using one PendingIntent (ID = 0):
-            const int pendingIntentId = 0;
-            PendingIntent pendingIntent =
-                PendingIntent.GetActivity(Platform.AppContext, pendingIntentId, intent, PendingIntentFlags.OneShot);
-
-            // Instantiate the builder and set notification elements, including pending intent:
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(Platform.AppContext, CHANNEL_ID)
-                .SetContentIntent(pendingIntent)
-                .SetContentTitle("Sample Notification")
-                .SetContentText("Hello World! This is my first action notification!")
-                .SetSmallIcon(Resource.Drawable.ic_mtrl_checked_circle);
-
-            // Build the notification:
-            Notification notification = builder.Build();
-
-            // Get the notification manager:
-            //NotificationManager notificationManager = Platform.AppContext.GetSystemService(Context.NotificationService) as NotificationManager;
-
-            // Publish the notification:
-            const int notificationId = 0;
-            notificationManager.Notify(notificationId, notification);
-        }
-        
+                
         private void UpdatePlaystate(Object source, ElapsedEventArgs e)
         {
             if(Exoplayer != null && Microsoft.Maui.Controls.Application.Current != null)
@@ -171,7 +113,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
         
-        public partial void Play()
+        partial void Play()
         {
             // ThrowNotification(AppInfo.PackageName);
             UpdateCurrentlyPlaying();
@@ -255,7 +197,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        public partial void Pause()
+        partial void Pause()
         {
             if (Exoplayer != null)
             {
@@ -265,7 +207,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        public partial void TogglePlay()
+        partial void TogglePlay()
         {
             isPlaying = !isPlaying;
             if (isPlaying)
@@ -278,7 +220,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        public partial void ToggleShuffle()
+        partial void ToggleShuffle()
         {
             if (Exoplayer != null)
             {
@@ -287,7 +229,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        public partial void ToggleRepeat()
+        partial void ToggleRepeat()
         {
             if (Exoplayer != null)
             {
@@ -309,7 +251,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        public partial void NextTrack()
+        partial void NextTrack()
         {
             if (Exoplayer != null)
             {
@@ -317,7 +259,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        public partial void PreviousTrack()
+        partial void PreviousTrack()
         {
             if (Exoplayer != null)
             {
@@ -325,191 +267,130 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        public partial void SeekTo(long position)
+        partial void SeekTo(long position)
         {
             if(Exoplayer != null)
             {
                 Exoplayer.SeekTo(position);
             }
         }
+    }
 
-        internal class PlaystateListener : Java.Lang.Object, IPlayer.IListener
+    [Service(Exported = true, Name = "PortaJel.MediaService", IsolatedProcess = true, ForegroundServiceType = Android.Content.PM.ForegroundService.TypeMediaPlayback)]
+    public class AndroidMediaService : Service
+    {
+        public IBinder? Binder { get; private set; }
+        public IExoPlayer? Exoplayer;
+
+        AndroidMediaService()
         {
-            public void OnAudioAttributesChanged(AudioAttributes? audioAttributes)
+            var HttpDataSourceFactory = new DefaultHttpDataSource.Factory().SetAllowCrossProtocolRedirects(true);
+            var MainDataSource = new ProgressiveMediaSource.Factory(HttpDataSourceFactory);
+            if (Platform.AppContext != null && MainDataSource != null)
             {
-                //throw new NotImplementedException();
+                Exoplayer = new IExoPlayer.Builder(Platform.AppContext).SetMediaSourceFactory(MainDataSource).Build();
+                Exoplayer.RepeatMode = IPlayer.RepeatModeOff;
+                string deviceId = Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString();
+            }
+        }
+
+        public override IBinder OnBind(Intent? intent)
+        {
+            this.Binder = new MediaServiceBinder(this);
+            return this.Binder;
+        }
+    
+        public void Play()
+        {
+
+        }
+        public void Pause()
+        {
+
+        }
+        public void SetRepeat()
+        {
+
+        }
+        public void ToggleRepeat()
+        {
+
+        }
+        public void SetShuffle(bool isShullfing)
+        {
+
+        }
+        public void ToggleShuffle()
+        {
+
+        }
+        public void Next()
+        {
+
+        }
+        public void Previous()
+        {
+            
+        }
+        public void AddSong(Song song)
+        {
+
+        }
+        public void RemoveSong(int index)
+        {
+
+        }
+    }
+    public class MediaServiceBinder : Binder
+    {
+        public AndroidMediaService Service { get; private set; }
+        public MediaServiceBinder(AndroidMediaService service)
+        {
+            this.Service = service;
+        }
+    }
+    public class MediaServiceConnection : Java.Lang.Object, IServiceConnection
+    {
+        static readonly string TAG = typeof(MediaServiceConnection).FullName;
+
+        public MediaServiceConnection()
+        {
+            IsConnected = false;
+            Binder = null;
+        }
+
+        public bool IsConnected { get; private set; } = false;
+        public MediaServiceBinder? Binder { get; private set; }
+
+        public void OnServiceConnected(ComponentName? name, IBinder? service)
+        {
+            Binder = service as MediaServiceBinder;
+            IsConnected = this.Binder != null;
+
+            string message = "onServiceConnected - ";
+            Log.Debug(TAG, $"OnServiceConnected {name.ClassName}");
+
+            if (IsConnected)
+            {
+                message = message + " bound to service " + name.ClassName;
+                // mainActivity.UpdateUiForBoundService();
+            }
+            else
+            {
+                message = message + " not bound to service " + name.ClassName;
+                // mainActivity.UpdateUiForUnboundService();
             }
 
-            public void OnAudioSessionIdChanged(int audioSessionId)
-            {
-                //throw new NotImplementedException();
-            }
+            Log.Info(TAG, message);
+            // mainActivity.timestampMessageTextView.Text = message;
+        }
 
-            public void OnAvailableCommandsChanged(IPlayer.Commands? availableCommands)
-            {
-                //throw new NotImplementedException();
-            }
-
-            public void OnCues(CueGroup? cueGroup)
-            {
-                //throw new NotImplementedException();
-            }
-
-            public void OnDeviceInfoChanged(Com.Google.Android.Exoplayer2.DeviceInfo? deviceInfo)
-            {
-                //throw new NotImplementedException();
-            }
-
-            public void OnDeviceVolumeChanged(int volume, bool muted)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnEvents(IPlayer? player, IPlayer.Events? events)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnIsLoadingChanged(bool isLoading)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnIsPlayingChanged(bool isPlaying)
-            {
-
-            }
-
-            public void OnLoadingChanged(bool isLoading)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnMaxSeekToPreviousPositionChanged(long maxSeekToPreviousPositionMs)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnMediaItemTransition(MediaItem? mediaItem, int reason)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnMediaMetadataChanged(MediaMetadata? mediaMetadata)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnMetadata(Metadata? metadata)
-            {
-               //  throw new NotImplementedException();
-            }
-
-            public void OnPlaybackParametersChanged(PlaybackParameters? playbackParameters)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnPlaybackStateChanged(int playbackState)
-            {
-                MauiProgram.mediaService.UpdatePlaystate(playbackState);
-                // throw new NotImplementedException();
-            }
-
-            public void OnPlaybackSuppressionReasonChanged(int playbackSuppressionReason)
-            {
-               // throw new NotImplementedException();
-            }
-
-            public void OnPlayerError(PlaybackException? error)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnPlayerErrorChanged(PlaybackException? error)
-            {
-                //throw new NotImplementedException();
-            }
-
-            public void OnPlayerStateChanged(bool playWhenReady, int playbackState)
-            {
-                MauiProgram.mediaService.UpdatePlaystate();
-            }
-
-            public void OnPlaylistMetadataChanged(MediaMetadata? mediaMetadata)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnPlayWhenReadyChanged(bool playWhenReady, int reason)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnPositionDiscontinuity(int reason)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnRenderedFirstFrame()
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnRepeatModeChanged(int repeatMode)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnSeekBackIncrementChanged(long seekBackIncrementMs)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnSeekForwardIncrementChanged(long seekForwardIncrementMs)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnShuffleModeEnabledChanged(bool shuffleModeEnabled)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnSkipSilenceEnabledChanged(bool skipSilenceEnabled)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnSurfaceSizeChanged(int width, int height)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnTimelineChanged(Timeline? timeline, int reason)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnTracksChanged(Tracks? tracks)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnTrackSelectionParametersChanged(TrackSelectionParameters? parameters)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnVideoSizeChanged(VideoSize? videoSize)
-            {
-                // throw new NotImplementedException();
-            }
-
-            public void OnVolumeChanged(float volume)
-            {
-                // throw new NotImplementedException();
-            }
+        public void OnServiceDisconnected(ComponentName? name)
+        {
+            Log.Debug(TAG, $"OnServiceDisconnected {name.ClassName}");
+            IsConnected = false;
+            Binder = null;
+            // mainActivity.UpdateUiForUnboundService();
         }
     }
 }

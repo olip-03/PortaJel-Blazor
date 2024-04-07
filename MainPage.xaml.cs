@@ -17,11 +17,7 @@ using CommunityToolkit.Maui.Core.Extensions;
 using System.Diagnostics;
 using Microsoft.Maui.Layouts;
 using CommunityToolkit.Maui.Core;
-
-
-
-
-
+using Microsoft.Maui.Controls.Internals;
 #if ANDROID
 using Android;
 #endif
@@ -38,9 +34,8 @@ public partial class MainPage : ContentPage
 
     private ObservableCollection<Song> queue = new ObservableCollection<Song>();
     private ObservableCollection<Song> queueNextUp = new ObservableCollection<Song>();
-    private Song? previouslyPlaying = Song.Empty;
+    private ObservableCollection<Song> queueCongregate = new ObservableCollection<Song>();
     private Song? currentlyPlaying = Song.Empty;
-    private Song? nextPlaying = Song.Empty;
     private bool hideMidiPlayer = true;
     long lastSeekPosition = 0;
 
@@ -70,6 +65,7 @@ public partial class MainPage : ContentPage
         #endif
         // MauiProgram.webView = blazorWebView;
     }
+
     public async void Initialize()
     {
         if (MauiProgram.api.GetServers().Count() <= 0)
@@ -80,26 +76,25 @@ public partial class MainPage : ContentPage
             MauiProgram.firstLoginComplete = true;
         }
 
-        // MainPlayer_PreviousMainImage
         double spacing = (AllContent.Width - 350) / 2;
-
-        MainPlayer_PreviousContainer.TranslationX = MainPlayer_PreviousContainer.TranslationX - (350 + spacing);
-        MainPlayer_NextContainer.TranslationX = MainPlayer_NextContainer.TranslationX + (350 + spacing);
 
         ShowNavbar();
         MauiProgram.mediaService.Initalize();
         MauiProgram.webView.NavigateHome();
     }
+
     public void UpdateDebugText(string updateTo)
     {
         LoadingBlockout_DebugText.Text = updateTo;
     }
+
     private void Bwv_BlazorWebViewInitialized(object sender, Microsoft.AspNetCore.Components.WebView.BlazorWebViewInitializedEventArgs e)
     {
 #if ANDROID
                e.WebView.Settings.MixedContentMode = Android.Webkit.MixedContentHandling.AlwaysAllow;
 #endif
     }
+
     protected override void OnHandlerChanged()
     {
         base.OnHandlerChanged();
@@ -115,10 +110,12 @@ public partial class MainPage : ContentPage
         }	        
 #endif
     }
+
     public interface IRelayCommand : ICommand
     {
         void UpdateCanExecuteState();
     }
+
     public void UpdateCanExecuteState()
     {
         if (CanExecuteChanged != null)
@@ -135,23 +132,28 @@ public partial class MainPage : ContentPage
         }
         await Navigation.PushModalAsync(page, false);
     }
+
     public async Task NavigateToPlaylistEdit(Guid PlaylistId)
     {
         await Navigation.PushModalAsync(new PlaylistViewEditor(PlaylistId));
     }
+
     public async Task AddServerView()
     {
         AddServerView viewer = new();
         await Navigation.PushModalAsync(viewer);
     }
+
     public async Task NavigateToPlaylistEdit(Playlist setPlaylist)
     {
         await Navigation.PushModalAsync(new PlaylistViewEditor(setPlaylist));
     }
+
     public INavigation GetNavigation()
     {
         return Navigation;
     }
+
     public void PopStack()
     {
         if (Navigation.ModalStack.Count > 0)
@@ -159,15 +161,18 @@ public partial class MainPage : ContentPage
             Navigation.PopModalAsync();
         }
     }
+
     public int StackCount()
     {
         return Navigation.ModalStack.Count;
     }
+
     public void ShowNavbar()
     {
         Navbar.IsVisible = true;
         Navbar.Opacity = 1;
     }
+
     public async void CloseMusicQueue()
     {
         screenHeight = AllContent.Height;
@@ -180,6 +185,7 @@ public partial class MainPage : ContentPage
         MediaController_Queue.TranslationY = 0;
         await MediaController_Queue.TranslateTo(0, screenHeight, animationSpeed, Easing.SinIn);
     }
+
     public async void OpenMusicQueue()
     {
         screenHeight = AllContent.Height;
@@ -192,189 +198,68 @@ public partial class MainPage : ContentPage
 
         MediaController_Player.IsVisible = false;
     }
-    private Song songLastRefresh = Song.Empty;
 
     /// <summary>
     ///  Responsible for refresing the main page of the music controller
     /// </summary>
     /// <returns></returns>
-    private string lastImageSource = String.Empty;
-    public async Task<bool> RefreshPlayer()
+    public async void RefreshPlayer()
     {
-        List<Task> animations = new List<Task>{
-                Player_Txt_Title.FadeTo(1, animationSpeed, Easing.SinOut),
-                Player_Txt_Artist.FadeTo(1, animationSpeed, Easing.SinOut),
-                Player_Img.FadeTo(1, animationSpeed, Easing.SinOut)
-            };
+        queue = MauiProgram.mediaService.songQueue.GetQueue().ToObservableCollection();
+        queueNextUp = MauiProgram.mediaService.nextUpQueue.GetQueue().ToObservableCollection();
+        queueCongregate = [.. queue, .. queueNextUp];
+
+        MediaController_Queue_List.ItemsSource = queueCongregate;
+        MainPlayer_ImgCarousel.ItemsSource = queueCongregate;
+        MiniPlayer_ImgCarousel.ItemsSource = queueCongregate;
+
         if (!MauiProgram.MiniPlayerIsOpen)
         {
             MiniPlayer.TranslationY = 120;
+        }
 
-            animations.Add(MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut));
-            animations.Add(MiniPlayer.TranslateTo(0, 0, animationSpeed, Easing.SinOut));
+        async void PlayAnimations()
+        {
+            MiniPlayer.TranslationY = 120;
+
+            await Task.WhenAny(
+                    MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut),
+                    MiniPlayer.TranslateTo(0, 0, animationSpeed, Easing.SinOut));
+            hideMidiPlayer = false;
+            MauiProgram.MiniPlayerIsOpen = true;
         }
 
         // Update the song that is currently playing
         if (MauiProgram.mediaService.songQueue.Count() > 0)
         {
-            currentlyPlaying = MauiProgram.mediaService.songQueue.GetQueue().ToList().First();
-            hideMidiPlayer = false;
-            MauiProgram.MiniPlayerIsOpen = true;
+            if (!MauiProgram.MiniPlayerIsOpen)
+            {
+                PlayAnimations();
+            }
         }
         else if(MauiProgram.mediaService.nextUpQueue.Count() > 0)
         {
-            currentlyPlaying = MauiProgram.mediaService.nextUpQueue.GetQueue().ToList().First();
-            hideMidiPlayer = false;
-            MauiProgram.MiniPlayerIsOpen = true;
+            if (!MauiProgram.MiniPlayerIsOpen)
+            {
+                PlayAnimations();
+            }
         }
         else
         {
+            await Task.WhenAny(
+                MiniPlayer.FadeTo(0, animationSpeed, Easing.SinOut),
+                MiniPlayer.TranslateTo(0, 120, animationSpeed, Easing.SinOut));
+
             MauiProgram.MiniPlayerIsOpen = false;
             hideMidiPlayer = true;
-            return false;
-        }
-
-        // Update the song that will be playing next
-        if (MauiProgram.mediaService.songQueue.Count() > 1)
-        {
-            nextPlaying = MauiProgram.mediaService.songQueue.GetQueue().ToList()[1];
-        }
-        else if (MauiProgram.mediaService.nextUpQueue.Count() > 1)
-        {
-            nextPlaying = MauiProgram.mediaService.nextUpQueue.GetQueue().ToList()[1];
-        }
-        else
-        {
-            nextPlaying = null;
-        }
-
-        // Update the song that played last, and the UI
-        previouslyPlaying = MauiProgram.mediaService.PeekPreviousSong();
-        if (previouslyPlaying != null)
-        {
-            MainPlayer_PreviousSongTitle.Text = previouslyPlaying.name;
-            MainPlayer_PreviousArtistTitle.Text = previouslyPlaying.artistCongregate;
-            if (previouslyPlaying.image.source != lastImageSource)
-            {
-                MainPlayer_PreviousMainImage.Source = previouslyPlaying.image.source;
-            }
-        }
-        else
-        {
-            MainPlayer_PreviousContainer.IsVisible = false;
-        }
-
-        // Update the UI for the song that is currently playing
-        if (currentlyPlaying != null)
-        {
-            if (lastImageSource != currentlyPlaying.image.source)
-            {
-                // TODO: Fix blurhash working 
-                //using (var stream = currentlyPlaying.image.BlurHashToStream(20, 20))
-                //{
-                //    MainPlayer_MainImage.Source = ImageSource.FromStream(() => stream);
-                //}
-                MainPlayer_MainImage.Source = currentlyPlaying.image.source;
-                MainPlayer_NextMainImage.Source = currentlyPlaying.image.source;
-            }
-            MainPlayer_SongTitle.Text = currentlyPlaying.name;
-            MainPlayer_ArtistTitle.Text = currentlyPlaying.artistCongregate;
-
-            if (Player_Img.Source.ToString() != currentlyPlaying.image.source)
-            {
-                // TODO: Fix blurhash working 
-                //using (var stream = currentlyPlaying.image.BlurHashToStream(20, 20))
-                //{
-                //    Player_Img.Source = ImageSource.FromStream(() => stream);
-                //}
-                Player_Img.Source = currentlyPlaying.image.source;
-            }
-            Player_Txt_Title.Text = currentlyPlaying.name;
-            Player_Txt_Artist.Text = currentlyPlaying.artistCongregate;
-        }
-        // Update the UI for the song that is playing next
-        if(nextPlaying != null)
-        {
-            MainPlayer_NextSongTitle.Text = nextPlaying.name;
-            MainPlayer_NextArtistTitle.Text = nextPlaying.artistCongregate;
-            if (nextPlaying.image.source != currentlyPlaying.image.source)
-            {
-                MainPlayer_NextMainImage.Source = nextPlaying.image.source;
-            }
-        }
-        else
-        {
-            MainPlayer_NextContainer.IsVisible = false;
         }
 
         if (!hideMidiPlayer)
         {
             MiniPlayer.IsEnabled = !hideMidiPlayer;
         }
-
-        if(currentlyPlaying != songLastRefresh)
-        {
-            Player_Txt_Title.Opacity = 0;
-            Player_Txt_Artist.Opacity = 0;
-            Player_Img.Opacity = 0;
-
-            await Task.WhenAll(animations);
-        }
-
-        RefreshQueue();
-        lastImageSource = currentlyPlaying.image.source;
-        songLastRefresh = currentlyPlaying;
-        return true;
     }
-    /// <summary>
-    ///  Responsible for Refreshing the queue 
-    /// </summary>
-    public void RefreshQueue()
-    {
-        queue.Clear();
-        queue = MauiProgram.mediaService.songQueue.GetQueue().ToObservableCollection();
-        queueNextUp = MauiProgram.mediaService.nextUpQueue.GetQueue().ToObservableCollection();
 
-        if (queue.Count > 0)
-        {
-            queue.RemoveAt(0);
-
-            MediaController_Queue_Header.IsVisible = true;
-            MediaController_Queue_List.IsVisible = true;
-            if(queueNextUp.Count <= 0)
-            {
-                MediaController_NextUp_Header.IsVisible = false;
-                MediaController_NextUp_List.IsVisible = false;
-            }
-        }
-        else if(queueNextUp.Count > 0)
-        {
-            queueNextUp.RemoveAt(0);
-
-            MediaController_NextUp_Header.IsVisible = true;
-            MediaController_NextUp_List.IsVisible = true;
-
-            MediaController_Queue_Header.IsVisible = false;
-            MediaController_Queue_List.IsVisible = false;
-            if (queueNextUp.Count <= 0)
-            {
-                MediaController_NextUp_Header.IsVisible = false;
-                MediaController_NextUp_List.IsVisible = false;
-            }
-        }
-        else
-        {
-            return;
-        }
-
-
-        queue_currentlyplaying_img.Source = currentlyPlaying.image.source;
-        queue_currentlyplaying_title_lbl.Text = currentlyPlaying.name;
-        queue_currentlyplaying_artisttitle_lbl.Text = currentlyPlaying.artistCongregate;
-
-        MediaController_Queue_List.ItemsSource = queue;
-        MediaController_NextUp_List.ItemsSource = queueNextUp;
-    }
     public async void RefreshPlayState(bool? animate = true)
     {
         Player_Btn_PlayToggle.Opacity = 0;
@@ -396,45 +281,17 @@ public partial class MainPage : ContentPage
                 MediaController_Player_Play_btn.FadeTo(1, 500, Easing.SinOut));
         }
     }
-    public async void CloseMusicController()
-    {
-        MauiProgram.MusicPlayerIsOpen = false;
-
-        await Task.WhenAny<bool>
-        (
-            Player.TranslateTo(0, 0, animationSpeed, Easing.SinIn),
-            MediaController.TranslateTo(0, screenHeight, animationSpeed, Easing.SinIn),
-            MediaController.FadeTo(0, animationSpeed, Easing.SinIn)
-        );
-    }
     public async void ShowMusicController()
     {
         MauiProgram.MusicPlayerIsOpen = true;
 
         screenHeight = AllContent.Height;
 
-        //if (MauiProgram.mediaService.nextUpQueue.Count() > 0)
-        //{
-        //    MediaController_Player_PlayingFromInfo.IsVisible = true;
-        //    MediaController_Player_PlayingFromInfo_PlayingFromText.Text = MauiProgram.mediaService.nextUpQueue.FirstOrDefault().name;
-        //    if (MauiProgram.mediaService.nextUpItem is Album)
-        //    {
-        //        MediaController_Player_PlayingFromInfo_PlayingFromType.Text = "Playing from Album";
-        //    }
-        //    else if (MauiProgram.mediaService.nextUpItem is Playlist)
-        //    {
-        //        MediaController_Player_PlayingFromInfo_PlayingFromType.Text = "Playing from Playlist";
-        //    }
-        //}
-
         MediaController.IsVisible = true;
         if (musicControlsFirstOpen)
         {
             MediaController.TranslationY = screenHeight;
         }
-
-        // MainPlayer_ImgContainer.Spacing = ;
-        // MainPlayer_ImgContainer.TranslationX = translation; // center this 
 
         await Task.WhenAny<bool>
         (
@@ -443,8 +300,8 @@ public partial class MainPage : ContentPage
             MediaController.FadeTo(1, animationSpeed, Easing.SinOut)
         );
 
-        RefreshQueue();
         musicControlsFirstOpen = false;
+                RefreshPlayer();
     }
     public Task AwaitContextMenuClose()
     {
@@ -514,110 +371,6 @@ public partial class MainPage : ContentPage
     /// <summary>
     /// Skips to the next song
     /// </summary>
-    public async void SkipTrack(bool? informExoPlayer = false)
-    {
-        MediaCntroller_Player_Next_btn.Opacity = 0;
-        // Get and dequeue the next song from the media service
-        if (nextPlaying == null ^ currentlyPlaying == null)
-        {
-            await Task.WhenAll(
-                MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut),
-                MainPlayer_ImgContainer.TranslateTo(0, 0, animationSpeed, Easing.SinOut)
-                );
-            isSkipping = false;
-            return;
-        }
-
-        // Reset position of images
-        await MainPlayer_ImgContainer.TranslateTo(imgDragDistance, 0, 0);
-
-        // this updates the media service queue
-        currentlyPlaying = MauiProgram.mediaService.nextSong;
-        Song? nextSongFromQueue = MauiProgram.mediaService.PeekNextSong();
-        // Tell the media service to start playing the next song
-        MauiProgram.mediaService.NextTrack();
-
-        // Updating the current to appear to have 'skipped' desipite snapping back 
-        if (nextSongFromQueue != null && currentlyPlaying != null)
-        {
-            MainPlayer_NextContainer.IsVisible = true;
-            MainPlayer_NextContainer.IsEnabled = true;
-            MainPlayer_NextContainer.Opacity = 1;
-
-            // Play transform animations on images, this moves the next item to the current
-            double spacing = (AllContent.Width - 350) / 2;
-            await Task.WhenAny<bool>
-            (
-                 MainPlayer_ImgContainer.TranslateTo(-350 - (spacing * 2), 0, animationSpeed / 2, Easing.SinOut),
-                 MediaCntroller_Player_Next_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
-            );
-
-            if (currentlyPlaying.image.source != nextSongFromQueue.image.source)
-            {
-                MainPlayer_MainImage.Source = nextSongFromQueue.image.source;
-            }
-            MainPlayer_SongTitle.Text = nextSongFromQueue.name;
-            MainPlayer_ArtistTitle.Text = nextSongFromQueue.artistCongregate;
-        }
-
-        // Reset the position after updating the UI 
-        // await Task.Delay(100);
-        await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
-
-        await Task.Run(() =>
-        {
-            Application.Current.Dispatcher.Dispatch(async () => await RefreshPlayer());
-        });
-    }
-    public async void PrevTrack(bool? informExoPlayer = false)
-    {
-        MediaCntroller_Player_Previous_btn.Opacity = 0;
-        if (previouslyPlaying == null || currentlyPlaying == null)
-        {
-            await MediaCntroller_Player_Previous_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut);
-            isSkipping = false;
-            return;
-        }
-
-        // Reset position of images
-        await MainPlayer_ImgContainer.TranslateTo(imgDragDistance, 0, 0);
-
-        // this updates the media service queue
-        Song lastSong = currentlyPlaying;
-        currentlyPlaying = MauiProgram.mediaService.previousSong;
-        // Tell the media service to start playing the last song
-        MauiProgram.mediaService.PreviousTrack();
-
-        // Updating the current to appear to have 'skipped' desipite snapping back 
-        if (currentlyPlaying != null)
-        {
-            MainPlayer_PreviousContainer.IsVisible = true;
-            MainPlayer_PreviousContainer.IsEnabled = true;
-            MainPlayer_PreviousContainer.Opacity = 1;
-
-            // Play transform animations on images
-            double spacing = (AllContent.Width - 350) / 2;
-            await Task.WhenAny<bool>
-            (
-                 MainPlayer_ImgContainer.TranslateTo(350 + (spacing * 2), 0, animationSpeed / 2, Easing.SinOut),
-                 MediaCntroller_Player_Previous_btn.FadeTo(1, animationSpeed / 2, Easing.SinOut)
-            );
-
-            if (currentlyPlaying.image.source != lastSong.image.source)
-            {
-                MainPlayer_MainImage.Source = currentlyPlaying.image.source;
-            }
-            MainPlayer_SongTitle.Text = currentlyPlaying.name;
-            MainPlayer_ArtistTitle.Text = currentlyPlaying.artistCongregate;
-        }
-
-        await MainPlayer_ImgContainer.TranslateTo(0, 0, 0);
-
-        await Task.Run(() =>
-        {
-            Application.Current.Dispatcher.Dispatch(async () => await RefreshPlayer());
-        });
-    }
     #endregion
 
     #region ContextMenuMethods
@@ -722,19 +475,152 @@ public partial class MainPage : ContentPage
     }
     #endregion
 
-    #region Interactions
-    private void Player_Btn_FavToggle_Clicked(object sender, EventArgs e)
+    #region MediaController
+
+    /// <summary>
+    /// Button Close
+    /// Interaction method called when the Close Button is pressed
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    /// <param name="e">The event arguments.</param>
+    private void MediaController_Button_Close_Clicked(object sender, EventArgs e)
     {
-        // MauiProgram.mediaService.Pause();
+        CloseMusicController();
     }
-    private async void Player_Btn_PlayToggle_Clicked(object sender, EventArgs e)
+
+    /// <summary>
+    /// Public method for closing the media controller
+    /// </summary>
+    public async void CloseMusicController()
+    {
+        MauiProgram.MusicPlayerIsOpen = false;
+
+        await Task.WhenAny<bool>
+        (
+            Player.TranslateTo(0, 0, animationSpeed, Easing.SinIn),
+            MediaController.TranslateTo(0, screenHeight, animationSpeed, Easing.SinIn),
+            MediaController.FadeTo(0, animationSpeed, Easing.SinIn)
+        );
+    }
+
+    /// <summary>
+    /// Player Previous Button Clicked
+    /// Interaction method called when the Previous Song button is pressed in the Media Controller
+    /// </summary>
+    bool isSkipping = false;
+    private void MediaCntroller_Player_Previous_btn_Clicked(object sender, EventArgs e)
+    {
+        Song? currentItem = (Song)MainPlayer_ImgCarousel.CurrentItem;
+        if (currentItem != null)
+        {
+            int index = queueCongregate.IndexOf(currentItem);
+            int prevIndex = index - 1;
+            if (prevIndex >= 0)
+            {
+                MainPlayer_ImgCarousel.ScrollTo(prevIndex);
+                MiniPlayer_ImgCarousel.ScrollTo(prevIndex);
+
+                MainPlayer_ImgCarousel.CurrentItem = queueCongregate[prevIndex];
+                MiniPlayer_ImgCarousel.CurrentItem = queueCongregate[prevIndex];
+
+                MauiProgram.mediaService.PreviousTrack();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Player Next Button Clicked
+    /// Interaction method called when the Next Song button is pressed in the Media Controller
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    /// <param name="e">The event arguments.</param>
+    private void MediaCntroller_Player_Next_btn_Clicked(object sender, EventArgs e)
+    {
+        Song? currentItem = (Song)MainPlayer_ImgCarousel.CurrentItem;
+        if(currentItem != null)
+        {
+            int index = queueCongregate.IndexOf(currentItem);
+            int nextIndex = index + 1;
+            if(nextIndex < queueCongregate.Count())
+            {
+                MainPlayer_ImgCarousel.ScrollTo(nextIndex);
+                MiniPlayer_ImgCarousel.ScrollTo(nextIndex);
+                
+                MainPlayer_ImgCarousel.CurrentItem = queueCongregate[nextIndex];
+                MiniPlayer_ImgCarousel.CurrentItem = queueCongregate[nextIndex];
+
+                MauiProgram.mediaService.NextTrack();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private void MediaCntroller_SkipToIndex(int index)
+    {
+
+    }
+
+    /// <summary>
+    /// Image Carousel Current Item Changed
+    /// Interaction method called when the Image Carousel changegs items
+    /// </summary>
+    private void MainPlayer_ImgCarousel_CurrentItemChanged(object sender, CurrentItemChangedEventArgs e)
+    {
+        Song? currentItem = (Song)e.CurrentItem;
+        Song? lastItem = (Song)e.PreviousItem;
+        if (currentItem != null && lastItem != null)
+        {
+            int currentIndex = queueCongregate.IndexOf(currentItem);
+            int lastIndex = queueCongregate.IndexOf(lastItem);
+            if(currentIndex > lastIndex)
+            { // Next song is requested
+                MauiProgram.mediaService.NextTrack();
+            }
+            else
+            { // Prev song is requested
+                MauiProgram.mediaService.PreviousTrack();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Media Controller Play Button Clicked
+    /// Interaction method called when the Play button is pressed.
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    /// <param name="e">The event arguments.</param>
+    private async void MediaController_Player_Play_btn_Clicked(object sender, EventArgs e)
     {
         MauiProgram.mediaService.TogglePlay();
-        RefreshPlayState();
+
+        // Apply animations and update icon
+        MediaController_Player_Play_btn.Opacity = 0;
+        if (MauiProgram.mediaService.isPlaying)
+        {
+            MediaController_Player_Play_btn.Source = "pause.png";
+        }
+        else
+        {
+            MediaController_Player_Play_btn.Source = "play.png";
+        }
+
+        await Task.WhenAll(MediaController_Player_Play_btn.FadeTo(1, 500, Easing.SinOut));
     }
+
+    /// <summary>
+    /// Media Controller Repeat Button Clicked
+    /// Interaction method called when the Shuffle button is pressed
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    /// <param name="e">The event arguments.</param>
     private async void MediaCntroller_Player_Repeat_btn_Clicked(object sender, EventArgs e)
     {
+        // Call method in MediaService
         MauiProgram.mediaService.ToggleRepeat();
+
+        // Apply animations and update icon
         MediaCntroller_Player_Repeat_btn.Opacity = 0;
         switch (MauiProgram.mediaService.repeatMode)
         {
@@ -751,9 +637,19 @@ public partial class MainPage : ContentPage
 
         await Task.WhenAll(MediaCntroller_Player_Repeat_btn.FadeTo(1, 500, Easing.SinOut));
     }
+
+    /// <summary>
+    /// Media Controller Shuffle Button Clicked.
+    /// Interaction method called when the Shuffle button is pressed.
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    /// <param name="e">The event arguments.</param>
     private async void MediaCntroller_Player_Shuffle_btn_Clicked(object sender, EventArgs e)
     {
+        // Call method in MediaService
         MauiProgram.mediaService.ToggleShuffle();
+
+        // Apply animations and update icon
         MediaCntroller_Player_Shuffle_btn.Opacity = 0;
         if (MauiProgram.mediaService.shuffleOn)
         {
@@ -765,37 +661,34 @@ public partial class MainPage : ContentPage
         }
         await MediaCntroller_Player_Shuffle_btn.FadeTo(1, 500, Easing.SinOut);
     }
-    bool isSkipping = false;
-    private async void MediaCntroller_Player_Previous_btn_Clicked(object sender, EventArgs e)
+
+    /// <summary>
+    /// Media Controller Favourite Button Clicked.
+    /// Interaction method called when the Favourite button is pressed.
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    /// <param name="e">The event arguments.</param>
+    private void MediaCntroller_Player_Fav_btn_Clicked(object sender, EventArgs e)
     {
-        if (isSkipping)
-        {
-            return;
-        }
-        imgDragDistance = 0;
-        isSkipping = true;
 
-        PrevTrack();
-
-        isSkipping = false;
     }
-    private async void MediaCntroller_Player_Next_btn_Clicked(object sender, EventArgs e)
+    #endregion
+
+    #region Interactions
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    /// <param name="e">The event arguments.</param>
+    private void MiniPlayer_Btn_FavToggle_Clicked(object sender, EventArgs e)
     {
-        if (isSkipping)
-        {
-            return;
-        }
-        imgDragDistance = 0;
-        isSkipping = true;
-
-        SkipTrack();
-
-        isSkipping = false;
+        // MauiProgram.mediaService.Pause();
     }
-    private void Button_Clicked(object sender, EventArgs e)
+    private void MiniPlayer_Btn_PlayToggle_Clicked(object sender, EventArgs e)
     {
-        CloseMusicController();
+        // MauiProgram.mediaService.Pause();
     }
+
     private void MiniPlayer_Clicked(object sender, EventArgs e)
     {
         ShowMusicController(); 
@@ -892,43 +785,26 @@ public partial class MainPage : ContentPage
         // OpenContextMenu();
     }
     private double imgDragDistance = 0;
-    private async void MainPlayer_ImgContainer_PinchUpdated(object sender, PanUpdatedEventArgs e)
+
+    void MiniPlayer_Swiped(object sender, SwipedEventArgs e)
     {
-        #if !WINDOWS
-        switch (e.StatusType)
+        switch (e.Direction)
         {
-            case GestureStatus.Running:
-                double h = Microsoft.Maui.Devices.DeviceDisplay.Current.MainDisplayInfo.Height;
-
-                MainPlayer_ImgContainer.TranslationX = MainPlayer_ImgContainer.TranslationX + e.TotalX;
-                // distance = Player.TranslationX;
-
-                imgDragDistance = MainPlayer_ImgContainer.TranslationX;
+            case SwipeDirection.Left:
+                MediaCntroller_Player_Previous_btn_Clicked(sender, e);
                 break;
-
-            case GestureStatus.Completed:
-                // 
-                if (imgDragDistance < -60) 
-                {
-                    SkipTrack();
-                }
-                else if (imgDragDistance > 60)
-                {
-                    PrevTrack();
-                }
-                else
-                {
-                    await MainPlayer_ImgContainer.TranslateTo(0, 0, animationSpeed, Easing.SinInOut);
-                }
+            case SwipeDirection.Right:
+                MediaCntroller_Player_Next_btn_Clicked(sender, e);
+                break;
+            case SwipeDirection.Up:
+                ShowMusicController();
+                break;
+            case SwipeDirection.Down:
+                // Handle the swipe
                 break;
         }
-        #endif
     }
-
-    bool upDown = true; bool lockUpDown = false;
     double distance = 0;
-    double lastX = 0;
-    double lastY = 0;
     private void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
     {
 #if !WINDOWS
@@ -938,51 +814,21 @@ public partial class MainPage : ContentPage
                 double h = Microsoft.Maui.Devices.DeviceDisplay.Current.MainDisplayInfo.Height;
                 MediaController.IsVisible = true;
 
-                double xDiff = lastX - e.TotalX;
-                double yDiff = lastY - e.TotalY;
-                double angle = Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
+                Player.TranslationY = Player.TranslationY + e.TotalY;
+                MediaController.TranslationY = Player.TranslationY + MediaController.Height - 50;
 
-                if (angle < 0) { angle += 360; }
-
-                var directions = new string[] { "LR", "UD", "UD", "UD" };
-                var index = (int)Math.Round((angle % 360) / 45) % 4;
-
-                if(directions[index] == "LR" && !lockUpDown)
+                double vis = 0;
+                if (Player.TranslationY < 0)
                 {
-                    upDown = false;
-                    lockUpDown = true;
-                }
-                else if(!lockUpDown)
-                {
-                    upDown = true;
-                    lockUpDown = true;
-                }
-
-                lastX = e.TotalX;
-                lastY = e.TotalY;
-
-                if (upDown)
-                {
-                    Player.TranslationY = Player.TranslationY + e.TotalY;
-                    MediaController.TranslationY = Player.TranslationY + MediaController.Height - 50;
-
-                    double vis = 0;
-                    if (Player.TranslationY < 0)
+                    double check = ((Player.TranslationY * -1) + 60) / MediaController.Height;
+                    if (check > 0)
                     {
-                        double check = ((Player.TranslationY * -1) + 60) / MediaController.Height;
-                        if (check > 0)
-                        {
-                            vis = check;
-                        }
+                        vis = check;
                     }
+                }
 
-                    distance = Player.TranslationY;
-                    MediaController.Opacity = vis;
-                }
-                else
-                {
-                    // handle song skip animation
-                }
+                distance = Player.TranslationY;
+                MediaController.Opacity = vis;
 
                 //Player_Txt_Title.Text = distance.ToString();
                 break;
@@ -990,7 +836,6 @@ public partial class MainPage : ContentPage
             case GestureStatus.Completed:
                 if (distance < 0) { distance *= -1; }
                 uint speed = (uint)distance;
-                lockUpDown = false;
 
                 screenHeight = AllContent.Height;
                 if (distance > screenHeight / 3)
@@ -1025,13 +870,11 @@ public partial class MainPage : ContentPage
         }
         #endif
     }
-
     private void MediaCntroller_Slider_DragStarted(object sender, EventArgs e)
     {
         mediaCntrollerSliderDragging = true;
         // MediaCntroller_Slider_PositionTxt.Text = ConvertToTimeFormat(position);
     }
-
     private void MediaCntroller_Slider_DragCompleted(object sender, EventArgs e)
     {
         mediaCntrollerSliderDragging = false;

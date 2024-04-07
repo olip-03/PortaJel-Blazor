@@ -56,6 +56,7 @@
                         </HorizontalStackLayout>
                     </Grid>
                 </Border>
+                
                 <!-- MiniPlayer -->
                 <Border x:Name="MiniPlayer" 
                         Stroke="LightGray"
@@ -72,25 +73,57 @@
                                 Opacity="0.7" />
                     </Border.Shadow>
                     <Grid>
-                        <FlexLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White" HeightRequest="60" AlignItems="Center">
-                            <!-- Image -->
-                            <Border FlexLayout.Shrink="0" WidthRequest="50" HeightRequest="50" StrokeThickness="0" Margin="2.5, 0, 2.5, 0" StrokeShape="RoundRectangle 5,5,5,5">
-                                <Image x:Name="Player_Img" Aspect="Fill" Source="emptyAlbum.png" WidthRequest="50" HeightRequest="50"></Image>
-                            </Border>
-                            <!-- Song and Artist Text-->
-                            <Grid FlexLayout.Basis="50%" FlexLayout.Grow="1" VerticalOptions="FillAndExpand">
-                                <Label VerticalOptions="Start" x:Name="Player_Txt_Title" Grid.Row="0" Text="Current Playing Song Title" MaxLines="1" FontSize="15" TextColor="Black"/>
-                                <Label VerticalOptions="End" x:Name="Player_Txt_Artist" Grid.Row="1" Text="Current Playing Artist" MaxLines="1" FontSize="12" TextColor="Gray"/>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
+                        <FlexLayout HorizontalOptions="FillAndExpand" 
+                                    VerticalOptions="FillAndExpand" 
+                                    BackgroundColor="White" 
+                                    HeightRequest="60" 
+                                    AlignItems="Center"
+                                    InputTransparent="False">
+                            <!-- Carousel for MiniPlayer -->
+                            <Grid HorizontalOptions="Start"
+                                  VerticalOptions="Center"
+                                  FlexLayout.Basis="50%" FlexLayout.Grow="1"
+                                  InputTransparent="True">
+                                <CarouselView x:Name="MiniPlayer_ImgCarousel" 
+                                              ItemsSource="{Binding queueCongregate}" 
+                                              Loop="False" 
+                                              CurrentItemChanged="MainPlayer_ImgCarousel_CurrentItemChanged">
+                                    <CarouselView.ItemTemplate>
+                                        <DataTemplate>
+                                            <HorizontalStackLayout>
+                                                <!-- Image -->
+                                                <Border FlexLayout.Shrink="0" 
+                                                    WidthRequest="50" 
+                                                    HeightRequest="50" 
+                                                    StrokeThickness="0" 
+                                                    Margin="4, 0, 4, 0"  
+                                                    StrokeShape="RoundRectangle 5,5,5,5"
+                                                    VerticalOptions="Center">
+                                                    <Image Aspect="Fill" Source="{Binding image.sourceAtResolution}" WidthRequest="50" HeightRequest="50"></Image>
+                                                </Border>
+                                                <!-- Song and Artist Text-->
+                                                <VerticalStackLayout VerticalOptions="Center">
+                                                    <Label VerticalOptions="Start" Grid.Row="0" Text="{Binding name}" MaxLines="1" FontSize="15" TextColor="Black"/>
+                                                    <Label VerticalOptions="End" Grid.Row="1" Text="{Binding artistCongregate}" MaxLines="1" FontSize="12" TextColor="Gray"/>
+                                                </VerticalStackLayout>
+                                            </HorizontalStackLayout>
+                                        </DataTemplate>
+                                    </CarouselView.ItemTemplate>
+
+                                </CarouselView>
                             </Grid>
+
                             <!-- Playback Controls -->
-                            <StackLayout Orientation="Horizontal" FlexLayout.Grow="0" HeightRequest="50" Margin="2.5, 0, 2.5, 0">
-                                <ImageButton x:Name="Player_Btn_FavToggle" Clicked="Player_Btn_FavToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="heart.png"/>
-                                <ImageButton x:Name="Player_Btn_PlayToggle" Clicked="Player_Btn_PlayToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="play.png"/>
+                            <StackLayout Orientation="Horizontal" FlexLayout.Grow="0" HeightRequest="50" BackgroundColor="White" WidthRequest="85" Margin="2.5, 0, 2.5, 0" FlowDirection="RightToLeft">
+                                <ImageButton x:Name="Player_Btn_PlayToggle" Clicked="MiniPlayer_Btn_PlayToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="play.png"  HorizontalOptions="End"/>
+                                <ImageButton x:Name="Player_Btn_FavToggle" Clicked="MiniPlayer_Btn_FavToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="heart.png" HorizontalOptions="End"/>
                             </StackLayout>
+
+                            <FlexLayout.GestureRecognizers>
+                                <!--<PanGestureRecognizer PanUpdated="Navbar_PinchUpdated"/>-->
+                                <TapGestureRecognizer Tapped="MiniPlayer_Clicked"/>
+                                <SwipeGestureRecognizer Swiped="MiniPlayer_Swiped"/>
+                            </FlexLayout.GestureRecognizers>
                         </FlexLayout>
 
                         <Border StrokeThickness="0"
@@ -100,12 +133,6 @@
                                 VerticalOptions="End">
                             <ProgressBar x:Name="Miniplayer_Progress" Progress="0" HeightRequest="4" BackgroundColor="LightGray"/>
                         </Border>
-
-                        <Grid.GestureRecognizers>
-                            <PanGestureRecognizer PanUpdated="Navbar_PinchUpdated"/>
-                            <TapGestureRecognizer Tapped="MiniPlayer_Clicked"/>
-                            <SwipeGestureRecognizer Direction="Up" Swiped="MiniPlayer_Clicked"></SwipeGestureRecognizer>
-                        </Grid.GestureRecognizers>
                     </Grid>
                 </Border>
             </VerticalStackLayout>
@@ -129,108 +156,167 @@
         </StackLayout>
 
         <!-- Media Player Controls & Queue -->
-        <Grid x:Name="MediaController" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="false">
+        <Grid x:Name="MediaController" 
+              BackgroundColor="White" 
+              VerticalOptions="FillAndExpand" 
+              HorizontalOptions="FillAndExpand" 
+              InputTransparent="False" 
+              IsVisible="false">
             <!-- Controller -->
-            <Grid x:Name="MediaController_Player" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <Grid x:Name="MediaController_Player" 
+                  VerticalOptions="FillAndExpand" 
+                  HorizontalOptions="FillAndExpand">
                 <!-- Header -->
                 <Grid Grid.Row="0">
-                    <ImageButton Clicked="Button_Clicked" WidthRequest="40" HeightRequest="40" Source="down.png" Grid.Column="0">
-                        <ImageButton.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="Button_Clicked"></TapGestureRecognizer>
-                        </ImageButton.GestureRecognizers>
-                    </ImageButton>
-                    <StackLayout x:Name="MediaController_Player_PlayingFromInfo" Grid.Column="1" VerticalOptions="Center" IsVisible="False">
-                        <Label x:Name="MediaController_Player_PlayingFromInfo_PlayingFromType" Text="Playing from Album" TextColor="Black" FontSize="16" HorizontalOptions="Center"></Label>
-                        <Label x:Name="MediaController_Player_PlayingFromInfo_PlayingFromText" Text="Album Name" TextColor="Black" FontSize="14" HorizontalOptions="Center"></Label>
+                    <!-- Close Button -->
+                    <ImageButton x:Name="MediaController_Button_Close" 
+                                 Clicked="MediaController_Button_Close_Clicked" 
+                                 WidthRequest="40" 
+                                 HeightRequest="40" 
+                                 Source="down.png" 
+                                 Grid.Column="0" />
+                    
+                    <!-- Media Information -->
+                    <StackLayout x:Name="MediaController_Player_PlayingFromInfo" 
+                                 Grid.Column="1" 
+                                 VerticalOptions="Center" 
+                                 IsVisible="False">
+                        <Label x:Name="MediaController_Player_PlayingFromInfo_PlayingFromType" 
+                               Text="Playing from Album" 
+                               TextColor="Black" 
+                               FontSize="16" 
+                               HorizontalOptions="Center"></Label>
+                        <Label x:Name="MediaController_Player_PlayingFromInfo_PlayingFromText" 
+                               Text="Album Name" 
+                               TextColor="Black" 
+                               FontSize="14" 
+                               HorizontalOptions="Center"></Label>
                     </StackLayout>
-                    <ImageButton Clicked="MediaController_Btn_ContextMenu" WidthRequest="40" HeightRequest="40" Source="more_horiz.png" Grid.Column="2">
-                        <ImageButton.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="MediaController_Btn_ContextMenu"></TapGestureRecognizer>
-                        </ImageButton.GestureRecognizers>
-                    </ImageButton>
+                    
+                    <!-- Context Menu Button -->
+                    <ImageButton Clicked="MediaController_Btn_ContextMenu" 
+                                 WidthRequest="40" 
+                                 HeightRequest="40" 
+                                 Source="more_horiz.png" 
+                                 Grid.Column="2"/>
+                    
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="70"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="70"/>
                     </Grid.ColumnDefinitions>
                 </Grid>
-                <!-- Image and item text -->
-                <Grid Grid.Row="1">
-                    <Grid x:Name="MainPlayer_ImgContainer" VerticalOptions="Center" HorizontalOptions="FillAndExpand">
-                        <StackLayout x:Name="MainPlayer_PreviousContainer" HorizontalOptions="Start">
-                            <Border StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 5,5,5,5"
-                                    ZIndex="5"
-                                    MaximumWidthRequest="350" MaximumHeightRequest="350">
-                                <Image x:Name="MainPlayer_PreviousMainImage" Source="emptyAlbum.png" Aspect="Fill" WidthRequest="350" HeightRequest="350"></Image>
-                            </Border>
-                            <StackLayout Margin="0, 10, 0, 0">
-                                <Label x:Name="MainPlayer_PreviousSongTitle" TextColor="Black" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Prev Song Title" FontSize="28" HorizontalOptions="Center" MaximumWidthRequest="350"></Label>
-                                <Label x:Name="MainPlayer_PreviousArtistTitle" TextColor="Black" HorizontalTextAlignment="Center" Text="Artist Name" FontSize="20" HorizontalOptions="Center" MaximumWidthRequest="350"></Label>
-                            </StackLayout>
-                            
-                        </StackLayout>
+                <!-- Image Carousel-->
+                <CarouselView x:Name="MainPlayer_ImgCarousel" 
+                              Grid.Row="1" VerticalOptions="Center" 
+                              HorizontalOptions="FillAndExpand" 
+                              ItemsSource="{Binding queueCongregate}" 
+                              Loop="False" 
+                              CurrentItemChanged="MainPlayer_ImgCarousel_CurrentItemChanged">
+                    <CarouselView.ItemTemplate>
+                        <DataTemplate>
+                            <StackLayout>
+                                <!-- Image inside of border -->
+                                <Border StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 5,5,5,5"
+                                        ZIndex="5"
+                                        MaximumWidthRequest="350" MaximumHeightRequest="350">
+                                    <Image x:Name="MainPlayer_PreviousMainImage" 
+                                           Source="{Binding image.sourceAtResolution}" 
+                                           Aspect="Fill" 
+                                           WidthRequest="350" 
+                                           HeightRequest="350"></Image>
+                                </Border>
 
-                        <StackLayout x:Name="MainPlayer_CurrentContainer" HorizontalOptions="Center">
-                            <Border StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 5,5,5,5"
-                                    ZIndex="5">
-                                <Image x:Name="MainPlayer_MainImage" Source="emptyAlbum.png" Aspect="Fill" WidthRequest="350" HeightRequest="350"></Image>
-                            </Border>
-                            <StackLayout Margin="0, 10, 0, 0">
-                                <Label x:Name="MainPlayer_SongTitle" TextColor="Black" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Song Title" FontSize="28" HorizontalOptions="Center" MaximumWidthRequest="350"></Label>
-                                <Label x:Name="MainPlayer_ArtistTitle" TextColor="Black" HorizontalTextAlignment="Center" Text="Artist Name" FontSize="20" HorizontalOptions="Center" MaximumWidthRequest="350"></Label>
-                            </StackLayout>
-                        </StackLayout>
+                                <!-- Labels for song title and artist-->
+                                <StackLayout Margin="0, 10, 0, 0">
+                                    <Label x:Name="MainPlayer_PreviousSongTitle" 
+                                           TextColor="Black" 
+                                           HorizontalTextAlignment="Center" 
+                                           VerticalTextAlignment="Center"
+                                           Text="{Binding name}" 
+                                           FontSize="28" 
+                                           HorizontalOptions="Center" 
+                                           MaximumWidthRequest="350"></Label>
+                                    <Label x:Name="MainPlayer_PreviousArtistTitle" 
+                                           TextColor="Black" 
+                                           HorizontalTextAlignment="Center" 
+                                           Text="{Binding artistCongregate}" 
+                                           FontSize="20" 
+                                           HorizontalOptions="Center" 
+                                           MaximumWidthRequest="350"></Label>
+                                </StackLayout>
 
-                        <StackLayout x:Name="MainPlayer_NextContainer" HorizontalOptions="End">
-                            <Border StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 5,5,5,5"
-                                    ZIndex="5"
-                                    MaximumWidthRequest="350" MaximumHeightRequest="350">
-                                <Image x:Name="MainPlayer_NextMainImage" Source="emptyAlbum.png" Aspect="Fill" WidthRequest="350" HeightRequest="350"></Image>
-                            </Border>
-                            <StackLayout Margin="0, 10, 0, 0">
-                                <Label x:Name="MainPlayer_NextSongTitle" TextColor="Black"  HorizontalTextAlignment="Center" VerticalTextAlignment="End"  Text="Next Song Title" FontSize="28" HorizontalOptions="Center" MaximumWidthRequest="350"></Label>
-                                <Label x:Name="MainPlayer_NextArtistTitle" TextColor="Black"  HorizontalTextAlignment="Center" Text="Artist Name" FontSize="20" HorizontalOptions="Center" MaximumWidthRequest="350"></Label>
                             </StackLayout>
-                        </StackLayout>
-
-                        <Grid.GestureRecognizers>
-                            <PanGestureRecognizer PanUpdated="MainPlayer_ImgContainer_PinchUpdated"/>
-                        </Grid.GestureRecognizers>
-                    </Grid>
-                </Grid>
+                        </DataTemplate>
+                    </CarouselView.ItemTemplate>
+                </CarouselView>
+                
                 <!-- Playback controls -->
                 <Grid Grid.Row="2">
-                    <StackLayout Margin="10, 0, 10, 0" VerticalOptions="Start">
-                        <Slider x:Name="MediaCntroller_Slider" Maximum="100" Value="100" Margin="0" MaximumTrackColor="Gray" BackgroundColor="Transparent" HorizontalOptions="FillAndExpand" ValueChanged="MediaCntroller_Slider_ValueChanged" DragStarted="MediaCntroller_Slider_DragStarted" DragCompleted="MediaCntroller_Slider_DragCompleted" />
-                        <FlexLayout  Margin="20, 0, 20, 0" JustifyContent="SpaceBetween" >
-                            <Label x:Name="MediaCntroller_Slider_PositionTxt" TextColor="Black" Text="0:00"></Label>
-                            <Label x:Name="MediaCntroller_Slider_DurationTxt" TextColor="Black" Text="0:00"></Label>
+                    <!-- Slider and timestamps -->
+                    <StackLayout Margin="10, 0, 10, 0" 
+                                 VerticalOptions="Start">
+                        <Slider x:Name="MediaCntroller_Slider" 
+                                Maximum="100" 
+                                Value="100" 
+                                Margin="0" 
+                                MaximumTrackColor="Gray" 
+                                BackgroundColor="Transparent" 
+                                HorizontalOptions="FillAndExpand" 
+                                ValueChanged="MediaCntroller_Slider_ValueChanged" 
+                                DragStarted="MediaCntroller_Slider_DragStarted" 
+                                DragCompleted="MediaCntroller_Slider_DragCompleted" />
+                        <FlexLayout  Margin="20, 0, 20, 0" 
+                                     JustifyContent="SpaceBetween" >
+                            <Label x:Name="MediaCntroller_Slider_PositionTxt" 
+                                   TextColor="Black" 
+                                   Text="0:00"></Label>
+                            <Label x:Name="MediaCntroller_Slider_DurationTxt"
+                                   TextColor="Black" 
+                                   Text="0:00"></Label>
                         </FlexLayout>
                     </StackLayout>
 
                     <StackLayout VerticalOptions="Center">
-                        <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
-                            <ImageButton x:Name="MediaCntroller_Player_Repeat_btn" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="repeat_off.png" Clicked="MediaCntroller_Player_Repeat_btn_Clicked"></ImageButton>
-                            <ImageButton x:Name="MediaCntroller_Player_Previous_btn" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="skip_previous.png" Clicked="MediaCntroller_Player_Previous_btn_Clicked"></ImageButton>
-                            <Frame CornerRadius="40" Padding="0" Margin="0" HeightRequest="80" WidthRequest="80" BackgroundColor="LightGray">
+                        <FlexLayout JustifyContent="SpaceBetween" 
+                                    AlignItems="Center" 
+                                    Margin="20">
+                            <ImageButton x:Name="MediaCntroller_Player_Repeat_btn" 
+                                         HeightRequest="40" WidthRequest="40" 
+                                         BackgroundColor="Transparent" 
+                                         Source="repeat_off.png" 
+                                         Clicked="MediaCntroller_Player_Repeat_btn_Clicked"></ImageButton>
+                            <ImageButton x:Name="MediaCntroller_Player_Previous_btn" 
+                                         HeightRequest="40" WidthRequest="40" 
+                                         BackgroundColor="Transparent"
+                                         Source="skip_previous.png" 
+                                         Clicked="MediaCntroller_Player_Previous_btn_Clicked"></ImageButton>
+                            <Frame CornerRadius="40" 
+                                   Padding="0" Margin="0" 
+                                   HeightRequest="80" WidthRequest="80"
+                                   BackgroundColor="LightGray">
                                 <ImageButton x:Name="MediaController_Player_Play_btn" 
                                              Aspect="AspectFit" 
-                                             VerticalOptions="Center"
-                                             HorizontalOptions="Center" 
+                                             VerticalOptions="Center" HorizontalOptions="Center" 
                                              BackgroundColor="Transparent" 
-                                             HeightRequest="50" 
-                                             WidthRequest="50" 
+                                             HeightRequest="50" WidthRequest="50" 
                                              Source="play.png"
-                                             Clicked="Player_Btn_PlayToggle_Clicked"/>
+                                             Clicked="MediaController_Player_Play_btn_Clicked"/>
                             </Frame>
-                            <ImageButton x:Name="MediaCntroller_Player_Next_btn" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="skip_next.png" Clicked="MediaCntroller_Player_Next_btn_Clicked"></ImageButton>
-                            <ImageButton x:Name="MediaCntroller_Player_Shuffle_btn" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="shuffle.png" Clicked="MediaCntroller_Player_Shuffle_btn_Clicked"></ImageButton>
+                            <ImageButton x:Name="MediaCntroller_Player_Next_btn" 
+                                         HeightRequest="40" WidthRequest="40" 
+                                         BackgroundColor="Transparent" 
+                                         Source="skip_next.png" 
+                                         Clicked="MediaCntroller_Player_Next_btn_Clicked"></ImageButton>
+                            <ImageButton x:Name="MediaCntroller_Player_Shuffle_btn"
+                                         HeightRequest="40" WidthRequest="40" 
+                                         BackgroundColor="Transparent" 
+                                         Source="shuffle.png" 
+                                         Clicked="MediaCntroller_Player_Shuffle_btn_Clicked"></ImageButton>
                         </FlexLayout>
                         <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
-                            <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="heart.png"></ImageButton>
+                            <ImageButton x:Name="MediaCntroller_Player_Fav_btn" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="heart.png" Clicked="MediaCntroller_Player_Fav_btn_Clicked"></ImageButton>
                             <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="queue.png" Clicked="MediaController_Queue_Show"></ImageButton>
                         </FlexLayout>
                     </StackLayout>

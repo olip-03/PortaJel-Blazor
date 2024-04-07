@@ -23,6 +23,11 @@ public class MainActivity : MauiAppCompatActivity
     }
     public override bool DispatchKeyEvent(KeyEvent? e)
     {
+        if(e == null)
+        {
+            return false;
+        }
+
         if (e.KeyCode == Keycode.Back)
         {
             if (e.Action == KeyEventActions.Down)
@@ -66,6 +71,7 @@ public class MainActivity : MauiAppCompatActivity
                 {
                     // Navigate back request
                     // Check if we should actually be doing this
+                    MauiProgram.mainPage.ShowLoadingScreen(true);
                     MauiProgram.webView.isLoading = true;
                 }
             }
