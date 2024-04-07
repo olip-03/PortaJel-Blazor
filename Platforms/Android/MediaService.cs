@@ -19,6 +19,8 @@ using PortaJel_Blazor.Data;
 using System.Timers;
 using static Android.App.LauncherActivity;
 using System.Dynamic;
+using static Android.Icu.Text.Transliterator;
+using Android.Views.Animations;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 
@@ -81,57 +83,12 @@ namespace PortaJel_Blazor.Classes.Services
                 Platform.CurrentActivity.RequestPermissions(notifPerms, requestLocationId);
             }
         }
-                
-        private void UpdatePlaystate(Object source, ElapsedEventArgs e)
-        {
-            if(Exoplayer != null && Microsoft.Maui.Controls.Application.Current != null)
-            {
-                Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() =>
-                {
-                    long duration = Exoplayer == null ? 0 : Exoplayer.Duration;
-                    long position = Exoplayer == null ? 0 : Exoplayer.CurrentPosition;
-
-                    if (duration > 0)
-                    {
-                        MauiProgram.mainPage.UpdatePlaystate(duration, position);
-                    }
-                });
-            }
-        }
-        private void UpdatePlaystate(long? setPosition = -1)
-        {
-            long duration = Exoplayer == null ? 0 : Exoplayer.Duration;
-            long position = Exoplayer == null ? 0 : Exoplayer.CurrentPosition;
-            if (setPosition != -1 && setPosition != null)
-            {
-                position = (long)setPosition;
-            }
-
-            if(duration > 0) 
-            {
-                MauiProgram.mainPage.UpdatePlaystate(duration, position);
-            }
-        }
-        
-        partial void Play()
-        {
-            // ThrowNotification(AppInfo.PackageName);
-            UpdateCurrentlyPlaying();
-            if (Exoplayer!= null)
-            {
-                isPlaying = true;
-                Exoplayer.Play();
-
-                MauiProgram.mainPage.RefreshPlayState();
-            }
-        }
-
         public async void UpdateCurrentlyPlaying()
         {
             Song? getSong = null;
             Album? getAlbum = null;
 
-            if(Exoplayer == null || Microsoft.Maui.Controls.Application.Current == null)
+            if (Exoplayer == null || Microsoft.Maui.Controls.Application.Current == null)
             {
                 return;
             }
@@ -182,7 +139,7 @@ namespace PortaJel_Blazor.Classes.Services
                 // await getSong.GetAlbumAsync();
 
                 //getAlbum = await getSong.GetAlbumAsync();
-                if(getSong.album != Album.Empty)
+                if (getSong.album != Album.Empty)
                 {
                     MauiProgram.currentAlbumGuid = getSong.album.id;
                 }
@@ -197,82 +154,164 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
+        private void UpdatePlaystate(Object source, ElapsedEventArgs e)
+        {
+            if(Exoplayer != null && Microsoft.Maui.Controls.Application.Current != null)
+            {
+                Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() =>
+                {
+                    long duration = Exoplayer == null ? 0 : Exoplayer.Duration;
+                    long position = Exoplayer == null ? 0 : Exoplayer.CurrentPosition;
+
+                    if (duration > 0)
+                    {
+                        MauiProgram.mainPage.UpdatePlaystate(duration, position);
+                    }
+                });
+            }
+        }
+        private void UpdatePlaystate(long? setPosition = -1)
+        {
+            long duration = Exoplayer == null ? 0 : Exoplayer.Duration;
+            long position = Exoplayer == null ? 0 : Exoplayer.CurrentPosition;
+            if (setPosition != -1 && setPosition != null)
+            {
+                position = (long)setPosition;
+            }
+
+            if(duration > 0) 
+            {
+                MauiProgram.mainPage.UpdatePlaystate(duration, position);
+            }
+        }
+        
+        partial void Play()
+        {
+            if(serviceConnection != null && 
+               serviceConnection.Binder != null)
+            {
+                serviceConnection.Binder.Play();
+            }
+            //  ThrowNotification(AppInfo.PackageName);
+            //  UpdateCurrentlyPlaying();
+            //  if (Exoplayer!= null)
+            //  {
+            //      isPlaying = true;
+            //      Exoplayer.Play();
+                
+            //      MauiProgram.mainPage.RefreshPlayState();
+            //  }
+        }
         partial void Pause()
         {
-            if (Exoplayer != null)
+            if (serviceConnection != null &&
+               serviceConnection.Binder != null)
             {
-                Exoplayer.Pause();
-
-                MauiProgram.mainPage.RefreshPlayState();
+                serviceConnection.Binder.Pause();
             }
+            // if (Exoplayer != null)
+            // {
+            //     Exoplayer.Pause();
+            //     MauiProgram.mainPage.RefreshPlayState();
+            // }
         }
 
         partial void TogglePlay()
         {
-            isPlaying = !isPlaying;
-            if (isPlaying)
+            if (serviceConnection != null &&
+               serviceConnection.Binder != null)
             {
-                Play();
+                serviceConnection.Binder.TogglePlay();
             }
-            else
-            {
-                Pause();
-            }
+            //isPlaying = !isPlaying;
+            //if (isPlaying)
+            //{
+            //    Play();
+            //}
+            //else
+            //{
+            //    Pause();
+            //}
         }
 
         partial void ToggleShuffle()
         {
-            if (Exoplayer != null)
+            if (serviceConnection != null &&
+               serviceConnection.Binder != null)
             {
-                Exoplayer.ShuffleModeEnabled = !Exoplayer.ShuffleModeEnabled;
-                shuffleOn = Exoplayer.ShuffleModeEnabled;
+                serviceConnection.Binder.ToggleShuffle();
             }
+            //if (Exoplayer != null)
+            //{
+            //    Exoplayer.ShuffleModeEnabled = !Exoplayer.ShuffleModeEnabled;
+            //    shuffleOn = Exoplayer.ShuffleModeEnabled;
+            //}
         }
 
         partial void ToggleRepeat()
         {
-            if (Exoplayer != null)
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
             {
-                switch (Exoplayer.RepeatMode)
-                {
-                    case IPlayer.RepeatModeAll:
-                        Exoplayer.RepeatMode = IPlayer.RepeatModeOff;
-                        repeatMode = 0;
-                        break;
-                    case IPlayer.RepeatModeOne:
-                        Exoplayer.RepeatMode = IPlayer.RepeatModeAll;
-                        repeatMode = 2;
-                        break;
-                    case IPlayer.RepeatModeOff:
-                        Exoplayer.RepeatMode = IPlayer.RepeatModeOne;
-                        repeatMode = 1;
-                        break;
-                }
+                serviceConnection.Binder.ToggleRepeat();
             }
+            //if (Exoplayer != null)
+            //{
+            //    switch (Exoplayer.RepeatMode)
+            //    {
+            //        case IPlayer.RepeatModeAll:
+            //            Exoplayer.RepeatMode = IPlayer.RepeatModeOff;
+            //            repeatMode = 0;
+            //            break;
+            //        case IPlayer.RepeatModeOne:
+            //            Exoplayer.RepeatMode = IPlayer.RepeatModeAll;
+            //            repeatMode = 2;
+            //            break;
+            //        case IPlayer.RepeatModeOff:
+            //            Exoplayer.RepeatMode = IPlayer.RepeatModeOne;
+            //            repeatMode = 1;
+            //            break;
+            //    }
+            //}
         }
 
         partial void NextTrack()
         {
-            if (Exoplayer != null)
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
             {
-                Exoplayer.Next();
+                serviceConnection.Binder.Next();
             }
+            //if (Exoplayer != null)
+            //{
+            //    Exoplayer.Next();
+            //}
         }
 
         partial void PreviousTrack()
         {
-            if (Exoplayer != null)
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
             {
-                Exoplayer.Previous();
+                serviceConnection.Binder.Previous();
             }
+            //if (Exoplayer != null)
+            //{
+            //    Exoplayer.Previous();
+            //}
         }
 
         partial void SeekTo(long position)
         {
-            if(Exoplayer != null)
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
             {
-                Exoplayer.SeekTo(position);
+                serviceConnection.Binder.SeekToPosition(position);
             }
+            //if(Exoplayer != null)
+            //{
+            //    Exoplayer.SeekTo(position);
+            //}
         }
     }
 
@@ -281,6 +320,11 @@ namespace PortaJel_Blazor.Classes.Services
     {
         public IBinder? Binder { get; private set; }
         public IExoPlayer? Exoplayer;
+        private int repeatMode = 0;
+
+        public int playingIndex { get; private set; } = 0;
+        public BaseMusicItem? playingFrom { get; private set; } = null;
+        public List<Song> songQueue { get; private set; } = new();
 
         AndroidMediaService()
         {
@@ -300,45 +344,143 @@ namespace PortaJel_Blazor.Classes.Services
             return this.Binder;
         }
     
-        public void Play()
+        public bool Play()
         {
-
+            if(Exoplayer != null)
+            {
+                Exoplayer.Play();
+                return true;
+            }
+            return false;
         }
-        public void Pause()
+        public bool TogglePlay()
         {
-
+            if (Exoplayer != null)
+            {
+                if (Exoplayer.IsPlaying)
+                {
+                    Exoplayer.Pause();
+                }
+                else
+                {
+                    Exoplayer.Play();
+                }
+                return true;
+            }
+            return false;
         }
-        public void SetRepeat()
+        public bool Pause()
         {
-
+            if (Exoplayer != null)
+            {
+                Exoplayer.Pause();
+                return true;
+            }
+            return false;
         }
-        public void ToggleRepeat()
+        public bool SeekToPosition(long position)
         {
-
+            if (Exoplayer != null)
+            {
+                Exoplayer.SeekTo(position);
+                return true;
+            }
+            return false;
         }
-        public void SetShuffle(bool isShullfing)
+        public bool SeekToIndex(int index)
         {
-
+            playingIndex = index;
+            return false;
         }
-        public void ToggleShuffle()
+        public bool SetRepeat(MediaServiceRepeatMode setRepeatMode)
         {
-
+            if (Exoplayer != null)
+            {
+                repeatMode = (int)setRepeatMode;
+                Exoplayer.RepeatMode = repeatMode;
+                return true;
+            }
+            return false;
         }
-        public void Next()
+        public bool ToggleRepeat()
         {
-
+            if (Exoplayer != null)
+            {
+                switch (Exoplayer.RepeatMode)
+                {
+                    case IPlayer.RepeatModeOff: // 0
+                        repeatMode = 1;
+                        break;
+                    case IPlayer.RepeatModeOne: // 1
+                        repeatMode = 2;
+                        break;
+                    case IPlayer.RepeatModeAll: // 2
+                        repeatMode = 0;
+                        break;
+                }
+                Exoplayer.RepeatMode = repeatMode;
+                return true;
+            }
+            return false;
         }
-        public void Previous()
+        public bool SetShuffle(bool isShullfing)
         {
-            
+            if(Exoplayer != null)
+            {
+                Exoplayer.ShuffleModeEnabled = isShullfing;
+                return true;
+            }
+            return false;
         }
-        public void AddSong(Song song)
+        public bool GetShuffle()
         {
-
+            if (Exoplayer != null)
+            {
+                return Exoplayer.ShuffleModeEnabled;
+            }
+            return false;
         }
-        public void RemoveSong(int index)
+        public bool ToggleShuffle()
         {
-
+            if (Exoplayer != null)
+            {
+                Exoplayer.ShuffleModeEnabled = !Exoplayer.ShuffleModeEnabled;
+                return Exoplayer.ShuffleModeEnabled;
+            }
+            return false;
+        }
+        public bool Next()
+        {
+            if (Exoplayer != null)
+            {
+                Exoplayer.Next();
+                return true;
+            }
+            return false;
+        }
+        public bool Previous()
+        {
+            if (Exoplayer != null)
+            {
+                Exoplayer.Previous();
+                return true;
+            }
+            return false;
+        }
+        public bool SetPlayingCollection(BaseMusicItem baseMusicItem)
+        {
+            playingFrom = baseMusicItem;
+            return true;
+        }
+        public bool AddSong(Song song)
+        {
+            songQueue.Add(song);
+            return true;
+        }
+        public bool RemoveSong(int index)
+        {
+            songQueue.RemoveAt(index);
+            return true;
         }
     }
     public class MediaServiceBinder : Binder
@@ -347,6 +489,67 @@ namespace PortaJel_Blazor.Classes.Services
         public MediaServiceBinder(AndroidMediaService service)
         {
             this.Service = service;
+        }
+
+        public bool Play()
+        {
+            return Service.Play();
+        }
+        public bool TogglePlay()
+        {
+            return Service.TogglePlay();
+        }
+        public bool Pause()
+        {
+            return Service.Pause();
+        }
+        public bool SeekToPosition(long position)
+        {
+            return Service.SeekToPosition(position);
+        }
+        public bool SeekToIndex(int index)
+        {
+            return Service.SeekToIndex(index);
+        }
+        public bool SetRepeat(MediaServiceRepeatMode repeatMode)
+        {
+            return Service.SetRepeat(repeatMode);
+        }
+        public bool ToggleRepeat()
+        {
+            return Service.ToggleRepeat();
+        }
+        public bool SetShuffle(bool isShullfing)
+        {
+            return Service.SetShuffle(isShullfing);
+        }
+        public bool GetShuffle()
+        {
+            return Service.GetShuffle();
+        }
+        public bool ToggleShuffle()
+        {
+            return Service.ToggleShuffle();
+        }
+        public bool Next()
+        {
+            return Service.Next();
+        }
+        public bool Previous()
+        {
+            return Service.Previous();
+        }
+        public bool SetPlayingCollection(BaseMusicItem baseMusicItem)
+        {
+            return Service.SetPlayingCollection(baseMusicItem);
+        }
+        public bool AddSong(Song song)
+        {
+            return Service.AddSong(song);
+        }
+        public bool RemoveSong(int index)
+        {
+            return Service.RemoveSong(index);
         }
     }
     public class MediaServiceConnection : Java.Lang.Object, IServiceConnection
@@ -392,6 +595,12 @@ namespace PortaJel_Blazor.Classes.Services
             Binder = null;
             // mainActivity.UpdateUiForUnboundService();
         }
+    }
+    public enum MediaServiceRepeatMode
+    {
+        None = 0,
+        One = 1,
+        All = 2
     }
 }
 #pragma warning restore CS0612, CS0618 // Type or member is obsolete
