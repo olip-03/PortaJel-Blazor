@@ -37,17 +37,15 @@ using Android.Views.Animations;
 // Carve out my fucking eyes I never want to read Kotlin again 
 namespace PortaJel_Blazor.Classes.Services
 {
-    public partial class MediaService
+    public partial class MediaService : IMediaInterface
     {
         [Obsolete] IExoPlayer? Exoplayer;
         System.Timers.Timer myTimer = null;
         MediaServiceConnection serviceConnection = new();
 
         [Obsolete]
-        partial void Initalize()
+        public void Initalize()
         {
-            isPlaying = false;
-
             CheckPermissions();
 
             // Creates background service
@@ -83,6 +81,7 @@ namespace PortaJel_Blazor.Classes.Services
                 Platform.CurrentActivity.RequestPermissions(notifPerms, requestLocationId);
             }
         }
+       
         public async void UpdateCurrentlyPlaying()
         {
             Song? getSong = null;
@@ -96,34 +95,34 @@ namespace PortaJel_Blazor.Classes.Services
             Exoplayer.ClearMediaItems();
 
             int dequeuedListCount = 0;
-            await Task.Run(() =>
-            {
-                // Add dequeued songs
-                foreach (Song queuedSong in MauiProgram.mediaService.songQueue.dequeuedList)
-                {
-                    MediaItem firstItem = MediaItem.FromUri(queuedSong.streamUrl);
-                    Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() => Exoplayer.AddMediaItem(firstItem));
-                    dequeuedListCount++;
-                }
-                foreach (Song nextupSong in MauiProgram.mediaService.nextUpQueue.dequeuedList)
-                {
-                    MediaItem firstItem = MediaItem.FromUri(nextupSong.streamUrl);
-                    Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() => Exoplayer.AddMediaItem(firstItem));
-                    dequeuedListCount++;
-                }
+            //await Task.Run(() =>
+            //{
+            //    // Add dequeued songs
+            //    foreach (Song queuedSong in MauiProgram.mediaService.songQueue.dequeuedList)
+            //    {
+            //        MediaItem firstItem = MediaItem.FromUri(queuedSong.streamUrl);
+            //        Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() => Exoplayer.AddMediaItem(firstItem));
+            //        dequeuedListCount++;
+            //    }
+            //    foreach (Song nextupSong in MauiProgram.mediaService.nextUpQueue.dequeuedList)
+            //    {
+            //        MediaItem firstItem = MediaItem.FromUri(nextupSong.streamUrl);
+            //        Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() => Exoplayer.AddMediaItem(firstItem));
+            //        dequeuedListCount++;
+            //    }
 
-                // Add queued songs
-                foreach (Song queuedSong in MauiProgram.mediaService.songQueue.GetQueue())
-                {
-                    MediaItem firstItem = MediaItem.FromUri(queuedSong.streamUrl);
-                    Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() => Exoplayer.AddMediaItem(firstItem));
-                }
-                foreach (Song nextupSong in MauiProgram.mediaService.nextUpQueue.GetQueue())
-                {
-                    MediaItem firstItem = MediaItem.FromUri(nextupSong.streamUrl);
-                    Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() => Exoplayer.AddMediaItem(firstItem));
-                }
-            });
+            //    // Add queued songs
+            //    foreach (Song queuedSong in MauiProgram.mediaService.songQueue.GetQueue())
+            //    {
+            //        MediaItem firstItem = MediaItem.FromUri(queuedSong.streamUrl);
+            //        Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() => Exoplayer.AddMediaItem(firstItem));
+            //    }
+            //    foreach (Song nextupSong in MauiProgram.mediaService.nextUpQueue.GetQueue())
+            //    {
+            //        MediaItem firstItem = MediaItem.FromUri(nextupSong.streamUrl);
+            //        Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() => Exoplayer.AddMediaItem(firstItem));
+            //    }
+            //});
             Exoplayer.SeekToDefaultPosition(dequeuedListCount);
             Exoplayer.Prepare();
             Exoplayer.PlayWhenReady = true;
@@ -170,6 +169,7 @@ namespace PortaJel_Blazor.Classes.Services
                 });
             }
         }
+       
         private void UpdatePlaystate(long? setPosition = -1)
         {
             long duration = Exoplayer == null ? 0 : Exoplayer.Duration;
@@ -184,8 +184,8 @@ namespace PortaJel_Blazor.Classes.Services
                 MauiProgram.mainPage.UpdatePlaystate(duration, position);
             }
         }
-        
-        partial void Play()
+
+        public void Play()
         {
             if(serviceConnection != null && 
                serviceConnection.Binder != null)
@@ -202,7 +202,8 @@ namespace PortaJel_Blazor.Classes.Services
             //      MauiProgram.mainPage.RefreshPlayState();
             //  }
         }
-        partial void Pause()
+
+        public void Pause()
         {
             if (serviceConnection != null &&
                serviceConnection.Binder != null)
@@ -216,7 +217,7 @@ namespace PortaJel_Blazor.Classes.Services
             // }
         }
 
-        partial void TogglePlay()
+        public void TogglePlay()
         {
             if (serviceConnection != null &&
                serviceConnection.Binder != null)
@@ -234,7 +235,7 @@ namespace PortaJel_Blazor.Classes.Services
             //}
         }
 
-        partial void ToggleShuffle()
+        public void ToggleShuffle()
         {
             if (serviceConnection != null &&
                serviceConnection.Binder != null)
@@ -248,7 +249,7 @@ namespace PortaJel_Blazor.Classes.Services
             //}
         }
 
-        partial void ToggleRepeat()
+        public void ToggleRepeat()
         {
             if (serviceConnection != null &&
                 serviceConnection.Binder != null)
@@ -275,7 +276,7 @@ namespace PortaJel_Blazor.Classes.Services
             //}
         }
 
-        partial void NextTrack()
+        public void NextTrack()
         {
             if (serviceConnection != null &&
                 serviceConnection.Binder != null)
@@ -288,7 +289,7 @@ namespace PortaJel_Blazor.Classes.Services
             //}
         }
 
-        partial void PreviousTrack()
+        public void PreviousTrack()
         {
             if (serviceConnection != null &&
                 serviceConnection.Binder != null)
@@ -301,7 +302,7 @@ namespace PortaJel_Blazor.Classes.Services
             //}
         }
 
-        partial void SeekTo(long position)
+        public void SeekToPosition(long position)
         {
             if (serviceConnection != null &&
                 serviceConnection.Binder != null)
@@ -312,6 +313,42 @@ namespace PortaJel_Blazor.Classes.Services
             //{
             //    Exoplayer.SeekTo(position);
             //}
+        }
+
+        public void SeekToIndex(int index)
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                serviceConnection.Binder.SeekToIndex(index);
+            }
+        }
+
+        public void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                serviceConnection.Binder.SetPlayingCollection(baseMusicItem);
+            }
+        }
+
+        public void AddSong(Song song)
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                serviceConnection.Binder.AddSong(song);
+            }
+        }
+
+        public void RemoveSong(int index)
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                serviceConnection.Binder.RemoveSong(index);
+            }
         }
     }
 
@@ -353,6 +390,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool TogglePlay()
         {
             if (Exoplayer != null)
@@ -369,6 +407,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool Pause()
         {
             if (Exoplayer != null)
@@ -378,6 +417,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool SeekToPosition(long position)
         {
             if (Exoplayer != null)
@@ -387,11 +427,13 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool SeekToIndex(int index)
         {
             playingIndex = index;
             return false;
         }
+
         public bool SetRepeat(MediaServiceRepeatMode setRepeatMode)
         {
             if (Exoplayer != null)
@@ -402,6 +444,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool ToggleRepeat()
         {
             if (Exoplayer != null)
@@ -423,6 +466,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool SetShuffle(bool isShullfing)
         {
             if(Exoplayer != null)
@@ -432,6 +476,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool GetShuffle()
         {
             if (Exoplayer != null)
@@ -440,6 +485,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool ToggleShuffle()
         {
             if (Exoplayer != null)
@@ -449,6 +495,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool Next()
         {
             if (Exoplayer != null)
@@ -458,6 +505,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
+
         public bool Previous()
         {
             if (Exoplayer != null)
@@ -467,19 +515,86 @@ namespace PortaJel_Blazor.Classes.Services
             }
             return false;
         }
-        public bool SetPlayingCollection(BaseMusicItem baseMusicItem)
+
+        public bool SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
         {
-            playingFrom = baseMusicItem;
-            return true;
+            if(Exoplayer != null)
+            {
+                playingFrom = baseMusicItem;
+
+                List<Song> songList = new List<Song>();
+                if (playingFrom is Album)
+                {
+                    Album album = (Album)playingFrom;
+                    songList.AddRange(album.songs);
+                }
+                else if (playingFrom is Playlist)
+                {
+                    Playlist playlist = (Playlist)playingFrom;
+                    songList.AddRange(playlist.songs);
+                }
+
+                Exoplayer.ClearMediaItems();
+
+                // Add everything up to the selected song to queue
+                for (int i = 0; i < songList.Count; i++)
+                {
+                    if(i <= fromIndex)
+                    {
+                        MediaItem mediaItem = MediaItem.FromUri(songList[i].streamUrl);
+                        Exoplayer.AddMediaItem(mediaItem);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                // Add queue after selected song
+                for (int i = 0; i < songQueue.Count; i++)
+                {
+                    MediaItem mediaItem = MediaItem.FromUri(songQueue[i].streamUrl);
+                    Exoplayer.AddMediaItem(mediaItem);
+                }
+
+                // Add remainder of the tracks that were 'up next'
+                for (int i = fromIndex; i < songList.Count; i++)
+                {
+                    MediaItem mediaItem = MediaItem.FromUri(songList[i].streamUrl);
+                    Exoplayer.AddMediaItem(mediaItem);
+                }
+
+                // Seek to position of that last song
+                Exoplayer.SeekTo(fromIndex, 0);
+
+                return true;
+            }
+            return false;
         }
+
         public bool AddSong(Song song)
         {
-            songQueue.Add(song);
-            return true;
+            if(Exoplayer != null)
+            {
+                songQueue.Add(song);
+
+                MediaItem mediaItem = MediaItem.FromUri(song.streamUrl);
+                Exoplayer.AddMediaItem(mediaItem);
+
+                return true;
+            }
+            return false;
         }
+
         public bool RemoveSong(int index)
         {
-            songQueue.RemoveAt(index);
+            if (Exoplayer != null)
+            {
+                songQueue.RemoveAt(index);
+                Exoplayer.RemoveMediaItem(index);
+
+                return true;
+            }
             return true;
         }
     }

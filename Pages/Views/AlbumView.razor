@@ -294,12 +294,7 @@
             isCurrentAlbum = true;
 
             // When a user clicks on an album to listen to the songs go into the next up list
-            MauiProgram.mediaService.nextUpQueue.Clear();
-            MauiProgram.mediaService.nextUpQueue.QueueRange(album.songs);
-
-            MauiProgram.currentAlbumGuid = album.id;
-            MauiProgram.currentSongGuid = album.songs.First().id;
-
+            MauiProgram.mediaService.SetPlayingCollection(album);
             MauiProgram.mediaService.Play();
         }
 
@@ -331,9 +326,8 @@
             }
         }
 
-        // MauiProgram.mediaService.nextUpItem = album;
-        MauiProgram.mediaService.nextUpQueue.Clear();
-        MauiProgram.mediaService.nextUpQueue.QueueRange(toQueue.ToArray());
+        MauiProgram.mediaService.SetPlayingCollection(album, selectedSong);
+        MauiProgram.mediaService.SeekToIndex(selectedSong);
 
         MauiProgram.currentAlbumGuid = album.id;
         MauiProgram.currentSongGuid = songId;

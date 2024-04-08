@@ -7,21 +7,20 @@ using System.Threading.Tasks;
 
 namespace PortaJel_Blazor.Classes.Services
 {
-    public partial class MediaService
+    public interface IMediaInterface
     {
-        public bool isPlaying = false;
-        public int repeatMode = 0;
-        public bool shuffleOn = false;
-        public SongQueue songQueue = new();
-        public SongQueue nextUpQueue = new();
-        partial void Initalize();
-        partial void Play();
-        partial void Pause();
-        partial void TogglePlay();
-        partial void ToggleShuffle();
-        partial void ToggleRepeat();
-        partial void NextTrack();
-        partial void PreviousTrack();
-        partial void SeekTo(long position);
+        void Initalize();
+        void Play();
+        void Pause();
+        void TogglePlay();
+        void ToggleShuffle();
+        void ToggleRepeat();
+        void NextTrack();
+        void PreviousTrack();
+        void SeekToPosition(long position);
+        void SeekToIndex(int index);
+        void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0);
+        void AddSong(Song song);
+        void RemoveSong(int index);
     }
 }

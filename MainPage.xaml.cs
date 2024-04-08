@@ -878,7 +878,7 @@ public partial class MainPage : ContentPage
     private void MediaCntroller_Slider_DragCompleted(object sender, EventArgs e)
     {
         mediaCntrollerSliderDragging = false;
-        MauiProgram.mediaService.SeekTo(lastSeekPosition);
+        MauiProgram.mediaService.SeekToPosition(lastSeekPosition);
     }
     private void MediaCntroller_Slider_ValueChanged(object sender, ValueChangedEventArgs e)
     {

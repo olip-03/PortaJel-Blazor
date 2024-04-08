@@ -202,4 +202,16 @@
 	  <Folder Include="Platforms\Android\EventListeners\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Update="Platforms\MacCatalyst\MediaService.cs">
+	    <ExcludeFromCurrentConfiguration>true</ExcludeFromCurrentConfiguration>
+	  </Compile>
+	  <Compile Update="Platforms\Tizen\MediaService.cs">
+	    <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+	  </Compile>
+	  <Compile Update="Platforms\Windows\MediaService.cs">
+	    <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+	  </Compile>
+	</ItemGroup>
+
 </Project>
