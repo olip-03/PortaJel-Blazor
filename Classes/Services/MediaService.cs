@@ -21,6 +21,12 @@ namespace PortaJel_Blazor.Classes.Services
         void SeekToIndex(int index);
         void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0);
         void AddSong(Song song);
+        void AddSongs(Song[] songs);
         void RemoveSong(int index);
+        Song[] GetQueue();
+        int GetQueueIndex();
+        bool GetIsPlaying();
+        bool GetIsShuffling();
+        int GetRepeatMode();
     }
 }

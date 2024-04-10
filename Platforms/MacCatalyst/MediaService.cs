@@ -61,6 +61,11 @@ namespace PortaJel_Blazor.Classes.Services
 
         }
 
+        public void AddSongs(Song[] songs)
+        {
+
+        }
+
         public void RemoveSong(int index)
         {
 

@@ -140,7 +140,7 @@ namespace PortaJel_Blazor.Data
             })));
             contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(async () =>
             {
-                MauiProgram.mediaService.songQueue.QueueSong(this);
+                MauiProgram.mediaService.AddSong(this);
 
                 #if !WINDOWS
                 CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();

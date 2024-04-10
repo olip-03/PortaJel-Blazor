@@ -37,6 +37,7 @@ public partial class MainPage : ContentPage
     private ObservableCollection<Song> queueCongregate = new ObservableCollection<Song>();
     private Song? currentlyPlaying = Song.Empty;
     private bool hideMidiPlayer = true;
+    private bool supressQueueChange = false;
     long lastSeekPosition = 0;
 
     private uint animationSpeed = 550;
@@ -205,13 +206,16 @@ public partial class MainPage : ContentPage
     /// <returns></returns>
     public async void RefreshPlayer()
     {
-        queue = MauiProgram.mediaService.songQueue.GetQueue().ToObservableCollection();
-        queueNextUp = MauiProgram.mediaService.nextUpQueue.GetQueue().ToObservableCollection();
-        queueCongregate = [.. queue, .. queueNextUp];
+        supressQueueChange = true;
+        queueCongregate = MauiProgram.mediaService.GetQueue().ToObservableCollection();
 
         MediaController_Queue_List.ItemsSource = queueCongregate;
         MainPlayer_ImgCarousel.ItemsSource = queueCongregate;
         MiniPlayer_ImgCarousel.ItemsSource = queueCongregate;
+
+        int currentIndex = MauiProgram.mediaService.GetQueueIndex();
+        MainPlayer_ImgCarousel.ScrollTo(currentIndex, animate: false);
+        MiniPlayer_ImgCarousel.ScrollTo(currentIndex, animate: false);
 
         if (!MauiProgram.MiniPlayerIsOpen)
         {
@@ -230,14 +234,7 @@ public partial class MainPage : ContentPage
         }
 
         // Update the song that is currently playing
-        if (MauiProgram.mediaService.songQueue.Count() > 0)
-        {
-            if (!MauiProgram.MiniPlayerIsOpen)
-            {
-                PlayAnimations();
-            }
-        }
-        else if(MauiProgram.mediaService.nextUpQueue.Count() > 0)
+        if (queueCongregate.Count() > 0)
         {
             if (!MauiProgram.MiniPlayerIsOpen)
             {
@@ -258,29 +255,9 @@ public partial class MainPage : ContentPage
         {
             MiniPlayer.IsEnabled = !hideMidiPlayer;
         }
+        supressQueueChange = false;
     }
 
-    public async void RefreshPlayState(bool? animate = true)
-    {
-        Player_Btn_PlayToggle.Opacity = 0;
-        MediaController_Player_Play_btn.Opacity = 0;
-        if (MauiProgram.mediaService.isPlaying)
-        {
-            MediaController_Player_Play_btn.Source = "pause.png";
-            Player_Btn_PlayToggle.Source = "pause.png";
-        }
-        else
-        {
-            MediaController_Player_Play_btn.Source = "play.png";
-            Player_Btn_PlayToggle.Source = "play.png";
-        }
-        if (animate == true)
-        {
-            await Task.WhenAll(
-                Player_Btn_PlayToggle.FadeTo(1, 500, Easing.SinOut),
-                MediaController_Player_Play_btn.FadeTo(1, 500, Easing.SinOut));
-        }
-    }
     public async void ShowMusicController()
     {
         MauiProgram.MusicPlayerIsOpen = true;
@@ -301,7 +278,7 @@ public partial class MainPage : ContentPage
         );
 
         musicControlsFirstOpen = false;
-                RefreshPlayer();
+        RefreshPlayer();
     }
     public Task AwaitContextMenuClose()
     {
@@ -562,26 +539,15 @@ public partial class MainPage : ContentPage
 
     }
 
-    /// <summary>
-    /// Image Carousel Current Item Changed
-    /// Interaction method called when the Image Carousel changegs items
-    /// </summary>
-    private void MainPlayer_ImgCarousel_CurrentItemChanged(object sender, CurrentItemChangedEventArgs e)
+    private void MiniPlayer_ImgCarousel_PositionChanged(object sender, PositionChangedEventArgs e)
     {
-        Song? currentItem = (Song)e.CurrentItem;
-        Song? lastItem = (Song)e.PreviousItem;
-        if (currentItem != null && lastItem != null)
-        {
-            int currentIndex = queueCongregate.IndexOf(currentItem);
-            int lastIndex = queueCongregate.IndexOf(lastItem);
-            if(currentIndex > lastIndex)
-            { // Next song is requested
-                MauiProgram.mediaService.NextTrack();
-            }
-            else
-            { // Prev song is requested
-                MauiProgram.mediaService.PreviousTrack();
-            }
+        if (e.CurrentPosition > e.PreviousPosition)
+        { // Next song is requested
+            MauiProgram.mediaService.NextTrack();
+        }
+        else
+        { // Prev song is requested
+            MauiProgram.mediaService.PreviousTrack();
         }
     }
 
@@ -597,7 +563,7 @@ public partial class MainPage : ContentPage
 
         // Apply animations and update icon
         MediaController_Player_Play_btn.Opacity = 0;
-        if (MauiProgram.mediaService.isPlaying)
+        if (MauiProgram.mediaService.GetIsPlaying())
         {
             MediaController_Player_Play_btn.Source = "pause.png";
         }
@@ -622,7 +588,7 @@ public partial class MainPage : ContentPage
 
         // Apply animations and update icon
         MediaCntroller_Player_Repeat_btn.Opacity = 0;
-        switch (MauiProgram.mediaService.repeatMode)
+        switch (MauiProgram.mediaService.GetRepeatMode())
         {
             case 2:
                 MediaCntroller_Player_Repeat_btn.Source = "repeat_on_single.png";
@@ -651,7 +617,7 @@ public partial class MainPage : ContentPage
 
         // Apply animations and update icon
         MediaCntroller_Player_Shuffle_btn.Opacity = 0;
-        if (MauiProgram.mediaService.shuffleOn)
+        if (MauiProgram.mediaService.GetIsShuffling())
         {
             MediaCntroller_Player_Shuffle_btn.Source = "shuffle_on.png";
         }
@@ -887,4 +853,6 @@ public partial class MainPage : ContentPage
         MediaCntroller_Slider_PositionTxt.Text = ConvertToTimeFormat(value);
     }
     #endregion
+
+
 }

@@ -86,8 +86,7 @@
                                   InputTransparent="True">
                                 <CarouselView x:Name="MiniPlayer_ImgCarousel" 
                                               ItemsSource="{Binding queueCongregate}" 
-                                              Loop="False" 
-                                              CurrentItemChanged="MainPlayer_ImgCarousel_CurrentItemChanged">
+                                              Loop="False">
                                     <CarouselView.ItemTemplate>
                                         <DataTemplate>
                                             <HorizontalStackLayout>
@@ -212,7 +211,7 @@
                               HorizontalOptions="FillAndExpand" 
                               ItemsSource="{Binding queueCongregate}" 
                               Loop="False" 
-                              CurrentItemChanged="MainPlayer_ImgCarousel_CurrentItemChanged">
+                              PositionChanged="MiniPlayer_ImgCarousel_PositionChanged">
                     <CarouselView.ItemTemplate>
                         <DataTemplate>
                             <StackLayout>

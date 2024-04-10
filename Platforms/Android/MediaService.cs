@@ -21,6 +21,8 @@ using static Android.App.LauncherActivity;
 using System.Dynamic;
 using static Android.Icu.Text.Transliterator;
 using Android.Views.Animations;
+using Java.Lang;
+using static Xamarin.Google.Crypto.Tink.Shaded.Protobuf.Internal;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 
@@ -43,14 +45,19 @@ namespace PortaJel_Blazor.Classes.Services
         System.Timers.Timer myTimer = null;
         MediaServiceConnection serviceConnection = new();
 
+        public MediaService()
+        {
+            serviceConnection = new();
+            Intent mediaServiceIntent = new Intent(Platform.AppContext, typeof(AndroidMediaService));
+            Platform.AppContext.BindService(mediaServiceIntent, this.serviceConnection, Bind.AutoCreate);
+        }
+
         [Obsolete]
         public void Initalize()
         {
             CheckPermissions();
 
             // Creates background service
-            Intent mediaServiceIntent = new Intent(Platform.AppContext, typeof(AndroidMediaService));
-            Platform.AppContext.BindService(mediaServiceIntent, this.serviceConnection, Bind.AutoCreate);
 
             // Do yer notification channel stuffs 
             if (Build.VERSION.SdkInt < BuildVersionCodes.O)
@@ -153,7 +160,7 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        private void UpdatePlaystate(Object source, ElapsedEventArgs e)
+        private void UpdatePlaystate(System.Object source, ElapsedEventArgs e)
         {
             if(Exoplayer != null && Microsoft.Maui.Controls.Application.Current != null)
             {
@@ -329,7 +336,7 @@ namespace PortaJel_Blazor.Classes.Services
             if (serviceConnection != null &&
                 serviceConnection.Binder != null)
             {
-                serviceConnection.Binder.SetPlayingCollection(baseMusicItem);
+                serviceConnection.Binder.SetPlayingCollection(baseMusicItem, fromIndex);
             }
         }
 
@@ -342,6 +349,11 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
+        public void AddSongs(Song[] songs)
+        {
+            throw new NotImplementedException();
+        }
+
         public void RemoveSong(int index)
         {
             if (serviceConnection != null &&
@@ -350,9 +362,56 @@ namespace PortaJel_Blazor.Classes.Services
                 serviceConnection.Binder.RemoveSong(index);
             }
         }
+
+        public Song[] GetQueue()
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                return serviceConnection.Binder.GetQueue();
+            }
+            return Array.Empty<Song>();
+        }
+
+        public int GetQueueIndex()
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                return serviceConnection.Binder.GetQueueIndex();
+            }
+            return 0;
+        }
+        public bool GetIsPlaying()
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                return serviceConnection.Binder.GetIsPlaying();
+            }
+            return false;
+        }
+        public bool GetIsShuffling()
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                return serviceConnection.Binder.GetIsShuffling();
+            }
+            return false;
+        }
+        public int GetRepeatMode()
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                return serviceConnection.Binder.GetRepeatMode();
+            }
+            return 0;
+        }
     }
 
-    [Service(Exported = true, Name = "PortaJel.MediaService", IsolatedProcess = true, ForegroundServiceType = Android.Content.PM.ForegroundService.TypeMediaPlayback)]
+    [Service(Name="PortaJel.MediaService", IsolatedProcess=true, ForegroundServiceType=Android.Content.PM.ForegroundService.TypeMediaPlayback)]
     public class AndroidMediaService : Service
     {
         public IBinder? Binder { get; private set; }
@@ -363,7 +422,7 @@ namespace PortaJel_Blazor.Classes.Services
         public BaseMusicItem? playingFrom { get; private set; } = null;
         public List<Song> songQueue { get; private set; } = new();
 
-        AndroidMediaService()
+        public AndroidMediaService()
         {
             var HttpDataSourceFactory = new DefaultHttpDataSource.Factory().SetAllowCrossProtocolRedirects(true);
             var MainDataSource = new ProgressiveMediaSource.Factory(HttpDataSourceFactory);
@@ -373,6 +432,8 @@ namespace PortaJel_Blazor.Classes.Services
                 Exoplayer.RepeatMode = IPlayer.RepeatModeOff;
                 string deviceId = Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString();
             }
+            Exoplayer.Prepare();
+            Exoplayer.PlayWhenReady = true;
         }
 
         public override IBinder OnBind(Intent? intent)
@@ -391,28 +452,28 @@ namespace PortaJel_Blazor.Classes.Services
             return false;
         }
 
+        public bool Pause()
+        {
+            if (Exoplayer != null)
+            {
+                Exoplayer.Pause();
+                return true;
+            }
+            return false;
+        }
+
         public bool TogglePlay()
         {
             if (Exoplayer != null)
             {
                 if (Exoplayer.IsPlaying)
                 {
-                    Exoplayer.Pause();
+                    Pause();
                 }
                 else
                 {
-                    Exoplayer.Play();
+                    Play();
                 }
-                return true;
-            }
-            return false;
-        }
-
-        public bool Pause()
-        {
-            if (Exoplayer != null)
-            {
-                Exoplayer.Pause();
                 return true;
             }
             return false;
@@ -500,7 +561,11 @@ namespace PortaJel_Blazor.Classes.Services
         {
             if (Exoplayer != null)
             {
-                Exoplayer.Next();
+                if (Exoplayer.HasNext)
+                {
+                    Exoplayer.Next();
+                    playingIndex += 1;
+                }
                 return true;
             }
             return false;
@@ -511,6 +576,7 @@ namespace PortaJel_Blazor.Classes.Services
             if (Exoplayer != null)
             {
                 Exoplayer.Previous();
+                playingIndex -= 1;
                 return true;
             }
             return false;
@@ -522,51 +588,17 @@ namespace PortaJel_Blazor.Classes.Services
             {
                 playingFrom = baseMusicItem;
 
-                List<Song> songList = new List<Song>();
-                if (playingFrom is Album)
-                {
-                    Album album = (Album)playingFrom;
-                    songList.AddRange(album.songs);
-                }
-                else if (playingFrom is Playlist)
-                {
-                    Playlist playlist = (Playlist)playingFrom;
-                    songList.AddRange(playlist.songs);
-                }
-
                 Exoplayer.ClearMediaItems();
 
-                // Add everything up to the selected song to queue
-                for (int i = 0; i < songList.Count; i++)
+                foreach (Song song in GetQueue())
                 {
-                    if(i <= fromIndex)
-                    {
-                        MediaItem mediaItem = MediaItem.FromUri(songList[i].streamUrl);
-                        Exoplayer.AddMediaItem(mediaItem);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                // Add queue after selected song
-                for (int i = 0; i < songQueue.Count; i++)
-                {
-                    MediaItem mediaItem = MediaItem.FromUri(songQueue[i].streamUrl);
-                    Exoplayer.AddMediaItem(mediaItem);
-                }
-
-                // Add remainder of the tracks that were 'up next'
-                for (int i = fromIndex; i < songList.Count; i++)
-                {
-                    MediaItem mediaItem = MediaItem.FromUri(songList[i].streamUrl);
+                    MediaItem mediaItem = MediaItem.FromUri(song.streamUrl);
                     Exoplayer.AddMediaItem(mediaItem);
                 }
 
                 // Seek to position of that last song
-                Exoplayer.SeekTo(fromIndex, 0);
-
+                playingIndex = fromIndex;
+                Exoplayer.SeekTo(playingIndex, Exoplayer.Duration);
                 return true;
             }
             return false;
@@ -586,6 +618,23 @@ namespace PortaJel_Blazor.Classes.Services
             return false;
         }
 
+        public bool AddSongs(Song[] songs)
+        {
+            if (Exoplayer != null)
+            {
+                songQueue.AddRange(songs);
+
+                foreach (Song song in songs)
+                {
+                    MediaItem mediaItem = MediaItem.FromUri(song.streamUrl);
+                    Exoplayer.AddMediaItem(mediaItem);
+                }
+
+                return true;
+            }
+            return false;
+        }
+
         public bool RemoveSong(int index)
         {
             if (Exoplayer != null)
@@ -596,6 +645,87 @@ namespace PortaJel_Blazor.Classes.Services
                 return true;
             }
             return true;
+        }
+
+        public Song[] GetQueue()
+        {
+            if(playingFrom == null)
+            {
+                return Array.Empty<Song>();
+            }
+
+            List<Song> queue = new();
+            List<Song> songList = new List<Song>();
+
+            if (playingFrom is Album)
+            {
+                Album album = (Album)playingFrom;
+                songList.AddRange(album.songs);
+            }
+            else if (playingFrom is Playlist)
+            {
+                Playlist playlist = (Playlist)playingFrom;
+                songList.AddRange(playlist.songs);
+            }
+
+            // Add everything up to the selected song to queue
+            for (int i = 0; i < songList.Count; i++)
+            {
+                if (i < playingIndex)
+                {
+                    queue.Add(songList[i]);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // Add queue after selected song
+            for (int i = 0; i < songQueue.Count; i++)
+            {
+                queue.Add(songQueue[i]);
+            }
+
+            // Add remainder of the tracks that were 'up next'
+            if(playingIndex < songList.Count)
+            {
+                for (int i = playingIndex; i < songList.Count; i++)
+                {
+                    queue.Add(songList[i]);
+                }
+            }
+
+            return queue.ToArray();
+        }
+
+        public int GetQueueIndex()
+        {
+            return playingIndex;
+        }
+        public bool GetIsPlaying()
+        {
+            if(Exoplayer != null)
+            {
+                return Exoplayer.IsPlaying;
+            }
+            return false;
+        }
+        public bool GetIsShuffling()
+        {
+            if (Exoplayer != null)
+            {
+                return Exoplayer.ShuffleModeEnabled;
+            }
+            return false;
+        }
+        public int GetRepeatMode()
+        {
+            if(Exoplayer != null)
+            {
+                return Exoplayer.RepeatMode;
+            }
+            return 0;
         }
     }
     public class MediaServiceBinder : Binder
@@ -654,17 +784,41 @@ namespace PortaJel_Blazor.Classes.Services
         {
             return Service.Previous();
         }
-        public bool SetPlayingCollection(BaseMusicItem baseMusicItem)
+        public bool SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
         {
-            return Service.SetPlayingCollection(baseMusicItem);
+            return Service.SetPlayingCollection(baseMusicItem, fromIndex);
         }
         public bool AddSong(Song song)
         {
             return Service.AddSong(song);
         }
+        public bool AddSongs(Song[] songs)
+        {
+            return Service.AddSongs(songs);
+        }
         public bool RemoveSong(int index)
         {
             return Service.RemoveSong(index);
+        }
+        public Song[] GetQueue() 
+        {
+            return Service.GetQueue();
+        }
+        public int GetQueueIndex()
+        {
+            return Service.GetQueueIndex();
+        }
+        public bool GetIsPlaying()
+        {
+            return Service.GetIsPlaying();
+        }
+        public bool GetIsShuffling()
+        {
+            return Service.GetIsShuffling();
+        }
+        public int GetRepeatMode()
+        {
+            return Service.GetRepeatMode();
         }
     }
     public class MediaServiceConnection : Java.Lang.Object, IServiceConnection
