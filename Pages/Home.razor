@@ -5,7 +5,7 @@
 @using BlazorAnimate;
 @inject IJSRuntime JS;
 
-<div style="margin-bottom: 2rem">
+<div style="margin-bottom: 2rem; margin-top:1rem;">
     <h3>Recently Played</h3>
 
     <ul class="music-list">
@@ -124,7 +124,7 @@
 
             // Run blurhashing
             MauiProgram.UpdateDebugMessage("Decoding Blurhash!");
-            Task<string[]> runRecentPlayBlurhash = GenerateBlurHash(runGetFavourites.Result);
+            Task<string[]> runRecentPlayBlurhash = GenerateBlurHash(runGetRecent.Result);
             Task<string[]> runFavouritesBlurhash = GenerateBlurHash(runGetFavourites.Result);
             Task<string[]> runRecentAddedBlurhash = GenerateBlurHash(runGetRecentlyAdded.Result);
             Task<string[]> runMostPlayBlurhash = GenerateBlurHash(runGetMostPlayed.Result);

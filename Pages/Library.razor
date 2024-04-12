@@ -5,163 +5,163 @@
 @using BlazorAnimate;
 @inject IJSRuntime JS;
 
-<div>
-    <div class="button-container boxed">
-        @if (selected == Selectable.playlists)
-        {
-            <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
-        }
-        else
-        {
-            <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
-        }
-        <label for="playlists">Playlists</label>
+<hr />
 
-
-        @if (selected == Selectable.albums)
-        {
-            <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(Selectable.albums)">
-        }
-        else
-        {
-            <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(Selectable.albums)">
-        }
-        <label for="albums">Albums</label>
-
-        @if (selected == Selectable.artists)
-        {
-            <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(Selectable.artists)">
-        }
-        else
-        {
-            <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(Selectable.artists)">
-        }
-        <label for="artists">Artists</label>
-
-
-        @if (selected == Selectable.songs)
-        {
-            <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(Selectable.songs)">
-        }
-        else
-        {
-            <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(Selectable.songs)">
-        }
-        <label for="songs">Songs</label>
-
-        @if (!isFavouritesPage)
-        {
-            if (selected == Selectable.genres)
-            {
-                <input checked type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(Selectable.genres)">
-            }
-            else
-            {
-                <input type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(Selectable.genres)">
-            }
-            <label for="genres">Genres</label>
-        }
-
-    </div>
-
-    <div class="quickplay-container">
-        <button class="quickplay-button">Play All</button>
-        <div style="width:1rem;" />
-        <button class="quickplay-button">Shuffle</button>
-    </div>
-
-    <div class="tool-container">
-        <div @onclick=ToggleSort>
-            @switch (sort)
-            {
-                case sortMethod.byActivity:
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                        <p class="tools-text">Activity</p>
-                    </Animate>
-                    break;
-                case sortMethod.byArtist:
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                        <p class="tools-text">Artist</p>
-                    </Animate>
-                    break;
-                case sortMethod.byName:
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                        <p class="tools-text">Name</p>
-                    </Animate>
-                    break;
-            }
-        </div>
-        <div @onclick=ToggleView>
-            @if (showGrid)
-            {
-                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
-                </Animate>
-            }
-            else
-            {
-                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
-                </Animate>
-            }
-        </div>
-    </div>
-
-    @* Custom styling for items when grid mode is selected *@
-    @if (showGrid)
+<div class="button-container boxed">
+    @if (selected == Selectable.playlists)
     {
-        <style>
-            .album-list {
-                width: 100%;
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                grid-gap: 20px 10px;
-            }
-        </style>
-    }
-
-    @* Load actual items *@
-    @if (isLoading)
-    { // Spinner
-        <div class="album-list">
-            <Spinner />
-        </div>
+        <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
     }
     else
     {
-        <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-            <div class="album-list">
-                @if (data.Count() > 0)
-                { // Load information
-                    @for (int i = 0; i < data.Count(); i++)
+        <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
+    }
+    <label for="playlists">Playlists</label>
+
+
+    @if (selected == Selectable.albums)
+    {
+        <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(Selectable.albums)">
+    }
+    else
+    {
+        <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(Selectable.albums)">
+    }
+    <label for="albums">Albums</label>
+
+    @if (selected == Selectable.artists)
+    {
+        <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(Selectable.artists)">
+    }
+    else
+    {
+        <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(Selectable.artists)">
+    }
+    <label for="artists">Artists</label>
+
+
+    @if (selected == Selectable.songs)
+    {
+        <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(Selectable.songs)">
+    }
+    else
+    {
+        <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(Selectable.songs)">
+    }
+    <label for="songs">Songs</label>
+
+    @if (!isFavouritesPage)
+    {
+        if (selected == Selectable.genres)
+        {
+            <input checked type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(Selectable.genres)">
+        }
+        else
+        {
+            <input type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(Selectable.genres)">
+        }
+        <label for="genres">Genres</label>
+    }
+
+</div>
+
+<div class="quickplay-container">
+    <button class="quickplay-button">Play All</button>
+    <div style="width:1rem;" />
+    <button class="quickplay-button">Shuffle</button>
+</div>
+
+<div class="tool-container">
+    <div @onclick=ToggleSort>
+        @switch (sort)
+        {
+            case sortMethod.byActivity:
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                    <p class="tools-text">Activity</p>
+                </Animate>
+                break;
+            case sortMethod.byArtist:
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                    <p class="tools-text">Artist</p>
+                </Animate>
+                break;
+            case sortMethod.byName:
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                    <p class="tools-text">Name</p>
+                </Animate>
+                break;
+        }
+    </div>
+    <div @onclick=ToggleView>
+        @if (showGrid)
+        {
+            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
+            </Animate>
+        }
+        else
+        {
+            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
+            </Animate>
+        }
+    </div>
+</div>
+
+@* Custom styling for items when grid mode is selected *@
+@if (showGrid)
+{
+    <style>
+        .album-list {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 20px 10px;
+        }
+    </style>
+}
+
+@* Load actual items *@
+@if (isLoading)
+{ // Spinner
+    <div class="album-list">
+        <Spinner />
+    </div>
+}
+else
+{
+    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+        <div class="album-list">
+            @if (data.Count() > 0)
+            { // Load information
+                @for (int i = 0; i < data.Count(); i++)
+                {
+                    if (data[i] != null)
                     {
-                        if (data[i] != null)
+                        string base64 = string.Empty;
+                        try { base64 = placeholderImages[i]; }
+                        catch (Exception) { base64 = string.Empty; }
+                        if (i == lastAmount)
                         {
-                            string base64 = string.Empty;
-                            try { base64 = placeholderImages[i]; }
-                            catch (Exception) { base64 = string.Empty; }
-                            if (i == lastAmount)
-                            {
-                                <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
-                            }
-                            else
-                            {
-                                <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" />
-                            }
+                            <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
+                        }
+                        else
+                        {
+                            <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" />
                         }
                     }
                 }
-                else
-                { // something went wrong click here to try again
+            }
+            else
+            { // something went wrong click here to try again
 
-                }
-            </div>
-        </Animate>
-    }
-</div>
+            }
+        </div>
+    </Animate>
+}
 
 @code {
     [Parameter] public string showFavourites { get; set; } = "false";

@@ -29,6 +29,7 @@
     {
         if (musicItem != null)
         {
+            MauiProgram.mainPage.ShowLoadingScreen(true);
             MauiProgram.webView.NavigateAlbum(musicItem.id);
         }
     }
@@ -36,7 +37,7 @@
     {
         if (musicItem != null)
         {
-            // TODO: Update to artist ID
+            MauiProgram.mainPage.ShowLoadingScreen(true);
             MauiProgram.webView.NavigateArtist(musicItem.id);
         }
     }

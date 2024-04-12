@@ -33,11 +33,8 @@ public partial class MainPage : ContentPage
     private bool waitingForPageLoad = false;
 
     private ObservableCollection<Song> queue = new ObservableCollection<Song>();
-    private ObservableCollection<Song> queueNextUp = new ObservableCollection<Song>();
-    private ObservableCollection<Song> queueCongregate = new ObservableCollection<Song>();
-    private Song? currentlyPlaying = Song.Empty;
+    private ObservableCollection<Song> playingQueue = new ObservableCollection<Song>();
     private bool hideMidiPlayer = true;
-    private bool supressQueueChange = false;
     long lastSeekPosition = 0;
 
     private uint animationSpeed = 550;
@@ -189,6 +186,8 @@ public partial class MainPage : ContentPage
 
     public async void OpenMusicQueue()
     {
+        RefreshQueue();
+
         screenHeight = AllContent.Height;
 
         MauiProgram.MusicPlayerIsQueueOpen = true;
@@ -206,16 +205,7 @@ public partial class MainPage : ContentPage
     /// <returns></returns>
     public async void RefreshPlayer()
     {
-        supressQueueChange = true;
-        queueCongregate = MauiProgram.mediaService.GetQueue().ToObservableCollection();
-
-        MediaController_Queue_List.ItemsSource = queueCongregate;
-        MainPlayer_ImgCarousel.ItemsSource = queueCongregate;
-        MiniPlayer_ImgCarousel.ItemsSource = queueCongregate;
-
-        int currentIndex = MauiProgram.mediaService.GetQueueIndex();
-        MainPlayer_ImgCarousel.ScrollTo(currentIndex, animate: false);
-        MiniPlayer_ImgCarousel.ScrollTo(currentIndex, animate: false);
+        RefreshQueue();
 
         if (!MauiProgram.MiniPlayerIsOpen)
         {
@@ -234,7 +224,7 @@ public partial class MainPage : ContentPage
         }
 
         // Update the song that is currently playing
-        if (queueCongregate.Count() > 0)
+        if (playingQueue.Count() > 0)
         {
             if (!MauiProgram.MiniPlayerIsOpen)
             {
@@ -242,7 +232,8 @@ public partial class MainPage : ContentPage
             }
         }
         else
-        {
+        { // Hides the player 
+
             await Task.WhenAny(
                 MiniPlayer.FadeTo(0, animationSpeed, Easing.SinOut),
                 MiniPlayer.TranslateTo(0, 120, animationSpeed, Easing.SinOut));
@@ -255,7 +246,22 @@ public partial class MainPage : ContentPage
         {
             MiniPlayer.IsEnabled = !hideMidiPlayer;
         }
-        supressQueueChange = false;
+    }
+    public void RefreshQueue()
+    {
+        int playingIndex = MauiProgram.mediaService.GetQueueIndex();
+        List<Song> mediaQueue = MauiProgram.mediaService.GetQueue().ToList();
+
+        queue = mediaQueue.ToObservableCollection();
+        mediaQueue.RemoveRange(0, playingIndex);
+        playingQueue = mediaQueue.ToObservableCollection();
+
+        MediaController_Queue_List.ItemsSource = playingQueue;
+        MainPlayer_ImgCarousel.ItemsSource = queue;
+        MiniPlayer_ImgCarousel.ItemsSource = queue;
+
+        MainPlayer_ImgCarousel.ScrollTo(playingIndex, animate: false);
+        MiniPlayer_ImgCarousel.ScrollTo(playingIndex, animate: false);
     }
 
     public async void ShowMusicController()
@@ -446,6 +452,7 @@ public partial class MainPage : ContentPage
 
         double h = Microsoft.Maui.Devices.DeviceDisplay.MainDisplayInfo.Height;
         await ContextMenu.TranslateTo(ContextMenu.X, ContextMenu.Y + h, animationSpeed, Easing.SinIn);
+
         MauiProgram.ContextMenuIsOpen = false;
         ContextMenu.IsVisible = false;
         isClosing = false;
@@ -490,15 +497,15 @@ public partial class MainPage : ContentPage
         Song? currentItem = (Song)MainPlayer_ImgCarousel.CurrentItem;
         if (currentItem != null)
         {
-            int index = queueCongregate.IndexOf(currentItem);
+            int index = playingQueue.IndexOf(currentItem);
             int prevIndex = index - 1;
             if (prevIndex >= 0)
             {
                 MainPlayer_ImgCarousel.ScrollTo(prevIndex);
                 MiniPlayer_ImgCarousel.ScrollTo(prevIndex);
 
-                MainPlayer_ImgCarousel.CurrentItem = queueCongregate[prevIndex];
-                MiniPlayer_ImgCarousel.CurrentItem = queueCongregate[prevIndex];
+                MainPlayer_ImgCarousel.CurrentItem = playingQueue[prevIndex];
+                MiniPlayer_ImgCarousel.CurrentItem = playingQueue[prevIndex];
 
                 MauiProgram.mediaService.PreviousTrack();
             }
@@ -516,15 +523,15 @@ public partial class MainPage : ContentPage
         Song? currentItem = (Song)MainPlayer_ImgCarousel.CurrentItem;
         if(currentItem != null)
         {
-            int index = queueCongregate.IndexOf(currentItem);
+            int index = playingQueue.IndexOf(currentItem);
             int nextIndex = index + 1;
-            if(nextIndex < queueCongregate.Count())
+            if(nextIndex < playingQueue.Count())
             {
                 MainPlayer_ImgCarousel.ScrollTo(nextIndex);
                 MiniPlayer_ImgCarousel.ScrollTo(nextIndex);
                 
-                MainPlayer_ImgCarousel.CurrentItem = queueCongregate[nextIndex];
-                MiniPlayer_ImgCarousel.CurrentItem = queueCongregate[nextIndex];
+                MainPlayer_ImgCarousel.CurrentItem = playingQueue[nextIndex];
+                MiniPlayer_ImgCarousel.CurrentItem = playingQueue[nextIndex];
 
                 MauiProgram.mediaService.NextTrack();
             }

@@ -1,28 +1,12 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Media;
-using Android.OS;
-using Android.Support.V4.Media.Session;
-using Android.Widget;
-using AndroidX.Core.App;
 using Com.Google.Android.Exoplayer2;
 using Android.Util;
 using Com.Google.Android.Exoplayer2.Source;
-using Com.Google.Android.Exoplayer2.Source.Hls;
-using Com.Google.Android.Exoplayer2.Text;
-using Com.Google.Android.Exoplayer2.Trackselection;
-using Com.Google.Android.Exoplayer2.UI;
 using Com.Google.Android.Exoplayer2.Upstream;
-using Com.Google.Android.Exoplayer2.Video;
-using Org.Apache.Commons.Logging;
 using PortaJel_Blazor.Data;
 using System.Timers;
-using static Android.App.LauncherActivity;
-using System.Dynamic;
-using static Android.Icu.Text.Transliterator;
-using Android.Views.Animations;
-using Java.Lang;
-using static Xamarin.Google.Crypto.Tink.Shaded.Protobuf.Internal;
+using Android.OS;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 
@@ -610,8 +594,10 @@ namespace PortaJel_Blazor.Classes.Services
             {
                 songQueue.Add(song);
 
+                int index = (playingIndex + 1) + songQueue.Count();
+
                 MediaItem mediaItem = MediaItem.FromUri(song.streamUrl);
-                Exoplayer.AddMediaItem(mediaItem);
+                Exoplayer.AddMediaItem(index, mediaItem);
 
                 return true;
             }
@@ -622,12 +608,9 @@ namespace PortaJel_Blazor.Classes.Services
         {
             if (Exoplayer != null)
             {
-                songQueue.AddRange(songs);
-
                 foreach (Song song in songs)
                 {
-                    MediaItem mediaItem = MediaItem.FromUri(song.streamUrl);
-                    Exoplayer.AddMediaItem(mediaItem);
+                    AddSong(song);
                 }
 
                 return true;

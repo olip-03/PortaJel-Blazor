@@ -68,32 +68,32 @@ namespace PortaJel_Blazor.Classes.Services
 
         public void AddSongs(Song[] songs)
         {
-            throw new NotImplementedException();
+            
         }
 
         public Song[] GetQueue()
         {
-            throw new NotImplementedException();
+            return Array.Empty<Song>();
         }
 
         public int GetQueueIndex()
         {
-            throw new NotImplementedException();
+            return 0;
         }
 
         public bool GetIsPlaying()
         {
-            throw new NotImplementedException();
+            return false;  
         }
 
         public bool GetIsShuffling()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public int GetRepeatMode()
         {
-            throw new NotImplementedException();
+            return 0;
         }
     }
 }

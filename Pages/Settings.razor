@@ -6,8 +6,8 @@
 @page "/settings"
 
 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-    <!-- Settings for connecting to a Jellyfin server -->
-    <div>
+    <!-- Settings for connecting to servers -->
+    <div style="margin-top: 1rem;">
         <div class="header">
             <div class="title">Connections</div>
             <button class="add-button" @onclick=AddConnection>Add</button>
@@ -33,6 +33,63 @@
             <button class="reconnect-button">Reconnect</button>
         }
     </div>
+    <br />
+
+    <!-- Theme Setting -->
+    <div>
+
+    </div>
+
+    <!-- Home Settings-->
+    <div>
+        <!-- Layout Configuration Options -->
+        <div class="header">
+            <div class="title">Home Layout</div>
+            <button class="add-button">Add</button>
+        </div>
+
+        <!-- TODO: This is just a design, It needs proper implemntation -->
+        <div class="connection-container">
+            <div class="connection-details">
+                <img class="button-dropdown" src="/images/draghandle2.svg" />
+                <div class="user-profile-name">Recently Played</div>
+            </div>
+            <img class="button-dropdown" src="/images/down.svg" />
+        </div>
+
+        <div class="connection-container">
+            <div class="connection-details">
+                <img class="button-dropdown" src="/images/draghandle2.svg" />
+                <div class="user-profile-name">Favourites</div>
+            </div>
+            <img class="button-dropdown" src="/images/down.svg" />
+        </div>
+
+        <div class="connection-container">
+            <div class="connection-details">
+                <img class="button-dropdown" src="/images/draghandle2.svg" />
+                <div class="user-profile-name">Recently Added</div>
+            </div>
+            <img class="button-dropdown" src="/images/down.svg" />
+        </div>
+
+        <div class="connection-container">
+            <div class="connection-details">
+                <img class="button-dropdown" src="/images/draghandle2.svg" />
+                <div class="user-profile-name">Most Played</div>
+            </div>
+            <img class="button-dropdown" src="/images/down.svg" />
+        </div>
+
+        <div class="connection-container">
+            <div class="connection-details">
+                <img class="button-dropdown" src="/images/draghandle2.svg" />
+                <div class="user-profile-name">Random</div>
+            </div>
+            <img class="button-dropdown" src="/images/down.svg" />
+        </div>
+    </div>
+    <br />
 
     <!-- Favourites Settings -->
     <div>
