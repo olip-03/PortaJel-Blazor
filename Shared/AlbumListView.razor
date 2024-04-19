@@ -2,7 +2,7 @@
 @namespace PortaJel_Blazor.Shared
 
 <li class="music-item" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
-    <div class="image-container">
+    <div class="image-container" style="display: grid;">
         <img class="album-image album-cover-img opacityTransition"
              src="@musicItem.image.SourceAtResolution(100)"
              loading="lazy"

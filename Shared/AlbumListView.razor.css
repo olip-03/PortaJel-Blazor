@@ -8,12 +8,12 @@
     max-height: 80px; 
     user-select: none;
 }
-image-container div {
+image-container {
     width: 3.6rem;
     height: 3.6rem;
     overflow: hidden;
     user-select: none;
-    display: flex;
+    display: grid !important;
 }
 .album-image {
     min-width: 3.6rem;
@@ -38,7 +38,7 @@ image-container div {
     margin-right: 0.5rem;
     user-select: none;
     position: absolute;
-    z-index: -5;
+    z-index: 0;
     border-radius: 5px 0px 0px 5px;
 }
 .music-details {

@@ -34,6 +34,7 @@ public partial class MainPage : ContentPage
 
     private ObservableCollection<Song> queue = new ObservableCollection<Song>();
     private ObservableCollection<Song> playingQueue = new ObservableCollection<Song>();
+    private bool canSkipCarousel = false;
     private bool hideMidiPlayer = true;
     long lastSeekPosition = 0;
 
@@ -205,6 +206,7 @@ public partial class MainPage : ContentPage
     /// <returns></returns>
     public async void RefreshPlayer()
     {
+        canSkipCarousel = false;
         RefreshQueue();
 
         if (!MauiProgram.MiniPlayerIsOpen)
@@ -249,6 +251,7 @@ public partial class MainPage : ContentPage
     }
     public void RefreshQueue()
     {
+        canSkipCarousel = false;
         int playingIndex = MauiProgram.mediaService.GetQueueIndex();
         List<Song> mediaQueue = MauiProgram.mediaService.GetQueue().ToList();
 
@@ -257,6 +260,7 @@ public partial class MainPage : ContentPage
         playingQueue = mediaQueue.ToObservableCollection();
 
         MediaController_Queue_List.ItemsSource = playingQueue;
+
         MainPlayer_ImgCarousel.ItemsSource = queue;
         MiniPlayer_ImgCarousel.ItemsSource = queue;
 
@@ -325,7 +329,7 @@ public partial class MainPage : ContentPage
         await toast.Show();
     }
     private bool mediaCntrollerSliderDragging = false;
-    public async void UpdatePlaystate(long duration, long position)
+    public void UpdatePlaystate(long duration, long position)
     {
         if (!mediaCntrollerSliderDragging)
         {
@@ -462,21 +466,11 @@ public partial class MainPage : ContentPage
     #region MediaController
 
     /// <summary>
-    /// Button Close
-    /// Interaction method called when the Close Button is pressed
-    /// </summary>
-    /// <param name="sender">The object that raised the event.</param>
-    /// <param name="e">The event arguments.</param>
-    private void MediaController_Button_Close_Clicked(object sender, EventArgs e)
-    {
-        CloseMusicController();
-    }
-
-    /// <summary>
     /// Public method for closing the media controller
     /// </summary>
     public async void CloseMusicController()
     {
+        canSkipCarousel = false;
         MauiProgram.MusicPlayerIsOpen = false;
 
         await Task.WhenAny<bool>
@@ -494,6 +488,7 @@ public partial class MainPage : ContentPage
     bool isSkipping = false;
     private void MediaCntroller_Player_Previous_btn_Clicked(object sender, EventArgs e)
     {
+        canSkipCarousel = false;
         Song? currentItem = (Song)MainPlayer_ImgCarousel.CurrentItem;
         if (currentItem != null)
         {
@@ -520,6 +515,7 @@ public partial class MainPage : ContentPage
     /// <param name="e">The event arguments.</param>
     private void MediaCntroller_Player_Next_btn_Clicked(object sender, EventArgs e)
     {
+        canSkipCarousel = false;
         Song? currentItem = (Song)MainPlayer_ImgCarousel.CurrentItem;
         if(currentItem != null)
         {
@@ -538,24 +534,40 @@ public partial class MainPage : ContentPage
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     private void MediaCntroller_SkipToIndex(int index)
     {
 
     }
 
+    private void MainPlayer_ImgCarousel_Scrolled(object sender, ItemsViewScrolledEventArgs e)
+    {
+        CarouselView? carousel = sender as CarouselView;
+        if (carousel != null)
+        {
+            if (carousel.IsDragging)
+            {
+                canSkipCarousel = true;
+            }
+        }
+    }
+
     private void MiniPlayer_ImgCarousel_PositionChanged(object sender, PositionChangedEventArgs e)
     {
-        if (e.CurrentPosition > e.PreviousPosition)
-        { // Next song is requested
-            MauiProgram.mediaService.NextTrack();
+        if (canSkipCarousel)
+        {
+            if (e.CurrentPosition > e.PreviousPosition)
+            { // Next song is requested
+                MauiProgram.mediaService.NextTrack();
+            }
+            else
+            { // Prev song is requested
+                MauiProgram.mediaService.PreviousTrack();
+            }
         }
-        else
-        { // Prev song is requested
-            MauiProgram.mediaService.PreviousTrack();
-        }
+    }
+    private void MainPlayer_ImgCarousel_ScrollToRequested(object sender, ScrollToRequestEventArgs e)
+    {
+        MauiProgram.mediaService.SeekToIndex(e.Index);
     }
 
     /// <summary>
@@ -566,6 +578,7 @@ public partial class MainPage : ContentPage
     /// <param name="e">The event arguments.</param>
     private async void MediaController_Player_Play_btn_Clicked(object sender, EventArgs e)
     {
+        canSkipCarousel = false;
         MauiProgram.mediaService.TogglePlay();
 
         // Apply animations and update icon
@@ -590,6 +603,7 @@ public partial class MainPage : ContentPage
     /// <param name="e">The event arguments.</param>
     private async void MediaCntroller_Player_Repeat_btn_Clicked(object sender, EventArgs e)
     {
+        canSkipCarousel = false;
         // Call method in MediaService
         MauiProgram.mediaService.ToggleRepeat();
 
@@ -611,14 +625,9 @@ public partial class MainPage : ContentPage
         await Task.WhenAll(MediaCntroller_Player_Repeat_btn.FadeTo(1, 500, Easing.SinOut));
     }
 
-    /// <summary>
-    /// Media Controller Shuffle Button Clicked.
-    /// Interaction method called when the Shuffle button is pressed.
-    /// </summary>
-    /// <param name="sender">The object that raised the event.</param>
-    /// <param name="e">The event arguments.</param>
     private async void MediaCntroller_Player_Shuffle_btn_Clicked(object sender, EventArgs e)
     {
+        canSkipCarousel = false;
         // Call method in MediaService
         MauiProgram.mediaService.ToggleShuffle();
 
@@ -635,15 +644,13 @@ public partial class MainPage : ContentPage
         await MediaCntroller_Player_Shuffle_btn.FadeTo(1, 500, Easing.SinOut);
     }
 
-    /// <summary>
-    /// Media Controller Favourite Button Clicked.
-    /// Interaction method called when the Favourite button is pressed.
-    /// </summary>
-    /// <param name="sender">The object that raised the event.</param>
-    /// <param name="e">The event arguments.</param>
     private void MediaCntroller_Player_Fav_btn_Clicked(object sender, EventArgs e)
     {
-
+        canSkipCarousel = false;
+    }
+    private void MediaController_Button_Close_Clicked(object sender, EventArgs e)
+    {
+        CloseMusicController();
     }
     #endregion
 
@@ -859,7 +866,6 @@ public partial class MainPage : ContentPage
         lastSeekPosition = value;
         MediaCntroller_Slider_PositionTxt.Text = ConvertToTimeFormat(value);
     }
+
     #endregion
-
-
 }

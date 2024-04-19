@@ -95,6 +95,7 @@
     {
         if (musicObject != null)
         {
+            MauiProgram.mainPage.ShowLoadingScreen(true);
             var typeHandle = musicObject.GetType().Name;
             switch (typeHandle)
             {

@@ -20,14 +20,14 @@
         </div>
         @if (album != null)
         {
-@*             <div class="item-title">
+            <div class="item-title">
                 <div class="title-text">
                     <h2 style="margin: 0px">@album.name</h2>
                     <div class="artistInfo" @onclick="() => SelectArtist(album.artists.FirstOrDefault().id)">
                         @album.GetArtistName()
                     </div>
                 </div>
-            </div> *@
+            </div>
 
             <div class="playback-controls">
                 <div @onclick=FavouriteItem>
@@ -206,11 +206,13 @@
 
     private void SelectArtist(Guid artistId)
     {
+        MauiProgram.mainPage.ShowLoadingScreen(true);
         MauiProgram.webView.NavigateArtist(artistId);
     }
 
     private async void GoBack()
     {
+        MauiProgram.mainPage.ShowLoadingScreen(true);
         MauiProgram.webView.isLoading = true;
         try
         {

@@ -179,7 +179,7 @@
                     <StackLayout x:Name="MediaController_Player_PlayingFromInfo" 
                                  Grid.Column="1" 
                                  VerticalOptions="Center" 
-                                 IsVisible="False">
+                                 IsVisible="True">
                         <Label x:Name="MediaController_Player_PlayingFromInfo_PlayingFromType" 
                                Text="Playing from Album" 
                                TextColor="Black" 
@@ -211,6 +211,8 @@
                               HorizontalOptions="FillAndExpand" 
                               ItemsSource="{Binding queueCongregate}" 
                               Loop="False" 
+                              Scrolled="MainPlayer_ImgCarousel_Scrolled"
+                              ScrollToRequested="MainPlayer_ImgCarousel_ScrollToRequested"
                               PositionChanged="MiniPlayer_ImgCarousel_PositionChanged">
                     <CarouselView.ItemTemplate>
                         <DataTemplate>

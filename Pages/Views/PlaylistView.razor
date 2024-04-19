@@ -129,6 +129,7 @@
     }
     private async void GoBack()
     {
+        MauiProgram.mainPage.ShowLoadingScreen(true);
         MauiProgram.webView.isLoading = true;
         try
         {
