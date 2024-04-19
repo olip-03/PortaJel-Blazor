@@ -118,6 +118,9 @@ public static class MauiProgram
         // File.Delete(filePath);
         // Load servers from file
 
+        // Add theme
+        Application.Current.Resources.Add(new Resources.Themes.DarkTheme());
+
         // Check connection to server
         isConnected = false;
 
@@ -179,7 +182,8 @@ public static class MauiProgram
     /// </summary>
     public static async Task<bool> LoadData()
     {
-        Console.WriteLine("LoadData(): Starting data load");
+        MauiProgram.UpdateDebugMessage("Starting data load");
+
         servers = new List<ServerConnecter>();
         api = new DataConnector();
 
@@ -206,7 +210,8 @@ public static class MauiProgram
                             serverConnector.SetBaseAddress(url);
                             serverConnector.SetUserDetails(user, pass);
 
-                            Console.WriteLine($"LoadData(): Loaded info for {url}");
+                            MauiProgram.UpdateDebugMessage($"Loaded info for {url}");
+
 
                             servers.Add(serverConnector);
                             api.AddServer(serverConnector);
@@ -233,16 +238,16 @@ public static class MauiProgram
                 bool UserPassed = await server.AuthenticateUserAsync();
                 if(UserPassed) 
                 {
-                    Console.WriteLine($"LoadData(): Successfully logged into {server}");
+                    MauiProgram.UpdateDebugMessage($"Successfully logged into {server}");
                 }
                 else
                 {
-                    Console.WriteLine($"LoadData(): Login failed for {server}");
+                    MauiProgram.UpdateDebugMessage($"Login failed for {server}");
                 }
             }
         });
 
-        Console.WriteLine("LoadData(): Completed data load");
+        MauiProgram.UpdateDebugMessage($"Completed data load");
         dataLoadFinished = true;
         return true;
     }
