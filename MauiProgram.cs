@@ -118,8 +118,8 @@ public static class MauiProgram
         // File.Delete(filePath);
         // Load servers from file
 
-        // Add theme
-        Application.Current.Resources.Add(new Resources.Themes.DarkTheme());
+        // TODO: Add theme
+        // Application.Current.Resources.Add(new Resources.Themes.DarkTheme());
 
         // Check connection to server
         isConnected = false;

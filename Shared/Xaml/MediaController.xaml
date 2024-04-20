@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PortaJel_Blazor.Shared.MediaController">
+    <Grid>
+
+        <!-- Media Player Controls & Queue -->
+        <Grid x:Name="Container" 
+              BackgroundColor="White" 
+              VerticalOptions="FillAndExpand" 
+              HorizontalOptions="FillAndExpand" 
+              InputTransparent="False" 
+              IsVisible="false">
+            
+            <!-- Controller -->
+            <Grid x:Name="Player" 
+                  VerticalOptions="FillAndExpand" 
+                  HorizontalOptions="FillAndExpand">
+                
+                <!-- Header -->
+                <Grid Grid.Row="0">
+                    <!-- Close Button -->
+                    <ImageButton x:Name="Player_Btn_Close" 
+                         Clicked="Player_Btn_Close_Clicked" 
+                         WidthRequest="40" 
+                         HeightRequest="40" 
+                         Source="down.png" 
+                         Grid.Column="0" />
+
+                    <!-- Media Information -->
+                    <StackLayout Grid.Column="1" 
+                         VerticalOptions="Center" 
+                         IsVisible="True">
+                        <Label x:Name="Player_Lbl_PlayingFromType" 
+                               Text="Playing from Album" 
+                               TextColor="Black" 
+                               FontSize="16" 
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="Player_Lbl_PlayingFromText" 
+                               Text="Album Name" 
+                               TextColor="Black" 
+                               FontSize="14" 
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+
+                    <!-- Context Menu Button -->
+                    <ImageButton x:Name="Player_Btn_ContextMenu" 
+                         Clicked="Player_Btn_ContextMenu_Clicked"
+                         WidthRequest="40" 
+                         HeightRequest="40" 
+                         Source="more_horiz.png" 
+                         Grid.Column="2"/>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="70"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
+                
+                <!-- Image Carousel-->
+                <CarouselView x:Name="ImgCarousel" 
+                      Grid.Row="1" VerticalOptions="Center" 
+                      HorizontalOptions="FillAndExpand" 
+                      ItemsSource="{Binding queueCongregate}" 
+                      Loop="False" 
+                      Scrolled="ImgCarousel_Scrolled"
+                      ScrollToRequested="ImgCarousel_ScrollToRequested"
+                      PositionChanged="ImgCarousel_PositionChanged">
+                    <CarouselView.ItemTemplate>
+                        <DataTemplate>
+                            <StackLayout>
+                                <!-- Image inside of border -->
+                                <Border StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 5,5,5,5"
+                                        ZIndex="5"
+                                        MaximumWidthRequest="350" MaximumHeightRequest="350">
+                                    <Image x:Name="MainPlayer_Img" 
+                                           Source="{Binding image.sourceAtResolution}" 
+                                           Aspect="Fill" 
+                                           WidthRequest="350" 
+                                           HeightRequest="350"/>
+                                </Border>
+
+                                <!-- Labels for song title and artist-->
+                                <StackLayout Margin="0, 10, 0, 0">
+                                    <Label x:Name="ImgCarousel_SongTitle" 
+                                           TextColor="Black" 
+                                           HorizontalTextAlignment="Center" 
+                                           VerticalTextAlignment="Center"
+                                           Text="{Binding name}" 
+                                           FontSize="28" 
+                                           HorizontalOptions="Center" 
+                                           MaximumWidthRequest="350"/>
+                                    <Label x:Name="ImgCarousel_ArtistTitle" 
+                                           TextColor="Black" 
+                                           HorizontalTextAlignment="Center" 
+                                           Text="{Binding artistCongregate}" 
+                                           FontSize="20" 
+                                           HorizontalOptions="Center" 
+                                           MaximumWidthRequest="350"/>
+                                </StackLayout>
+                            </StackLayout>
+                        </DataTemplate>
+                    </CarouselView.ItemTemplate>
+                </CarouselView>
+
+                <!-- Playback controls -->
+                <Grid Grid.Row="2">
+                    <!-- Slider and timestamps -->
+                    <StackLayout Margin="10, 0, 10, 0" 
+                         VerticalOptions="Start">
+                        <Slider x:Name="Player_DurationSlider" 
+                        Maximum="100" 
+                        Value="100" 
+                        Margin="0" 
+                        MaximumTrackColor="Gray" 
+                        BackgroundColor="Transparent" 
+                        HorizontalOptions="FillAndExpand" 
+                        ValueChanged="Player_DurationSlider_ValueChanged"
+                        DragStarted="Player_DurationSlider_DragStarted"
+                        DragCompleted="Player_DurationSlider_DragCompleted" />
+                        <FlexLayout  Margin="20, 0, 20, 0" 
+                             JustifyContent="SpaceBetween" >
+                            <Label x:Name="Player_DurationSlider_Lbl_PositionTxt" 
+                                   TextColor="Black" 
+                                   Text="0:00" />
+                            <Label x:Name="Player_DurationSlider_Lbl_DurationTxt"
+                                   TextColor="Black" 
+                                   Text="0:00" />
+                        </FlexLayout>
+                    </StackLayout>
+
+                    <StackLayout VerticalOptions="Center">
+                        <FlexLayout JustifyContent="SpaceBetween" 
+                                    AlignItems="Center" 
+                                    Margin="20">
+                            <ImageButton x:Name="Player_Btn_Repeat" 
+                                 HeightRequest="40" WidthRequest="40" 
+                                 BackgroundColor="Transparent" 
+                                 Source="repeat_off.png" 
+                                 Clicked="Player_Btn_Repeat_Clicked" />
+                            <ImageButton x:Name="Player_Btn_Previous" 
+                                 HeightRequest="40" WidthRequest="40" 
+                                 BackgroundColor="Transparent"
+                                 Source="skip_previous.png" 
+                                 Clicked="Player_Btn_Previous_Clicked"/>
+                            <Frame CornerRadius="40" 
+                               Padding="0" Margin="0" 
+                               HeightRequest="80" WidthRequest="80"
+                               BackgroundColor="LightGray">
+                                <ImageButton x:Name="Player_Btn_Play" 
+                                     Aspect="AspectFit" 
+                                     VerticalOptions="Center" HorizontalOptions="Center" 
+                                     BackgroundColor="Transparent" 
+                                     HeightRequest="50" WidthRequest="50" 
+                                     Source="play.png"
+                                     Clicked="Player_Btn_Play_Clicked"/>
+                            </Frame>
+                            <ImageButton x:Name="Player_Btn_Next" 
+                                 HeightRequest="40" WidthRequest="40" 
+                                 BackgroundColor="Transparent" 
+                                 Source="skip_next.png" 
+                                 Clicked="Player_Btn_Next_Clicked"></ImageButton>
+                            <ImageButton x:Name="Player_Btn_Shuffle"
+                                 HeightRequest="40" WidthRequest="40" 
+                                 BackgroundColor="Transparent" 
+                                 Source="shuffle.png" 
+                                 Clicked="Player_Btn_Shuffle_Clicked"></ImageButton>
+                        </FlexLayout>
+                        
+                        <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
+                            <ImageButton x:Name="Player_Btn_Fav" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="heart.png" Clicked="Player_Btn_Fav_Clicked"></ImageButton>
+                            <ImageButton x:Name="Player_Btn_ShowQueue" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="queue.png" Clicked="Player_Btn_ShowQueue_Clicked"></ImageButton>
+                        </FlexLayout>
+                    </StackLayout>
+                </Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="1.2*"/>
+                </Grid.RowDefinitions>
+            </Grid>
+            
+            <!-- Queue -->
+            <Grid x:Name="Queue" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="false" BackgroundColor="White">
+                <!-- Header -->
+                <Grid Grid.Row="0">
+                    <ImageButton  x:Name="Queue_Btn_Close" Clicked="Queue_Btn_Close_Clicked" WidthRequest="40" HeightRequest="40" Source="down.png" Grid.Column="0" />
+                    
+                    <StackLayout Grid.Column="1" VerticalOptions="Center">
+                        <Label Text="Playing from Album" TextColor="Black" FontSize="16" HorizontalOptions="Center"></Label>
+                        <Label Text="Album Name" TextColor="Black" FontSize="14" HorizontalOptions="Center"></Label>
+                    </StackLayout>
+                    <ImageButton x:Name="Queue_Btn_ContextMenu" Clicked="Queue_Btn_ContextMenu_Clicked" WidthRequest="40" HeightRequest="40" Source="more_horiz.png" Grid.Column="2"/>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="70"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
+
+                <!-- Main Queue -->
+                <ScrollView InputTransparent="False" Grid.Row="1">
+                    <VerticalStackLayout>
+                        <!-- Queue Start Label -->
+                        <Grid Padding="20, 10, 20, 0" Grid.Row="1" x:Name="MediaController_Queue_Header">
+                            <Label VerticalOptions="Center" Grid.Row="1" FontAttributes="Bold" FontSize="16" TextColor="Black">Queue</Label>
+                            <Button Grid.Row="1" BorderColor="LightGray" BorderWidth="1" HeightRequest="35" WidthRequest="75" BackgroundColor="White" TextColor="Black" HorizontalOptions="End" Text="Clear"></Button>
+                        </Grid>
+
+                        <!-- Actaul queue CollectionView -->
+                        <CollectionView Grid.Row="1" CanReorderItems="True" x:Name="MediaController_Queue_List" InputTransparent="False" >
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="20, 0, 0, 5" HeightRequest="55">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Grid.RowSpan="2" 
+                                    HeightRequest="50"
+                                    WidthRequest="50" 
+                                    StrokeShape="RoundRectangle 3,3,3,3"
+                                    StrokeThickness="0"
+                                    Margin="0, 0, 5, 0">
+                                            <Image Grid.RowSpan="2"
+                                       Source="{Binding image.sourceAtResolution}"
+                                       Aspect="AspectFill"/>
+                                        </Border>
+
+                                        <Label Grid.Column="1"
+                                   Text="{Binding name}"
+                                   FontAttributes="Bold" 
+                                   TextColor="Black"
+                                   VerticalOptions="End"/>
+                                        <Label Grid.Row="1"
+                                   Grid.Column="1"
+                                   Text="{Binding artistCongregate}"
+                                   FontAttributes="Italic"
+                                   VerticalOptions="Start"
+                                   TextColor="Black"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <!-- Playback Controls -->
+                <Grid Grid.Row="2">
+                    <Border StrokeThickness="0"
+                    StrokeShape="RoundRectangle 2,2,2,2"
+                    Margin="10, 0, 10, 0"
+                    BackgroundColor="Transparent"
+                    VerticalOptions="Start">
+                        <ProgressBar Progress="0.7" HeightRequest="4" BackgroundColor="Transparent"/>
+                    </Border>
+
+                    <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
+                        <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="repeat_off.png"></ImageButton>
+                        <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="skip_previous.png"></ImageButton>
+                        <Frame CornerRadius="40" Padding="0" Margin="0" HeightRequest="80" WidthRequest="80" BackgroundColor="LightGray">
+                            <ImageButton Aspect="AspectFit" 
+                                         VerticalOptions="Center"
+                                         HorizontalOptions="Center" 
+                                         BackgroundColor="Transparent" 
+                                         HeightRequest="50" 
+                                         WidthRequest="50" 
+                                         Source="play.png"/>
+                        </Frame>
+                        <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="skip_next.png"></ImageButton>
+                        <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="shuffle.png"></ImageButton>
+                    </FlexLayout>
+                </Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="120"/>
+                </Grid.RowDefinitions>
+            </Grid>
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer>
+                    <!--Do NOTHING! I just don't want fucking tapps passing this grid RRAHHH-->
+                </TapGestureRecognizer>
+            </Grid.GestureRecognizers>
+        </Grid>
+
+        <!-- Context Menus -->
+        <!-- TODO: Add 'Swipe down to close' function to contextmenu -->
+        
+    </Grid>
+</ContentView>

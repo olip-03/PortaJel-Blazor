@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PortaJel_Blazor.Shared.ContextMenu">
+    <Grid x:Name="Container" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="false" InputTransparent="False">
+        <!--Image Container -->
+        <Grid x:Name="ImageContainer">
+            <Border x:Name="ImageContainer_Border" Grid.Row="1" HorizontalOptions="Center" StrokeShape="RoundRectangle 5,5,5,5" StrokeThickness="0" HeightRequest="250" WidthRequest="250">
+                <Image x:Name="ImageContainer_Img" Source="{Binding ContextMenuImage}" HeightRequest="250" WidthRequest="250" Aspect="Fill"></Image>
+            </Border>
+            <StackLayout VerticalOptions="Start" Grid.Row="2">
+                <Label x:Name="ImageContainer_MainText" Text="{Binding ContextMenuMainText}" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>
+                <Label x:Name="ImageContainer_SubText" Text="{Binding ContextMenuSubText}" FontSize="18" HorizontalTextAlignment="Center" Margin="30,0,30,0" ></Label>
+            </StackLayout>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="2.5*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+        </Grid>
+
+        <!--Item List-->
+        <ListView Grid.Row="1" x:Name="ItemList" Margin="20" ItemSelected="ItemList_ItemSelected" SelectionMode="Single" IsVisible="True">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <FlexLayout AlignItems="Center" HeightRequest="50">
+                            <Image HeightRequest="35" WidthRequest="35" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
+                            <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18"></Label>
+                        </FlexLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!--LAYOUT-->
+        <!--Row Definitions-->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!--Background-->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="Transparent" Offset="0.0" />
+                <GradientStop Color="Black" Offset="0.6" />
+                <GradientStop Color="Black" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Grid.GestureRecognizers>
+            <!--<PanGestureRecognizer PanUpdated="PanGestureRecognizer_PanUpdated"/>-->
+        </Grid.GestureRecognizers>
+    </Grid>
+</ContentView>

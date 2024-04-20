@@ -189,7 +189,16 @@
 		<MauiXaml Update="Resources\Themes\LightTheme.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Shared\MediaController.xaml">
+		<MauiXaml Update="Shared\Xaml\ContextMenu.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Shared\Xaml\MediaController.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Shared\Xaml\MiniPlayer.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Shared\Xaml\StatusIndicator.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 	</ItemGroup>

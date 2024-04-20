@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PortaJel_Blazor.Shared.StatusIndicator">
+    <Border x:Name="Player_Status"
+                Stroke="LightGray"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 5,5,5,5"
+                Margin="10, 0, 10, 5"
+                ZIndex="5" 
+                IsVisible="False">
+        <Border.Shadow>
+            <Shadow Brush="Black"
+                        Offset="5,5"
+                        Radius="15"
+                        Opacity="0.7" />
+        </Border.Shadow>
+        <Grid BackgroundColor="White" HeightRequest="25">
+            <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                <Image  x:Name="Player_status_Img" Aspect="Fill" Margin="2.5, 0, 2.5, 0" Source="offline24x24.png" WidthRequest="20" HeightRequest="20"></Image>
+                <!-- Status Text-->
+                <Label VerticalOptions="Center" x:Name="Player_status_txt" Text="Unable to connect to https://media.olisshittyserver.xyz/" MaxLines="1" FontSize="14" TextColor="Black"/>
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</ContentView>

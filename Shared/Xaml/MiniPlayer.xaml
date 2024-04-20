@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PortaJel_Blazor.Shared.MiniPlayer">
+    <!-- MiniPlayer -->
+    <Border x:Name="Container" 
+                Stroke="LightGray"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 5,5,5,5"
+                Margin="10, 0, 10, 0"
+                ZIndex="5"
+                Opacity="0"
+                IsEnabled="false">
+        <Border.Shadow>
+            <Shadow Brush="Black"
+                        Offset="5,5"
+                        Radius="15"
+                        Opacity="0.7" />
+        </Border.Shadow>
+        <Grid>
+            <FlexLayout HorizontalOptions="FillAndExpand" 
+                            VerticalOptions="FillAndExpand" 
+                            BackgroundColor="White" 
+                            HeightRequest="60" 
+                            AlignItems="Center"
+                            InputTransparent="False">
+                <!-- Carousel for MiniPlayer -->
+                <Grid HorizontalOptions="Start"
+                          VerticalOptions="Center"
+                          FlexLayout.Basis="50%" FlexLayout.Grow="1"
+                          InputTransparent="True">
+                    <CarouselView x:Name="MiniPlayer_ImgCarousel" 
+                                      ItemsSource="{Binding queueCongregate}" 
+                                      Loop="False">
+                        <CarouselView.ItemTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout>
+                                    <!-- Image -->
+                                    <Border FlexLayout.Shrink="0" 
+                                            WidthRequest="50" 
+                                            HeightRequest="50" 
+                                            StrokeThickness="0" 
+                                            Margin="4, 0, 4, 0"  
+                                            StrokeShape="RoundRectangle 5,5,5,5"
+                                            VerticalOptions="Center">
+                                        <Image Aspect="Fill" Source="{Binding image.sourceAtResolution}" WidthRequest="50" HeightRequest="50"></Image>
+                                    </Border>
+                                    <!-- Song and Artist Text-->
+                                    <VerticalStackLayout VerticalOptions="Center">
+                                        <Label VerticalOptions="Start" Grid.Row="0" Text="{Binding name}" MaxLines="1" FontSize="15" TextColor="Black"/>
+                                        <Label VerticalOptions="End" Grid.Row="1" Text="{Binding artistCongregate}" MaxLines="1" FontSize="12" TextColor="Gray"/>
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CarouselView.ItemTemplate>
+
+                    </CarouselView>
+                </Grid>
+
+                <!-- Playback Controls -->
+                <StackLayout Orientation="Horizontal" FlexLayout.Grow="0" HeightRequest="50" BackgroundColor="White" WidthRequest="85" Margin="2.5, 0, 2.5, 0" FlowDirection="RightToLeft">
+                    <ImageButton x:Name="MiniPlayer_Btn_PlayToggle" Clicked="MiniPlayer_Btn_PlayToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="play.png"  HorizontalOptions="End"/>
+                    <ImageButton x:Name="MiniPlayer_Btn_FavToggle" Clicked="MiniPlayer_Btn_FavToggle_Clicked" WidthRequest="40" HeightRequest="40" Source="heart.png" HorizontalOptions="End"/>
+                </StackLayout>
+
+                <FlexLayout.GestureRecognizers>
+                    <!--<PanGestureRecognizer PanUpdated="Navbar_PinchUpdated"/>-->
+                    <TapGestureRecognizer Tapped="MiniPlayer_Clicked"/>
+                    <SwipeGestureRecognizer Swiped="MiniPlayer_Swiped"/>
+                </FlexLayout.GestureRecognizers>
+            </FlexLayout>
+
+            <Border StrokeThickness="0"
+                        StrokeShape="RoundRectangle 2,2,2,2"
+                        Margin="20, 0, 20, 0"
+                        BackgroundColor="Transparent"
+                        VerticalOptions="End">
+                <ProgressBar x:Name="Miniplayer_Progress" Progress="0" HeightRequest="4" BackgroundColor="LightGray"/>
+            </Border>
+        </Grid>
+    </Border>
+</ContentView>

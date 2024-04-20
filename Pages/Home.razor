@@ -72,12 +72,14 @@
 
         if (!MauiProgram.homeCache.IsEmpty())
         {
-            isLoading = false;  
+            isLoading = false;
+            MauiProgram.mainPage.SetNavbarVisibility(true);
             MauiProgram.UpdateDebugMessage("Loading complete!");
             StateHasChanged();
         }
 
         await Task.Run(() => LoadApi());
+        MauiProgram.mainPage.SetNavbarVisibility(true);
     }
 
     private async Task LoadApi()
