@@ -158,6 +158,7 @@ namespace PortaJel_Blazor.Data
                 MauiProgram.mainPage.CloseContextMenu();
                 await MauiProgram.webView.FlagLoading();
                 await MauiProgram.mainPage.AwaitContextMenuClose();
+                MauiProgram.mainPage.ShowLoadingScreen(true);
                 MauiProgram.webView.NavigateAlbum(this.id);
             })));
             contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async () =>
@@ -165,6 +166,7 @@ namespace PortaJel_Blazor.Data
                 MauiProgram.mainPage.CloseContextMenu();
                 await MauiProgram.webView.FlagLoading();
                 await MauiProgram.mainPage.AwaitContextMenuClose();
+                MauiProgram.mainPage.ShowLoadingScreen(true);
                 MauiProgram.webView.NavigateArtist(this.artists.FirstOrDefault().id);
             })));
             contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>

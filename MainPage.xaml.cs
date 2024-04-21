@@ -18,6 +18,7 @@ using System.Diagnostics;
 using Microsoft.Maui.Layouts;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Maui.Controls.Internals;
+using PortaJel_Blazor.Shared;
 #if ANDROID
 using Android;
 #endif
@@ -313,14 +314,15 @@ public partial class MainPage : ContentPage
     #endregion
 
     #region ContextMenuMethods
-    public async Task<bool> OpenContextMenu(BaseMusicItem baseMusicItem, int imgResolution)
+    public bool OpenContextMenu(BaseMusicItem baseMusicItem, int imgResolution, string? setBlurBase64 = null)
     {
-
+        ContextMenu.UpdateData(baseMusicItem, blurBase64: setBlurBase64, opacity: 0);
+        ContextMenu.Show();
         return true;
     }
     public async void CloseContextMenu()
     {
-
+        ContextMenu.Close();
     }
     #endregion
 

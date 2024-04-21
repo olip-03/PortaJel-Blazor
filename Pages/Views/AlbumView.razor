@@ -286,7 +286,7 @@
 
     private async void OpenContextMenu(BaseMusicItem musicItem)
     {
-        await MauiProgram.mainPage.OpenContextMenu(musicItem, 250);
+        MauiProgram.mainPage.OpenContextMenu(musicItem, 250, base64BlurHash);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh

@@ -70,5 +70,100 @@ namespace PortaJel_Blazor.Classes.Services
         {
 
         }
+
+        void IMediaInterface.Initalize()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.Play()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.Pause()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.TogglePlay()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.ToggleShuffle()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.ToggleRepeat()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.NextTrack()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.PreviousTrack()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.SeekToPosition(long position)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.SeekToIndex(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.AddSong(Song song)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.AddSongs(Song[] songs)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMediaInterface.RemoveSong(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        Song[] IMediaInterface.GetQueue()
+        {
+            throw new NotImplementedException();
+        }
+
+        int IMediaInterface.GetQueueIndex()
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IMediaInterface.GetIsPlaying()
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IMediaInterface.GetIsShuffling()
+        {
+            throw new NotImplementedException();
+        }
+
+        int IMediaInterface.GetRepeatMode()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
