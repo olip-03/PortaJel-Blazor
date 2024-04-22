@@ -12,36 +12,37 @@
 
 @if (musicObject != null)
 {
-    <div id="@elementId" class="album-container @(isGrid == true ? "gridLayout" : "")" @oncontextmenu=OpenContextMenu @onclick=NavigateTo>
-        <div class="artist-cover @(isGrid == true ? "gridLayout" : "")">
-            @if (String.IsNullOrWhiteSpace(placeholderBase64))
-            {
-                <img class="album-cover-img @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@musicObject.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
-            }
-            else
-            { // Do yer placeholder here
-                <img class="album-cover-img opacityTransition @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" src="@musicObject.image.source" onerror="this.src='/images/emptyAlbum.png'" />
-                <img class="album-cover-placeholder @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@musicObject.id" onerror="this.style.opacity=0" />
-            }
-        </div>
-        <div>
-            @{
-                string artistName = string.Empty;
-                if (musicObject is Album )
+    <div id="@elementId" class="album-container @(isGrid == true ? "gridLayout" : "")">
+        <div style="display: flex" @oncontextmenu=OpenContextMenu @onclick=NavigateTo>
+            <div class="artist-cover @(isGrid == true ? "gridLayout" : "")">
+                @if (String.IsNullOrWhiteSpace(placeholderBase64))
                 {
-                    Album album = (Album)musicObject;
-                    artistName = album.artistCongregate;
+                    <img class="album-cover-img @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@musicObject.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
                 }
-                if (musicObject is Song)
-                {
-                    Song song = (Song)musicObject;
-                    artistName = song.artistCongregate;
+                else
+                { // Do yer placeholder here
+                    <img class="album-cover-img opacityTransition @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" src="@musicObject.image.source" onerror="this.src='/images/emptyAlbum.png'" />
+                    <img class="album-cover-placeholder @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@musicObject.id" onerror="this.style.opacity=0" />
                 }
-            }
-            <b>@musicObject.name</b>
-            <div>@artistName</div>
+            </div>
+            <div>
+                @{
+                    string artistName = string.Empty;
+                    if (musicObject is Album)
+                    {
+                        Album album = (Album)musicObject;
+                        artistName = album.artistCongregate;
+                    }
+                    if (musicObject is Song)
+                    {
+                        Song song = (Song)musicObject;
+                        artistName = song.artistCongregate;
+                    }
+                }
+                <b>@musicObject.name</b>
+                <div>@artistName</div>
+            </div>
         </div>
-
         @if (musicObject is not Genre && !isGrid)
         {
             <div class="favorite-button" @onclick=FavouriteItem>

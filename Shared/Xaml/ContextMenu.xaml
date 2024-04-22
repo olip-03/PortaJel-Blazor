@@ -19,8 +19,8 @@
                 </Grid>
             </Border>
             <StackLayout VerticalOptions="Start" Grid.Row="2">
-                <Label x:Name="ImageContainer_MainText" Text="{Binding ContextMenuMainText}" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>
-                <Label x:Name="ImageContainer_SubText" Text="{Binding ContextMenuSubText}" FontSize="18" HorizontalTextAlignment="Center" Margin="30,0,30,0" ></Label>
+                <Label x:Name="ImageContainer_MainText" Text="{Binding ContextMenuMainText}" TextColor="{StaticResource PrimaryTextColor}" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>
+                <Label x:Name="ImageContainer_SubText" Text="{Binding ContextMenuSubText}" TextColor="{StaticResource SecondaryTextColor}" FontSize="18" HorizontalTextAlignment="Center" Margin="30,0,30,0" ></Label>
             </StackLayout>
         </VerticalStackLayout>
 
@@ -36,7 +36,7 @@
                     <ViewCell>
                         <FlexLayout AlignItems="Center" HeightRequest="50">
                             <Image HeightRequest="35" WidthRequest="35" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
-                            <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="White"></Label>
+                            <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="{StaticResource PrimaryTextColor}"></Label>
                         </FlexLayout>
                     </ViewCell>
                 </DataTemplate>
@@ -52,9 +52,9 @@
         <!--Background-->
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="Transparent" Offset="0.0" />
-                <GradientStop Color="Black" Offset="0.6" />
-                <GradientStop Color="Black" Offset="1.0" />
+                <GradientStop Color="#00FFFFFF" Offset="0.0" />
+                <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="0.6" />
+                <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="1.0" />
             </LinearGradientBrush>
         </Grid.Background>
         

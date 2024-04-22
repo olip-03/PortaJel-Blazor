@@ -17,10 +17,10 @@
         </BlazorWebView>
 
         <!-- Loading blockout -->
-        <Grid x:Name="LoadingBlockout" BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="True">
+        <Grid x:Name="LoadingBlockout" BackgroundColor="{StaticResource PageBackgroundColor}" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="True">
             <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                <ActivityIndicator x:Name="save_activityIndicator" IsRunning="True" IsVisible="True" HeightRequest="80" WidthRequest="80" />
-                <Label x:Name="LoadingBlockout_DebugText" Text="Default debug text." TextColor="Black"></Label>
+                <ActivityIndicator x:Name="save_activityIndicator" IsRunning="True" Color="{StaticResource PrimaryColor}" IsVisible="True" HeightRequest="80" WidthRequest="80" />
+                <Label x:Name="LoadingBlockout_DebugText" Text="Default debug text." TextColor="{StaticResource PrimaryTextColor}"></Label>
             </StackLayout>
 
             <Grid.GestureRecognizers>
@@ -32,17 +32,16 @@
 
         <!-- Navigation Bar, MiniPlayer & Status Indicator -->
         <StackLayout Orientation="Vertical" x:Name="Navbar" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" InputTransparent="False" IsVisible="True">
-            <VerticalStackLayout x:Name="Player">
-                <!-- Status Indicator  -->
+            <VerticalStackLayout x:Name="PlayerContainer">
                 <shared:MiniPlayer/>
             </VerticalStackLayout>
 
             <!-- Navigation Buttons -->
             <FlexLayout HeightRequest="60" HorizontalOptions="Fill" VerticalOptions="EndAndExpand" JustifyContent="SpaceEvenly" AlignItems="Center">
-                <ImageButton x:Name="btn_navnar_home" Source="home.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_home_click"/>
-                <ImageButton x:Name="btn_navnar_search" Source="search.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_search_click"/>
-                <ImageButton x:Name="btn_navnar_library" Source="library.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_library_click"/>
-                <ImageButton x:Name="btn_navnar_favourites" Source="favourite.png"  WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_favourite_click"/>
+                <ImageButton x:Name="btn_navnar_home" Source="{StaticResource HomeButtonImage}" WidthRequest="40" HeightRequest="40" Pressed="btn_navnar_home_Pressed" Released="btn_navnar_home_Released" Clicked="btn_navnar_home_click"/>
+                <ImageButton x:Name="btn_navnar_search" Source="{StaticResource SearchButtonImage}" WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_search_click"/>
+                <ImageButton x:Name="btn_navnar_library" Source="{StaticResource LibraryButtonImage}" WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_library_click"/>
+                <ImageButton x:Name="btn_navnar_favourites" Source="{StaticResource FavButtonImage}" WidthRequest="40" HeightRequest="40" Clicked="btn_navnar_favourite_click"/>
             </FlexLayout>
 
             <!-- LAYOUT -->
@@ -52,13 +51,12 @@
                     <GradientStop Color="#00FFFFFF" Offset="0.0" />
                     <!--<GradientStop Color="Transparent" Offset="0.3" />
                     <GradientStop Color="White" Offset="0.7" />-->
-                    <GradientStop Color="White" Offset="0.9" />
+                    <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="0.9" />
                 </LinearGradientBrush>
             </StackLayout.Background>
         </StackLayout>
-
+        
         <shared:MediaController IsVisible="false"/>
-
         <shared:ContextMenu x:Name="ContextMenu" Opacity="0" IsVisible="False"></shared:ContextMenu>
     </Grid>
 </ContentPage>

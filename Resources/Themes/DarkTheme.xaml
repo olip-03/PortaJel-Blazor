@@ -10,4 +10,9 @@
     <Color x:Key="SecondaryTextColor">White</Color>
     <Color x:Key="TertiaryTextColor">WhiteSmoke</Color>
     <Color x:Key="TransparentColor">Transparent</Color>
+
+    <x:String x:Key="HomeButtonImage">light_home.png</x:String>
+    <x:String x:Key="SearchButtonImage">light_search.svg</x:String>
+    <x:String x:Key="LibraryButtonImage">light_library.svg</x:String>
+    <x:String x:Key="FavButtonImage">light_favourite.svg</x:String>
 </ResourceDictionary>

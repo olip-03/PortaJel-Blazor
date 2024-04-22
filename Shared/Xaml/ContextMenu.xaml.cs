@@ -9,6 +9,7 @@ public partial class ContextMenu : ContentView
 {
     ContextMenuViewModel bindableProperties { get; set; } = new();
     private string fullImgUrl = string.Empty;
+    private List<string> loadedImages = new();
 
     public ContextMenu(BaseMusicItem? baseMusicItem = null,
         string? blurBase64 = null,
@@ -40,7 +41,7 @@ public partial class ContextMenu : ContentView
                 album.image.soureResolution = 500;
 
                 bindableProperties.ContextMenuItems = album.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                bindableProperties.ContextMenuSubText = album.artistCongregate;
+                bindableProperties.ContextMenuSubText = "Album • " + album.artistCongregate;
             }
             else if(baseMusicItem is Song)
             {
@@ -48,7 +49,7 @@ public partial class ContextMenu : ContentView
                 song.image.soureResolution = 500;
 
                 bindableProperties.ContextMenuItems = song.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                bindableProperties.ContextMenuSubText = song.artistCongregate;
+                bindableProperties.ContextMenuSubText = "Song • " + song.artistCongregate;
             }
             else if (baseMusicItem is Artist)
             {
@@ -57,7 +58,7 @@ public partial class ContextMenu : ContentView
 
                 isCircle = true;
                 bindableProperties.ContextMenuItems = artist.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                bindableProperties.ContextMenuSubText = string.Empty;
+                bindableProperties.ContextMenuSubText = "Artist";
             }
             else if (baseMusicItem is Playlist)
             {
@@ -65,7 +66,7 @@ public partial class ContextMenu : ContentView
                 playlist.image.soureResolution = 500;
 
                 bindableProperties.ContextMenuItems = playlist.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                bindableProperties.ContextMenuSubText = string.Empty;
+                bindableProperties.ContextMenuSubText = "Playlist";
             }
 
             if (baseMusicItem.contextMenuItems.Count <= 0 && bindableProperties.ContextMenuItems != null)
@@ -94,7 +95,7 @@ public partial class ContextMenu : ContentView
             {
                 ImageContainer_Border.StrokeShape = new RoundRectangle
                 {
-                    CornerRadius = new CornerRadius(125, 125, 125, 125)
+                    CornerRadius = new CornerRadius(150, 150, 150, 150)
                 };
             }
             else
@@ -109,13 +110,26 @@ public partial class ContextMenu : ContentView
 
     public async void Show()
     {
+        HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
+
         this.InputTransparent = false;
         Container.InputTransparent = false;
-        ImageContainer_Img.Opacity = 0;
         this.Opacity = 1;
 
         Trace.WriteLine("Opening context menu.");
-        Trace.WriteLine("Starting image web request.");
+
+        if (loadedImages.Contains(fullImgUrl))
+        {
+            ImageContainer_Img.Opacity = 1;
+            ImageContainer_Img.Source = fullImgUrl;
+
+            await Task.WhenAll(
+                Container.TranslateTo(Container.X, 0, 750, Easing.SinOut),
+                this.FadeTo(1, 400, Easing.SinIn));
+            return;
+        }
+
+        ImageContainer_Img.Opacity = 0;
 
         HttpClient webClient = new();
 
@@ -123,9 +137,11 @@ public partial class ContextMenu : ContentView
         {
             var response = await webClient.GetAsync(fullImgUrl);
             byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+            loadedImages.Add(fullImgUrl);
             return bytes;
         });
 
+        Trace.WriteLine("Starting image web request.");
         await Task.WhenAll(
             Container.TranslateTo(Container.X, 0, 750, Easing.SinOut),
             this.FadeTo(1, 400, Easing.SinIn),
@@ -134,11 +150,8 @@ public partial class ContextMenu : ContentView
         Trace.WriteLine("Image downloaded, encoding.");
 
         MemoryStream imageDecodeStream = new(imgTask.Result);
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            this.ImageContainer_Img.Source = ImageSource.FromStream(() => imageDecodeStream);
-            await ImageContainer_Img.FadeTo(1, 750, Easing.SinIn);
-        });
+        this.ImageContainer_Img.Source = ImageSource.FromStream(() => imageDecodeStream);
+        await ImageContainer_Img.FadeTo(1, 750, Easing.SinIn);
     }
 
     public async void Close()

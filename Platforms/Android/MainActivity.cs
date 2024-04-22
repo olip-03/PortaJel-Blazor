@@ -3,17 +3,23 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
+using Google.Android.Material.Color;
 
 namespace PortaJel_Blazor;
 
 // https://github.com/Baseflow/XamarinMediaManager
 // https://stackoverflow.com/questions/76275381/an-easy-way-to-check-and-request-maui-permissions-including-bluetooth
+// Dynamic Colours https://developer.android.com/develop/ui/views/theming/dynamic-colors#kotlin
 
 [Activity(Theme = "@style/Maui.SplashTheme", LaunchMode = LaunchMode.SingleTop, MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
 public class MainActivity : MauiAppCompatActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
+        if(Application != null)
+        {
+            DynamicColors.ApplyToActivitiesIfAvailable(Application);
+        }
         base.OnCreate(savedInstanceState);
     }
     protected override void OnNewIntent(Intent? intent)

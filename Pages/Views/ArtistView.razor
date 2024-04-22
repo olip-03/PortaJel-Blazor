@@ -35,13 +35,7 @@
         </div>
 
     </div>
-        @if (!String.IsNullOrWhiteSpace(artist.description))
-        {
-            <div class="additional-info" @onclick=ToggleExpandDescription>
-                <p class="additional-info-text">@artist.description</p>
-                <p style="position: absolute; bottom: 100%; left: 100%;">Read more</p>
-            </div>
-        }
+
     <div class="playback-controls">
             <div @onclick=FavouriteItem id="playback-controls-fav">
             @if (artist.isFavourite)
@@ -157,6 +151,14 @@
             }
         </div>
     </div>
+
+        @if (!String.IsNullOrWhiteSpace(artist.description))
+        {
+            <div class="additional-info" @onclick=ToggleExpandDescription>
+                <p class="additional-info-text">@artist.description</p>
+                <p style="position: absolute; bottom: 100%; left: 100%;">Read more</p>
+            </div>
+        }
 
     <p>@errorMsg</p>
 </Animate>

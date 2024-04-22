@@ -432,16 +432,29 @@ public partial class MainPage : ContentPage
     #endregion
 
     #region Interactions
+    private bool homeBtnReleased = true;
+    private void btn_navnar_home_Pressed(object sender, EventArgs e)
+    {
+        homeBtnReleased = false;
+        btn_navnar_home.Opacity = 0;
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+    }
+    private void btn_navnar_home_Released(object sender, EventArgs e)
+    {
+        if(homeBtnReleased == false)
+        {
+            btn_navnar_home_click(sender, e);
+        }
+    }
     private async void btn_navnar_home_click(object sender, EventArgs e)
     {
+        homeBtnReleased = true;
         waitingForPageLoad = true;
         ShowLoadingScreen(true);
-        btn_navnar_home.Scale = 0.6;
-        btn_navnar_home.Opacity = 0;
+
         await Task.WhenAll<bool>
         (
-            btn_navnar_home.FadeTo(1, 250),
-            btn_navnar_home.ScaleTo(1, 250)
+            btn_navnar_home.FadeTo(1, 250)
         );
         MauiProgram.webView.NavigateHome();
     }
@@ -450,6 +463,7 @@ public partial class MainPage : ContentPage
         ShowLoadingScreen(true);
         btn_navnar_search.Scale = 0.6;
         btn_navnar_search.Opacity = 0;
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         await Task.WhenAll<bool>
         (
             btn_navnar_search.FadeTo(1, 250),
@@ -462,6 +476,7 @@ public partial class MainPage : ContentPage
         ShowLoadingScreen(true);
         btn_navnar_library.Scale = 0.6;
         btn_navnar_library.Opacity = 0;
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         await Task.WhenAny<bool>
         (
             btn_navnar_library.FadeTo(1, 250),
@@ -473,7 +488,7 @@ public partial class MainPage : ContentPage
     {
         ShowLoadingScreen(true);
         btn_navnar_favourites.Scale = 0.6;
-        btn_navnar_favourites.Opacity = 0;
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         await Task.WhenAny<bool>
         (
             btn_navnar_favourites.FadeTo(1, 250),
