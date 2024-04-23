@@ -290,7 +290,7 @@
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh
-            while (MauiProgram.ContextMenuIsOpen == true)
+            while (MauiProgram.mainPage.isContextMenuOpen == true)
             {
 
             }

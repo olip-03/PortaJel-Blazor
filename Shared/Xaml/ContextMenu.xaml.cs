@@ -7,7 +7,9 @@ using System.Diagnostics;
 namespace PortaJel_Blazor.Shared;
 public partial class ContextMenu : ContentView
 {
-    ContextMenuViewModel bindableProperties { get; set; } = new();
+    public bool isOpen { get; private set; } = false;
+
+    private ContextMenuViewModel bindableProperties { get; set; } = new();
     private string fullImgUrl = string.Empty;
     private List<string> loadedImages = new();
 
@@ -81,7 +83,6 @@ public partial class ContextMenu : ContentView
             Opacity = opacity ?? 100;
             IsVisible = true;
 
-            Container.TranslationY = DeviceDisplay.MainDisplayInfo.Height;
             ImageContainer.IsVisible = true;
 
             if (blurBase64 != null)
@@ -111,10 +112,12 @@ public partial class ContextMenu : ContentView
     public async void Show()
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
+        isOpen = true;
 
         this.InputTransparent = false;
+        this.Opacity = 0;
         Container.InputTransparent = false;
-        this.Opacity = 1;
+        Container.TranslationY = DeviceDisplay.MainDisplayInfo.Height / 4;
 
         Trace.WriteLine("Opening context menu.");
 
@@ -124,33 +127,48 @@ public partial class ContextMenu : ContentView
             ImageContainer_Img.Source = fullImgUrl;
 
             await Task.WhenAll(
-                Container.TranslateTo(Container.X, 0, 750, Easing.SinOut),
-                this.FadeTo(1, 400, Easing.SinIn));
+                Container.TranslateTo(Container.X, 0, 500, Easing.SinOut),
+                this.FadeTo(1, 500, Easing.SinIn));
             return;
         }
 
         ImageContainer_Img.Opacity = 0;
 
         HttpClient webClient = new();
-
         Task<byte[]> imgTask = Task.Run(async () =>
         {
-            var response = await webClient.GetAsync(fullImgUrl);
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-            loadedImages.Add(fullImgUrl);
+            byte[] bytes = new byte[0];
+            try
+            {
+                var response = await webClient.GetAsync(fullImgUrl);
+                bytes = await response.Content.ReadAsByteArrayAsync();
+                loadedImages.Add(fullImgUrl);
+            }
+            catch
+            {
+
+            }
             return bytes;
         });
 
         Trace.WriteLine("Starting image web request.");
         await Task.WhenAll(
-            Container.TranslateTo(Container.X, 0, 750, Easing.SinOut),
-            this.FadeTo(1, 400, Easing.SinIn),
+            Container.TranslateTo(Container.X, 0, 500, Easing.SinOut),
+            this.FadeTo(1, 500, Easing.SinIn),
             imgTask);
 
         Trace.WriteLine("Image downloaded, encoding.");
 
-        MemoryStream imageDecodeStream = new(imgTask.Result);
-        this.ImageContainer_Img.Source = ImageSource.FromStream(() => imageDecodeStream);
+        byte[] bytes = imgTask.Result;
+        if(bytes.Length > 0)
+        {
+            MemoryStream imageDecodeStream = new(imgTask.Result);
+            this.ImageContainer_Img.Source = ImageSource.FromStream(() => imageDecodeStream);
+        }
+        else
+        {
+            this.ImageContainer_Img.Source = "emptyalbum.png";
+        }
         await ImageContainer_Img.FadeTo(1, 750, Easing.SinIn);
     }
 
@@ -158,9 +176,10 @@ public partial class ContextMenu : ContentView
     {
         // TODO: Change to animation
         this.InputTransparent = true;
+        isOpen = false;
         Container.InputTransparent = true;
         await Task.WhenAny(
-            Container.TranslateTo(Container.X, DeviceDisplay.MainDisplayInfo.Height, 750, Easing.SinIn),
+            Container.TranslateTo(Container.X, DeviceDisplay.MainDisplayInfo.Height / 2, 750, Easing.SinIn),
             this.FadeTo(0, 750, Easing.SinIn)
             );
     }

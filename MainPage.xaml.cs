@@ -28,7 +28,7 @@ namespace PortaJel_Blazor;
 public partial class MainPage : ContentPage
 {
     public event EventHandler? CanExecuteChanged;
-    private bool isClosing = false;
+    public bool isContextMenuOpen => ContextMenu.isOpen;
     private double screenHeight = 0;
     private bool musicControlsFirstOpen = true;
     private bool waitingForPageLoad = false;
@@ -185,7 +185,7 @@ public partial class MainPage : ContentPage
     ///  Responsible for refresing the main page of the music controller
     /// </summary>
     /// <returns></returns>
-    public async void RefreshPlayer()
+    public void RefreshPlayer()
     {
         canSkipCarousel = false;
         RefreshQueue();
@@ -195,7 +195,7 @@ public partial class MainPage : ContentPage
             // MiniPlayer.TranslationY = 120;
         }
 
-        async void PlayAnimations()
+        void PlayAnimations()
         {
             // MiniPlayer.TranslationY = 120;
 
@@ -255,7 +255,7 @@ public partial class MainPage : ContentPage
     }
     public Task AwaitContextMenuClose()
     {
-        while (MauiProgram.ContextMenuIsOpen)
+        while (ContextMenu.isOpen)
         {
 
         }
@@ -263,7 +263,7 @@ public partial class MainPage : ContentPage
     }
     public Task AwaitContextMenuOpen()
     {
-        while (!MauiProgram.ContextMenuIsOpen)
+        while (!ContextMenu.isOpen)
         {
 
         }
@@ -320,7 +320,7 @@ public partial class MainPage : ContentPage
         ContextMenu.Show();
         return true;
     }
-    public async void CloseContextMenu()
+    public void CloseContextMenu()
     {
         ContextMenu.Close();
     }
@@ -331,7 +331,7 @@ public partial class MainPage : ContentPage
     /// <summary>
     /// Public method for closing the media controller
     /// </summary>
-    public async void CloseMusicController()
+    public void CloseMusicController()
     {
         canSkipCarousel = false;
         MauiProgram.MusicPlayerIsOpen = false;

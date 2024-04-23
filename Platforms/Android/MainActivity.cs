@@ -54,7 +54,7 @@ public class MainActivity : MauiAppCompatActivity
                 }
 
                 // If the context menu is open, close it
-                if (MauiProgram.ContextMenuIsOpen)
+                if (MauiProgram.mainPage.isContextMenuOpen)
                 {
                     MauiProgram.mainPage.CloseContextMenu();
                     return false;
