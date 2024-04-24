@@ -20,6 +20,7 @@ public class MainActivity : MauiAppCompatActivity
         {
             DynamicColors.ApplyToActivitiesIfAvailable(Application);
         }
+        
         base.OnCreate(savedInstanceState);
     }
     protected override void OnNewIntent(Intent? intent)
@@ -41,9 +42,9 @@ public class MainActivity : MauiAppCompatActivity
                 // If there are any modals open, close them
                 // Additional check for the firstLoginComplete. This is to ensure we cant close
                 // the modal for logging in before the app has actually allowed the user to sign in :)
-                if (MauiProgram.mainPage.StackCount() > 0 && MauiProgram.firstLoginComplete)
+                if (MauiProgram.MainPage.StackCount() > 0 && MauiProgram.firstLoginComplete)
                 {
-                    MauiProgram.mainPage.PopStack();
+                    MauiProgram.MainPage.PopStack();
                     return false;
                 }
                 else if (!MauiProgram.firstLoginComplete && App.Current != null && App.Current.MainPage != null)
@@ -54,22 +55,23 @@ public class MainActivity : MauiAppCompatActivity
                 }
 
                 // If the context menu is open, close it
-                if (MauiProgram.mainPage.isContextMenuOpen)
+                if (MauiProgram.MainPage.isContextMenuOpen)
                 {
-                    MauiProgram.mainPage.CloseContextMenu();
+                    MauiProgram.MainPage.CloseContextMenu();
                     return false;
                 }                
                 // If the music player is open, close it 
-                if (MauiProgram.MusicPlayerIsOpen)
+                if (MauiProgram.MainPage.MediaPlayer.IsOpen)
                 {
-                    if (MauiProgram.MusicPlayerIsQueueOpen)
+                    if (MauiProgram.MainPage.MediaPlayer.IsQueueOpen)
                     {
-                        MauiProgram.mainPage.CloseMusicQueue();
+                        // TODO: Update queue close endpoint 
+                        MauiProgram.MainPage.CloseMusicQueue();
                         return false;
                     }
                     else
                     {
-                        MauiProgram.mainPage.CloseMusicController();
+                        MauiProgram.MainPage.MediaPlayer.Close();
                         return false;
                     }
                 }
@@ -77,8 +79,8 @@ public class MainActivity : MauiAppCompatActivity
                 {
                     // Navigate back request
                     // Check if we should actually be doing this
-                    MauiProgram.mainPage.ShowLoadingScreen(true);
-                    MauiProgram.webView.isLoading = true;
+                    MauiProgram.MainPage.ShowLoadingScreen(true);
+                    MauiProgram.WebView.isLoading = true;
                 }
             }
             return base.DispatchKeyEvent(e);

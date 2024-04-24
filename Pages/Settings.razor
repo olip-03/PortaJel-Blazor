@@ -104,12 +104,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.webView.pageTitle = "Settings";
-        MauiProgram.webView.currentUri = "/settings";
-        MauiProgram.webView.showHeader = true;
+        MauiProgram.WebView.pageTitle = "Settings";
+        MauiProgram.WebView.currentUri = "/settings";
+        MauiProgram.WebView.showHeader = true;
 
-        MauiProgram.webView.isLoading = false;
-        MauiProgram.mainPage.ShowLoadingScreen(false);
+        MauiProgram.WebView.isLoading = false;
+        MauiProgram.MainPage.ShowLoadingScreen(false);
     }
 
     private async void DeleteConnection(string srv)
@@ -143,7 +143,7 @@
     private async void AddConnection()
     {
         AddServerView addServerView = new();
-        await MauiProgram.mainPage.PushModalAsync(addServerView);
+        await MauiProgram.MainPage.PushModalAsync(addServerView);
         await Task.Run(() => addServerView.AwaitClose(addServerView));
 
         // TODO: Save all the data again

@@ -155,7 +155,7 @@ namespace PortaJel_Blazor.Classes.Services
 
                     if (duration > 0)
                     {
-                        MauiProgram.mainPage.UpdatePlaystate(duration, position);
+                        MauiProgram.MainPage.UpdatePlaystate(duration, position);
                     }
                 });
             }
@@ -172,7 +172,7 @@ namespace PortaJel_Blazor.Classes.Services
 
             if(duration > 0) 
             {
-                MauiProgram.mainPage.UpdatePlaystate(duration, position);
+                MauiProgram.MainPage.UpdatePlaystate(duration, position);
             }
         }
 

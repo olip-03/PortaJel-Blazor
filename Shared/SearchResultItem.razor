@@ -96,29 +96,29 @@
     {
         if (musicObject != null)
         {
-            MauiProgram.mainPage.ShowLoadingScreen(true);
+            MauiProgram.MainPage.ShowLoadingScreen(true);
             var typeHandle = musicObject.GetType().Name;
             switch (typeHandle)
             {
                 case "Album":
                     if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.webView.NavigateAlbum(musicObject.id);
+                    MauiProgram.WebView.NavigateAlbum(musicObject.id);
                     break;
                 case "Artist":
                     if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.webView.NavigateArtist(musicObject.id);
+                    MauiProgram.WebView.NavigateArtist(musicObject.id);
                     break;
                 case "Song":
                     if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.webView.NavigateAlbum(musicObject.id);
+                    MauiProgram.WebView.NavigateAlbum(musicObject.id);
                     break;
                 case "PlaylistSong":
                     if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.webView.NavigateAlbum(musicObject.id);
+                    MauiProgram.WebView.NavigateAlbum(musicObject.id);
                     break;
                 case "Genre":
                     // TODO: Configure genre page
@@ -126,7 +126,7 @@
                 case "Playlist":
                     if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.webView.NavigatePlaylist(musicObject.id);
+                    MauiProgram.WebView.NavigatePlaylist(musicObject.id);
                     break;
                 default:
                     // TODO: Configure error message
@@ -164,11 +164,11 @@
 
     private async void OpenContextMenu()
     {
-        MauiProgram.mainPage.OpenContextMenu(musicObject, 250, placeholderBase64);
+        MauiProgram.MainPage.OpenContextMenu(musicObject, 250, placeholderBase64);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh 
-            while (MauiProgram.mainPage.isContextMenuOpen == true)
+            while (MauiProgram.MainPage.isContextMenuOpen == true)
             {
 
             }

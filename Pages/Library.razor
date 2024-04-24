@@ -202,23 +202,23 @@ else
     {
         isFavouritesPage = Boolean.Parse(showFavourites);
 
-        MauiProgram.webView.cancellationSource = new();
-        MauiProgram.webView.cancellationToken = MauiProgram.webView.cancellationSource.Token;
+        MauiProgram.WebView.cancellationSource = new();
+        MauiProgram.WebView.cancellationToken = MauiProgram.WebView.cancellationSource.Token;
 
         if (isFavouritesPage == true)
         {
-            MauiProgram.webView.pageTitle = "Favourites";
-            MauiProgram.webView.currentUri = "/library/true";
+            MauiProgram.WebView.pageTitle = "Favourites";
+            MauiProgram.WebView.currentUri = "/library/true";
         }
         else
         {
-            MauiProgram.webView.pageTitle = "Library";
-            MauiProgram.webView.currentUri = "/library/false";
+            MauiProgram.WebView.pageTitle = "Library";
+            MauiProgram.WebView.currentUri = "/library/false";
         }
 
-        MauiProgram.webView.showHeader = true;
+        MauiProgram.WebView.showHeader = true;
 
-        MauiProgram.webView.isLoading = false;
+        MauiProgram.WebView.isLoading = false;
         if (MauiProgram.libraryCache.IsEmpty())
         {
             SelectPage(selected);
@@ -232,7 +232,7 @@ else
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JS.InvokeAsync<string>("InitAllImages");
-        MauiProgram.mainPage.ShowLoadingScreen(false);
+        MauiProgram.MainPage.ShowLoadingScreen(false);
     }
     private void ToggleSort()
     {

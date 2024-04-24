@@ -29,25 +29,25 @@
     {
         if (musicItem != null)
         {
-            MauiProgram.mainPage.ShowLoadingScreen(true);
-            MauiProgram.webView.NavigateAlbum(musicItem.id);
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+            MauiProgram.WebView.NavigateAlbum(musicItem.id);
         }
     }
     private void NavigateToArtist()
     {
         if (musicItem != null)
         {
-            MauiProgram.mainPage.ShowLoadingScreen(true);
-            MauiProgram.webView.NavigateArtist(musicItem.id);
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+            MauiProgram.WebView.NavigateArtist(musicItem.id);
         }
     }
     private async void OpenContextMenu()
     {
-        MauiProgram.mainPage.OpenContextMenu(musicItem, 250, placeholderBase64);
+        MauiProgram.MainPage.OpenContextMenu(musicItem, 250, placeholderBase64);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh
-            while (MauiProgram.mainPage.isContextMenuOpen == true)
+            while (MauiProgram.MainPage.isContextMenuOpen == true)
             {
 
             }

@@ -89,9 +89,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.webView.pageTitle = "Playlist";
-        MauiProgram.webView.currentUri = $"/PlaylistView/{playlistId}";
-        MauiProgram.webView.showHeader = false;
+        MauiProgram.WebView.pageTitle = "Playlist";
+        MauiProgram.WebView.currentUri = $"/PlaylistView/{playlistId}";
+        MauiProgram.WebView.showHeader = false;
 
         Guid parseId = Guid.Parse(playlistId);
         if (MauiProgram.playlistDictionary.ContainsKey(parseId))
@@ -119,18 +119,18 @@
         }
 
         loaded = true;
-        MauiProgram.webView.isLoading = false;
-        MauiProgram.mainPage.ShowLoadingScreen(false);
+        MauiProgram.WebView.isLoading = false;
+        MauiProgram.MainPage.ShowLoadingScreen(false);
         StateHasChanged();
     }
     private void SelectArtist(Guid artistId)
     {
-        MauiProgram.webView.NavigateArtist(artistId);
+        MauiProgram.WebView.NavigateArtist(artistId);
     }
     private async void GoBack()
     {
-        MauiProgram.mainPage.ShowLoadingScreen(true);
-        MauiProgram.webView.isLoading = true;
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        MauiProgram.WebView.isLoading = true;
         try
         {
             await JS.InvokeAsync<string>("goBack");
@@ -138,13 +138,13 @@
         catch (Exception ex)
         {
             bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
-            MauiProgram.webView.NavigateHome();
+            MauiProgram.WebView.NavigateHome();
         }
     }
     private async void ShowPlaylistContextMenu()
     {
         // TODO: Add Blurhash
-        MauiProgram.mainPage.OpenContextMenu(playlist, 250);
+        MauiProgram.MainPage.OpenContextMenu(playlist, 250);
     }
     private async void FavouriteItem()
     {

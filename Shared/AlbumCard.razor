@@ -78,8 +78,8 @@
             if (musicObject is Album)
             {
                 Album album = (Album)musicObject;
-                MauiProgram.mainPage.ShowLoadingScreen(true);
-                MauiProgram.webView.NavigateAlbum(album.id);
+                MauiProgram.MainPage.ShowLoadingScreen(true);
+                MauiProgram.WebView.NavigateAlbum(album.id);
             }
             if (musicObject is Song)
             {
@@ -87,8 +87,8 @@
                 Album? album = song.album;
                 if(album != null)
                 {
-                    MauiProgram.mainPage.ShowLoadingScreen(true);
-                    MauiProgram.webView.NavigateAlbum(album.id);
+                    MauiProgram.MainPage.ShowLoadingScreen(true);
+                    MauiProgram.WebView.NavigateAlbum(album.id);
                 }
             }
         }
@@ -96,11 +96,11 @@
 
     private async void OpenContextMenu()
     {
-        MauiProgram.mainPage.OpenContextMenu(musicObject, 250, placeholderBase64);
+        MauiProgram.MainPage.OpenContextMenu(musicObject, 250, placeholderBase64);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh
-            while (MauiProgram.mainPage.isContextMenuOpen == true)
+            while (MauiProgram.MainPage.isContextMenuOpen == true)
             {
 
             }

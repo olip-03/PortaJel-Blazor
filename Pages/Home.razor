@@ -65,21 +65,21 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.webView.pageTitle = "PortaJel";
-        MauiProgram.webView.currentUri = "/home";
-        MauiProgram.webView.showHeader = true;
+        MauiProgram.WebView.pageTitle = "PortaJel";
+        MauiProgram.WebView.currentUri = "/home";
+        MauiProgram.WebView.showHeader = true;
         MauiProgram.UpdateDebugMessage("Home page loaded.");
 
         if (!MauiProgram.homeCache.IsEmpty())
         {
             isLoading = false;
-            MauiProgram.mainPage.SetNavbarVisibility(true);
+            MauiProgram.MainPage.SetNavbarVisibility(true);
             MauiProgram.UpdateDebugMessage("Loading complete!");
             StateHasChanged();
         }
 
         await Task.Run(() => LoadApi());
-        MauiProgram.mainPage.SetNavbarVisibility(true);
+        MauiProgram.MainPage.SetNavbarVisibility(true);
     }
 
     private async Task LoadApi()
@@ -189,8 +189,8 @@
         await JS.InvokeAsync<string>("InitAllImages");
         if (isLoading == false)
         {
-            MauiProgram.mainPage.ShowLoadingScreen(false);
-            MauiProgram.webView.isLoading = false;
+            MauiProgram.MainPage.ShowLoadingScreen(false);
+            MauiProgram.WebView.isLoading = false;
         }
     }
 

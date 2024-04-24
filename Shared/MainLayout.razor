@@ -30,11 +30,7 @@
                 <div class="bodyContainer">
                     @Body
                 </div>
-                @if (MauiProgram.MiniPlayerIsOpen)
-                { // TODO: Implement some legitiemate system for checking if the miniplayer
-                  // should be open or not
-                    <div style="height:3rem;"></div>
-                }
+                <div style="height:120px;"></div>
             </article>
         </Animate>
     </main>
@@ -88,7 +84,7 @@
 
     protected override void OnInitialized()
     {
-        MauiProgram.webView = this;
+        MauiProgram.WebView = this;
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -173,7 +169,7 @@
     }
     public void NavigateSettings()
     {
-        MauiProgram.mainPage.ShowLoadingScreen(true);
+        MauiProgram.MainPage.ShowLoadingScreen(true);
 
         if (currentUri != "/settings")
         {

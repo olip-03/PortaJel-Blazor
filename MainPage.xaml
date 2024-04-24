@@ -30,7 +30,7 @@
         <!-- Navigation Bar, MiniPlayer & Status Indicator -->
         <StackLayout Orientation="Vertical" x:Name="Navbar" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" InputTransparent="False" IsVisible="True">
             <VerticalStackLayout x:Name="PlayerContainer">
-                <shared:MiniPlayer/>
+                <shared:MiniPlayer x:Name="MiniPlayer"/>
             </VerticalStackLayout>
 
             <!-- Navigation Buttons -->
@@ -52,8 +52,8 @@
                 </LinearGradientBrush>
             </StackLayout.Background>
         </StackLayout>
-        
-        <shared:MediaController IsVisible="false"/>
+
+        <shared:MediaController x:Name="MediaControl" IsVisible="True"/>
         <shared:ContextMenu x:Name="ContextMenu" Opacity="0" IsVisible="False"></shared:ContextMenu>
     </Grid>
 </ContentPage>

@@ -12,8 +12,9 @@
         @if (waitingForResult)
         {
             <div class="album-container">
-                <PortaJel_Blazor.Shared.Resources.Spinner />
-            </div>
+                <!-- TODO: Restore Spinner Element -->
+                @*<PortaJel_Blazor.Shared.Resources.Spinner />*@            
+</div>
         }
         else
         {
@@ -92,15 +93,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.webView.pageTitle = "Search";
-        MauiProgram.webView.currentUri = "/search";
-        MauiProgram.webView.showHeader = true;
+        MauiProgram.WebView.pageTitle = "Search";
+        MauiProgram.WebView.currentUri = "/search";
+        MauiProgram.WebView.showHeader = true;
 
-        MauiProgram.webView.cancellationSource = new();
-        MauiProgram.webView.cancellationToken = MauiProgram.webView.cancellationSource.Token;
+        MauiProgram.WebView.cancellationSource = new();
+        MauiProgram.WebView.cancellationToken = MauiProgram.WebView.cancellationSource.Token;
 
-        MauiProgram.webView.isLoading = false;
-        MauiProgram.mainPage.ShowLoadingScreen(false);
+        MauiProgram.WebView.isLoading = false;
+        MauiProgram.MainPage.ShowLoadingScreen(false);
         isLoading = false;
         // MauiProgram.mainPage.UpdateKeyboardLocation();
     }

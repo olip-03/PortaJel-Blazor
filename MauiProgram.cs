@@ -39,8 +39,8 @@ public static class MauiProgram
     public static bool contentPage = false;
     public static string contentTitle = "";
 
-    public static MainLayout webView = new();
-    public static MainPage mainPage = new(initialize: false);
+    public static MainLayout WebView = new();
+    public static MainPage MainPage = new(initialize: false);
 
     public static IMediaInterface mediaService = new MediaService();
 
@@ -58,7 +58,6 @@ public static class MauiProgram
     public static List<ContextMenuItem> ContextMenuTaskList = new List<ContextMenuItem>();
 
     // Data for MusicPlayer
-    public static bool MiniPlayerIsOpen = false;
     public static bool MusicPlayerIsOpen = false;
     public static bool MusicPlayerIsQueueOpen = false;
 
@@ -133,7 +132,7 @@ public static class MauiProgram
         Console.WriteLine(message);
         if(Application.Current != null)
         {
-            Application.Current.Dispatcher.Dispatch(() => mainPage.UpdateDebugText(message));
+            Application.Current.Dispatcher.Dispatch(() => MainPage.UpdateDebugText(message));
         }
     }
 

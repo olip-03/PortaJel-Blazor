@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PortaJel_Blazor.Resources.Themes.DarkTheme">
     <Color x:Key="PageBackgroundColor">#101010</Color>
+    <Color x:Key="PageSecondaryColor">#202020</Color>
     <Color x:Key="NavigationBarColor">Black</Color>
     <Color x:Key="PrimaryColor">Teal</Color>
     <Color x:Key="SecondaryColor">White</Color>
@@ -15,4 +16,17 @@
     <x:String x:Key="SearchButtonImage">light_search.svg</x:String>
     <x:String x:Key="LibraryButtonImage">light_library.svg</x:String>
     <x:String x:Key="FavButtonImage">light_favourite.svg</x:String>
+
+    <x:String x:Key="ArrowDownIcon">light_down.png</x:String>
+    <x:String x:Key="MoreHorizIcon">light_more_horiz.png</x:String>
+    <x:String x:Key="MoreVertIcon">light_more_horiz.png</x:String>
+    <x:String x:Key="RepeatOffIcon">light_repeat_off.png</x:String>
+    <x:String x:Key="SkipPreviousIcon">light_skip_previous.png</x:String>
+    <x:String x:Key="PlayIcon">light_play.svg</x:String>
+    <x:String x:Key="InversePlayIcon">play.svg</x:String>
+    <x:String x:Key="PauseIcon">skip_previous.png</x:String>
+    <x:String x:Key="SkipNextIcon">light_skip_next.png</x:String>
+    <x:String x:Key="ShuffleIcon">light_shuffle.png</x:String>
+    <x:String x:Key="HeartEmptyIcon">light_heart.png</x:String>
+    <x:String x:Key="QueueIcon">light_queue.png</x:String>
 </ResourceDictionary>

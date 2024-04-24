@@ -30,8 +30,14 @@ public partial class MainPage : ContentPage
     public event EventHandler? CanExecuteChanged;
     public bool isContextMenuOpen => ContextMenu.isOpen;
     private double screenHeight = 0;
-    private bool musicControlsFirstOpen = true;
-    private bool waitingForPageLoad = false;
+    public bool IsMiniPlayerOpen => MiniPlayer.IsOpen;
+
+    public double ContentHeight { get => AllContent.Height; private set { } }
+    public double ContentWidth { get => AllContent.Width; private set { } }
+
+    public MediaController MediaPlayer { get => this.MediaControl; private set { } }
+    public MiniPlayer MiniPlayerController { get => this.MiniPlayer; private set { } }
+
 
     private ObservableCollection<Song> queue = new ObservableCollection<Song>();
     private ObservableCollection<Song> playingQueue = new ObservableCollection<Song>();
@@ -49,7 +55,7 @@ public partial class MainPage : ContentPage
         }
 
         InitializeComponent();
-        MauiProgram.mainPage = this;
+        MauiProgram.MainPage = this;
         #if ANDROID
         btn_navnar_home.HeightRequest = 30;
         btn_navnar_home.WidthRequest = 30;
@@ -62,7 +68,7 @@ public partial class MainPage : ContentPage
 
         btn_navnar_favourites.HeightRequest = 30;
         btn_navnar_favourites.WidthRequest = 30;
-        #endif
+#endif
         // MauiProgram.webView = blazorWebView;
     }
 
@@ -71,15 +77,16 @@ public partial class MainPage : ContentPage
         if (MauiProgram.api.GetServers().Count() <= 0)
         {
             AddServerView addServerView = new();
-            await MauiProgram.mainPage.PushModalAsync(addServerView, false);
+            await MauiProgram.MainPage.PushModalAsync(addServerView, false);
             await Task.Run(() => addServerView.AwaitClose(addServerView));
             MauiProgram.firstLoginComplete = true;
         }
 
         double spacing = (AllContent.Width - 350) / 2;
+        MediaPlayer.PositionY = AllContent.Height;
 
         MauiProgram.mediaService.Initalize();
-        MauiProgram.webView.NavigateHome();
+        MauiProgram.WebView.NavigateHome();
     }
 
     public void UpdateDebugText(string updateTo)
@@ -190,39 +197,19 @@ public partial class MainPage : ContentPage
         canSkipCarousel = false;
         RefreshQueue();
 
-        if (!MauiProgram.MiniPlayerIsOpen)
-        {
-            // MiniPlayer.TranslationY = 120;
-        }
-
-        void PlayAnimations()
-        {
-            // MiniPlayer.TranslationY = 120;
-
-            //await Task.WhenAny(
-            //        MiniPlayer.FadeTo(1, animationSpeed, Easing.SinOut),
-            //        MiniPlayer.TranslateTo(0, 0, animationSpeed, Easing.SinOut));
-            hideMidiPlayer = false;
-            MauiProgram.MiniPlayerIsOpen = true;
-        }
-
         // Update the song that is currently playing
+        
+
         if (playingQueue.Count() > 0)
         {
-            if (!MauiProgram.MiniPlayerIsOpen)
+            if (!MiniPlayer.IsOpen)
             {
-                PlayAnimations();
+                MiniPlayer.Show();
             }
         }
         else
         { // Hides the player 
-
-            //await Task.WhenAny(
-            //    MiniPlayer.FadeTo(0, animationSpeed, Easing.SinOut),
-            //    MiniPlayer.TranslateTo(0, 120, animationSpeed, Easing.SinOut));
-
-            MauiProgram.MiniPlayerIsOpen = false;
-            hideMidiPlayer = true;
+            MiniPlayer.Hide();
         }
 
         if (!hideMidiPlayer)
@@ -243,7 +230,7 @@ public partial class MainPage : ContentPage
         //MediaController_Queue_List.ItemsSource = playingQueue;
 
         //MainPlayer_ImgCarousel.ItemsSource = queue;
-        //MiniPlayer_ImgCarousel.ItemsSource = queue;
+        MiniPlayer.UpdateDate(MauiProgram.mediaService.GetQueue());
 
         //MainPlayer_ImgCarousel.ScrollTo(playingIndex, animate: false);
         //MiniPlayer_ImgCarousel.ScrollTo(playingIndex, animate: false);
@@ -329,15 +316,6 @@ public partial class MainPage : ContentPage
     #region MediaController
 
     /// <summary>
-    /// Public method for closing the media controller
-    /// </summary>
-    public void CloseMusicController()
-    {
-        canSkipCarousel = false;
-        MauiProgram.MusicPlayerIsOpen = false;
-    }
-
-    /// <summary>
     /// Player Previous Button Clicked
     /// Interaction method called when the Previous Song button is pressed in the Media Controller
     /// </summary>
@@ -393,42 +371,6 @@ public partial class MainPage : ContentPage
     {
         MauiProgram.mediaService.SeekToIndex(e.Index);
     }
-
-    /// <summary>
-    /// Media Controller Play Button Clicked
-    /// Interaction method called when the Play button is pressed.
-    /// </summary>
-    /// <param name="sender">The object that raised the event.</param>
-    /// <param name="e">The event arguments.</param>
-    private async void MediaController_Player_Play_btn_Clicked(object sender, EventArgs e)
-    {
-
-    }
-
-    /// <summary>
-    /// Media Controller Repeat Button Clicked
-    /// Interaction method called when the Shuffle button is pressed
-    /// </summary>
-    /// <param name="sender">The object that raised the event.</param>
-    /// <param name="e">The event arguments.</param>
-    private async void MediaCntroller_Player_Repeat_btn_Clicked(object sender, EventArgs e)
-    {
-
-    }
-
-    private async void MediaCntroller_Player_Shuffle_btn_Clicked(object sender, EventArgs e)
-    {
-
-    }
-
-    private void MediaCntroller_Player_Fav_btn_Clicked(object sender, EventArgs e)
-    {
-        canSkipCarousel = false;
-    }
-    private void MediaController_Button_Close_Clicked(object sender, EventArgs e)
-    {
-        CloseMusicController();
-    }
     #endregion
 
     #region Interactions
@@ -449,14 +391,13 @@ public partial class MainPage : ContentPage
     private async void btn_navnar_home_click(object sender, EventArgs e)
     {
         homeBtnReleased = true;
-        waitingForPageLoad = true;
         ShowLoadingScreen(true);
 
         await Task.WhenAll<bool>
         (
             btn_navnar_home.FadeTo(1, 250)
         );
-        MauiProgram.webView.NavigateHome();
+        MauiProgram.WebView.NavigateHome();
     }
     private async void btn_navnar_search_click(object sender, EventArgs e)
     {
@@ -469,7 +410,7 @@ public partial class MainPage : ContentPage
             btn_navnar_search.FadeTo(1, 250),
             btn_navnar_search.ScaleTo(1, 250)
         );
-        MauiProgram.webView.NavigateSearch();
+        MauiProgram.WebView.NavigateSearch();
     }
     private async void btn_navnar_library_click(object sender, EventArgs e)
     {
@@ -482,7 +423,7 @@ public partial class MainPage : ContentPage
             btn_navnar_library.FadeTo(1, 250),
             btn_navnar_library.ScaleTo(1, 250)
         );
-        MauiProgram.webView.NavigateLibrary();
+        MauiProgram.WebView.NavigateLibrary();
     }
     private async void btn_navnar_favourite_click(object sender, EventArgs e)
     {
@@ -494,7 +435,7 @@ public partial class MainPage : ContentPage
             btn_navnar_favourites.FadeTo(1, 250),
             btn_navnar_favourites.ScaleTo(1, 250)
         );
-        MauiProgram.webView.NavigateFavourites();
+        MauiProgram.WebView.NavigateFavourites();
     }
     private void MediaController_Btn_ContextMenu(object sender, EventArgs args)
     {
@@ -557,12 +498,11 @@ public partial class MainPage : ContentPage
                 screenHeight = AllContent.Height;
                 if (distance > screenHeight / 3)
                 {
-                    musicControlsFirstOpen = false;
                     ShowMusicController();
                 }
                 else
                 {
-                    CloseMusicController();
+                    MauiProgram.MainPage.MediaPlayer.Close();
                 }
                 break;
         }

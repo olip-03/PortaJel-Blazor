@@ -9,7 +9,7 @@ public partial class ContextMenu : ContentView
 {
     public bool isOpen { get; private set; } = false;
 
-    private ContextMenuViewModel bindableProperties { get; set; } = new();
+    public ContextMenuViewModel ViewModel { get; set; } = new();
     private string fullImgUrl = string.Empty;
     private List<string> loadedImages = new();
 
@@ -25,6 +25,7 @@ public partial class ContextMenu : ContentView
     public ContextMenu()
     {
         InitializeComponent();
+        Container.BindingContext = ViewModel;
     }
 
     public void UpdateData(BaseMusicItem? baseMusicItem = null,
@@ -34,7 +35,7 @@ public partial class ContextMenu : ContentView
     {
         if (baseMusicItem != null)
         {
-            bindableProperties.ContextMenuMainText = baseMusicItem.name ?? string.Empty;
+            ViewModel.ContextMenuMainText = baseMusicItem.name ?? string.Empty;
             fullImgUrl = baseMusicItem.image.source ?? string.Empty;
 
             if (baseMusicItem is Album)
@@ -42,16 +43,16 @@ public partial class ContextMenu : ContentView
                 Album album = (Album)baseMusicItem;
                 album.image.soureResolution = 500;
 
-                bindableProperties.ContextMenuItems = album.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                bindableProperties.ContextMenuSubText = "Album • " + album.artistCongregate;
+                ViewModel.ContextMenuItems = album.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
+                ViewModel.ContextMenuSubText = "Album • " + album.artistCongregate;
             }
             else if(baseMusicItem is Song)
             {
                 Song song = (Song)baseMusicItem;
                 song.image.soureResolution = 500;
 
-                bindableProperties.ContextMenuItems = song.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                bindableProperties.ContextMenuSubText = "Song • " + song.artistCongregate;
+                ViewModel.ContextMenuItems = song.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
+                ViewModel.ContextMenuSubText = "Song • " + song.artistCongregate;
             }
             else if (baseMusicItem is Artist)
             {
@@ -59,27 +60,26 @@ public partial class ContextMenu : ContentView
                 artist.image.soureResolution = 500;
 
                 isCircle = true;
-                bindableProperties.ContextMenuItems = artist.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                bindableProperties.ContextMenuSubText = "Artist";
+                ViewModel.ContextMenuItems = artist.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
+                ViewModel.ContextMenuSubText = "Artist";
             }
             else if (baseMusicItem is Playlist)
             {
                 Playlist playlist = (Playlist)baseMusicItem;
                 playlist.image.soureResolution = 500;
 
-                bindableProperties.ContextMenuItems = playlist.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                bindableProperties.ContextMenuSubText = "Playlist";
+                ViewModel.ContextMenuItems = playlist.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
+                ViewModel.ContextMenuSubText = "Playlist";
             }
 
-            if (baseMusicItem.contextMenuItems.Count <= 0 && bindableProperties.ContextMenuItems != null)
+            if (baseMusicItem.contextMenuItems.Count <= 0 && ViewModel.ContextMenuItems != null)
             {
-                bindableProperties.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
                 {
                     this.Close();
                 })));
             }
 
-            Container.BindingContext = bindableProperties;
             Opacity = opacity ?? 100;
             IsVisible = true;
 

@@ -18,7 +18,7 @@ public partial class AddServerView : ContentPage
     }
     public Task AwaitClose(Page page)
     {
-        while (MauiProgram.mainPage.GetNavigation().ModalStack.Contains(page))
+        while (MauiProgram.MainPage.GetNavigation().ModalStack.Contains(page))
         {
             // sit around and wait a while
         }

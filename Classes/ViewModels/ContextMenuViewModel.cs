@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace PortaJel_Blazor.Classes
 {
-    class ContextMenuViewModel : BindableObject
+    public class ContextMenuViewModel : BindableObject
     {
         public static readonly BindableProperty ContextMenuItemsProperty = BindableProperty.Create(nameof(ContextMenuItems), typeof(ObservableCollection<ContextMenuItem>), typeof(ContextMenuViewModel), default(ObservableCollection<ContextMenuItem>));
         public ObservableCollection<ContextMenuItem>? ContextMenuItems

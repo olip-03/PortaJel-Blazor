@@ -13,11 +13,11 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.webView.pageTitle = "Downloads";
-        MauiProgram.webView.currentUri = "/downloads";
-        MauiProgram.webView.showHeader = true;
+        MauiProgram.WebView.pageTitle = "Downloads";
+        MauiProgram.WebView.currentUri = "/downloads";
+        MauiProgram.WebView.showHeader = true;
 
-        MauiProgram.mainPage.ShowLoadingScreen(false);
-        MauiProgram.webView.isLoading = false;
+        MauiProgram.MainPage.ShowLoadingScreen(false);
+        MauiProgram.WebView.isLoading = false;
     }
 }

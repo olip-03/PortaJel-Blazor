@@ -147,9 +147,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        MauiProgram.webView.pageTitle = "Album";
-        MauiProgram.webView.currentUri = $"/AlbumView/{albumId}";
-        MauiProgram.webView.showHeader = false;
+        MauiProgram.WebView.pageTitle = "Album";
+        MauiProgram.WebView.currentUri = $"/AlbumView/{albumId}";
+        MauiProgram.WebView.showHeader = false;
         MauiProgram.UpdateDebugMessage("Page Loaded.");
 
         try
@@ -199,21 +199,21 @@
         }
         if (loaded)
         {
-            MauiProgram.webView.isLoading = false;
-            MauiProgram.mainPage.ShowLoadingScreen(false);
+            MauiProgram.WebView.isLoading = false;
+            MauiProgram.MainPage.ShowLoadingScreen(false);
         }
     }
 
     private void SelectArtist(Guid artistId)
     {
-        MauiProgram.mainPage.ShowLoadingScreen(true);
-        MauiProgram.webView.NavigateArtist(artistId);
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        MauiProgram.WebView.NavigateArtist(artistId);
     }
 
     private async void GoBack()
     {
-        MauiProgram.mainPage.ShowLoadingScreen(true);
-        MauiProgram.webView.isLoading = true;
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        MauiProgram.WebView.isLoading = true;
         try
         {
             await JS.InvokeAsync<string>("goBack");
@@ -221,7 +221,7 @@
         catch (Exception ex)
         {
             bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
-            MauiProgram.webView.NavigateHome();
+            MauiProgram.WebView.NavigateHome();
         }
     }
 
@@ -249,7 +249,7 @@
         await MauiProgram.servers[0].FavouriteItem(songId, foundItem.isFavourite);
     }
 
-    private async void PlayAlbum()
+    private void PlayAlbum()
     {
         // Move all items in the current queue to the Next Up Queue, to ensure that
         // this item is prioritised, without losing the current queue 
@@ -267,7 +267,7 @@
             MauiProgram.mediaService.Play();
         }
 
-        MauiProgram.mainPage.RefreshPlayer();
+        MauiProgram.MainPage.RefreshPlayer();
         StateHasChanged();
     }
 
@@ -279,18 +279,18 @@
         // MauiProgram.currentSongGuid = album song at index;
 
         isCurrentAlbum = true;
-        MauiProgram.mainPage.RefreshPlayer();
+        MauiProgram.MainPage.RefreshPlayer();
         MauiProgram.mediaService.Play();
         StateHasChanged();
     }
 
     private async void OpenContextMenu(BaseMusicItem musicItem)
     {
-        MauiProgram.mainPage.OpenContextMenu(musicItem, 250, base64BlurHash);
+        MauiProgram.MainPage.OpenContextMenu(musicItem, 250, base64BlurHash);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh
-            while (MauiProgram.mainPage.isContextMenuOpen == true)
+            while (MauiProgram.MainPage.isContextMenuOpen == true)
             {
 
             }
