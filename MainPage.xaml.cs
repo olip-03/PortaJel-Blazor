@@ -41,9 +41,9 @@ public partial class MainPage : ContentPage
 
     private uint animationSpeed = 550;
 
-    public MainPage(bool? initalize = true)
+    public MainPage(bool? initialize = true)
 	{
-        if (initalize == false)
+        if (initialize == false)
         {
             return;
         }
@@ -101,12 +101,12 @@ public partial class MainPage : ContentPage
 		// CLEAR giveaway this app uses webview lolz
 
 #if ANDROID
-		var blazorView = this.blazorWebView;
-        if(blazorView.Handler != null && blazorView.Handler.PlatformView != null)
-        {
-            var platformView = (Android.Webkit.WebView)blazorView.Handler.PlatformView;
-            platformView.OverScrollMode = Android.Views.OverScrollMode.Never;
-        }	        
+		//var blazorView = this.blazorWebView;
+  //      if(blazorView.Handler != null && blazorView.Handler.PlatformView != null)
+  //      {
+  //          var platformView = (Android.Webkit.WebView)blazorView.Handler.PlatformView;
+  //          platformView.OverScrollMode = Android.Views.OverScrollMode.Never;
+  //      }	        
 #endif
     }
 

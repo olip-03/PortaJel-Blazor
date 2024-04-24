@@ -16,7 +16,7 @@ public class MainActivity : MauiAppCompatActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
-        if(Application != null)
+        if (Application != null)
         {
             DynamicColors.ApplyToActivitiesIfAvailable(Application);
         }

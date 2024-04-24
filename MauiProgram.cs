@@ -40,7 +40,7 @@ public static class MauiProgram
     public static string contentTitle = "";
 
     public static MainLayout webView = new();
-    public static MainPage mainPage = new(initalize: false);
+    public static MainPage mainPage = new(initialize: false);
 
     public static IMediaInterface mediaService = new MediaService();
 
