@@ -45,7 +45,6 @@ namespace PortaJel_Blazor.Data
             contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async() =>
             {
                 MauiProgram.mainPage.CloseContextMenu();
-                await MauiProgram.webView.FlagLoading();
                 await MauiProgram.mainPage.AwaitContextMenuClose();
                 MauiProgram.mainPage.ShowLoadingScreen(true);
                 MauiProgram.webView.NavigateArtist(this.id);

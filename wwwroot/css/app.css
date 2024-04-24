@@ -5,6 +5,7 @@ html, body {
     scrollbar-width: none;
     max-width: 100%;
     overflow-x: clip;
+    
 }
 
 h1:focus {
@@ -85,3 +86,4 @@ a, .btn-link {
         padding-left: env(safe-area-inset-left);
     }
 }
+

@@ -6,13 +6,15 @@
 @inject IJSRuntime JS
 @namespace PortaJel_Blazor.Shared
 
-<div class="page">
+<AutoStyle></AutoStyle>
+
+<div class="page PageBackgroundColor">
     <main>
         <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
             @if (_showHeader)
             {
-                <div class="content toolbar">
-                    <h1 style="margin: 0;">@pageTitle</h1>
+                <div id="mainLayoutToolbar" class="content toolbar PageSecondaryColor">
+                    <h2 class="PrimaryTextColor" style="margin: 0;">@pageTitle</h2>
                     <div>
                         <a @onclick="NavigateDownloads" style="margin-right: 1rem">
                             <img class="toolbar-img" src="/images/download.svg" />
@@ -24,7 +26,6 @@
                 </div>
             }
             <article class="mainContent">
-
                 <div class="bodyContainer">
                     @Body
                 </div>
@@ -169,7 +170,7 @@
             NavManager.NavigateTo(currentUri);
         }
     }
-    public async void NavigateSettings()
+    public void NavigateSettings()
     {
         MauiProgram.mainPage.ShowLoadingScreen(true);
 
@@ -212,14 +213,14 @@
 
         NavManager.NavigateTo($"/PlaylistView/{guid}", forceLoad: true);
     }
-    public Task FlagLoading()
-    {
-        return Task.CompletedTask;
-    }
-    public void CancelLoading()
-    {
-        cancellationSource.Cancel();
-    }
+    // public Task FlagLoading()
+    // {
+    //     return Task.CompletedTask;
+    // }
+    // public void CancelLoading()
+    // {
+    //     cancellationSource.Cancel();
+    // }
     public async Task OpenPlayer()
     {
         await JS.InvokeAsync<string>("dragElement", "open");

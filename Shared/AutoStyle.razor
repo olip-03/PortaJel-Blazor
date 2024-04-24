@@ -1,0 +1,53 @@
+﻿@namespace PortaJel_Blazor.Shared
+
+<style>
+    .PageBackgroundColor {
+        background-color: @pageBackgroundColor !important;
+    }
+
+    .PageSecondaryColor {
+        background-color: #202020 !important;
+    }
+
+    .NavigationBarColor {
+        background-color: teal !important;
+    }
+
+    .PrimaryColor {
+        color: teal !important;
+    }
+
+    .SecondaryColor {
+        color: white !important;
+    }
+
+    .PrimaryTextColor {
+        color: #cfcfcf !important;
+    }
+
+    .SecondaryTextColor {
+        color: darkgray !important;
+    }
+
+    .TertiaryTextColor {
+        color: whitesmoke !important;
+    }
+
+    .TransparentColor {
+        background-color: transparent !important;
+    }
+</style>
+
+@code {
+    private string pageBackgroundColor = "#101010";
+
+    protected override void OnInitialized()
+    {
+        
+    }
+    // var hasValue = Resources.TryGetValue("Primary", out object primaryColor);
+    // if (hasValue)
+    // {
+    //     myLabel.TextColor = (Color) primaryColor;
+    // }
+}

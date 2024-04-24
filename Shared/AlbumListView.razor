@@ -1,7 +1,7 @@
 ﻿@using PortaJel_Blazor.Data;
 @namespace PortaJel_Blazor.Shared
 
-<li class="music-item" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
+<li class="music-item PageSecondaryColor" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
     <div class="image-container" style="display: grid;">
         <img class="album-image album-cover-img opacityTransition"
              src="@musicItem.image.SourceAtResolution(100)"
@@ -11,12 +11,12 @@
              src="data:image/png;base64, @placeholderBase64" 
              onerror="this.style.opacity=0" />
     </div>
-    <div class="music-details">
+    <div class="music-details PrimaryTextColor">
         @if(musicItem is Album)
         {
             Album album = (Album)musicItem;
-            string artistName = "• " + album.artistCongregate;
-            <b>@album.name</b> @artistName;
+            string artistName = " • " + album.artistCongregate;
+            <b class="PrimaryTextColor">@album.name</b> @artistName
         }   
     </div>
 </li>

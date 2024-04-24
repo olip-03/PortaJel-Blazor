@@ -52,7 +52,7 @@
         <!--Background-->
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#00FFFFFF" Offset="0.0" />
+                <GradientStop Color="{StaticResource TransparentColor}" Offset="0.0" />
                 <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="0.6" />
                 <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="1.0" />
             </LinearGradientBrush>

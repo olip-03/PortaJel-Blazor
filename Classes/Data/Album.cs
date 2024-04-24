@@ -138,7 +138,6 @@ namespace PortaJel_Blazor.Data
             contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(async() =>
             {
                 MauiProgram.mainPage.CloseContextMenu();
-                await MauiProgram.webView.FlagLoading();
                 await MauiProgram.mainPage.AwaitContextMenuClose();
                 MauiProgram.mainPage.ShowLoadingScreen(true);
                 MauiProgram.webView.NavigateAlbum(this.id);
@@ -146,7 +145,6 @@ namespace PortaJel_Blazor.Data
             contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async() =>
             {
                 MauiProgram.mainPage.CloseContextMenu();
-                await MauiProgram.webView.FlagLoading();
                 await MauiProgram.mainPage.AwaitContextMenuClose();
                 MauiProgram.mainPage.ShowLoadingScreen(true);
                 MauiProgram.webView.NavigateArtist(this.artists.FirstOrDefault().id);

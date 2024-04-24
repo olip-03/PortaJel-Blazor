@@ -9,7 +9,7 @@
     <Color x:Key="PrimaryTextColor">Black</Color>
     <Color x:Key="SecondaryTextColor">White</Color>
     <Color x:Key="TertiaryTextColor">Gray</Color>
-    <Color x:Key="TransparentColor">Transparent</Color>
+    <Color x:Key="TransparentColor">#00FFFFFF</Color>
 
     <x:String x:Key="HomeButtonImage">home.png</x:String>
     <x:String x:Key="SearchButtonImage">search.png</x:String>

@@ -7,7 +7,7 @@
 
 <hr />
 
-<div class="button-container boxed">
+<div class="button-container boxed PageBackgroundColor">
     @if (selected == Selectable.playlists)
     {
         <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
@@ -16,7 +16,7 @@
     {
         <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
     }
-    <label for="playlists">Playlists</label>
+    <label class="PrimaryTextColor" for="playlists">Playlists</label>
 
 
     @if (selected == Selectable.albums)
@@ -27,7 +27,7 @@
     {
         <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(Selectable.albums)">
     }
-    <label for="albums">Albums</label>
+    <label class="PrimaryTextColor" for="albums">Albums</label>
 
     @if (selected == Selectable.artists)
     {
@@ -37,7 +37,7 @@
     {
         <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(Selectable.artists)">
     }
-    <label for="artists">Artists</label>
+    <label class="PrimaryTextColor" for="artists">Artists</label>
 
 
     @if (selected == Selectable.songs)
@@ -48,7 +48,7 @@
     {
         <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(Selectable.songs)">
     }
-    <label for="songs">Songs</label>
+    <label class="PrimaryTextColor" for="songs">Songs</label>
 
     @if (!isFavouritesPage)
     {
@@ -60,15 +60,14 @@
         {
             <input type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(Selectable.genres)">
         }
-        <label for="genres">Genres</label>
+        <label class="PrimaryTextColor" for="genres">Genres</label>
     }
-
 </div>
 
 <div class="quickplay-container">
-    <button class="quickplay-button">Play All</button>
+    <button class="quickplay-button PageSecondaryColor PrimaryTextColor">Play All</button>
     <div style="width:1rem;" />
-    <button class="quickplay-button">Shuffle</button>
+    <button class="quickplay-button PageSecondaryColor PrimaryTextColor">Shuffle</button>
 </div>
 
 <div class="tool-container">
@@ -78,19 +77,19 @@
             case sortMethod.byActivity:
                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                     <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                    <p class="tools-text">Activity</p>
+                    <p class="tools-text PrimaryTextColor">Activity</p>
                 </Animate>
                 break;
             case sortMethod.byArtist:
                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                     <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                    <p class="tools-text">Artist</p>
+                    <p class="tools-text PrimaryTextColor">Artist</p>
                 </Animate>
                 break;
             case sortMethod.byName:
                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                     <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                    <p class="tools-text">Name</p>
+                    <p class="tools-text PrimaryTextColor">Name</p>
                 </Animate>
                 break;
         }
@@ -227,6 +226,7 @@ else
     }
     protected override void OnParametersSet()
     {
+        SelectPage(selected);
         OnInitialized();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
