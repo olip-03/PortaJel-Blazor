@@ -14,7 +14,7 @@
     }
 
     .PrimaryColor {
-        color: teal !important;
+        color: @primaryColor !important;
     }
 
     .SecondaryColor {
@@ -40,10 +40,25 @@
 
 @code {
     private string pageBackgroundColor = "#101010";
+    private string primaryColor = "white";
 
     protected override void OnInitialized()
     {
-        
+        UpdateColors();
+    }
+
+    public void UpdateColors()
+    {
+        if(App.Current != null)
+        {
+            var hasPrimaryColor = App.Current.Resources.TryGetValue("PrimaryColor", out object outPrimaryColor);
+            if (hasPrimaryColor)
+            {
+                Color color = (Color)outPrimaryColor;
+                primaryColor = color.ToHex();
+            }
+            StateHasChanged();
+        }
     }
     // var hasValue = Resources.TryGetValue("Primary", out object primaryColor);
     // if (hasValue)

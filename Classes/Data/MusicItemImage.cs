@@ -28,6 +28,7 @@ namespace PortaJel_Blazor.Data
             url,
             base64,
         }
+
         ///<summary>
         ///A read-only instance of the Data.MusicItemImage structure with default values.
         ///</summary>
@@ -106,8 +107,7 @@ namespace PortaJel_Blazor.Data
         public Stream BlurHashToStream(int width = 0, int height = 0)
         {
             // Assuming you have a method to decode the blurhash into a pixel array
-            Pixel[,] pixels = new Pixel[width, height];
-            Blurhash.Core.Decode(blurHash, pixels);
+
 
             // Create a SkiaSharp bitmap
             using (SKBitmap bitmap = new SKBitmap(width, height))
@@ -115,6 +115,9 @@ namespace PortaJel_Blazor.Data
                 // Lock the pixels of the bitmap
                 using (var canvas = bitmap.PeekPixels())
                 {
+                    Pixel[,] pixels = new Pixel[soureResolution, soureResolution];
+                    Blurhash.Core.Decode(blurHash, pixels);
+
                     for (int y = 0; y < height; y++)
                     {
                         for (int x = 0; x < width; x++)

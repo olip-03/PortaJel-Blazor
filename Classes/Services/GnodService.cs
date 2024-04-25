@@ -29,12 +29,16 @@ namespace PortaJel_Blazor.Classes.Services
                 var gnodMapDiv = document.QuerySelector("#gnodMap");
 
                 // Iterate over the <a> elements within the selected div
-                foreach (var aElement in gnodMapDiv.QuerySelectorAll("a"))
+                if(gnodMapDiv != null)
                 {
-                    toReturn.Add(aElement.TextContent);
+                    foreach (var aElement in gnodMapDiv.QuerySelectorAll("a"))
+                    {
+                        toReturn.Add(aElement.TextContent);
+                    }
                 }
+
             }
-            catch (Exception ex)
+            catch 
             {
                 // Do nun lil bro
             }

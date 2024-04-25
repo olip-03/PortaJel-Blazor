@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="PortaJel.PortaJel" android:versionCode="1" android:versionName="0.0.1" android:installLocation="auto">
-	
-	<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -11,11 +10,8 @@
 	<uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 	<uses-permission android:name="android.permission.VIBRATE" />
-	<uses-sdk android:minSdkVersion="26" android:targetSdkVersion="28" />
-
-	
+	<uses-sdk android:minSdkVersion="33" android:targetSdkVersion="33" />
 	<application android:allowBackup="true" android:label="PortaJel" android:usesCleartextTraffic="true" android:supportsRtl="true" android:icon="@mipmap/appicon">
 		<service android:name="PortaJel.MediaService" android:enabled="true"></service>
 	</application>
-
 </manifest>

@@ -85,7 +85,7 @@ public partial class MainPage : ContentPage
         double spacing = (AllContent.Width - 350) / 2;
         MediaPlayer.PositionY = AllContent.Height;
 
-        MauiProgram.mediaService.Initalize();
+        MauiProgram.MediaService.Initalize();
         MauiProgram.WebView.NavigateHome();
     }
 
@@ -220,20 +220,15 @@ public partial class MainPage : ContentPage
     public void RefreshQueue()
     {
         canSkipCarousel = false;
-        int playingIndex = MauiProgram.mediaService.GetQueueIndex();
-        List<Song> mediaQueue = MauiProgram.mediaService.GetQueue().ToList();
+        int playingIndex = MauiProgram.MediaService.GetQueueIndex();
+        List<Song> mediaQueue = MauiProgram.MediaService.GetQueue().ToList();
 
         queue = mediaQueue.ToObservableCollection();
         mediaQueue.RemoveRange(0, playingIndex);
         playingQueue = mediaQueue.ToObservableCollection();
 
-        //MediaController_Queue_List.ItemsSource = playingQueue;
-
-        //MainPlayer_ImgCarousel.ItemsSource = queue;
-        MiniPlayer.UpdateDate(MauiProgram.mediaService.GetQueue());
-
-        //MainPlayer_ImgCarousel.ScrollTo(playingIndex, animate: false);
-        //MiniPlayer_ImgCarousel.ScrollTo(playingIndex, animate: false);
+        MiniPlayer.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex, animate: true);
+        MediaPlayer.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex, animate: true);
     }
 
     public void ShowMusicController()
@@ -359,17 +354,17 @@ public partial class MainPage : ContentPage
         {
             if (e.CurrentPosition > e.PreviousPosition)
             { // Next song is requested
-                MauiProgram.mediaService.NextTrack();
+                MauiProgram.MediaService.NextTrack();
             }
             else
             { // Prev song is requested
-                MauiProgram.mediaService.PreviousTrack();
+                MauiProgram.MediaService.PreviousTrack();
             }
         }
     }
     private void MainPlayer_ImgCarousel_ScrollToRequested(object sender, ScrollToRequestEventArgs e)
     {
-        MauiProgram.mediaService.SeekToIndex(e.Index);
+        MauiProgram.MediaService.SeekToIndex(e.Index);
     }
     #endregion
 
@@ -535,7 +530,7 @@ public partial class MainPage : ContentPage
     private void MediaCntroller_Slider_DragCompleted(object sender, EventArgs e)
     {
         mediaCntrollerSliderDragging = false;
-        MauiProgram.mediaService.SeekToPosition(lastSeekPosition);
+        MauiProgram.MediaService.SeekToPosition(lastSeekPosition);
     }
     private void MediaCntroller_Slider_ValueChanged(object sender, ValueChangedEventArgs e)
     {

@@ -1,9 +1,9 @@
 ﻿using PortaJel_Blazor.Data;
 using System.Collections.ObjectModel;
 
-namespace PortaJel_Blazor.Classes
+namespace PortaJel_Blazor.Classes.ViewModels
 {
-    public class MiniPlayerViewModel : BindableObject
+    public class MediaControllerViewModel : BindableObject
     {
         public List<string> QueueBase64PlaceholderImg = new();
         public static readonly BindableProperty QueueProperty = BindableProperty.Create(nameof(Queue), typeof(ObservableCollection<Song>), typeof(MiniPlayerViewModel), default(ObservableCollection<Song>));

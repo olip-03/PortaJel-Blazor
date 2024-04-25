@@ -1,192 +1,204 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="PortaJel_Blazor.Shared.MediaController">
+             xmlns:classes="clr-namespace:PortaJel_Blazor.Classes"
+             xmlns:data="clr-namespace:PortaJel_Blazor.Data"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="PortaJel_Blazor.Shared.MediaController"
+             x:DataType="classes:MiniPlayerViewModel">
     <!-- Media Player Controls & Queue -->
     <Grid x:Name="Container" 
-      BackgroundColor="{StaticResource NavigationBarColor}" 
       VerticalOptions="FillAndExpand" 
       HorizontalOptions="FillAndExpand" 
       InputTransparent="False" 
       IsVisible="True">
 
         <!-- Controller -->
-        <Grid x:Name="Player" 
+        <Border x:Name="Player" 
           VerticalOptions="FillAndExpand" 
-          HorizontalOptions="FillAndExpand">
+          HorizontalOptions="FillAndExpand"
+          BackgroundColor="{StaticResource PageBackgroundColor}"
+          StrokeThickness="2">
+            <Grid>
+                <!-- Header -->
+                <Grid Grid.Row="0">
+                    <!-- Close Button -->
+                    <ImageButton x:Name="Player_Btn_Close" 
+                     Clicked="Player_Btn_Close_Clicked" 
+                     WidthRequest="40" 
+                     HeightRequest="40" 
+                     Source="{StaticResource ArrowDownIcon}" 
+                     Grid.Column="0" />
 
-            <!-- Header -->
-            <Grid Grid.Row="0">
-                <!-- Close Button -->
-                <ImageButton x:Name="Player_Btn_Close" 
-                 Clicked="Player_Btn_Close_Clicked" 
-                 WidthRequest="40" 
-                 HeightRequest="40" 
-                 Source="{StaticResource ArrowDownIcon}" 
-                 Grid.Column="0" />
+                    <!-- Media Information -->
+                    <StackLayout Grid.Column="1" 
+                                 VerticalOptions="Center" 
+                                 IsVisible="True">
+                        <Label x:Name="Player_Lbl_PlayingFromType" 
+                               Text="Playing from Album" 
+                               TextColor="{StaticResource PrimaryTextColor}" 
+                               FontSize="16" 
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="Player_Lbl_PlayingFromText" 
+                               Text="Album Name" 
+                               TextColor="{StaticResource PrimaryTextColor}" 
+                               FontSize="14" 
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
 
-                <!-- Media Information -->
-                <StackLayout Grid.Column="1" 
-                 VerticalOptions="Center" 
-                 IsVisible="True">
-                    <Label x:Name="Player_Lbl_PlayingFromType" 
-                       Text="Playing from Album" 
-                       TextColor="{StaticResource PrimaryTextColor}" 
-                       FontSize="16" 
-                       HorizontalOptions="Center"/>
-                    <Label x:Name="Player_Lbl_PlayingFromText" 
-                       Text="Album Name" 
-                       TextColor="{StaticResource PrimaryTextColor}" 
-                       FontSize="14" 
-                       HorizontalOptions="Center"/>
-                </StackLayout>
+                    <!-- Context Menu Button -->
+                    <ImageButton x:Name="Player_Btn_ContextMenu" 
+                                 Clicked="Player_Btn_ContextMenu_Clicked"
+                                 WidthRequest="40" 
+                                 HeightRequest="40" 
+                                 Source="{StaticResource MoreHorizIcon}" 
+                                 Grid.Column="2"/>
 
-                <!-- Context Menu Button -->
-                <ImageButton x:Name="Player_Btn_ContextMenu" 
-                 Clicked="Player_Btn_ContextMenu_Clicked"
-                 WidthRequest="40" 
-                 HeightRequest="40" 
-                 Source="{StaticResource MoreHorizIcon}" 
-                 Grid.Column="2"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="70"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="70"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="70"/>
-                </Grid.ColumnDefinitions>
-            </Grid>
+                <!-- Image Carousel-->
+                <CarouselView x:Name="ImgCarousel" 
+                              Grid.Row="1" VerticalOptions="Center" 
+                              HorizontalOptions="FillAndExpand" 
+                              ItemsSource="{Binding Queue}" 
+                              Loop="False" 
+                              Scrolled="ImgCarousel_Scrolled"
+                              ScrollToRequested="ImgCarousel_ScrollToRequested"
+                              PositionChanged="ImgCarousel_PositionChanged">
+                    <CarouselView.ItemTemplate>
+                        <DataTemplate x:DataType="data:Song">
+                            <StackLayout>
+                                <!-- Image inside of border -->
+                                <Border StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 5,5,5,5"
+                                        ZIndex="5"
+                                        MaximumWidthRequest="350" MaximumHeightRequest="350">
+                                    <Image x:Name="MainPlayer_Img" 
+                                           Source="{Binding image.sourceAtResolution}" 
+                                           Aspect="Fill" 
+                                           WidthRequest="350" 
+                       HeightRequest="350"/>
+                                </Border>
 
-            <!-- Image Carousel-->
-            <CarouselView x:Name="ImgCarousel" 
-              Grid.Row="1" VerticalOptions="Center" 
-              HorizontalOptions="FillAndExpand" 
-              ItemsSource="{Binding queueCongregate}" 
-              Loop="False" 
-              Scrolled="ImgCarousel_Scrolled"
-              ScrollToRequested="ImgCarousel_ScrollToRequested"
-              PositionChanged="ImgCarousel_PositionChanged">
-                <CarouselView.ItemTemplate>
-                    <DataTemplate>
-                        <StackLayout>
-                            <!-- Image inside of border -->
-                            <Border StrokeThickness="0"
-                                StrokeShape="RoundRectangle 5,5,5,5"
-                                ZIndex="5"
-                                MaximumWidthRequest="350" MaximumHeightRequest="350">
-                                <Image x:Name="MainPlayer_Img" 
-                                   Source="{Binding image.sourceAtResolution}" 
-                                   Aspect="Fill" 
-                                   WidthRequest="350" 
-                                   HeightRequest="350"/>
-                            </Border>
-
-                            <!-- Labels for song title and artist-->
-                            <StackLayout Margin="0, 10, 0, 0">
-                                <Label x:Name="ImgCarousel_SongTitle" 
-                                   TextColor="{StaticResource PrimaryTextColor}" 
-                                   HorizontalTextAlignment="Center" 
-                                   VerticalTextAlignment="Center"
-                                   Text="{Binding name}" 
-                                   FontSize="28" 
-                                   HorizontalOptions="Center" 
-                                   MaximumWidthRequest="350"/>
-                                <Label x:Name="ImgCarousel_ArtistTitle" 
-                                   TextColor="{StaticResource PrimaryTextColor}" 
-                                   HorizontalTextAlignment="Center" 
-                                   Text="{Binding artistCongregate}" 
-                                   FontSize="20" 
-                                   HorizontalOptions="Center" 
-                                   MaximumWidthRequest="350"/>
+                                <!-- Labels for song title and artist-->
+                                <StackLayout Margin="0, 10, 0, 0">
+                                    <Label x:Name="ImgCarousel_SongTitle" 
+                                           TextColor="{StaticResource PrimaryTextColor}" 
+                                           HorizontalTextAlignment="Center" 
+                                           VerticalTextAlignment="Center"
+                                           Text="{Binding name}" 
+                                           FontSize="28" 
+                                           HorizontalOptions="Center" 
+                                           MaximumWidthRequest="350"/>
+                                    <Label x:Name="ImgCarousel_ArtistTitle" 
+                                           TextColor="{StaticResource PrimaryTextColor}" 
+                                           HorizontalTextAlignment="Center" 
+                                           Text="{Binding artistCongregate}" 
+                                           FontSize="20" 
+                                           HorizontalOptions="Center" 
+                                           MaximumWidthRequest="350"/>
+                                </StackLayout>
                             </StackLayout>
-                        </StackLayout>
-                    </DataTemplate>
-                </CarouselView.ItemTemplate>
-            </CarouselView>
+                        </DataTemplate>
+                    </CarouselView.ItemTemplate>
+                </CarouselView>
 
-            <!-- Playback controls -->
-            <Grid Grid.Row="2">
-                <!-- Slider and timestamps -->
-                <StackLayout Margin="10, 0, 10, 0" 
-                 VerticalOptions="Start">
-                    <Slider x:Name="Player_DurationSlider" 
-                Maximum="100" 
-                Value="100" 
-                Margin="0" 
-                ThumbColor="{StaticResource PrimaryColor}"
-                MinimumTrackColor="{StaticResource PrimaryColor}"
-                MaximumTrackColor="{StaticResource PageSecondaryColor}" 
-                BackgroundColor="Transparent" 
-                HorizontalOptions="FillAndExpand" 
-                ValueChanged="Player_DurationSlider_ValueChanged"
-                DragStarted="Player_DurationSlider_DragStarted"
-                DragCompleted="Player_DurationSlider_DragCompleted" />
-                    <FlexLayout  Margin="20, 0, 20, 0" 
-                     JustifyContent="SpaceBetween" >
-                        <Label x:Name="Player_DurationSlider_Lbl_PositionTxt" 
-                           TextColor="{StaticResource PrimaryTextColor}" 
-                           Text="0:00" />
-                        <Label x:Name="Player_DurationSlider_Lbl_DurationTxt"
-                           TextColor="{StaticResource PrimaryTextColor}" 
-                           Text="0:00" />
-                    </FlexLayout>
-                </StackLayout>
+                <!-- Playback controls -->
+                <Grid Grid.Row="2">
+                    <!-- Slider and timestamps -->
+                    <StackLayout Margin="10, 0, 10, 0" 
+                                 VerticalOptions="Start">
+                        <Slider x:Name="Player_DurationSlider" 
+                                Maximum="100" 
+                                Value="100" 
+                                Margin="0" 
+                                ThumbColor="{StaticResource PrimaryColor}"
+                                MinimumTrackColor="{StaticResource PrimaryColor}"
+                                MaximumTrackColor="{StaticResource PageSecondaryColor}" 
+                                BackgroundColor="Transparent" 
+                                HorizontalOptions="FillAndExpand" 
+                                ValueChanged="Player_DurationSlider_ValueChanged"
+                                DragStarted="Player_DurationSlider_DragStarted"
+                                DragCompleted="Player_DurationSlider_DragCompleted" />
+                        <FlexLayout Margin="20, 0, 20, 0" 
+                                    JustifyContent="SpaceBetween" >
+                            <Label x:Name="Player_DurationSlider_Lbl_PositionTxt" 
+                                       TextColor="{StaticResource PrimaryTextColor}" 
+                                       Text="0:00" />
+                            <Label x:Name="Player_DurationSlider_Lbl_DurationTxt"
+                                   TextColor="{StaticResource PrimaryTextColor}" 
+                                   Text="0:00" />
+                        </FlexLayout>
+                    </StackLayout>
 
-                <StackLayout VerticalOptions="Center">
-                    <FlexLayout JustifyContent="SpaceBetween" 
-                            AlignItems="Center" 
-                            Margin="20">
-                        <!-- Repeat Button -->
-                        <ImageButton x:Name="Player_Btn_Repeat" 
-                         HeightRequest="40" WidthRequest="40" 
-                         BackgroundColor="Transparent" 
-                         Source="{StaticResource RepeatOffIcon}" 
-                         Clicked="Player_Btn_Repeat_Clicked" />
-                        <!-- Previous Button -->
-                        <ImageButton x:Name="Player_Btn_Previous" 
-                         HeightRequest="40" WidthRequest="40" 
-                         BackgroundColor="Transparent"
-                         Source="{StaticResource SkipPreviousIcon}" 
-                         Clicked="Player_Btn_Previous_Clicked"/>
-                        <Frame CornerRadius="40" 
-                       Padding="0" Margin="0" 
-                       HeightRequest="70" WidthRequest="70"
-                       BackgroundColor="{StaticResource PrimaryTextColor}">
-                            <!-- Play Button -->
-                            <ImageButton x:Name="Player_Btn_Play" 
-                             Aspect="AspectFit" 
-                             VerticalOptions="Center" HorizontalOptions="Center" 
+                    <StackLayout VerticalOptions="Center">
+                        <FlexLayout JustifyContent="SpaceBetween" 
+                                    AlignItems="Center" 
+                                    Margin="20">
+                            <!-- Repeat Button -->
+                            <ImageButton x:Name="Player_Btn_Repeat" 
+                                             HeightRequest="40" WidthRequest="40" 
+                                             BackgroundColor="Transparent" 
+                                             Source="{StaticResource RepeatOffIcon}" 
+                                             Clicked="Player_Btn_Repeat_Clicked" />
+                            <!-- Previous Button -->
+                            <ImageButton x:Name="Player_Btn_Previous" 
+                                         HeightRequest="40" WidthRequest="40" 
+                                         BackgroundColor="Transparent"
+                                         Source="{StaticResource SkipPreviousIcon}" 
+                                         Clicked="Player_Btn_Previous_Clicked"/>
+                            <Frame CornerRadius="40" 
+                                   Padding="0" Margin="0" 
+                                   HeightRequest="70" WidthRequest="70"
+                                   BackgroundColor="{StaticResource PrimaryTextColor}">
+                                <!-- Play Button -->
+                                <ImageButton x:Name="Player_Btn_Play" 
+                                 Aspect="AspectFit" 
+                                 VerticalOptions="Center" HorizontalOptions="Center" 
+                                 BackgroundColor="Transparent" 
+                                 HeightRequest="50" WidthRequest="50" 
+                                 Source="{StaticResource InversePlayIcon}"
+                                 Clicked="Player_Btn_Play_Clicked"/>
+                            </Frame>
+                            <!-- Next Button -->
+                            <ImageButton x:Name="Player_Btn_Next" 
+                             HeightRequest="40" WidthRequest="40" 
                              BackgroundColor="Transparent" 
-                             HeightRequest="50" WidthRequest="50" 
-                             Source="{StaticResource InversePlayIcon}"
-                             Clicked="Player_Btn_Play_Clicked"/>
-                        </Frame>
-                        <!-- Next Button -->
-                        <ImageButton x:Name="Player_Btn_Next" 
-                         HeightRequest="40" WidthRequest="40" 
-                         BackgroundColor="Transparent" 
-                         Source="{StaticResource SkipNextIcon}" 
-                         Clicked="Player_Btn_Next_Clicked"></ImageButton>
-                        <!-- Shuffle Button -->
-                        <ImageButton x:Name="Player_Btn_Shuffle"
-                         HeightRequest="40" WidthRequest="40" 
-                         BackgroundColor="Transparent" 
-                         Source="{StaticResource ShuffleIcon}" 
-                         Clicked="Player_Btn_Shuffle_Clicked"></ImageButton>
-                    </FlexLayout>
+                             Source="{StaticResource SkipNextIcon}" 
+                             Clicked="Player_Btn_Next_Clicked"></ImageButton>
+                            <!-- Shuffle Button -->
+                            <ImageButton x:Name="Player_Btn_Shuffle"
+                             HeightRequest="40" WidthRequest="40" 
+                             BackgroundColor="Transparent" 
+                             Source="{StaticResource ShuffleIcon}" 
+                             Clicked="Player_Btn_Shuffle_Clicked"></ImageButton>
+                        </FlexLayout>
 
-                    <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
-                        <ImageButton x:Name="Player_Btn_Fav" Source="{StaticResource HeartEmptyIcon}" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Clicked="Player_Btn_Fav_Clicked"></ImageButton>
-                        <ImageButton x:Name="Player_Btn_ShowQueue" Source="{StaticResource QueueIcon}" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Clicked="Player_Btn_ShowQueue_Clicked"></ImageButton>
-                    </FlexLayout>
-                </StackLayout>
+                        <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
+                            <ImageButton x:Name="Player_Btn_Fav" Source="{StaticResource HeartEmptyIcon}" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Clicked="Player_Btn_Fav_Clicked"></ImageButton>
+                            <ImageButton x:Name="Player_Btn_ShowQueue" Source="{StaticResource QueueIcon}" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Clicked="Player_Btn_ShowQueue_Clicked"></ImageButton>
+                        </FlexLayout>
+                    </StackLayout>
+                </Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="1.2*"/>
+                </Grid.RowDefinitions>
             </Grid>
-
-            <Grid.RowDefinitions>
-                <RowDefinition Height="70"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="1.2*"/>
-            </Grid.RowDefinitions>
-        </Grid>
+            <Border.Shadow>
+                <Shadow Brush="Black"
+                        Offset="0,0"
+                        Radius="150"
+                        Opacity="0.7" />
+            </Border.Shadow>
+        </Border>
 
         <!-- Queue -->
         <Grid x:Name="Queue" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="false" BackgroundColor="White">
@@ -219,7 +231,7 @@
                     <!-- Actaul queue CollectionView -->
                     <CollectionView Grid.Row="1" CanReorderItems="True" x:Name="MediaController_Queue_List" InputTransparent="False" >
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="data:Song">
                                 <Grid Padding="20, 0, 0, 5" HeightRequest="55">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />

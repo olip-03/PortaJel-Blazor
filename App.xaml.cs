@@ -1,4 +1,6 @@
 ﻿using Microsoft.Maui.Controls;
+using Microsoft.Maui.Hosting;
+using PortaJel_Blazor.Resources.Themes;
 
 namespace PortaJel_Blazor;
 
@@ -9,5 +11,8 @@ public partial class App : Application
 		InitializeComponent(); 
         MainPage = new MainPage();
         MauiProgram.MainPage = (MainPage)MainPage;
+
+        Resources.MergedDictionaries.Add(new DarkTheme());
+        Resources = new DarkTheme();
     }
 }

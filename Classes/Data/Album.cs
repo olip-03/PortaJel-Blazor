@@ -122,7 +122,7 @@ namespace PortaJel_Blazor.Data
                 Album FullAlbum = await MauiProgram.api.GetAlbumAsync(id);
                 this.songs = FullAlbum.songs;
 
-                MauiProgram.mediaService.AddSongs(FullAlbum.songs.ToArray());
+                MauiProgram.MediaService.AddSongs(FullAlbum.songs.ToArray());
 
                 #if !WINDOWS
                 CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();

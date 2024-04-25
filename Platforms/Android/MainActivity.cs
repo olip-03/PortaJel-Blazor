@@ -16,8 +16,17 @@ public class MainActivity : MauiAppCompatActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
-        if (Application != null)
+        if (Application != null && Window != null && App.Current != null)
         {
+            var hasSource = App.Current.Resources.TryGetValue("PageBackgroundColor", out object imageSource);
+
+            if (hasSource)
+            {
+                Color color = (Color)imageSource;
+                Android.Graphics.Color newColor = Android.Graphics.Color.ParseColor(color.ToHex());
+                Window.SetNavigationBarColor(newColor);
+            }
+
             DynamicColors.ApplyToActivitiesIfAvailable(Application);
         }
         

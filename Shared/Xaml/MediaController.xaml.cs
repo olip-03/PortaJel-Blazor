@@ -1,7 +1,14 @@
+using CommunityToolkit.Maui.Core.Extensions;
+using PortaJel_Blazor.Classes;
+using PortaJel_Blazor.Classes.ViewModels;
+using PortaJel_Blazor.Data;
+using System.Diagnostics;
 namespace PortaJel_Blazor.Shared;
 
 public partial class MediaController : ContentView
 {
+    public MediaControllerViewModel ViewModel { get; set; } = new();
+
     public bool IsOpen { get; private set; } = false;
     public bool IsQueueOpen { get; private set; } = false;
 
@@ -11,12 +18,13 @@ public partial class MediaController : ContentView
     public MediaController()
 	{
 		InitializeComponent();
+        this.BindingContext = ViewModel;
 	}
 
     public async void Open(bool? animate = true)
     {
-        this.Opacity = 1;
-        this.TranslationY = 120;
+        Opacity = 1;
+        TranslationY = MauiProgram.MainPage.ContentHeight;
         IsOpen = true;
 
         if (animate == true)
@@ -24,6 +32,8 @@ public partial class MediaController : ContentView
             await Task.WhenAll(
                 MauiProgram.MainPage.MiniPlayerController.TranslateTo(0, MauiProgram.MainPage.ContentHeight * -1, 450, Easing.SinOut),
                 this.TranslateTo(0, 0, 450, Easing.SinOut));
+
+                
         }
         else
         {
@@ -48,6 +58,11 @@ public partial class MediaController : ContentView
             TranslationY = MauiProgram.MainPage.ContentHeight;
         }
 
+    }
+
+    public void UpdateData(Song[] songs, int? playFromIndex = 0, bool? animate = false)
+    {
+        ViewModel.Queue = songs.ToObservableCollection();
     }
 
     private void Player_Btn_Close_Clicked(object sender, EventArgs e)

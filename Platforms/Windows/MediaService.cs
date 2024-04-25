@@ -95,5 +95,11 @@ namespace PortaJel_Blazor.Classes.Services
         {
             return 0;
         }
+
+        public Song GetCurrentlyPlaying()
+        {
+            return Song.Empty;
+            //throw new NotImplementedException();
+        }
     }
 }

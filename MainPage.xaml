@@ -48,7 +48,7 @@
                     <GradientStop Color="{StaticResource TransparentColor}" Offset="0.0" />
                     <!--<GradientStop Color="Transparent" Offset="0.3" />
                     <GradientStop Color="White" Offset="0.7" />-->
-                    <GradientStop Color="{StaticResource NavigationBarColor}" Offset="0.9" />
+                    <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="0.9" />
                 </LinearGradientBrush>
             </StackLayout.Background>
         </StackLayout>

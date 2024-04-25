@@ -42,7 +42,7 @@ public static class MauiProgram
     public static MainLayout WebView = new();
     public static MainPage MainPage = new(initialize: false);
 
-    public static IMediaInterface mediaService = new MediaService();
+    public static IMediaInterface MediaService = new MediaService();
 
     // Global Data Cache
     // TODO: Move these to the ServerConnectors
