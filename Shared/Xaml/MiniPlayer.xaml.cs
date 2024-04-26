@@ -44,8 +44,6 @@ public partial class MiniPlayer : ContentView
         if(playbackTime != null)
         {
             float percentage = (float)playbackTime.currentDuration / (float)playbackTime.fullDuration;
-            Trace.WriteLine($"{playbackTime.currentDuration} / {playbackTime.fullDuration} = {percentage}");
-
 
             if (playbackTime.currentTrackGuid == lastUpdateTrackId)
             {
@@ -62,7 +60,7 @@ public partial class MiniPlayer : ContentView
         }
     }
 
-    public async void UpdateData(Song[] songs, int? playFromIndex = 0, bool? animate = false)
+    public async void UpdateData(Song[] songs, int? playFromIndex = 0)
     {
         ViewModel.Queue = songs.ToObservableCollection();
         Song viewModelItem = (Song)ImgCarousel.CurrentItem;
@@ -81,17 +79,10 @@ public partial class MiniPlayer : ContentView
 
         // Update time tracking
         PlaybackTimeInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
-        MauiProgram.MainPage.MiniPlayerController.UpdateTimestamp(timeInfo);
-
-        // Animate :3 
-        if (animate == true)
-        {
-            ImgCarousel.Opacity = 0;
-            await ImgCarousel.FadeTo(1, 300, Easing.SinOut);
-        }
+        MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
     }
 
-    private async void UpdateFavouriteButton(bool? animate = false)
+    public async void UpdateFavouriteButton(bool? syncToServer = true)
     {
         if (App.Current == null)
         {
@@ -106,11 +97,11 @@ public partial class MiniPlayer : ContentView
 
             if (hasColor)
             {
-                Btn_FavToggle_TintColor.TintColor = (Color)primaryColor;
+                ViewModel.FavButtonColor = (Color)primaryColor;
             }
             if (hasSource)
             {
-                Btn_FavToggle.Source = (string)imageSource;
+                ViewModel.FavButtonSource = (string)imageSource;
             }
         }
         else
@@ -120,28 +111,21 @@ public partial class MiniPlayer : ContentView
 
             if (hasColor)
             {
-                Btn_FavToggle_TintColor.TintColor = (Color)primaryColor;
+                ViewModel.FavButtonColor = (Color)primaryColor;
             }
             if (hasSource)
             {
-                Btn_FavToggle.Source = (string)imageSource;
+                ViewModel.FavButtonSource = (string)imageSource;
             }
         }
 
-        if (animate == true)
-        {
-            Btn_FavToggle.Opacity = 0;
-            await Task.WhenAny(
-                Btn_FavToggle.FadeTo(1, 250, Easing.SinOut),
-                MauiProgram.servers[0].FavouriteItem(song.id, song.isFavourite));
-        }
-        else
+        if (syncToServer == true)
         {
             await MauiProgram.servers[0].FavouriteItem(song.id, song.isFavourite);
         }
     }
 
-    private async void UpdatePlayButton(bool? animate = false)
+    public void UpdatePlayButton()
     {
         if(App.Current == null)
         {
@@ -153,7 +137,7 @@ public partial class MiniPlayer : ContentView
             var hasSource = App.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
             if (hasSource)
             {
-                Btn_PlayToggle.Source = (string)imageSource;
+                ViewModel.PlayButtonSource = (string)imageSource;
             }
         }
         else
@@ -161,14 +145,8 @@ public partial class MiniPlayer : ContentView
             var hasSource = App.Current.Resources.TryGetValue("PlayIcon", out object imageSource);
             if (hasSource)
             {
-                Btn_PlayToggle.Source = (string)imageSource;
+                ViewModel.PlayButtonSource = (string)imageSource;
             }
-        }
-
-        if (animate == true)
-        {
-            Btn_PlayToggle.Opacity = 0;
-            await Btn_PlayToggle.FadeTo(1, 250, Easing.SinOut);
         }
     }
 
@@ -179,8 +157,8 @@ public partial class MiniPlayer : ContentView
             case GestureStatus.Running:
                 this.TranslationY = this.TranslationY + e.TotalY;
 
-                MauiProgram.MainPage.MediaPlayer.Opacity = 1;
-                MauiProgram.MainPage.MediaPlayer.PositionY = MauiProgram.MainPage.MediaPlayer.PositionY + e.TotalY;
+                MauiProgram.MainPage.MainMediaController.Opacity = 1;
+                MauiProgram.MainPage.MainMediaController.PositionY = MauiProgram.MainPage.MainMediaController.PositionY + e.TotalY;
                 break;
 
             case GestureStatus.Completed:                
@@ -188,15 +166,15 @@ public partial class MiniPlayer : ContentView
                 {
                     await Task.WhenAll(
                         this.TranslateTo(0, MauiProgram.MainPage.ContentHeight * -1, 450, Easing.SinOut),
-                        MauiProgram.MainPage.MediaPlayer.TranslateTo(0, 0, 450, Easing.SinOut));
-                    MauiProgram.MainPage.MediaPlayer.Open(animate: false);
+                        MauiProgram.MainPage.MainMediaController.TranslateTo(0, 0, 450, Easing.SinOut));
+                    MauiProgram.MainPage.MainMediaController.Open(animate: false);
                 }
                 else
                 {
                     await Task.WhenAll(
                         this.TranslateTo(0, 0, 450, Easing.SinOut),
-                        MauiProgram.MainPage.MediaPlayer.TranslateTo(0, MauiProgram.MainPage.ContentHeight, 450, Easing.SinOut));
-                    MauiProgram.MainPage.MediaPlayer.Close(animate: false);
+                        MauiProgram.MainPage.MainMediaController.TranslateTo(0, MauiProgram.MainPage.ContentHeight, 450, Easing.SinOut));
+                    MauiProgram.MainPage.MainMediaController.Close(animate: false);
                 }
                 break;
         }
@@ -204,7 +182,7 @@ public partial class MiniPlayer : ContentView
 
     private void MiniPlayer_Clicked(object sender, TappedEventArgs e)
     {
-        MauiProgram.MainPage.MediaPlayer.Open();
+        MauiProgram.MainPage.MainMediaController.Open();
     }
 
     private void MiniPlayer_Swiped(object sender, SwipedEventArgs e)
@@ -217,6 +195,7 @@ public partial class MiniPlayer : ContentView
         MauiProgram.MediaService.TogglePlay();
 
         UpdatePlayButton();
+        MauiProgram.MainPage.MainMediaController.UpdatePlayButton();
     }
 
     private void Btn_PlayToggle_Pressed(object sender, EventArgs e)
@@ -235,6 +214,7 @@ public partial class MiniPlayer : ContentView
         MauiProgram.MediaService.GetCurrentlyPlaying().isFavourite = !MauiProgram.MediaService.GetCurrentlyPlaying().isFavourite;
 
         UpdateFavouriteButton();
+        MauiProgram.MainPage.MainMediaController.UpdateFavouriteButton();
     }
 
     private void Btn_FavToggle_Pressed(object sender, EventArgs e)

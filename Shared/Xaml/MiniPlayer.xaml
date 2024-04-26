@@ -61,13 +61,31 @@
 
                 <HorizontalStackLayout Grid.Column="1" HorizontalOptions="End" Margin="0, 0, 10, 0">
                     <!-- Fav Btn -->
-                    <ImageButton x:Name="Btn_FavToggle" Pressed="Btn_FavToggle_Pressed" Released="Btn_FavToggle_Released" Clicked="Btn_FavToggle_Clicked" Aspect="AspectFit" WidthRequest="40" HeightRequest="40" Source="{StaticResource HeartEmptyIcon}" HorizontalOptions="End">
+                    <ImageButton x:Name="Btn_FavToggle" 
+                                 Pressed="Btn_FavToggle_Pressed" 
+                                 Released="Btn_FavToggle_Released" 
+                                 Clicked="Btn_FavToggle_Clicked" 
+                                 Aspect="AspectFit" 
+                                 WidthRequest="40" 
+                                 HeightRequest="40" 
+                                 Source="{Binding FavButtonSource}" 
+                                 HorizontalOptions="End">
                         <ImageButton.Behaviors>
-                            <toolkit:IconTintColorBehavior x:Name="Btn_FavToggle_TintColor" TintColor="{StaticResource PrimaryTextColor}" />
+                            <toolkit:IconTintColorBehavior 
+                                x:Name="Btn_FavToggle_TintColor" 
+                                TintColor="{Binding FavButtonColor}" />
                         </ImageButton.Behaviors>
                     </ImageButton>
                         <!-- Play Btn -->
-                    <ImageButton x:Name="Btn_PlayToggle" Pressed="Btn_PlayToggle_Pressed" Released="Btn_PlayToggle_Released" Clicked="Btn_PlayToggle_Clicked" Aspect="AspectFill" WidthRequest="40" HeightRequest="40" Source="{StaticResource PauseIcon}" HorizontalOptions="End"/>
+                    <ImageButton x:Name="Btn_PlayToggle" 
+                                 Pressed="Btn_PlayToggle_Pressed" 
+                                 Released="Btn_PlayToggle_Released" 
+                                 Clicked="Btn_PlayToggle_Clicked" 
+                                 Aspect="AspectFill" 
+                                 WidthRequest="40" 
+                                 HeightRequest="40" 
+                                 Source="{Binding PlayButtonSource}" 
+                                 HorizontalOptions="End"/>
                 </HorizontalStackLayout>
 
                 <Grid.ColumnDefinitions>

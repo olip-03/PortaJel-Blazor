@@ -70,9 +70,9 @@ public class MainActivity : MauiAppCompatActivity
                     return false;
                 }                
                 // If the music player is open, close it 
-                if (MauiProgram.MainPage.MediaPlayer.IsOpen)
+                if (MauiProgram.MainPage.MainMediaController.IsOpen)
                 {
-                    if (MauiProgram.MainPage.MediaPlayer.IsQueueOpen)
+                    if (MauiProgram.MainPage.MainMediaController.IsQueueOpen)
                     {
                         // TODO: Update queue close endpoint 
                         MauiProgram.MainPage.CloseMusicQueue();
@@ -80,7 +80,7 @@ public class MainActivity : MauiAppCompatActivity
                     }
                     else
                     {
-                        MauiProgram.MainPage.MediaPlayer.Close();
+                        MauiProgram.MainPage.MainMediaController.Close();
                         return false;
                     }
                 }

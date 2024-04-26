@@ -35,8 +35,8 @@ public partial class MainPage : ContentPage
     public double ContentHeight { get => AllContent.Height; private set { } }
     public double ContentWidth { get => AllContent.Width; private set { } }
 
-    public MediaController MediaPlayer { get => this.MediaControl; private set { } }
-    public MiniPlayer MiniPlayerController { get => this.MiniPlayer; private set { } }
+    public MediaController MainMediaController { get => this.MediaControl; private set { } }
+    public MiniPlayer MainMiniPlayer { get => this.MiniPlayer; private set { } }
 
 
     private ObservableCollection<Song> queue = new ObservableCollection<Song>();
@@ -83,7 +83,7 @@ public partial class MainPage : ContentPage
         }
 
         double spacing = (AllContent.Width - 350) / 2;
-        MediaPlayer.PositionY = AllContent.Height;
+        MainMediaController.PositionY = AllContent.Height;
 
         MauiProgram.MediaService.Initalize();
         MauiProgram.WebView.NavigateHome();
@@ -227,8 +227,8 @@ public partial class MainPage : ContentPage
         mediaQueue.RemoveRange(0, playingIndex);
         playingQueue = mediaQueue.ToObservableCollection();
 
-        MiniPlayer.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex, animate: true);
-        MediaPlayer.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex, animate: true);
+        MiniPlayer.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex);
+        MainMediaController.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex);
     }
 
     public void ShowMusicController()
@@ -497,7 +497,7 @@ public partial class MainPage : ContentPage
                 }
                 else
                 {
-                    MauiProgram.MainPage.MediaPlayer.Close();
+                    MauiProgram.MainPage.MainMediaController.Close();
                 }
                 break;
         }

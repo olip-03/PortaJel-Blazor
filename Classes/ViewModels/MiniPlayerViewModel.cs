@@ -19,5 +19,26 @@ namespace PortaJel_Blazor.Classes
             get => (double?)GetValue(PlaybackPercentageProperty);
             set => SetValue(PlaybackPercentageProperty, value);
         }
+
+        public static readonly BindableProperty PlayButtonSourceProperty = BindableProperty.Create(nameof(PlayButtonSource), typeof(string), typeof(MiniPlayerViewModel), default(string));
+        public string? PlayButtonSource
+        {
+            get => (string?)GetValue(PlayButtonSourceProperty);
+            set => SetValue(PlayButtonSourceProperty, value);
+        }
+
+        public static readonly BindableProperty FavButtonSourceProperty = BindableProperty.Create(nameof(FavButtonSource), typeof(string), typeof(MiniPlayerViewModel), default(string));
+        public string? FavButtonSource
+        {
+            get => (string?)GetValue(FavButtonSourceProperty);
+            set => SetValue(FavButtonSourceProperty, value);
+        }
+
+        public static readonly BindableProperty FavButtonColorProperty = BindableProperty.Create(nameof(FavButtonColor), typeof(Color), typeof(MiniPlayerViewModel), default(Color));
+        public Color? FavButtonColor
+        {
+            get => (Color?)GetValue(FavButtonColorProperty);
+            set => SetValue(FavButtonColorProperty, value);
+        }
     }
 }

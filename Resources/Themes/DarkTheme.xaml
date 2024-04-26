@@ -25,6 +25,7 @@
     <x:String x:Key="PlayIcon">light_play.svg</x:String>
     <x:String x:Key="InversePlayIcon">play.svg</x:String>
     <x:String x:Key="PauseIcon">light_pause.svg</x:String>
+    <x:String x:Key="InversePauseIcon">pause.svg</x:String>
     <x:String x:Key="SkipNextIcon">light_skip_next.png</x:String>
     <x:String x:Key="ShuffleIcon">light_shuffle.png</x:String>
     <x:String x:Key="HeartEmptyIcon">light_heart.png</x:String>

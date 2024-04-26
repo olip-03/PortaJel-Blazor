@@ -78,7 +78,9 @@ namespace PortaJel_Blazor.Classes.Services
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 PlaybackTimeInfo? timeInfo = GetPlaybackTimeInfo();
-                MauiProgram.MainPage.MiniPlayerController.UpdateTimestamp(timeInfo);
+
+                MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
+                MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
             });
         }
        

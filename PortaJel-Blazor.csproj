@@ -195,6 +195,9 @@
 		<MauiXaml Update="Shared\Xaml\MediaController.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Shared\Xaml\MediaQueue.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Shared\Xaml\MiniPlayer.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
