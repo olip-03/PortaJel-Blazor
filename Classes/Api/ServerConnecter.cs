@@ -1128,8 +1128,13 @@ namespace PortaJel_Blazor.Classes
 
             return genres.ToArray();
         }
-        public async Task FavouriteItem(Guid id, bool setState)
+        public async Task<bool> FavouriteItem(Guid id, bool setState)
         {
+            if(userDto == null || _userLibraryClient == null)
+            {
+                return false;
+            }
+
             if (setState)
             {
                 await _userLibraryClient.MarkFavoriteItemAsync(userDto.Id, id);
@@ -1138,6 +1143,7 @@ namespace PortaJel_Blazor.Classes
             {
                 await _userLibraryClient.UnmarkFavoriteItemAsync(userDto.Id, id);
             }
+            return setState;
         }
         public async Task<int> GetTotalPlaylistCount()
         {
@@ -1195,8 +1201,9 @@ namespace PortaJel_Blazor.Classes
             newAlbum.name = baseItem.Name;
             newAlbum.id = baseItem.Id;
             newAlbum.image = MusicItemImageBuilder(baseItem);
+            newAlbum.itemServerAddress = _sdkClientSettings.BaseUrl;
 
-            if(songs == null)
+            if (songs == null)
             {
                 newAlbum.songs = new Song[0]; // TODO: Implement songs
             }
@@ -1265,6 +1272,7 @@ namespace PortaJel_Blazor.Classes
             }
 
             Artist newArtist= new();
+            newArtist.itemServerAddress = _sdkClientSettings.BaseUrl;
             newArtist.name = baseItem.Name;
             newArtist.id = baseItem.Id;
             newArtist.description = baseItem.Overview;
@@ -1287,6 +1295,7 @@ namespace PortaJel_Blazor.Classes
             Artist newArtist = new();
             newArtist.name = nameGuidPair.Name;
             newArtist.id = nameGuidPair.Id;
+            newArtist.itemServerAddress = _sdkClientSettings.BaseUrl;
             newArtist.image = MusicItemImageBuilder(nameGuidPair);
             newArtist.isPartial = true;
 
@@ -1302,6 +1311,7 @@ namespace PortaJel_Blazor.Classes
                 newGenre.name = baseItem.Name;
                 newGenre.id = baseItem.Id;
                 newGenre.image = MusicItemImageBuilder(baseItem);
+                newGenre.itemServerAddress = _sdkClientSettings.BaseUrl;
                 newGenre.songs = null; // TODO: Implement songs
 
                 if (baseItem.Type != BaseItemKind.MusicAlbum)
@@ -1474,8 +1484,9 @@ namespace PortaJel_Blazor.Classes
                 newPlaylist.name = baseItem.Name;
                 newPlaylist.id = baseItem.Id;
                 newPlaylist.isFavourite = baseItem.UserData.IsFavorite;
-                newPlaylist.songs = null; // TODO: Implement songs
+                newPlaylist.songs = new PlaylistSong[0]; // TODO: Implement songs
                 newPlaylist.path = baseItem.Path;
+                newPlaylist.itemServerAddress = _sdkClientSettings.BaseUrl;
 
                 if (baseItem.Type != BaseItemKind.MusicAlbum)
                 {
@@ -1502,6 +1513,7 @@ namespace PortaJel_Blazor.Classes
             newSong.playCount = baseItem.UserData.PlayCount;
             newSong.image = MusicItemImageBuilder(baseItem);
             newSong.streamUrl = _sdkClientSettings.BaseUrl + "/Audio/" + baseItem.Id + "/stream";
+            newSong.itemServerAddress = _sdkClientSettings.BaseUrl;
 
             List<Artist> artists = new List<Artist>();
             foreach (var item in baseItem.AlbumArtists)

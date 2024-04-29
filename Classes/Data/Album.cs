@@ -56,7 +56,7 @@ namespace PortaJel_Blazor.Data
             return artistName;
         }
 
-        public int CompareTo(Album other)
+        public int CompareTo(Album? other)
         {
             int resolve = -1;
             switch (sortMethod)
@@ -98,7 +98,7 @@ namespace PortaJel_Blazor.Data
                 contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
                 {
                     this.isFavourite = false;
-                    await MauiProgram.servers[0].FavouriteItem(this.id, false);
+                    await MauiProgram.api.SetFavourite(this, false);
                 })));
             }
             else
@@ -106,7 +106,7 @@ namespace PortaJel_Blazor.Data
                 contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
                 {
                     this.isFavourite = true;
-                    await MauiProgram.servers[0].FavouriteItem(this.id, true);
+                    await MauiProgram.api.SetFavourite(this, true);
                 })));
             }
             contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
@@ -142,13 +142,20 @@ namespace PortaJel_Blazor.Data
                 MauiProgram.MainPage.ShowLoadingScreen(true);
                 MauiProgram.WebView.NavigateAlbum(this.id);
             })));
-            contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async() =>
+            if(this.artists.Count() > 0)
             {
-                MauiProgram.MainPage.CloseContextMenu();
-                await MauiProgram.MainPage.AwaitContextMenuClose();
-                MauiProgram.MainPage.ShowLoadingScreen(true);
-                MauiProgram.WebView.NavigateArtist(this.artists.FirstOrDefault().id);
-            })));
+                contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async () =>
+                {
+                    Artist? artist = this.artists.FirstOrDefault();
+                    if(artist != null)
+                    {
+                        MauiProgram.MainPage.CloseContextMenu();
+                        await MauiProgram.MainPage.AwaitContextMenuClose();
+                        MauiProgram.MainPage.ShowLoadingScreen(true);
+                        MauiProgram.WebView.NavigateArtist(artist.id);
+                    }
+                })));
+            }
             contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
             {
                 MauiProgram.MainPage.CloseContextMenu();

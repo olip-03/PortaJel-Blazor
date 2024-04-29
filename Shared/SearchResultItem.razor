@@ -140,7 +140,7 @@
         if (musicObject != null)
         {
             musicObject.isFavourite = !musicObject.isFavourite;
-            await MauiProgram.servers[0].FavouriteItem(musicObject.id, musicObject.isFavourite);
+            await MauiProgram.api.SetFavourite(musicObject, musicObject.isFavourite);
         }
         StateHasChanged();
     }
@@ -164,16 +164,19 @@
 
     private async void OpenContextMenu()
     {
-        MauiProgram.MainPage.OpenContextMenu(musicObject, 250, placeholderBase64);
-        await Task.Run(() =>
+        if(musicObject != null)
         {
-            // Literally just waiting for the fucking thing to close before we refresh 
-            while (MauiProgram.MainPage.isContextMenuOpen == true)
+            MauiProgram.MainPage.OpenContextMenu(musicObject, 250, placeholderBase64);
+            await Task.Run(() =>
             {
+                // Literally just waiting for the fucking thing to close before we refresh
+                while (MauiProgram.MainPage.isContextMenuOpen == true)
+                {
 
-            }
-        });
-        StateHasChanged();
+                }
+            });
+            StateHasChanged();
+        }
     }
     
     [JSInvokable("OnView")]

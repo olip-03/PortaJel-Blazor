@@ -196,5 +196,11 @@ namespace PortaJel_Blazor.Classes
             return playlistsReturn.ToArray();
         }
         #endregion
+    
+        public async Task<bool> SetFavourite(BaseMusicItem item, bool favouriteState)
+        {
+            await connecters[item.itemServerAddress].FavouriteItem(item.id, favouriteState);
+            return favouriteState;
+        }
     }
 }

@@ -6,4 +6,14 @@ public partial class MediaQueue : ContentView
 	{
 		InitializeComponent();
 	}
+
+    private void Btn_Close_Clicked(object sender, EventArgs e)
+    {
+
+    }
+
+    private void Btn_ContextMenu_Clicked(object sender, EventArgs e)
+    {
+
+    }
 }

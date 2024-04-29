@@ -14,6 +14,7 @@ namespace PortaJel_Blazor.Data
         public bool isFavourite { get; set; } = false;
         public int playCount { get; set; } = 0;
         public int dateAdded { get; set; } = 0;
+        public string itemServerAddress { get; set; } = String.Empty;
         public MusicItemImage image { get; set; } = MusicItemImage.Empty;
         public List<ContextMenuItem> contextMenuItems { get; set; } = new();
     }

@@ -141,16 +141,19 @@
             MauiProgram.WebView.NavigateHome();
         }
     }
-    private async void ShowPlaylistContextMenu()
+    private void ShowPlaylistContextMenu()
     {
         // TODO: Add Blurhash
         MauiProgram.MainPage.OpenContextMenu(playlist, 250);
     }
     private async void FavouriteItem()
     {
-        playlist.isFavourite = !playlist.isFavourite;
-        StateHasChanged();
-        await MauiProgram.servers[0].FavouriteItem(playlist.id, playlist.isFavourite);
+        if (playlist != null)
+        {
+            playlist.isFavourite = !playlist.isFavourite;
+            StateHasChanged();
+            await MauiProgram.api.SetFavourite(playlist, playlist.isFavourite);
+        }
     }
     private void PlayAlbum()
     {

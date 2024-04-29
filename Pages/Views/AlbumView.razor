@@ -107,7 +107,7 @@
                 </div>
                 forcount++;
             }
-@*             <hr />
+            <hr />
             <h2>Recommended Artists</h2>
             <div class="recommended-artists">
                 
@@ -120,7 +120,7 @@
                         </div>
                     }
                 </div>
-            </div>  *@
+            </div> 
         }
         @errormessage
     </Animate>
@@ -178,8 +178,9 @@
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
                 base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
             }
-            // GnodService reccomendations = new();
-            // similarArtists = await reccomendations.QueryGnod(album.artists.First().name);
+
+            GnodService reccomendations = new();
+            similarArtists = await reccomendations.QueryGnod(album.artists.FirstOrDefault().name);
         }
         catch (Exception ex)
         {
@@ -229,7 +230,8 @@
     {
         album.isFavourite = !album.isFavourite;
         StateHasChanged();
-        await MauiProgram.servers[0].FavouriteItem(album.id, album.isFavourite);
+        // MauiProgram.api.SetFavourite
+        await MauiProgram.api.SetFavourite(album, album.isFavourite);
     }
 
     private async void FavouriteSong(Guid songId)
@@ -245,8 +247,11 @@
             }
         }
 
-        StateHasChanged();
-        await MauiProgram.servers[0].FavouriteItem(songId, foundItem.isFavourite);
+        if(foundItem != null)
+        {
+            StateHasChanged();
+            await MauiProgram.api.SetFavourite(foundItem, foundItem.isFavourite);
+        }
     }
 
     private void PlayAlbum()

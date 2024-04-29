@@ -31,7 +31,8 @@ namespace PortaJel_Blazor.Data
                 contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
                 {
                     this.isFavourite = false;
-                    await MauiProgram.servers[0].FavouriteItem(this.id, false);
+                    await MauiProgram.api.SetFavourite(this, false);
+                    MauiProgram.MainPage.CloseContextMenu();
                 })));
             }
             else
@@ -39,7 +40,8 @@ namespace PortaJel_Blazor.Data
                 contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
                 {
                     this.isFavourite = true;
-                    await MauiProgram.servers[0].FavouriteItem(this.id, true);
+                    await MauiProgram.api.SetFavourite(this, true);
+                    MauiProgram.MainPage.CloseContextMenu();
                 })));
             }
             contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async() =>

@@ -118,28 +118,36 @@ namespace PortaJel_Blazor.Data
             {
                 contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
                 {
+                    MauiProgram.MainPage.CloseContextMenu();
+
                     this.isFavourite = false;
-                    await MauiProgram.servers[0].FavouriteItem(this.id, false);
+                    await MauiProgram.api.SetFavourite(this, false);
                 })));
             }
             else
             {
                 contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
                 {
+                    MauiProgram.MainPage.CloseContextMenu();
+
                     this.isFavourite = true;
-                    await MauiProgram.servers[0].FavouriteItem(this.id, true);
+                    await MauiProgram.api.SetFavourite(this, true);
                 })));
             }
             contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
             {
+                MauiProgram.MainPage.CloseContextMenu();
                 // TODO: implement download manager and all
             })));
             contextMenuItems.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
             {
+                MauiProgram.MainPage.CloseContextMenu();
                 // TODO: implement adding to playlist feature
             })));
             contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(async () =>
             {
+                MauiProgram.MainPage.CloseContextMenu();
+
                 MauiProgram.MediaService.AddSong(this);
 
                 #if !WINDOWS
@@ -152,10 +160,12 @@ namespace PortaJel_Blazor.Data
                 var toast = Toast.Make(text, duration, fontSize);
                 await toast.Show(cancellationTokenSource.Token);
                 #endif
+                
             })));
             contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(async () =>
             {
                 MauiProgram.MainPage.CloseContextMenu();
+
                 await MauiProgram.MainPage.AwaitContextMenuClose();
                 MauiProgram.MainPage.ShowLoadingScreen(true);
                 MauiProgram.WebView.NavigateAlbum(this.id);
@@ -163,6 +173,7 @@ namespace PortaJel_Blazor.Data
             contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async () =>
             {
                 MauiProgram.MainPage.CloseContextMenu();
+
                 await MauiProgram.MainPage.AwaitContextMenuClose();
                 MauiProgram.MainPage.ShowLoadingScreen(true);
                 MauiProgram.WebView.NavigateArtist(this.artists.FirstOrDefault().id);

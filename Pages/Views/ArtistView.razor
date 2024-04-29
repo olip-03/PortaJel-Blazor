@@ -271,7 +271,7 @@
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
     }
-    private async void SelectPage(int page)
+    private void SelectPage(int page)
     {
         startFromIndex = itemsPerPage * page;
         selectedPage = page;
@@ -288,7 +288,7 @@
         }
         MauiProgram.librarySortMethod = (int)sort;
     }
-    private async void ToggleView()
+    private void ToggleView()
     {
         SelectPage(selectedPage);
 
@@ -305,7 +305,7 @@
     {
         artist.isFavourite = !artist.isFavourite;
         StateHasChanged();
-        await MauiProgram.servers[0].FavouriteItem(artist.id, artist.isFavourite);
+        await MauiProgram.api.SetFavourite(artist, artist.isFavourite);
     }
     private async void GoBack()
     {

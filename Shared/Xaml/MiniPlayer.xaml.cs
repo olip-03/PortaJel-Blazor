@@ -60,15 +60,22 @@ public partial class MiniPlayer : ContentView
         }
     }
 
-    public async void UpdateData(Song[] songs, int? playFromIndex = 0)
+    public void UpdateData(Song[]? songs = null, int? playFromIndex = 0)
     {
-        ViewModel.Queue = songs.ToObservableCollection();
-        Song viewModelItem = (Song)ImgCarousel.CurrentItem;
-        
-        // Update Carousel 
-        if(playFromIndex != null)
+        if (songs != null)
         {
-            ImgCarousel.ScrollTo(songs[(int)playFromIndex], animate: false);
+            ViewModel.Queue = songs.ToObservableCollection();
+            if (playFromIndex != null)
+            {
+                ImgCarousel.ScrollTo(songs[(int)playFromIndex], animate: false);
+            }
+        }
+        else if (ViewModel.Queue != null && ViewModel.Queue.Count() > playFromIndex)
+        {
+            if (playFromIndex != null)
+            {
+                ImgCarousel.ScrollTo(ViewModel.Queue[(int)playFromIndex], animate: false);
+            }
         }
 
         // Update Play Button
@@ -82,7 +89,7 @@ public partial class MiniPlayer : ContentView
         MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
     }
 
-    public async void UpdateFavouriteButton(bool? syncToServer = true)
+    public async void UpdateFavouriteButton(bool? syncToServer = false)
     {
         if (App.Current == null)
         {
@@ -121,7 +128,7 @@ public partial class MiniPlayer : ContentView
 
         if (syncToServer == true)
         {
-            await MauiProgram.servers[0].FavouriteItem(song.id, song.isFavourite);
+            await MauiProgram.api.SetFavourite(song, song.isFavourite);
         }
     }
 
@@ -201,7 +208,7 @@ public partial class MiniPlayer : ContentView
     private void Btn_PlayToggle_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-        Btn_PlayToggle.Opacity = 0;
+        Btn_PlayToggle.Opacity = 0.8;
     }
 
     private async void Btn_PlayToggle_Released(object sender, EventArgs e)
@@ -220,7 +227,7 @@ public partial class MiniPlayer : ContentView
     private void Btn_FavToggle_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-        Btn_FavToggle.Opacity = 0;
+        Btn_FavToggle.Opacity = 0.8;
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)

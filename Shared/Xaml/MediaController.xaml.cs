@@ -1,5 +1,6 @@
 using BlazorAnimate;
 using CommunityToolkit.Maui.Core.Extensions;
+using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
 using System;
@@ -15,6 +16,10 @@ public partial class MediaController : ContentView
 
     public double PositionX { get => TranslationX; set => TranslationX = value; }
     public double PositionY { get => TranslationY; set => TranslationY = value; }
+
+    private double btnInOpacity = 0.5;
+    private double btnInSize = 0.8;
+    private uint btnAnimSpeedMs = 400;
 
     public MediaController()
 	{
@@ -61,15 +66,23 @@ public partial class MediaController : ContentView
             MauiProgram.MainPage.MainMiniPlayer.TranslationY = 0;
             TranslationY = MauiProgram.MainPage.ContentHeight;
         }
-
     }
-
-    public void UpdateData(Song[] songs, int? playFromIndex = 0)
-    {
-        ViewModel.Queue = songs.ToObservableCollection();
-        if(playFromIndex != null)
+    public void UpdateData(Song[]? songs = null, int? playFromIndex = 0)
+    { 
+        if(songs != null)
         {
-            ImgCarousel.ScrollTo(songs[(int)playFromIndex], animate: false);
+            ViewModel.Queue = songs.ToObservableCollection();
+            if (playFromIndex != null)
+            {
+                ImgCarousel.ScrollTo(songs[(int)playFromIndex], animate: false);
+            }
+        }
+        else if(ViewModel.Queue != null && ViewModel.Queue.Count() > playFromIndex)
+        {
+            if (playFromIndex != null)
+            {
+                ImgCarousel.ScrollTo(ViewModel.Queue[(int)playFromIndex], animate: false);
+            }
         }
 
         // Update Play Button
@@ -108,14 +121,16 @@ public partial class MediaController : ContentView
         }
     }
 
-    public async void UpdateFavouriteButton(bool? syncToServer = true)
+    public async void UpdateFavouriteButton(bool? syncToServer = false)
     {
-        if (App.Current == null)
+        if (App.Current == null || ViewModel.Queue == null)
         {
             return;
         }
 
-        Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
+        int queueIndex = MauiProgram.MediaService.GetQueueIndex();
+        Song song = ViewModel.Queue[queueIndex];
+
         if (song.isFavourite)
         {
             var hasColor = App.Current.Resources.TryGetValue("PrimaryColor", out object primaryColor);
@@ -147,7 +162,10 @@ public partial class MediaController : ContentView
 
         if (syncToServer == true)
         {
-            await MauiProgram.servers[0].FavouriteItem(song.id, song.isFavourite);
+            await Task.Run(async () =>
+            {
+                await MauiProgram.api.SetFavourite(song, song.isFavourite);
+            });
         }
     }
 
@@ -157,23 +175,26 @@ public partial class MediaController : ContentView
         {
             float percentage = (float)playbackTime.currentDuration / (float)playbackTime.fullDuration;
 
-            ViewModel.PlaybackValue = (double)playbackTime.currentDuration;
-            ViewModel.PlaybackMaximum = (double)playbackTime.fullDuration;
+            if(playbackTime.fullDuration > 0)
+            {
+                ViewModel.PlaybackValue = (double)playbackTime.currentDuration;
+                ViewModel.PlaybackMaximum = (double)playbackTime.fullDuration;
 
-            TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
-            TimeSpan fullTime = TimeSpan.FromMilliseconds(playbackTime.fullDuration);
+                TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
+                TimeSpan fullTime = TimeSpan.FromMilliseconds(playbackTime.fullDuration);
 
-            ViewModel.PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", passedTime.Minutes, passedTime.Seconds);
-            ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTime.Minutes, fullTime.Seconds);
+                ViewModel.PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", passedTime.Minutes, passedTime.Seconds);
+                ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTime.Minutes, fullTime.Seconds);
+            }
         }
     }
 
-    private void Player_Btn_Close_Clicked(object sender, EventArgs e)
+    private void Btn_Close_Clicked(object sender, EventArgs e)
     {
         Close();
     }
 
-    private async void Player_Btn_ContextMenu_Clicked(object sender, EventArgs e)
+    private async void Btn_ContextMenu_Clicked(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
 
@@ -182,63 +203,147 @@ public partial class MediaController : ContentView
         MauiProgram.MainPage.OpenContextMenu(song, 250, base64);
     }
 
-    private void Player_Btn_Repeat_Clicked(object sender, EventArgs e)
-    {
-
-    }
-
-    private void Player_Btn_Previous_Clicked(object sender, EventArgs e)
+    /// <summary>
+    /// REPEAT button pressed
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Btn_Repeat_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+        Btn_Repeat.Opacity = btnInOpacity;
+        Btn_Repeat.Scale = btnInSize;
+    }
+
+    /// <summary>
+    /// REPEAT button released
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private async void Btn_Repeat_Released(object sender, EventArgs e)
+    {
+        await Task.WhenAll(
+            Btn_Repeat.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
+            Btn_Repeat.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
+    }
+
+    private void Btn_Previous_Pressed(object sender, EventArgs e)
+    {
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+        Btn_Previous.Opacity = btnInOpacity;
+        Btn_Previous.Scale = btnInSize;
+
+
+    }
+    private async void Btn_Previous_Released(object sender, EventArgs e)
+    {
         MauiProgram.MediaService.PreviousTrack();
+
+        Song scrollTo = MauiProgram.MediaService.GetCurrentlyPlaying();
+        ImgCarousel.ScrollTo(item: scrollTo, animate: true);
+
+        int currentIndex = MauiProgram.MediaService.GetQueueIndex();
+        MauiProgram.MainPage.MainMiniPlayer.UpdateData(playFromIndex: currentIndex);
+
+        await Task.WhenAll(
+            Btn_Previous.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
+            Btn_Previous.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
     }
 
     private void Btn_PlayToggle_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-        Btn_PlayToggle.Opacity = 0;
+        Btn_PlayToggle.Opacity = btnInOpacity;
+        Btn_PlayToggle.Scale = btnInSize;
+
+        if (MauiProgram.MediaService.GetIsPlaying() && App.Current != null)
+        {
+            var hasSource = App.Current.Resources.TryGetValue("InversePlayIcon", out object imageSource);
+            if (hasSource)
+            {
+                ViewModel.PlayButtonSource = (string)imageSource;
+            }
+        }
+        else if(App.Current != null)
+        {
+            var hasSource = App.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
+            if (hasSource)
+            {
+                ViewModel.PlayButtonSource = (string)imageSource;
+            }
+        }
     }
 
     private async void Btn_PlayToggle_Released(object sender, EventArgs e)
     {
-        await Btn_PlayToggle.FadeTo(1, 400, Easing.SinOut);
-    }
-
-    private void Btn_PlayToggle_Clicked(object sender, EventArgs e)
-    {
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         MauiProgram.MediaService.TogglePlay();
-
         UpdatePlayButton();
         MauiProgram.MainPage.MainMiniPlayer.UpdatePlayButton();
+
+        await Task.WhenAll(
+            Btn_PlayToggle.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
+            Btn_PlayToggle.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
     }
 
-    private void Player_Btn_Next_Clicked(object sender, EventArgs e)
+    private void Btn_Next_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+        Btn_Next.Opacity = btnInOpacity;
+        Btn_Next.Scale = btnInSize;
+    }
+    private async void Btn_Next_Released(object sender, EventArgs e)
+    {
         MauiProgram.MediaService.NextTrack();
+
+        Song scrollTo = MauiProgram.MediaService.GetCurrentlyPlaying();
+        ImgCarousel.ScrollTo(item: scrollTo, animate: true);
+
+        int currentIndex = MauiProgram.MediaService.GetQueueIndex();
+        MauiProgram.MainPage.MainMiniPlayer.UpdateData(playFromIndex: currentIndex);
+
+        await Task.WhenAll(
+            Btn_Next.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
+            Btn_Next.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
     }
 
-    private void Player_Btn_Shuffle_Clicked(object sender, EventArgs e)
+    private void Btn_Shuffle_Pressed(object sender, EventArgs e)
     {
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+        Btn_Shuffle.Opacity = btnInOpacity;
+        Btn_Shuffle.Scale = btnInSize;
+    }
 
+    private async void Btn_Shuffle_Released(object sender, EventArgs e)
+    {
+        await Task.WhenAll(
+            Btn_Shuffle.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
+            Btn_Shuffle.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
     }
 
     private void Btn_FavToggle_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-        Btn_FavToggle.Opacity = 0;
+        Btn_FavToggle.Opacity = btnInOpacity;
+        Btn_FavToggle.Scale = btnInSize;
+
+        if (ViewModel.Queue == null)
+        {
+            return;
+        }
+
+        int queueIndex = MauiProgram.MediaService.GetQueueIndex();
+        ViewModel.Queue[queueIndex].isFavourite = !ViewModel.Queue[queueIndex].isFavourite;
+        
+        UpdateFavouriteButton();
+        MauiProgram.MainPage.MainMiniPlayer.UpdateFavouriteButton(syncToServer: true);
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)
     {
-        await Btn_FavToggle.FadeTo(1, 400, Easing.SinOut);
-    }
-
-    private void Btn_FavToggle_Clicked(object sender, EventArgs e)
-    {
-        MauiProgram.MediaService.GetCurrentlyPlaying().isFavourite = !MauiProgram.MediaService.GetCurrentlyPlaying().isFavourite;
-        UpdateFavouriteButton();
-        MauiProgram.MainPage.MainMiniPlayer.UpdateFavouriteButton();
+        await Task.WhenAll(
+            Btn_FavToggle.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
+            Btn_FavToggle.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
     }
 
     private void Player_Btn_ShowQueue_Clicked(object sender, EventArgs e)

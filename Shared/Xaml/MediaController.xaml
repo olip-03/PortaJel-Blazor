@@ -24,8 +24,8 @@
                 <!-- Header -->
                 <Grid Grid.Row="0">
                     <!-- Close Button -->
-                    <ImageButton x:Name="Player_Btn_Close" 
-                     Clicked="Player_Btn_Close_Clicked" 
+                    <ImageButton x:Name="Btn_Close" 
+                     Clicked="Btn_Close_Clicked" 
                      WidthRequest="40" 
                      HeightRequest="40" 
                      Source="{StaticResource ArrowDownIcon}" 
@@ -48,8 +48,8 @@
                     </StackLayout>
 
                     <!-- Context Menu Button -->
-                    <ImageButton x:Name="Player_Btn_ContextMenu" 
-                                 Clicked="Player_Btn_ContextMenu_Clicked"
+                    <ImageButton x:Name="Btn_ContextMenu" 
+                                 Clicked="Btn_ContextMenu_Clicked"
                                  WidthRequest="40" 
                                  HeightRequest="40" 
                                  Source="{StaticResource MoreHorizIcon}" 
@@ -142,17 +142,19 @@
                                     AlignItems="Center" 
                                     Margin="20">
                             <!-- Repeat Button -->
-                            <ImageButton x:Name="Player_Btn_Repeat" 
+                            <ImageButton x:Name="Btn_Repeat" 
                                              HeightRequest="40" WidthRequest="40" 
                                              BackgroundColor="Transparent" 
                                              Source="{StaticResource RepeatOffIcon}" 
-                                             Clicked="Player_Btn_Repeat_Clicked" />
+                                             Pressed="Btn_Repeat_Pressed"
+                                             Released="Btn_Repeat_Released"/>
                             <!-- Previous Button -->
-                            <ImageButton x:Name="Player_Btn_Previous" 
+                            <ImageButton x:Name="Btn_Previous" 
                                          HeightRequest="40" WidthRequest="40" 
                                          BackgroundColor="Transparent"
                                          Source="{StaticResource SkipPreviousIcon}" 
-                                         Clicked="Player_Btn_Previous_Clicked"/>
+                                         Pressed="Btn_Previous_Pressed"
+                                         Released="Btn_Previous_Released"/>
                             <Frame CornerRadius="40" 
                                    Padding="0" Margin="0" 
                                    HeightRequest="70" WidthRequest="70"
@@ -165,32 +167,44 @@
                                  HeightRequest="50" WidthRequest="50" 
                                  Source="{Binding PlayButtonSource}"
                                  Pressed="Btn_PlayToggle_Pressed"
-                                 Released="Btn_PlayToggle_Released"
-                                 Clicked="Btn_PlayToggle_Clicked"/>
+                                 Released="Btn_PlayToggle_Released"/>
                             </Frame>
                             <!-- Next Button -->
-                            <ImageButton x:Name="Player_Btn_Next" 
+                            <ImageButton x:Name="Btn_Next" 
                              HeightRequest="40" WidthRequest="40" 
                              BackgroundColor="Transparent" 
                              Source="{StaticResource SkipNextIcon}" 
-                             Clicked="Player_Btn_Next_Clicked"></ImageButton>
+                             Pressed="Btn_Next_Pressed"
+                             Released="Btn_Next_Released"></ImageButton>
                             <!-- Shuffle Button -->
-                            <ImageButton x:Name="Player_Btn_Shuffle"
+                            <ImageButton x:Name="Btn_Shuffle"
                              HeightRequest="40" WidthRequest="40" 
                              BackgroundColor="Transparent" 
                              Source="{StaticResource ShuffleIcon}" 
-                             Clicked="Player_Btn_Shuffle_Clicked"></ImageButton>
+                             Pressed="Btn_Shuffle_Pressed"
+                             Released="Btn_Shuffle_Released"></ImageButton>
                         </FlexLayout>
 
                         <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
                             <!-- Favourite Button -->
-                            <ImageButton x:Name="Btn_FavToggle" Source="{Binding FavButtonSource}" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Clicked="Btn_FavToggle_Clicked" Pressed="Btn_FavToggle_Pressed" Released="Btn_FavToggle_Released">
+                            <ImageButton x:Name="Btn_FavToggle" 
+                                         Source="{Binding FavButtonSource}" 
+                                         HeightRequest="40" 
+                                         WidthRequest="40" 
+                                         BackgroundColor="Transparent" 
+                                         Pressed="Btn_FavToggle_Pressed" 
+                                         Released="Btn_FavToggle_Released">
                                 <ImageButton.Behaviors>
                                     <toolkit:IconTintColorBehavior x:Name="Btn_FavToggle_TintColor" TintColor="{Binding FavButtonColor}" />
                                 </ImageButton.Behaviors>
                             </ImageButton>
                             <!-- Queue Button -->
-                            <ImageButton x:Name="Btn_ShowQueue" Source="{StaticResource QueueIcon}" HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Clicked="Player_Btn_ShowQueue_Clicked"></ImageButton>
+                            <ImageButton x:Name="Btn_ShowQueue" 
+                                         Source="{StaticResource QueueIcon}" 
+                                         HeightRequest="40" 
+                                         WidthRequest="40" 
+                                         BackgroundColor="Transparent" 
+                                         Clicked="Player_Btn_ShowQueue_Clicked"></ImageButton>
                         </FlexLayout>
                     </StackLayout>
                 </Grid>
@@ -202,9 +216,10 @@
                 </Grid.RowDefinitions>
             </Grid>
             <Border.Shadow>
-                <Shadow Brush="Black"
-                        Offset="0,0"
-                        Radius="15"
+                <Shadow x:Name="Container_BorderShadow"
+                        Brush="Black"
+                        Offset="0,-5"
+                        Radius="30"
                         Opacity="0.7" />
             </Border.Shadow>
         </Border>
