@@ -12,8 +12,9 @@ using PortaJel_Blazor.Classes;
 using Android.Media;
 using Android.Runtime;
 using Com.Google.Android.Exoplayer2.UI;
+using Android.Support.V4.Media.Session;
 
-#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618, CS0612, CA1422 // Type or member is obsolete
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
     [Service(Name = "PortaJel.MediaService", IsolatedProcess = true, ForegroundServiceType = ForegroundService.TypeMediaPlayback)]
@@ -21,11 +22,13 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
     {
         public IBinder? Binder { get; private set; }
 
-
+        private SimpleExoPlayer _player;
         public IExoPlayer? Exoplayer;
         private int repeatMode = 0;
 
+        MediaSession2 mediaSession;
         PlayerNotificationManager? notificationManager = null;
+        PlayerNotificationManager.IMediaDescriptionAdapter mediaDescriptionAdapter = null;
         public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
 
         public int playingIndex { get; private set; } = 0;
@@ -42,27 +45,37 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             var channelName = "PortaJel";
             var channelDescription = "Notification Channel for the PortaJel Music Streaming App for Jellyfin";
-            var channel = new NotificationChannel(AppInfo.PackageName, channelName, NotificationImportance.Default)
+            var channedId = AppInfo.PackageName;
+            var channel = new NotificationChannel(channedId, channelName, NotificationImportance.Max)
             {
-                Description = channelDescription
+                Description = channelDescription,
             };
-
+            
             Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
 
-            var notification = new Notification.Builder(context, AppInfo.PackageName)
+            Notification notification = new Notification.Builder(context, channel.Id)
+                 .SetChannelId(channel.Id)
                  .SetSmallIcon(Resource.Drawable.ic_mtrl_checked_circle)
                  .SetContentTitle("Track title")
                  .SetContentText("Artist - Album")
                  .SetOngoing(true)
                  .Build();
 
-            notificationManager = new PlayerNotificationManager.Builder(context, SERVICE_RUNNING_NOTIFICATION_ID, AppInfo.PackageName)
-                .Build();
-            notificationManager.SetPlayer(Exoplayer);
-            notificationManager.SetVisibility(1);
-
+            PlayerNotificationManager.Builder? builder1 = new PlayerNotificationManager.Builder(context, SERVICE_RUNNING_NOTIFICATION_ID, channel.Id);
+            if (builder1 != null)
+            {
+                builder1.SetChannelImportance(2);
+                notificationManager = builder1.Build();
+            }
+            if (notificationManager != null)
+            {
+                notificationManager.SetPriority(2);
+                notificationManager.SetPlayer(Exoplayer);
+                notificationManager.SetVisibility(1);
+                notificationManager.SetUsePlayPauseActions(true);
+                notificationManager.SetUseChronometer(true);
+            }
             StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, notification);
-
             return base.OnStartCommand(intent, flags, startId);
         }
 
@@ -265,6 +278,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     if(mediaItem != null)
                     {
                         mediaItem.MediaId = song.id.ToString();
+                        
                         Exoplayer.AddMediaItem(mediaItem);
                     }
                 }
@@ -434,4 +448,4 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         }
     }
 }
-#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618, CA1422 // Type or member is obsolete
