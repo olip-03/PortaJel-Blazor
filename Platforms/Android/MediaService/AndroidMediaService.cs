@@ -9,12 +9,14 @@ using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Classes.Services;
 using Android.OS;
 using PortaJel_Blazor.Classes;
-using Android.Media;
+using Android.Media.Session;
+using Android.Graphics;
 using Android.Runtime;
 using Com.Google.Android.Exoplayer2.UI;
-using Android.Support.V4.Media.Session;
 
 #pragma warning disable CS0618, CS0612, CA1422 // Type or member is obsolete
+// Referce
+// https://github.com/xamarin/monodroid-samples/blob/archived-xamarin/android5.0/MediaBrowserService/MediaBrowserService/MusicService.cs
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
     [Service(Name = "PortaJel.MediaService", IsolatedProcess = true, ForegroundServiceType = ForegroundService.TypeMediaPlayback)]
@@ -22,11 +24,13 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
     {
         public IBinder? Binder { get; private set; }
 
-        private SimpleExoPlayer _player;
-        public IExoPlayer? Exoplayer;
+        public IExoPlayer? Exoplayer = null;
         private int repeatMode = 0;
 
-        MediaSession2 mediaSession;
+        MediaSession? mediaSession = null;
+        MediaSessionCallback? mediaSessionCallback = null;
+        MediaMetadata? mediaMetadata = null;
+
         PlayerNotificationManager? notificationManager = null;
         PlayerNotificationManager.IMediaDescriptionAdapter mediaDescriptionAdapter = null;
         public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
@@ -35,9 +39,17 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         public BaseMusicItem? playingFrom { get; private set; } = null;
         public List<Song> songQueue { get; private set; } = new();
 
+        private string channedId = AppInfo.PackageName;
+
         public AndroidMediaService() 
         {
-            
+            Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
+            mediaSession = new MediaSession(context, channedId);
+            mediaSessionCallback = new MediaSessionCallback();
+            // Define callback functions here
+
+            mediaSession.SetFlags(MediaSessionFlags.HandlesMediaButtons | MediaSessionFlags.HandlesTransportControls);
+            mediaSession.SetCallback(mediaSessionCallback);
         }
 
         [return: GeneratedEnum]
@@ -45,36 +57,37 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             var channelName = "PortaJel";
             var channelDescription = "Notification Channel for the PortaJel Music Streaming App for Jellyfin";
-            var channedId = AppInfo.PackageName;
             var channel = new NotificationChannel(channedId, channelName, NotificationImportance.Max)
             {
                 Description = channelDescription,
             };
-            
-            Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
 
+            Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
+            
             Notification notification = new Notification.Builder(context, channel.Id)
                  .SetChannelId(channel.Id)
-                 .SetSmallIcon(Resource.Drawable.ic_mtrl_checked_circle)
+                 //.SetSmallIcon(Resource.Drawable.ic_mtrl_checked_circle)
                  .SetContentTitle("Track title")
                  .SetContentText("Artist - Album")
                  .SetOngoing(true)
+                 .SetStyle(new Notification.MediaStyle().SetMediaSession(mediaSession.SessionToken))
                  .Build();
 
-            PlayerNotificationManager.Builder? builder1 = new PlayerNotificationManager.Builder(context, SERVICE_RUNNING_NOTIFICATION_ID, channel.Id);
-            if (builder1 != null)
-            {
-                builder1.SetChannelImportance(2);
-                notificationManager = builder1.Build();
-            }
-            if (notificationManager != null)
-            {
-                notificationManager.SetPriority(2);
-                notificationManager.SetPlayer(Exoplayer);
-                notificationManager.SetVisibility(1);
-                notificationManager.SetUsePlayPauseActions(true);
-                notificationManager.SetUseChronometer(true);
-            }
+            //PlayerNotificationManager.Builder? builder1 = new PlayerNotificationManager.Builder(context, SERVICE_RUNNING_NOTIFICATION_ID, channel.Id);
+            //if (builder1 != null)
+            //{
+            //    builder1.SetChannelImportance(2);
+            //    notificationManager = builder1.Build();
+            //}
+            //if (notificationManager != null)
+            //{
+            //    notificationManager.SetPriority(2);
+            //    notificationManager.SetPlayer(Exoplayer);
+            //    notificationManager.SetVisibility(1);
+            //    notificationManager.SetUsePlayPauseActions(true);
+            //    notificationManager.SetUseChronometer(true);
+            //}
+
             StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, notification);
             return base.OnStartCommand(intent, flags, startId);
         }
@@ -108,15 +121,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
             return this.Binder;
         }
-        //public override MediaSession2? OnGetSession(MediaSession2.ControllerInfo controllerInfo)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override MediaNotification? OnUpdateNotification(MediaSession2 session)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         [Obsolete]
         public override void OnStart(Intent? intent, int startId)

@@ -165,5 +165,15 @@ namespace PortaJel_Blazor.Classes.Services
         {
             throw new NotImplementedException();
         }
+
+        public Song GetCurrentlyPlaying()
+        {
+            throw new NotImplementedException();
+        }
+
+        public PlaybackTimeInfo? GetPlaybackTimeInfo()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
