@@ -31,8 +31,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         MediaSessionCallback? mediaSessionCallback = null;
         MediaMetadata? mediaMetadata = null;
 
-        PlayerNotificationManager? notificationManager = null;
-        PlayerNotificationManager.IMediaDescriptionAdapter mediaDescriptionAdapter = null;
+        Notification? playerNotification = null;
         public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
 
         public int playingIndex { get; private set; } = 0;
@@ -61,19 +60,26 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             mediaSession = new MediaSession(context, channedId);
             mediaSessionCallback = new MediaSessionCallback();
             // Define callback functions here
+            mediaSessionCallback.OnPlayImpl = () => {
+                Play();
+            };
+            mediaSessionCallback.OnPauseImpl = () => {
+                Pause();
+            };
 
             mediaSession.SetFlags(MediaSessionFlags.HandlesMediaButtons | MediaSessionFlags.HandlesTransportControls);
             mediaSession.SetCallback(mediaSessionCallback);
 
-            Notification notification = new Notification.Builder(context, channel.Id)
+            playerNotification = new Notification.Builder(context, channel.Id)
                  .SetChannelId(channel.Id)
                  .SetSmallIcon(Resource.Drawable.ic_mtrl_checked_circle)
                  .SetContentTitle("Track title")
                  .SetContentText("Artist - Album")
                  .SetStyle(new Notification.MediaStyle().SetMediaSession(mediaSession.SessionToken))
+                 .SetAllowSystemGeneratedContextualActions(true)
                  .Build();
 
-            StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, notification);
+            StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
             return base.OnStartCommand(intent, flags, startId);
         }
 

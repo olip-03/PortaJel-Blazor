@@ -6,23 +6,14 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
    public class MediaSessionCallback : MediaSession.Callback
     {
         public Action? OnPlayImpl { get; set; }
-
         public Action<long>? OnSkipToQueueItemImpl { get; set; }
-
         public Action<long>? OnSeekToImpl { get; set; }
-
         public Action<string?, Bundle?>? OnPlayFromMediaIdImpl { get; set; }
-
         public Action? OnPauseImpl { get; set; }
-
         public Action? OnStopImpl { get; set; }
-
         public Action? OnSkipToNextImpl { get; set; }
-
         public Action? OnSkipToPreviousImpl { get; set; }
-
         public Action<string?, Bundle?>? OnCustomActionImpl { get; set; }
-
 
         public override void OnPlay()
         {
@@ -97,5 +88,4 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
         }
     }
-
 }

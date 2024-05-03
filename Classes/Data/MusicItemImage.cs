@@ -104,51 +104,5 @@ namespace PortaJel_Blazor.Data
                 }
             }
         }
-        public Stream BlurHashToStream(int width = 0, int height = 0)
-        {
-            // Assuming you have a method to decode the blurhash into a pixel array
-
-
-            // Create a SkiaSharp bitmap
-            using (SKBitmap bitmap = new SKBitmap(width, height))
-            {
-                // Lock the pixels of the bitmap
-                using (var canvas = bitmap.PeekPixels())
-                {
-                    Pixel[,] pixels = new Pixel[soureResolution, soureResolution];
-                    Blurhash.Core.Decode(blurHash, pixels);
-
-                    for (int y = 0; y < height; y++)
-                    {
-                        for (int x = 0; x < width; x++)
-                        {
-                            var pixel = pixels[x, y];
-                            int scaledRed = (int)(pixel.Red * 255); scaledRed = Math.Clamp(scaledRed, 0, 255);
-                            int scaledGreen = (int)(pixel.Green * 255); scaledGreen = Math.Clamp(scaledGreen, 0, 255);
-                            int scaledBlue = (int)(pixel.Blue * 255); scaledBlue = Math.Clamp(scaledBlue, 0, 255);
-
-                            // Convert int to byte
-                            byte red = (byte)scaledRed;
-                            byte green = (byte)scaledGreen;
-                            byte blue = (byte)scaledBlue;
-
-                            // Create SKColor
-                            SKColor color = new SKColor(red, green, blue);
-                            bitmap.SetPixel(x, y, color);
-                            // Set the pixel color
-                        }
-                    }
-                }
-
-                // Convert the bitmap to a base64 string
-                using (var image = SKImage.FromBitmap(bitmap))
-                using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
-                using (var stream = new MemoryStream())
-                {
-                    data.SaveTo(stream);
-                    return stream;
-                }
-            }
-        }
     }
 }
