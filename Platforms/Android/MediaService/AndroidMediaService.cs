@@ -43,13 +43,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public AndroidMediaService() 
         {
-            Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
-            mediaSession = new MediaSession(context, channedId);
-            mediaSessionCallback = new MediaSessionCallback();
-            // Define callback functions here
 
-            mediaSession.SetFlags(MediaSessionFlags.HandlesMediaButtons | MediaSessionFlags.HandlesTransportControls);
-            mediaSession.SetCallback(mediaSessionCallback);
         }
 
         [return: GeneratedEnum]
@@ -63,30 +57,21 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             };
 
             Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
-            
+
+            mediaSession = new MediaSession(context, channedId);
+            mediaSessionCallback = new MediaSessionCallback();
+            // Define callback functions here
+
+            mediaSession.SetFlags(MediaSessionFlags.HandlesMediaButtons | MediaSessionFlags.HandlesTransportControls);
+            mediaSession.SetCallback(mediaSessionCallback);
+
             Notification notification = new Notification.Builder(context, channel.Id)
                  .SetChannelId(channel.Id)
-                 //.SetSmallIcon(Resource.Drawable.ic_mtrl_checked_circle)
+                 .SetSmallIcon(Resource.Drawable.ic_mtrl_checked_circle)
                  .SetContentTitle("Track title")
                  .SetContentText("Artist - Album")
-                 .SetOngoing(true)
                  .SetStyle(new Notification.MediaStyle().SetMediaSession(mediaSession.SessionToken))
                  .Build();
-
-            //PlayerNotificationManager.Builder? builder1 = new PlayerNotificationManager.Builder(context, SERVICE_RUNNING_NOTIFICATION_ID, channel.Id);
-            //if (builder1 != null)
-            //{
-            //    builder1.SetChannelImportance(2);
-            //    notificationManager = builder1.Build();
-            //}
-            //if (notificationManager != null)
-            //{
-            //    notificationManager.SetPriority(2);
-            //    notificationManager.SetPlayer(Exoplayer);
-            //    notificationManager.SetVisibility(1);
-            //    notificationManager.SetUsePlayPauseActions(true);
-            //    notificationManager.SetUseChronometer(true);
-            //}
 
             StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, notification);
             return base.OnStartCommand(intent, flags, startId);
