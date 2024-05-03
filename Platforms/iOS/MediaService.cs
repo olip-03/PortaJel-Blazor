@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 // IOS Implementation
 namespace PortaJel_Blazor.Classes.Services
 {
+
     public partial class MediaService : IMediaInterface
     {
         public void Initalize()
@@ -97,6 +98,11 @@ namespace PortaJel_Blazor.Classes.Services
         }
 
         public Song GetCurrentlyPlaying()
+        {
+            throw new NotImplementedException();
+        }
+
+        public PlaybackTimeInfo? GetPlaybackTimeInfo()
         {
             throw new NotImplementedException();
         }

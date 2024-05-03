@@ -150,6 +150,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Platforms\Android\Resources\values\colors.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="AngleSharp" Version="1.1.0" />
 		<PackageReference Include="BlazorAnimate" Version="3.0.0" />
 		<PackageReference Include="Blurhash.Core" Version="2.0.0" />
@@ -174,6 +178,10 @@
 	  </PackageReference>
 		<ReferenceJar Include="$(MSBuildThisFileDirectory)guava-33.0.0-android.jar" />
 		<AndroidLibrary Include="guava-33.0.0-android.jar" Bind="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Include="Platforms\Android\Resources\values\colors.xml" />
 	</ItemGroup>
 
 	<ItemGroup>

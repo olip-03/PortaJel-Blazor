@@ -101,5 +101,10 @@ namespace PortaJel_Blazor.Classes.Services
             return Song.Empty;
             //throw new NotImplementedException();
         }
+
+        public PlaybackTimeInfo? GetPlaybackTimeInfo()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
