@@ -39,7 +39,7 @@ public partial class MiniPlayer : ContentView
             this.TranslateTo(0, 120, 450, Easing.SinOut));
     }
 
-    public async void UpdateTimestamp(PlaybackTimeInfo? playbackTime)
+    public void UpdateTimestamp(PlaybackInfo? playbackTime)
     {
         if(playbackTime != null)
         {
@@ -48,7 +48,7 @@ public partial class MiniPlayer : ContentView
             if (playbackTime.currentTrackGuid == lastUpdateTrackId)
             {
                 lastUpdateTrackId = playbackTime.currentTrackGuid;
-                await Progress.ProgressTo(percentage, 1000, Easing.Linear);
+                Progress.Progress = percentage;
             }
             else
             {
@@ -85,7 +85,7 @@ public partial class MiniPlayer : ContentView
         UpdateFavouriteButton();
 
         // Update time tracking
-        PlaybackTimeInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
+        PlaybackInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
         MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
     }
 

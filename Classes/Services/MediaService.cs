@@ -23,9 +23,9 @@ namespace PortaJel_Blazor.Classes.Services
         void AddSong(Song song);
         void AddSongs(Song[] songs);
         void RemoveSong(int index);
-        Song[] GetQueue();
+        SongGroupCollection GetQueue();
         Song GetCurrentlyPlaying();
-        public PlaybackTimeInfo? GetPlaybackTimeInfo();
+        public PlaybackInfo? GetPlaybackTimeInfo();
         int GetQueueIndex();
         bool GetIsPlaying();
         bool GetIsShuffling();

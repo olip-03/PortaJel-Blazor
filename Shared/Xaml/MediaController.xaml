@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:classes="clr-namespace:PortaJel_Blazor.Classes"
              xmlns:data="clr-namespace:PortaJel_Blazor.Data"
-             xmlns:shared="clr-namespace:PortaJel_Blazor.Shared.Xaml"
+             xmlns:shared="clr-namespace:PortaJel_Blazor.Shared"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="PortaJel_Blazor.Shared.MediaController"
              x:DataType="classes:MediaControllerViewModel">
@@ -66,7 +66,7 @@
                 <CarouselView x:Name="ImgCarousel" 
                               Grid.Row="1" VerticalOptions="Center" 
                               HorizontalOptions="FillAndExpand" 
-                              ItemsSource="{Binding Queue}" 
+                              ItemsSource="{Binding Queue.AllSongs}" 
                               Loop="False" 
                               Scrolled="ImgCarousel_Scrolled"
                               ScrollToRequested="ImgCarousel_ScrollToRequested"
@@ -93,14 +93,14 @@
                                            HorizontalTextAlignment="Center" 
                                            VerticalTextAlignment="Center"
                                            Text="{Binding name}" 
-                                           FontSize="28" 
+                                           FontSize="24" 
                                            HorizontalOptions="Center" 
                                            MaximumWidthRequest="350"/>
                                     <Label x:Name="ImgCarousel_ArtistTitle" 
-                                           TextColor="{StaticResource PrimaryTextColor}" 
+                                           TextColor="{StaticResource SecondaryTextColor}" 
                                            HorizontalTextAlignment="Center" 
                                            Text="{Binding artistCongregate}" 
-                                           FontSize="20" 
+                                           FontSize="18" 
                                            HorizontalOptions="Center" 
                                            MaximumWidthRequest="350"/>
                                 </StackLayout>
@@ -204,7 +204,7 @@
                                          HeightRequest="40" 
                                          WidthRequest="40" 
                                          BackgroundColor="Transparent" 
-                                         Clicked="Player_Btn_ShowQueue_Clicked"></ImageButton>
+                                         Clicked="Btn_ShowQueue_Clicked"></ImageButton>
                         </FlexLayout>
                     </StackLayout>
                 </Grid>
@@ -223,8 +223,6 @@
                         Opacity="0.7" />
             </Border.Shadow>
         </Border>
-
-        <shared:MediaQueue x:Name="MainQueue"/>
 
         <Grid.GestureRecognizers>
             <TapGestureRecognizer>

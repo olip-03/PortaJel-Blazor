@@ -36,6 +36,7 @@ public partial class MainPage : ContentPage
     public double ContentWidth { get => AllContent.Width; private set { } }
 
     public MediaController MainMediaController { get => this.MediaControl; private set { } }
+    public MediaQueue MainMediaQueue { get => this.Queue; private set { } }
     public MiniPlayer MainMiniPlayer { get => this.MiniPlayer; private set { } }
 
 
@@ -178,15 +179,6 @@ public partial class MainPage : ContentPage
         Navbar.IsVisible = visibility;
     }
 
-    public void CloseMusicQueue()
-    {
-
-    }
-
-    public void OpenMusicQueue()
-    {
-
-    }
 
     /// <summary>
     ///  Responsible for refresing the main page of the music controller
@@ -221,14 +213,15 @@ public partial class MainPage : ContentPage
     {
         canSkipCarousel = false;
         int playingIndex = MauiProgram.MediaService.GetQueueIndex();
-        List<Song> mediaQueue = MauiProgram.MediaService.GetQueue().ToList();
+        List<Song> mediaQueue = MauiProgram.MediaService.GetQueue().AllSongs.ToList();
 
         queue = mediaQueue.ToObservableCollection();
         mediaQueue.RemoveRange(0, playingIndex);
         playingQueue = mediaQueue.ToObservableCollection();
 
-        MiniPlayer.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex);
+        MiniPlayer.UpdateData(MauiProgram.MediaService.GetQueue().AllSongs.ToArray(), playingIndex);
         MainMediaController.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex);
+        MainMediaQueue.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex);
     }
 
     public void ShowMusicController()

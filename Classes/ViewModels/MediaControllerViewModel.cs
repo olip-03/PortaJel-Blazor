@@ -6,10 +6,10 @@ namespace PortaJel_Blazor.Classes
     public class MediaControllerViewModel : BindableObject
     {
         public List<string> QueueBase64PlaceholderImg = new();
-        public static readonly BindableProperty QueueProperty = BindableProperty.Create(nameof(Queue), typeof(ObservableCollection<Song>), typeof(MediaControllerViewModel), default(ObservableCollection<Song>));
-        public ObservableCollection<Song>? Queue
+        public static readonly BindableProperty QueueProperty = BindableProperty.Create(nameof(Queue), typeof(SongGroupCollection), typeof(MediaControllerViewModel), default(SongGroupCollection));
+        public SongGroupCollection? Queue
         {
-            get => (ObservableCollection<Song>?)GetValue(QueueProperty);
+            get => (SongGroupCollection?)GetValue(QueueProperty);
             set => SetValue(QueueProperty, value);
         }
 

@@ -102,7 +102,7 @@ namespace PortaJel_Blazor.Classes.Services
             //throw new NotImplementedException();
         }
 
-        public PlaybackTimeInfo? GetPlaybackTimeInfo()
+        public PlaybackInfo? GetPlaybackTimeInfo()
         {
             throw new NotImplementedException();
         }

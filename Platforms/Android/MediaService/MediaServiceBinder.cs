@@ -77,7 +77,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             return Service.RemoveSong(index);
         }
-        public Song[] GetQueue()
+        public SongGroupCollection GetQueue()
         {
             return Service.GetQueue();
         }
@@ -101,7 +101,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             return Service.GetCurrentlyPlaying();
         }
-        public PlaybackTimeInfo? GetPlaybackTimeInfo()
+        public PlaybackInfo? GetPlaybackTimeInfo()
         {
             return Service.GetPlaybackTimeInfo();
         }

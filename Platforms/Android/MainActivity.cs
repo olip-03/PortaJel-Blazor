@@ -72,10 +72,10 @@ public class MainActivity : MauiAppCompatActivity
                 // If the music player is open, close it 
                 if (MauiProgram.MainPage.MainMediaController.IsOpen)
                 {
-                    if (MauiProgram.MainPage.MainMediaController.IsQueueOpen)
+                    if (MauiProgram.MainPage.MainMediaQueue.IsOpen)
                     {
                         // TODO: Update queue close endpoint 
-                        MauiProgram.MainPage.CloseMusicQueue();
+                        MauiProgram.MainPage.MainMediaQueue.Close();
                         return false;
                     }
                     else

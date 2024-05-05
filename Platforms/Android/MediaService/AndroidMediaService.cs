@@ -24,7 +24,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
     {
         public IBinder? Binder { get; private set; }
 
-        public IExoPlayer? Exoplayer = null;
+        public IExoPlayer? Player = null;
+        PlayerEventListener PlayerEventListener = new();
         private int repeatMode = 0;
 
         MediaSession? mediaSession = null;
@@ -95,19 +96,29 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 newBuilder = newBuilder.SetMediaSourceFactory(MainDataSource);
                 if (newBuilder != null)
                 {
-                    Exoplayer = newBuilder.Build();
+                    Player = newBuilder.Build();
                 }
-                if (Exoplayer != null)
+                if (Player != null)
                 {
-                    Exoplayer.RepeatMode = IPlayer.RepeatModeOff;
+                    Player.RepeatMode = IPlayer.RepeatModeOff;
                 }
                 string deviceId = Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString();
             }
 
-            if (Exoplayer != null)
+            // Add event for when the Player changes track
+            PlayerEventListener.OnMediaItemTransitionImpl = (MediaItem? song, int index) =>
             {
-                Exoplayer.Prepare();
-                Exoplayer.PlayWhenReady = true;
+                if (Player != null)
+                {
+                    playingIndex = Player.CurrentMediaItemIndex;
+                }
+            };
+
+            if (Player != null)
+            {
+                Player.AddListener(PlayerEventListener);
+                Player.Prepare();
+                Player.PlayWhenReady = true;
             }
 
             return this.Binder;
@@ -121,9 +132,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool Play()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                Exoplayer.Play();
+                Player.Play();
                 return true;
             }
             return false;
@@ -131,9 +142,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool Pause()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                Exoplayer.Pause();
+                Player.Pause();
                 return true;
             }
             return false;
@@ -141,9 +152,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool TogglePlay()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                if (Exoplayer.IsPlaying)
+                if (Player.IsPlaying)
                 {
                     Pause();
                 }
@@ -158,9 +169,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool SeekToPosition(long position)
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                Exoplayer.SeekTo(position);
+                Player.SeekTo(position);
                 return true;
             }
             return false;
@@ -174,10 +185,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool SetRepeat(MediaServiceRepeatMode setRepeatMode)
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
                 repeatMode = (int)setRepeatMode;
-                Exoplayer.RepeatMode = repeatMode;
+                Player.RepeatMode = repeatMode;
                 return true;
             }
             return false;
@@ -185,9 +196,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool ToggleRepeat()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                switch (Exoplayer.RepeatMode)
+                switch (Player.RepeatMode)
                 {
                     case IPlayer.RepeatModeOff: // 0
                         repeatMode = 1;
@@ -199,7 +210,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         repeatMode = 0;
                         break;
                 }
-                Exoplayer.RepeatMode = repeatMode;
+                Player.RepeatMode = repeatMode;
                 return true;
             }
             return false;
@@ -207,9 +218,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool SetShuffle(bool isShullfing)
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                Exoplayer.ShuffleModeEnabled = isShullfing;
+                Player.ShuffleModeEnabled = isShullfing;
                 return true;
             }
             return false;
@@ -217,31 +228,31 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool GetShuffle()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                return Exoplayer.ShuffleModeEnabled;
+                return Player.ShuffleModeEnabled;
             }
             return false;
         }
 
         public bool ToggleShuffle()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                Exoplayer.ShuffleModeEnabled = !Exoplayer.ShuffleModeEnabled;
-                return Exoplayer.ShuffleModeEnabled;
+                Player.ShuffleModeEnabled = !Player.ShuffleModeEnabled;
+                return Player.ShuffleModeEnabled;
             }
             return false;
         }
 
         public bool Next()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                if (Exoplayer.HasNext)
+                if (Player.HasNext)
                 {
-                    Exoplayer.Next();
-                    playingIndex += 1;
+                    Player.Next();
+                    playingIndex = Player.CurrentMediaItemIndex;
                 }
                 return true;
             }
@@ -250,10 +261,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool Previous()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                Exoplayer.Previous();
-                playingIndex -= 1;
+                Player.Previous();
+                playingIndex = Player.CurrentMediaItemIndex;
                 return true;
             }
             return false;
@@ -261,26 +272,26 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
                 playingFrom = baseMusicItem;
 
-                Exoplayer.ClearMediaItems();
+                Player.ClearMediaItems();
 
-                foreach (Song song in GetQueue())
+                foreach (Song song in GetQueue().AllSongs)
                 {
                     MediaItem? mediaItem = MediaItem.FromUri(song.streamUrl);
                     if(mediaItem != null)
                     {
                         mediaItem.MediaId = song.id.ToString();
                         
-                        Exoplayer.AddMediaItem(mediaItem);
+                        Player.AddMediaItem(mediaItem);
                     }
                 }
 
                 // Seek to position of that last song
                 playingIndex = fromIndex;
-                Exoplayer.SeekTo(playingIndex, Exoplayer.Duration);
+                Player.SeekTo(playingIndex, Player.Duration);
                 return true;
             }
             return false;
@@ -288,7 +299,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool AddSong(Song song)
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
                 songQueue.Add(song);
 
@@ -300,7 +311,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     if(mediaItem != null)
                     {
                         mediaItem.MediaId = song.id.ToString();
-                        Exoplayer.AddMediaItem(mediaItem);
+                        Player.AddMediaItem(mediaItem);
                     }
                 }
 
@@ -311,7 +322,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool AddSongs(Song[] songs)
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
                 foreach (Song song in songs)
                 {
@@ -325,25 +336,27 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool RemoveSong(int index)
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
                 songQueue.RemoveAt(index);
-                Exoplayer.RemoveMediaItem(index);
+                Player.RemoveMediaItem(index);
 
                 return true;
             }
             return true;
         }
 
-        public Song[] GetQueue()
+        public SongGroupCollection GetQueue()
         {
             if (playingFrom == null)
             {
-                return Array.Empty<Song>();
+                return new SongGroupCollection();
             }
 
-            List<Song> queue = new();
-            List<Song> songList = new List<Song>();
+            SongGroupCollection songGroupCollection = new();
+            SongGroup currentPlaying = new("Currently Playing");
+            SongGroup queue = new("Queue");
+            SongGroup songList = new("Next Up");
 
             if (playingFrom is Album)
             {
@@ -384,7 +397,11 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 }
             }
 
-            return queue.ToArray();
+            songGroupCollection.Add(currentPlaying);
+            songGroupCollection.Add(queue);
+            songGroupCollection.Add(songList);
+
+            return songGroupCollection;
         }
 
         public int GetQueueIndex()
@@ -394,48 +411,61 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool GetIsPlaying()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                return Exoplayer.PlayWhenReady;
+                return Player.PlayWhenReady;
             }
             return false;
         }
 
         public bool GetIsShuffling()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                return Exoplayer.ShuffleModeEnabled;
+                return Player.ShuffleModeEnabled;
             }
             return false;
         }
 
         public int GetRepeatMode()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                return Exoplayer.RepeatMode;
+                return Player.RepeatMode;
             }
             return 0;
         }
 
         public Song GetCurrentlyPlaying()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                return GetQueue()[playingIndex];
+                if (GetQueue().Count() < playingIndex)
+                {
+                    return GetQueue().AllSongs[playingIndex];
+                }
             }
             return Song.Empty;
         }
 
-        public PlaybackTimeInfo? GetPlaybackTimeInfo()
+        public BaseMusicItem? GetPlayingSource()
         {
-            if (Exoplayer != null)
+            if (Player != null)
             {
-                PlaybackTimeInfo? newTime = new(
-                        Exoplayer.CurrentPosition,
-                        Exoplayer.Duration,
-                        GetCurrentlyPlaying().id
+                return GetQueue().AllSongs[playingIndex];
+            }
+            return null;
+        }
+
+        public PlaybackInfo? GetPlaybackTimeInfo()
+        {
+            if (Player != null)
+            {
+                PlaybackInfo? newTime = new(
+                        Player.CurrentPosition,
+                        Player.Duration,
+                        GetCurrentlyPlaying().id,
+                        playingIndex
                     );
                 return newTime;
             }

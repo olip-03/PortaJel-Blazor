@@ -1,4 +1,5 @@
 ﻿using Android.Media;
+using Android.Runtime;
 using Com.Google.Android.Exoplayer2.Audio;
 using Com.Google.Android.Exoplayer2.Metadata;
 using Com.Google.Android.Exoplayer2.Text;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
-    internal class PlayerEventListener : Com.Google.Android.Exoplayer2.IPlayer.IListener
+    internal class PlayerEventListener : Java.Lang.Object, Com.Google.Android.Exoplayer2.IPlayer.IListener
     {
         // Define actions for each method in PlayerEventListener
         public Action<Com.Google.Android.Exoplayer2.Audio.AudioAttributes?>? OnAudioAttributesChangedImpl { get; set; }
@@ -54,33 +55,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         public Action<VideoSize?>? OnVideoSizeChangedImpl { get; set; }
         public Action<float>? OnVolumeChangedImpl { get; set; }
 
-        public nint Handle => throw new NotImplementedException();
-        public int JniIdentityHashCode => throw new NotImplementedException();
-
-        public JniObjectReference PeerReference => throw new NotImplementedException();
-
-        public JniPeerMembers JniPeerMembers => throw new NotImplementedException();
-
-        public JniManagedPeerStates JniManagedPeerState => throw new NotImplementedException();
-
-        public void Dispose()
+        public PlayerEventListener()
         {
-            throw new NotImplementedException();
-        }
 
-        public void Disposed()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DisposeUnlessReferenced()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Finalized()
-        {
-            throw new NotImplementedException();
         }
 
         public void OnAudioAttributesChanged(Com.Google.Android.Exoplayer2.Audio.AudioAttributes? audioAttributes)
@@ -197,133 +174,116 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public void OnPlaybackParametersChanged(Com.Google.Android.Exoplayer2.PlaybackParameters? playbackParameters)
         {
-            throw new NotImplementedException();
+            if(OnPlaybackParametersChangedImpl != null)
+            {
+                OnPlaybackParametersChangedImpl(playbackParameters);
+            }
         }
 
         public void OnPlaybackStateChanged(int playbackState)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnPlaybackSuppressionReasonChanged(int playbackSuppressionReason)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnPlayerError(Com.Google.Android.Exoplayer2.PlaybackException? error)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnPlayerErrorChanged(Com.Google.Android.Exoplayer2.PlaybackException? error)
         {
-            throw new NotImplementedException();
+            
         }
 
 
         public void OnPlayerStateChanged(bool playWhenReady, int playbackState)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnPlaylistMetadataChanged(MediaMetadata? mediaMetadata)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnPlaylistMetadataChanged(Com.Google.Android.Exoplayer2.MediaMetadata? mediaMetadata)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnPlayWhenReadyChanged(bool playWhenReady, int reason)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnPositionDiscontinuity(int reason)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnRenderedFirstFrame()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnRepeatModeChanged(int repeatMode)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnSeekBackIncrementChanged(long seekBackIncrementMs)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnSeekForwardIncrementChanged(long seekForwardIncrementMs)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnShuffleModeEnabledChanged(bool shuffleModeEnabled)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnSkipSilenceEnabledChanged(bool skipSilenceEnabled)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnSurfaceSizeChanged(int width, int height)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnTimelineChanged(Com.Google.Android.Exoplayer2.Timeline? timeline, int reason)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnTracksChanged(Com.Google.Android.Exoplayer2.Tracks? tracks)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnTrackSelectionParametersChanged(TrackSelectionParameters? parameters)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnVideoSizeChanged(VideoSize? videoSize)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnVolumeChanged(float volume)
         {
-            throw new NotImplementedException();
-        }
-
-        public void SetJniIdentityHashCode(int value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetJniManagedPeerState(JniManagedPeerStates value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetPeerReference(JniObjectReference reference)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UnregisterFromRuntime()
-        {
-            throw new NotImplementedException();
+            
         }
     }
 }

@@ -1,12 +1,9 @@
-﻿using Android.App;
-using Android.Content;
-using Com.Google.Android.Exoplayer2;
-using Android.Util;
-using Com.Google.Android.Exoplayer2.Source;
+﻿using Android.Content;
 using PortaJel_Blazor.Platforms.Android.MediaService;
 using PortaJel_Blazor.Data;
 using System.Timers;
 using Android.OS;
+using System.Runtime.CompilerServices;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 
@@ -25,8 +22,8 @@ namespace PortaJel_Blazor.Classes.Services
 {
     public partial class MediaService : IMediaInterface
     {
-        System.Timers.Timer playstateRefreshTimer = new(1000);
         MediaServiceConnection serviceConnection = new();
+        IDispatcherTimer DispatcherTimer;
 
         public MediaService()
         {
@@ -41,7 +38,14 @@ namespace PortaJel_Blazor.Classes.Services
         public void Initalize()
         {
             CheckPermissions();
-            playstateRefreshTimer.Elapsed += UpdatePlaystateUi;
+
+            if(Application.Current != null)
+            {
+                DispatcherTimer = Application.Current.Dispatcher.CreateTimer();
+                DispatcherTimer.Interval = TimeSpan.FromSeconds(1);
+                DispatcherTimer.Tick += (s, e) => UpdatePlaystateUi();
+                DispatcherTimer.Start();
+            }
 
             // Creates background service
 
@@ -75,11 +79,11 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        private void UpdatePlaystateUi(Object? source, ElapsedEventArgs e)
+        private void UpdatePlaystateUi()
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                PlaybackTimeInfo? timeInfo = GetPlaybackTimeInfo();
+                PlaybackInfo? timeInfo = GetPlaybackTimeInfo();
 
                 MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
                 MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
@@ -92,7 +96,7 @@ namespace PortaJel_Blazor.Classes.Services
                serviceConnection.Binder != null)
             {
                 serviceConnection.Binder.Play();
-                playstateRefreshTimer.Start();
+                DispatcherTimer.Start();
             }
         }
 
@@ -102,7 +106,7 @@ namespace PortaJel_Blazor.Classes.Services
                serviceConnection.Binder != null)
             {
                 serviceConnection.Binder.Pause();
-                playstateRefreshTimer.Stop();
+                DispatcherTimer.Stop();
             }
         }
 
@@ -114,11 +118,11 @@ namespace PortaJel_Blazor.Classes.Services
                 serviceConnection.Binder.TogglePlay();
                 if (serviceConnection.Binder.GetIsPlaying())
                 {
-                    playstateRefreshTimer.Start();
+                    DispatcherTimer.Start();
                 }
                 else
                 {
-                    playstateRefreshTimer.Stop();
+                    DispatcherTimer.Stop();
                 }
             }
         }
@@ -209,14 +213,14 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        public Song[] GetQueue()
+        public SongGroupCollection GetQueue()
         {
             if (serviceConnection != null &&
                 serviceConnection.Binder != null)
             {
                 return serviceConnection.Binder.GetQueue();
             }
-            return Array.Empty<Song>();
+            return new SongGroupCollection();
         }
 
         public int GetQueueIndex()
@@ -266,7 +270,7 @@ namespace PortaJel_Blazor.Classes.Services
             return Song.Empty;
         }
 
-        public PlaybackTimeInfo? GetPlaybackTimeInfo()
+        public PlaybackInfo? GetPlaybackTimeInfo()
         {
             if (serviceConnection != null &&
                 serviceConnection.Binder != null)
