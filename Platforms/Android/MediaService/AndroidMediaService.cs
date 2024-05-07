@@ -17,6 +17,8 @@ using Com.Google.Android.Exoplayer2.UI;
 #pragma warning disable CS0618, CS0612, CA1422 // Type or member is obsolete
 // Referce
 // https://github.com/xamarin/monodroid-samples/blob/archived-xamarin/android5.0/MediaBrowserService/MediaBrowserService/MusicService.cs
+// See lines 169 through 360 for Kotlin implementation of Exoplayer + notification service 
+// https://github.com/AkaneTan/Gramophone/blob/30773abb7df9317d50d159df7f40b8d9c9418520/app/src/main/kotlin/org/akanework/gramophone/logic/GramophonePlaybackService.kt#L577
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
     [Service(Name = "PortaJel.MediaService", IsolatedProcess = true, ForegroundServiceType = ForegroundService.TypeMediaPlayback)]
