@@ -1,6 +1,7 @@
 ﻿using PortaJel_Blazor.Classes;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
+using Jellyfin.Sdk;
 namespace PortaJel_Blazor.Data
 {
     /// <summary>
@@ -39,12 +40,13 @@ namespace PortaJel_Blazor.Data
         public Album? album = Album.Empty;
         public string streamUrl { get; set; } = String.Empty;
         public int diskNum { get; set; }
+        public long duration { get; set; }
         public string fileLocation { get; set; } = String.Empty;
         public bool isDownloaded { get; set; } = false;
 
         #region Constructors
         public static readonly Song Empty = new(setGuid: Guid.Empty, setName: String.Empty);
-        public Song(Guid setGuid, string setName, string? setServerId = null, Guid[]? setArtistIds = null, Guid? setAlbumID = null, string? setStreamUrl = null, int? setDiskNum = 0, bool setIsFavourite = false, string? setFileLocation = null, bool setIsDownloaded = false)
+        public Song(Guid setGuid, string setName, string? setPlaylistId = null, string? setServerId = null, Guid[]? setArtistIds = null, Guid? setAlbumID = null, string? setStreamUrl = null, int? setDiskNum = 0, long? setDuration = 0, bool setIsFavourite = false, string? setFileLocation = null, bool setIsDownloaded = false)
         {
             // Required variables
             id = setGuid;
@@ -75,6 +77,14 @@ namespace PortaJel_Blazor.Data
             if(setDiskNum != null)
             { //Set Disk Number
                 diskNum = (int)setDiskNum;
+            }
+            if(setDuration!= null)
+            {
+                duration = (long)setDuration;
+            }
+            if(setPlaylistId != null)
+            {
+                playlistId = setPlaylistId;
             }
             if(setFileLocation != null)
             { //Set File Location
@@ -184,6 +194,48 @@ namespace PortaJel_Blazor.Data
             })));
 
             return contextMenuItems;
+        }
+        public static Song Builder(BaseItemDto baseItem, string server)
+        {
+            long duration = -1;
+            if (baseItem.RunTimeTicks != null)
+            {
+                duration = (long)baseItem.RunTimeTicks;
+            }
+            else if (baseItem.CumulativeRunTimeTicks != null)
+            {
+                duration = (long)baseItem.CumulativeRunTimeTicks;
+            }
+
+            Song newSong = new(
+                    setGuid: baseItem.Id,
+                    setPlaylistId: baseItem.PlaylistItemId,
+                    setName: baseItem.Name,
+                    setAlbumID: baseItem.AlbumId,
+                    setDiskNum: 0, //TODO: Fix disk num
+                    setDuration: duration,
+                    setIsFavourite: baseItem.UserData.IsFavorite) ;
+            newSong.playCount = baseItem.UserData.PlayCount;
+            newSong.image = MusicItemImage.Builder(baseItem, server);
+            newSong.streamUrl = server + "/Audio/" + baseItem.Id + "/stream";
+            newSong.serverAddress = server;
+            
+            if (baseItem.RunTimeTicks != null)
+            {
+                newSong.duration = (long)baseItem.RunTimeTicks;
+            }
+            else if(baseItem.CumulativeRunTimeTicks != null)
+            {
+                newSong.duration = (long)baseItem.CumulativeRunTimeTicks;
+            }
+
+            List<Artist> artists = new List<Artist>();
+            foreach (var item in baseItem.AlbumArtists)
+            {
+                artists.Add(Artist.Builder(item, server));
+            }
+            newSong.artists = artists.ToArray();
+            return newSong;
         }
         #endregion
     }

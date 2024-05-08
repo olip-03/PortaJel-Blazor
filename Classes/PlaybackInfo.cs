@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes
 {
     public class PlaybackInfo
     {
         public long currentDuration = -1;
-        public long fullDuration = -1;
-        public Guid currentTrackGuid = Guid.Empty;
+        public Song currentSong = Song.Empty;
         public int playingIndex = -1;
 
-        public PlaybackInfo(long setCurrentTime, long setFullTime, Guid currentTrackGuid, int setPlayingIndex)
+        public PlaybackInfo(long setCurrentTime, Song currentSong, int setPlayingIndex)
         {
             this.currentDuration = setCurrentTime;
-            this.fullDuration = setFullTime;
-            this.currentTrackGuid = currentTrackGuid;
+            this.currentSong = currentSong;
             this.playingIndex = setPlayingIndex;
         }
     }

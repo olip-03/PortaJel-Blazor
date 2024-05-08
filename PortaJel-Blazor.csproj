@@ -160,6 +160,7 @@
 		<PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
 		<PackageReference Include="CompiledBindings.MAUI" Version="1.0.17.6" />
 		<PackageReference Include="Jellyfin.Sdk" Version="2022.6.11" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.4" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.7" />

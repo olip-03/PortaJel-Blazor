@@ -1,4 +1,5 @@
 ﻿using Blurhash;
+using Jellyfin.Sdk;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,9 @@ namespace PortaJel_Blazor.Data
     public class MusicItemImage
     {
         // Variables
-        public string source { get; set; } = String.Empty;
-        public string blurHash { get; set; } = String.Empty;
+        public string serverAddress { get; set; } = string.Empty;
+        public string source { get; set; } = string.Empty;
+        public string blurHash { get; set; } = string.Empty;
         public int soureResolution { get; set; } = 500;
         public string sourceAtResolution { get
             {
@@ -22,12 +24,6 @@ namespace PortaJel_Blazor.Data
             private set { }
         }
         public MusicItemImageType musicItemImageType { get; set; } = MusicItemImageType.url;
-        public enum MusicItemImageType
-        {
-            onDisk,
-            url,
-            base64,
-        }
 
         ///<summary>
         ///A read-only instance of the Data.MusicItemImage structure with default values.
@@ -104,5 +100,155 @@ namespace PortaJel_Blazor.Data
                 }
             }
         }
+        public static MusicItemImage Builder(BaseItemDto baseItem, string server, ImageBuilderImageType? imageType = ImageBuilderImageType.Primary)
+        {
+            MusicItemImage image = new();
+            image.serverAddress = server;
+            image.musicItemImageType = MusicItemImageType.url;
+            string imgType = "Primary";
+            switch (imageType)
+            {
+                case ImageBuilderImageType.Backdrop:
+                    imgType = "Backdrop";
+                    if (baseItem.ImageBlurHashes.Backdrop != null)
+                    { // Set backdrop img 
+                        string? hash = baseItem.ImageBlurHashes.Backdrop.FirstOrDefault().Value;
+                        if (hash != null)
+                        {
+                            image.blurHash = hash;
+                        }
+                    }
+                    else if (baseItem.ImageBlurHashes.Primary != null)
+                    { // if there is no backdrop, fall back to primary image
+                        string? hash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                        imgType = "Primary";
+                        if (hash != null)
+                        {
+                            image.blurHash = hash;
+                        }
+                    }
+                    break;
+                case ImageBuilderImageType.Logo:
+                    imgType = "Logo";
+                    if (baseItem.ImageBlurHashes.Logo != null)
+                    {
+                        string? hash = baseItem.ImageBlurHashes.Logo.FirstOrDefault().Value;
+                        if (hash != null)
+                        {
+                            image.blurHash = hash;
+                        }
+                    }
+                    else
+                    {
+                        image.blurHash = String.Empty;
+                        return image; // bascially returning nothing if no logo is found
+                    }
+                    break;
+                default:
+                    imgType = "Primary";
+                    if (baseItem.ImageBlurHashes.Primary != null)
+                    {
+                        string? hash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                        if (hash != null)
+                        {
+                            image.blurHash = hash;
+                        }
+                    }
+                    else
+                    {
+                        image.blurHash = String.Empty;
+                    }
+                    break;
+            }
+
+            if (baseItem.Type == BaseItemKind.MusicAlbum)
+            {
+                if (baseItem.ImageBlurHashes.Primary != null)
+                {
+                    image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                }
+                else
+                {
+                    image.source = "emptyAlbum.png";
+                }
+            }
+            else if (baseItem.Type == BaseItemKind.Playlist)
+            {
+                image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+
+                // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+            }
+            else if (baseItem.Type == BaseItemKind.Audio)
+            {
+                if (baseItem.AlbumId != null)
+                {
+                    image.source = server + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
+                }
+                else
+                {
+                    image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                }
+                // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+            }
+            else if (baseItem.Type == BaseItemKind.MusicArtist)
+            {
+                image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+            }
+            else if (baseItem.Type == BaseItemKind.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
+            {
+                image.source =  server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+            }
+            else if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
+            {
+                image.source = server + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
+                image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+            }
+            else if (baseItem.ImageBlurHashes.Primary != null)
+            {
+                image.source = server + "/Items/" + baseItem.Id.ToString() + "/Images/" + imgType;
+                image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+            }
+            else if (baseItem.ArtistItems != null)
+            {
+                image.source = server + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/" + imgType;
+            }
+
+            switch (imageType)
+            {
+                case ImageBuilderImageType.Backdrop:
+                    image.source += "?format=jpg";
+                    break;
+                case ImageBuilderImageType.Logo:
+                    imgType = "Logo";
+                    break;
+                default:
+                    image.source += "?format=jpg";
+                    break;
+            }
+
+            return image;
+        }
+        public static MusicItemImage Builder(NameGuidPair nameGuidPair, string server)
+        {
+            MusicItemImage image = new();
+
+            image.musicItemImageType = MusicItemImageType.url;
+            image.source = server + "/Items/" + nameGuidPair.Id + "/Images/Primary?format=jpg";
+
+            return image;
+        }
+    }
+    public enum MusicItemImageType
+    {
+        onDisk,
+        url,
+        base64,
+    }
+    public enum ImageBuilderImageType
+    {
+        Primary,
+        Backdrop,
+        Logo
     }
 }

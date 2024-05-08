@@ -106,5 +106,10 @@ namespace PortaJel_Blazor.Classes.Services
         {
             throw new NotImplementedException();
         }
+
+        SongGroupCollection IMediaInterface.GetQueue()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

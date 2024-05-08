@@ -123,9 +123,9 @@
                                 MaximumTrackColor="{StaticResource PageSecondaryColor}" 
                                 BackgroundColor="Transparent" 
                                 HorizontalOptions="FillAndExpand" 
-                                ValueChanged="Player_DurationSlider_ValueChanged"
-                                DragStarted="Player_DurationSlider_DragStarted"
-                                DragCompleted="Player_DurationSlider_DragCompleted" />
+                                ValueChanged="DurationSlider_ValueChanged"
+                                DragStarted="DurationSlider_DragStarted"
+                                DragCompleted="DurationSlider_DragCompleted" />
                         <FlexLayout Margin="20, 0, 20, 0" 
                                     JustifyContent="SpaceBetween" >
                             <Label x:Name="Player_DurationSlider_Lbl_PositionTxt" 

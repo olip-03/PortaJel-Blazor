@@ -15,33 +15,33 @@ namespace PortaJel_Blazor.Classes
 
         // Represents time passed as a Double, in full MS
         public static readonly BindableProperty PlaybackPercentageProperty = BindableProperty.Create(nameof(PlaybackValue), typeof(double), typeof(MediaControllerViewModel), default(double));
-        public double? PlaybackValue
+        public double PlaybackValue
         {
-            get => (double?)GetValue(PlaybackPercentageProperty);
+            get => (double)GetValue(PlaybackPercentageProperty);
             set => SetValue(PlaybackPercentageProperty, value);
         }
 
         // Represents time passed as a string in MM:SS format
         public static readonly BindableProperty PlaybackTimeValueProperty = BindableProperty.Create(nameof(PlaybackTimeValue), typeof(string), typeof(MediaControllerViewModel), default(string));
-        public string? PlaybackTimeValue
+        public string PlaybackTimeValue
         {
-            get => (string?)GetValue(PlaybackTimeValueProperty);
+            get => (string)GetValue(PlaybackTimeValueProperty);
             set => SetValue(PlaybackTimeValueProperty, value);
         }
 
         // Represents song length as a Double, in full MS
         public static readonly BindableProperty PlaybackMaximumProperty = BindableProperty.Create(nameof(PlaybackMaximum), typeof(double), typeof(MediaControllerViewModel), default(double));
-        public double? PlaybackMaximum
+        public double PlaybackMaximum
         {
-            get => (double?)GetValue(PlaybackMaximumProperty);
+            get => (double)GetValue(PlaybackMaximumProperty);
             set => SetValue(PlaybackMaximumProperty, value);
         }
 
         // Represents time passed as a string in MM:SS format
         public static readonly BindableProperty PlaybackMaximumTimeValueProperty = BindableProperty.Create(nameof(PlaybackMaximumTimeValue), typeof(string), typeof(MediaControllerViewModel), default(string));
-        public string? PlaybackMaximumTimeValue
+        public string PlaybackMaximumTimeValue
         {
-            get => (string?)GetValue(PlaybackMaximumTimeValueProperty);
+            get => (string)GetValue(PlaybackMaximumTimeValueProperty);
             set => SetValue(PlaybackMaximumTimeValueProperty, value);
         }
 

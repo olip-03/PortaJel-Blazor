@@ -19,6 +19,12 @@ using Com.Google.Android.Exoplayer2.UI;
 // https://github.com/xamarin/monodroid-samples/blob/archived-xamarin/android5.0/MediaBrowserService/MediaBrowserService/MusicService.cs
 // See lines 169 through 360 for Kotlin implementation of Exoplayer + notification service 
 // https://github.com/AkaneTan/Gramophone/blob/30773abb7df9317d50d159df7f40b8d9c9418520/app/src/main/kotlin/org/akanework/gramophone/logic/GramophonePlaybackService.kt#L577
+//
+// Looks like an easy enough Kotlin tutorial for the MediaStyle notificaiton mrow :3 
+// https://medium.com/@anafthdev_/create-mediastyle-notification-in-android-anafthdev-70fe7df3397e
+//
+// This is for the MusicBrainz lookup I want to add, for comparing strings. Not relevent to the Android Media Service here but it will need to be implemented and I have this file open already
+// https://medium.com/@tarakshah/this-article-explains-how-to-check-the-similarity-between-two-string-in-percentage-or-score-from-0-83e206bf6bf5
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
     [Service(Name = "PortaJel.MediaService", IsolatedProcess = true, ForegroundServiceType = ForegroundService.TypeMediaPlayback)]
@@ -28,6 +34,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public IExoPlayer? Player = null;
         PlayerEventListener PlayerEventListener = new();
+        private long currentDuration = -1;
+        private long fullDuration = -1;
         private int repeatMode = 0;
 
         MediaSession? mediaSession = null;
@@ -75,7 +83,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
             playerNotification = new Notification.Builder(context, channel.Id)
                  .SetChannelId(channel.Id)
-                 .SetSmallIcon(Resource.Drawable.ic_mtrl_checked_circle)
+                 .SetSmallIcon(Resource.Drawable.heart)
                  .SetContentTitle("Track title")
                  .SetContentText("Artist - Album")
                  .SetStyle(new Notification.MediaStyle().SetMediaSession(mediaSession.SessionToken))
@@ -113,6 +121,13 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 if (Player != null)
                 {
                     playingIndex = Player.CurrentMediaItemIndex;
+                }
+            };
+            PlayerEventListener.OnPlayerStateChangedImpl = (bool playWhenReady, int playbackState) =>
+            {
+                if (playbackState == IPlayer.StateReady && Player != null)
+                {
+                    fullDuration = Player.Duration;
                 }
             };
 
@@ -356,10 +371,11 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
 
             SongGroupCollection songGroupCollection = new();
-            SongGroup currentPlaying = new("Currently Playing");
             SongGroup queue = new("Queue");
             SongGroup songList = new("Next Up");
 
+            // Add queue after selected song
+            queue.AddRange(songQueue);
             if (playingFrom is Album)
             {
                 Album album = (Album)playingFrom;
@@ -371,35 +387,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 songList.AddRange(playlist.songs);
             }
 
-            // Add everything up to the selected song to queue
-            for (int i = 0; i < songList.Count; i++)
-            {
-                if (i < playingIndex)
-                {
-                    queue.Add(songList[i]);
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            // Add queue after selected song
-            for (int i = 0; i < songQueue.Count; i++)
-            {
-                queue.Add(songQueue[i]);
-            }
-
-            // Add remainder of the tracks that were 'up next'
-            if (playingIndex < songList.Count)
-            {
-                for (int i = playingIndex; i < songList.Count; i++)
-                {
-                    queue.Add(songList[i]);
-                }
-            }
-
-            songGroupCollection.Add(currentPlaying);
             songGroupCollection.Add(queue);
             songGroupCollection.Add(songList);
 
@@ -442,7 +429,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             if (Player != null)
             {
-                if (GetQueue().Count() < playingIndex)
+                if (GetQueue().AllSongs.Count() > playingIndex)
                 {
                     return GetQueue().AllSongs[playingIndex];
                 }
@@ -463,12 +450,24 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             if (Player != null)
             {
-                PlaybackInfo? newTime = new(
+                PlaybackInfo? newTime = null;
+                playingIndex = Player.CurrentMediaItemIndex;
+
+                Song currentSong = GetCurrentlyPlaying();
+
+                if (Player.PlaybackState == IPlayer.StateReady)
+                {
+                    if(currentSong.duration <= 0)
+                    {
+                        TimeSpan passedTime = TimeSpan.FromMilliseconds(Player.Duration);
+                        currentSong.duration = passedTime.Ticks;
+                    }
+                    newTime = new(
                         Player.CurrentPosition,
-                        Player.Duration,
-                        GetCurrentlyPlaying().id,
+                        currentSong,
                         playingIndex
                     );
+                }
                 return newTime;
             }
             return null;

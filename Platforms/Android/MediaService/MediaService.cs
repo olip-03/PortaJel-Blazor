@@ -42,7 +42,7 @@ namespace PortaJel_Blazor.Classes.Services
             if(Application.Current != null)
             {
                 DispatcherTimer = Application.Current.Dispatcher.CreateTimer();
-                DispatcherTimer.Interval = TimeSpan.FromSeconds(1);
+                DispatcherTimer.Interval = TimeSpan.FromSeconds(0.25);
                 DispatcherTimer.Tick += (s, e) => UpdatePlaystateUi();
                 DispatcherTimer.Start();
             }
@@ -96,6 +96,7 @@ namespace PortaJel_Blazor.Classes.Services
                serviceConnection.Binder != null)
             {
                 serviceConnection.Binder.Play();
+                UpdatePlaystateUi();
                 DispatcherTimer.Start();
             }
         }
@@ -106,6 +107,7 @@ namespace PortaJel_Blazor.Classes.Services
                serviceConnection.Binder != null)
             {
                 serviceConnection.Binder.Pause();
+                UpdatePlaystateUi();
                 DispatcherTimer.Stop();
             }
         }
@@ -118,10 +120,12 @@ namespace PortaJel_Blazor.Classes.Services
                 serviceConnection.Binder.TogglePlay();
                 if (serviceConnection.Binder.GetIsPlaying())
                 {
+                    UpdatePlaystateUi();
                     DispatcherTimer.Start();
                 }
                 else
                 {
+                    UpdatePlaystateUi();
                     DispatcherTimer.Stop();
                 }
             }

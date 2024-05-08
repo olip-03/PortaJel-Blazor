@@ -1,5 +1,6 @@
-﻿using PortaJel_Blazor.Classes;
-using System;
+﻿using Jellyfin.Sdk;
+using PortaJel_Blazor.Classes;
+using PortaJel_Blazor.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -57,6 +58,43 @@ namespace PortaJel_Blazor.Data
             })));
 
             return contextMenuItems;
+        }
+        public static Artist Builder(BaseItemDto baseItem, string server)
+        {
+            if (baseItem == null)
+            {
+                return Artist.Empty;
+            }
+
+            Artist newArtist = new();
+            newArtist.serverAddress = server;
+            newArtist.name = baseItem.Name;
+            newArtist.id = baseItem.Id;
+            newArtist.description = baseItem.Overview;
+            newArtist.isFavourite = baseItem.UserData.IsFavorite;
+            newArtist.image = MusicItemImage.Builder(baseItem, server);
+            newArtist.isPartial = false;
+
+            newArtist.backgroundImage = MusicItemImage.Builder(baseItem, server, ImageBuilderImageType.Backdrop);
+            newArtist.logoImage = MusicItemImage.Builder(baseItem, server, ImageBuilderImageType.Logo);
+
+            return newArtist;
+        }
+        public static Artist Builder(NameGuidPair nameGuidPair, string server)
+        {
+            if (nameGuidPair == null)
+            {
+                return Artist.Empty;
+            }
+
+            Artist newArtist = new();
+            newArtist.name = nameGuidPair.Name;
+            newArtist.id = nameGuidPair.Id;
+            newArtist.serverAddress = server;
+            newArtist.image = MusicItemImage.Builder(nameGuidPair, server);
+            newArtist.isPartial = true;
+
+            return newArtist;
         }
     }
 }

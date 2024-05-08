@@ -11,8 +11,8 @@ public partial class PlaylistViewEditor : ContentPage
     private Playlist playlist = Playlist.Empty;
     private Guid playlistId = Guid.Empty;
 
-    private List<PlaylistSong> unorderedList = new();
-    private List<PlaylistSong> songList = new();
+    private List<Song> unorderedList = new();
+    private List<Song> songList = new();
 
     private bool isLoading = false;
 
@@ -92,13 +92,13 @@ public partial class PlaylistViewEditor : ContentPage
         {
             //Remove all songs that have also been removed from the local copy 
             // Index, Song
-            List<Tuple<int, PlaylistSong>> removedSongs = new List<Tuple<int, PlaylistSong>>();
+            List<Tuple<int, Song>> removedSongs = new List<Tuple<int, Song>>();
             int index = 0;
-            foreach (PlaylistSong song in unorderedList)
+            foreach (Song song in unorderedList)
             {
                 if (!songList.Contains(song))
                 { // This song has been removed
-                    removedSongs.Add(new Tuple<int, PlaylistSong>(index, song));
+                    removedSongs.Add(new Tuple<int, Song>(index, song));
                     await MauiProgram.servers[0].RemovePlaylistItem(playlist.id, song.playlistId);
                     unorderedList.Remove(song);
                 }
@@ -119,7 +119,7 @@ public partial class PlaylistViewEditor : ContentPage
                     if (unorderedList[i].id != songList[i].id)
                     {
                         int newIndex = songList.IndexOf(unorderedList[i]);
-                        PlaylistSong item = unorderedList[i];
+                        Song item = unorderedList[i];
 
                         // Needs to be moved
                         unorderedList.RemoveAt(i);
@@ -165,7 +165,7 @@ public partial class PlaylistViewEditor : ContentPage
     {
         ImageButton? button = sender as ImageButton;
         if(button == null) { return; }
-        PlaylistSong? song = button.BindingContext as PlaylistSong;
+        Song? song = button.BindingContext as Song;
         if (song == null) { return; }
     }
     #endregion

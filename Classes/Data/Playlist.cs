@@ -9,7 +9,7 @@ namespace PortaJel_Blazor.Data
 {
     public class Playlist: BaseMusicItem
     {
-        public PlaylistSong[] songs = new PlaylistSong[0];
+        public Song[] songs = new Song[0];
         public string path = string.Empty;
         public static readonly Playlist Empty = new();    
         public Playlist() 

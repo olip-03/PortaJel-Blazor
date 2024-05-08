@@ -18,6 +18,7 @@ public partial class MediaController : ContentView
     private double btnInOpacity = 0.5;
     private double btnInSize = 0.8;
     private uint btnAnimSpeedMs = 400;
+    private bool pauseTimeUpdate = false;
     private Guid currentPlayingId = Guid.Empty;
 
     public MediaController()
@@ -83,7 +84,7 @@ public partial class MediaController : ContentView
             if (playFromIndex != null)
             {
                 this.currentPlayingId = fromIndex.id;
-                ImgCarousel.ScrollTo(songs[(int)playFromIndex], animate: false);
+                ImgCarousel.ScrollTo(fromIndex, animate: false);
             }
         }
         else if(ViewModel.Queue != null && ViewModel.Queue.Count() > playFromIndex && songs != null)
@@ -92,7 +93,7 @@ public partial class MediaController : ContentView
             if (playFromIndex != null && fromIndex != null)
             {
                 this.currentPlayingId = fromIndex.id;
-                ImgCarousel.ScrollTo(ViewModel.Queue[(int)playFromIndex], animate: false);
+                ImgCarousel.ScrollTo(fromIndex, animate: false);
             }
         }
 
@@ -194,23 +195,24 @@ public partial class MediaController : ContentView
             // Check if current song is accurate
             if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.playingIndex)
             {
-                if (playbackTime.currentTrackGuid != this.currentPlayingId)
+                if (playbackTime.currentSong.id != this.currentPlayingId)
                 {
                     ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.playingIndex], animate: true);
-                    this.currentPlayingId = playbackTime.currentTrackGuid;
+                    this.currentPlayingId = playbackTime.currentSong.id;
                 }
             }
 
-            if(playbackTime.fullDuration > 0)
+            if(playbackTime.currentSong.duration > 0 && !pauseTimeUpdate)
             {
-                ViewModel.PlaybackValue = (double)playbackTime.currentDuration;
-                ViewModel.PlaybackMaximum = (double)playbackTime.fullDuration;
-
                 TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
-                TimeSpan fullTime = TimeSpan.FromMilliseconds(playbackTime.fullDuration);
+                TimeSpan fullTime = TimeSpan.FromTicks(playbackTime.currentSong.duration);
+
+                ViewModel.PlaybackValue = passedTime.TotalMilliseconds;
+                ViewModel.PlaybackMaximum = fullTime.TotalMilliseconds;
 
                 ViewModel.PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", passedTime.Minutes, passedTime.Seconds);
                 ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTime.Minutes, fullTime.Seconds);
+                Player_DurationSlider_Lbl_DurationTxt.Text = ViewModel.PlaybackMaximumTimeValue;
             }
         }
         else
@@ -272,6 +274,13 @@ public partial class MediaController : ContentView
         MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
 
         Song scrollTo = MauiProgram.MediaService.GetCurrentlyPlaying();
+        TimeSpan durationTime = TimeSpan.FromTicks(scrollTo.duration);
+
+        ViewModel.PlaybackValue = 0;
+        ViewModel.PlaybackTimeValue = "00:00";
+        ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", durationTime.Minutes, durationTime.Seconds);
+
+        ImgCarousel.ScrollTo(item: scrollTo, animate: true);
         ImgCarousel.ScrollTo(item: scrollTo, animate: true);
 
         int currentIndex = MauiProgram.MediaService.GetQueueIndex();
@@ -333,6 +342,12 @@ public partial class MediaController : ContentView
         MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
 
         Song scrollTo = MauiProgram.MediaService.GetCurrentlyPlaying();
+        TimeSpan durationTime = TimeSpan.FromTicks(scrollTo.duration);
+
+        ViewModel.PlaybackValue = 0;
+        ViewModel.PlaybackTimeValue = "00:00";
+        ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", durationTime.Minutes, durationTime.Seconds);
+
         ImgCarousel.ScrollTo(item: scrollTo, animate: true);
 
         int currentIndex = MauiProgram.MediaService.GetQueueIndex();
@@ -402,19 +417,32 @@ public partial class MediaController : ContentView
 
     }
 
-    private void Player_DurationSlider_ValueChanged(object sender, ValueChangedEventArgs e)
+    private void DurationSlider_ValueChanged(object sender, ValueChangedEventArgs e)
     {
+        if (pauseTimeUpdate)
+        {
+            long time = (long)DurationSlider.Value;
+            long max = (long)ViewModel.PlaybackMaximum;
 
+            TimeSpan passedTime = TimeSpan.FromMilliseconds(time);
+            TimeSpan fullTime = TimeSpan.FromMilliseconds(max);
+
+            ViewModel.PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", passedTime.Minutes, passedTime.Seconds);
+            ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTime.Minutes, fullTime.Seconds);
+        }
     }
 
-    private void Player_DurationSlider_DragStarted(object sender, EventArgs e)
+    private void DurationSlider_DragStarted(object sender, EventArgs e)
     {
-
+        pauseTimeUpdate = true;
     }
 
-    private void Player_DurationSlider_DragCompleted(object sender, EventArgs e)
+    private void DurationSlider_DragCompleted(object sender, EventArgs e)
     {
-
+        pauseTimeUpdate = false;
+        long position = (long)DurationSlider.Value;
+        MauiProgram.MediaService.SeekToPosition(position);
+        UpdateTimestamp(MauiProgram.MediaService.GetPlaybackTimeInfo());
     }
 
     private void Queue_Btn_Close_Clicked(object sender, EventArgs e)

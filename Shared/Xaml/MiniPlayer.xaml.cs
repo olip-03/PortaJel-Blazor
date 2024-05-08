@@ -43,18 +43,21 @@ public partial class MiniPlayer : ContentView
     {
         if(playbackTime != null)
         {
-            float percentage = (float)playbackTime.currentDuration / (float)playbackTime.fullDuration;
+            TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
+            TimeSpan fullTime = TimeSpan.FromTicks(playbackTime.currentSong.duration);
 
-            if (playbackTime.currentTrackGuid == lastUpdateTrackId)
+            float percentage = passedTime.Ticks / fullTime.Ticks;
+
+            if (playbackTime.currentSong.id == lastUpdateTrackId)
             {
-                lastUpdateTrackId = playbackTime.currentTrackGuid;
+                lastUpdateTrackId = playbackTime.currentSong.id;
                 Progress.Progress = percentage;
             }
             else
             {
                 Progress.CancelAnimations();
 
-                lastUpdateTrackId = playbackTime.currentTrackGuid;
+                lastUpdateTrackId = playbackTime.currentSong.id;
                 Progress.Progress = percentage;
             }
         }
