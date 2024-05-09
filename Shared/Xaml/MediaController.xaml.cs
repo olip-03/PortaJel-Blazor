@@ -123,6 +123,14 @@ public partial class MediaController : ContentView
                 ViewModel.PlayButtonSource = (string)imageSource;
             }
         }
+        else if(isPlaying == false)
+        {
+            var hasSource = App.Current.Resources.TryGetValue("InversePlayIcon", out object imageSource);
+            if (hasSource)
+            {
+                ViewModel.PlayButtonSource = (string)imageSource;
+            }
+        }
         else if (MauiProgram.MediaService.GetIsPlaying())
         {
             var hasSource = App.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);

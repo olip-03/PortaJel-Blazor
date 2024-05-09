@@ -1,4 +1,5 @@
 ﻿using Android.Content;
+using Android.Media;
 using Android.Media.Session;
 using Android.OS;
 
@@ -90,13 +91,20 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
         }
 
+        /// <summary>
+        /// Override to handle media button events.
+        /// The double tap of KEYCODE_MEDIA_PLAY_PAUSE or KEYCODE_HEADSETHOOK will call the onSkipToNext by default. If the current SDK level is 27 or higher, the default double tap handling is done by framework so this method would do nothing for it.
+        /// </summary>
+        /// <param name="mediaButtonIntent"></param>
+        /// <returns>True if the event was handled, false otherwise.</returns>
         public override bool OnMediaButtonEvent(Intent mediaButtonIntent)
         {
             if(OnMediaButtonEventImpl != null)
             {
                 OnMediaButtonEventImpl(mediaButtonIntent);
+                return true;
             }
-            return true;
+            return false;
         }
     }
 }

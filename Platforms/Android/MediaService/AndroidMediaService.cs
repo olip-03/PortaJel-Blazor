@@ -87,14 +87,18 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             };
             mediaSessionCallback.OnMediaButtonEventImpl = (Intent? intent) =>
             {
-                if(intent != null)
+                if (intent != null)
                 {
                     if (intent.Action == Intent.ActionMediaButton)
                     {
                         KeyEvent? eventVal = (KeyEvent)intent.GetParcelableExtra(Intent.ExtraKeyEvent);
                         if (eventVal != null)
                         {
-                            if(eventVal.KeyCode == KeyEvent.KeyCodeFromString("KEYCODE_MEDIA_PLAY"))
+                            if (eventVal.KeyCode == KeyEvent.KeyCodeFromString("KEYCODE_MEDIA_PLAY"))
+                            {
+                                TogglePlay();
+                            }
+                            if (eventVal.KeyCode == KeyEvent.KeyCodeFromString("KEYCODE_MEDIA_PLAY"))
                             {
                                 Play();
                             }
@@ -120,19 +124,39 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             mediaSession.SetCallback(mediaSessionCallback);
 
             var startIntent = new Intent(context, typeof(MainActivity));
-            if(intent != null)
+            if (intent != null)
             {
                 startIntent.PutExtras(intent);
             }
 
-            playerNotification = new Notification.Builder(context, channel.Id)
+            var playIntent = new Intent(context, typeof(MainActivity));
+            if (intent != null)
+            {
+                startIntent.PutExtras(intent);
+            }
+
+            //Yes intent
+            Intent yesReceive = new Intent();
+            yesReceive.SetAction("LIKE_ACTION");
+            PendingIntent? pendingIntentLike = PendingIntent.GetBroadcast(this, 12345, yesReceive, PendingIntentFlags.Immutable);
+
+            Intent playPauseIntent = new Intent();
+            playPauseIntent.SetAction("PlayPause");
+            PendingIntent? pendingIntentPlayPause = PendingIntent.GetBroadcast(this, 12346, playPauseIntent, PendingIntentFlags.Immutable);
+
+            Notification.Builder? playerNotificationBuilder = new Notification.Builder(context, channel.Id)
                  .SetChannelId(channel.Id)
                  .SetSmallIcon(Resource.Drawable.heart)
                  .SetContentTitle("Track title")
                  .SetContentText("Artist - Album")
                  .SetStyle(new Notification.MediaStyle().SetMediaSession(mediaSession.SessionToken))
-                 .SetAllowSystemGeneratedContextualActions(true)
-                 .Build();
+                 .SetAllowSystemGeneratedContextualActions(true);
+            if (pendingIntentLike != null) 
+            {
+                playerNotificationBuilder.AddAction(Resource.Drawable.heart, "Yes", pendingIntentLike);
+                playerNotificationBuilder.AddAction(Resource.Drawable.heart, "PlayPause", pendingIntentPlayPause);
+            }
+            playerNotification = playerNotificationBuilder.Build();
 
             StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
             return base.OnStartCommand(startIntent, flags, startId);
