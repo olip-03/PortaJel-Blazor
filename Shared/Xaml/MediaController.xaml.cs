@@ -189,16 +189,14 @@ public partial class MediaController : ContentView
     {
         if (playbackTime != null)
         {
-            Trace.WriteLine("Playback info received:");
-            Trace.WriteLine("Current Song Index:" + playbackTime.playingIndex);
-
             // Check if current song is accurate
             if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.playingIndex)
             {
                 if (playbackTime.currentSong.id != this.currentPlayingId)
                 {
-                    ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.playingIndex], animate: true);
-                    this.currentPlayingId = playbackTime.currentSong.id;
+                    UpdateData(playFromIndex: playbackTime.playingIndex);
+                    // ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.playingIndex], animate: true);
+                    // this.currentPlayingId = playbackTime.currentSong.id;
                 }
             }
 
@@ -214,10 +212,6 @@ public partial class MediaController : ContentView
                 ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTime.Minutes, fullTime.Seconds);
                 Player_DurationSlider_Lbl_DurationTxt.Text = ViewModel.PlaybackMaximumTimeValue;
             }
-        }
-        else
-        {
-            Trace.WriteLine("Failed to recieve playback information from media player");
         }
     }
 

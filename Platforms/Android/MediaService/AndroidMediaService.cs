@@ -1,18 +1,20 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Media;
+using Android.Media.Session;
+using Android.OS;
+using Android.Runtime;
 using Com.Google.Android.Exoplayer2;
-using Android.Util;
+using Com.Google.Android.Exoplayer2.Extractor;
+using Com.Google.Android.Exoplayer2.Extractor.Mp3;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Upstream;
-using PortaJel_Blazor.Data;
-using PortaJel_Blazor.Classes.Services;
-using Android.OS;
+using Java.Lang;
 using PortaJel_Blazor.Classes;
-using Android.Media.Session;
-using Android.Graphics;
-using Android.Runtime;
-using Com.Google.Android.Exoplayer2.UI;
+using PortaJel_Blazor.Classes.Services;
+using PortaJel_Blazor.Data;
+using MediaMetadata = Android.Media.MediaMetadata;
 
 #pragma warning disable CS0618, CS0612, CA1422 // Type or member is obsolete
 // Referce
@@ -33,14 +35,17 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         public IBinder? Binder { get; private set; }
 
         public IExoPlayer? Player = null;
+        public MediaPlayer MediaPlayer { get; private set; }
         PlayerEventListener PlayerEventListener = new();
         private long currentDuration = -1;
         private long fullDuration = -1;
         private int repeatMode = 0;
 
         MediaSession? mediaSession = null;
+        MediaMetadata? mediaSessionMetadata = null;
+        PlaybackState? mediaSessionState = null;
         MediaSessionCallback? mediaSessionCallback = null;
-        MediaMetadata? mediaMetadata = null;
+        // MediaMetadata? mediaMetadata = null;
 
         Notification? playerNotification = null;
         public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
@@ -53,7 +58,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public AndroidMediaService() 
         {
-
+            
         }
 
         [return: GeneratedEnum]
@@ -69,6 +74,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
 
             mediaSession = new MediaSession(context, channedId);
+            mediaSession.SetMetadata(mediaSessionMetadata);
             mediaSessionCallback = new MediaSessionCallback();
             // Define callback functions here
             mediaSessionCallback.OnPlayImpl = () => {
@@ -97,13 +103,21 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         public override IBinder OnBind(Intent? intent)
         {
             this.Binder = new MediaServiceBinder(this);
+            Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
 
             var HttpDataSourceFactory = new DefaultHttpDataSource.Factory().SetAllowCrossProtocolRedirects(true);
             var MainDataSource = new ProgressiveMediaSource.Factory(HttpDataSourceFactory);
             if (MainDataSource != null)
             {
-                IExoPlayer.Builder? newBuilder = new IExoPlayer.Builder(this);
-                newBuilder = newBuilder.SetMediaSourceFactory(MainDataSource);
+                DefaultHttpDataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+
+                // Extractor factory for additional functionality
+                DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+                extractorsFactory.SetConstantBitrateSeekingEnabled(true);    
+                extractorsFactory.SetMp3ExtractorFlags(Mp3Extractor.FlagEnableIndexSeeking);
+
+                SimpleExoPlayer.Builder? newBuilder = new SimpleExoPlayer.Builder(this)
+                     .SetMediaSourceFactory(new DefaultMediaSourceFactory(context, extractorsFactory));
                 if (newBuilder != null)
                 {
                     Player = newBuilder.Build();
@@ -121,6 +135,13 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 if (Player != null)
                 {
                     playingIndex = Player.CurrentMediaItemIndex;
+
+                    MediaMetadata newData = new MediaMetadata.Builder()
+                    .PutString("android.media.metadata.TITLE", "love2goon")
+                    .PutString("android.media.metadata.DISPLAY_TITLE", "love2goon")
+                    .PutString("android.media.metadata.DISPLAY_SUBTITLE", "goonNation")
+                    .Build();
+                    mediaSession.SetMetadata(newData);
                 }
             };
             PlayerEventListener.OnPlayerStateChangedImpl = (bool playWhenReady, int playbackState) =>
@@ -128,13 +149,27 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 if (playbackState == IPlayer.StateReady && Player != null)
                 {
                     fullDuration = Player.Duration;
+
+                    MediaMetadata newData = new MediaMetadata.Builder()
+                    .PutString("android.media.metadata.TITLE", "love2goon")
+                    .PutString("android.media.metadata.DISPLAY_TITLE", "love2goon")
+                    .PutString("android.media.metadata.DISPLAY_SUBTITLE", "goonNation")
+                    .Build();
+                    mediaSession.SetMetadata(newData);
                 }
             };
+
+
+            Com.Google.Android.Exoplayer2.Audio.AudioAttributes? audioAttributes = new Com.Google.Android.Exoplayer2.Audio.AudioAttributes.Builder()
+                .SetUsage((int)AudioUsageKind.Media)
+                .SetContentType((int)AudioContentType.Music)
+                .Build();
 
             if (Player != null)
             {
                 Player.AddListener(PlayerEventListener);
                 Player.Prepare();
+                Player.SetAudioAttributes(audioAttributes, true);
                 Player.PlayWhenReady = true;
             }
 
@@ -186,9 +221,21 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool SeekToPosition(long position)
         {
-            if (Player != null)
+            if (Player != null && position < Player.Duration && position > 0)
             {
-                Player.SeekTo(position);
+                Player.PlayWhenReady = false;
+                try
+                {
+                    long TIME_UNSET = Long.MinValue + 1;
+                    long seekPosition = Player.Duration == TIME_UNSET ? 0 : System.Math.Min(System.Math.Max(0, position), Player.Duration);
+                    Player.SeekTo(seekPosition);
+                }
+                catch (System.Exception ex)
+                {
+                    return false;
+                }
+                // :3 Player.PlaybackParameters.Pitch = 0.8f;
+                Player.PlayWhenReady = true;
                 return true;
             }
             return false;
@@ -298,14 +345,24 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 foreach (Song song in GetQueue().AllSongs)
                 {
                     MediaItem? mediaItem = MediaItem.FromUri(song.streamUrl);
-                    if(mediaItem != null)
+
+                    if (mediaItem != null)
                     {
-                        mediaItem.MediaId = song.id.ToString();
-                        
-                        Player.AddMediaItem(mediaItem);
+                        // TODO: Add checks for if the file is a stream or local file
+                        DefaultHttpDataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+                        ProgressiveMediaSource.Factory mediaFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
+                        IMediaSource? media = mediaFactory.CreateMediaSource(mediaItem);
+
+                        if (media != null)
+                        {
+                            mediaItem.MediaId = song.id.ToString();
+                            Player.AddMediaSource(media);
+                        }
+
                     }
                 }
 
+                Player.SeekToDefaultPosition();
                 // Seek to position of that last song
                 playingIndex = fromIndex;
                 Player.SeekTo(playingIndex, Player.Duration);
@@ -327,8 +384,16 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     MediaItem? mediaItem = MediaItem.FromUri(song.streamUrl);
                     if(mediaItem != null)
                     {
-                        mediaItem.MediaId = song.id.ToString();
-                        Player.AddMediaItem(mediaItem);
+                        // TODO: Add checks for if the file is a stream or local file
+                        DefaultHttpDataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+                        ProgressiveMediaSource.Factory mediaFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
+                        IMediaSource? media = mediaFactory.CreateMediaSource(mediaItem);
+
+                        if (media != null)
+                        {
+                            mediaItem.MediaId = song.id.ToString();
+                            Player.AddMediaSource(media);
+                        }
                     }
                 }
 

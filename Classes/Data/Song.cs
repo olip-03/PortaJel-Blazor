@@ -217,7 +217,9 @@ namespace PortaJel_Blazor.Data
                     setIsFavourite: baseItem.UserData.IsFavorite) ;
             newSong.playCount = baseItem.UserData.PlayCount;
             newSong.image = MusicItemImage.Builder(baseItem, server);
-            newSong.streamUrl = server + "/Audio/" + baseItem.Id + "/stream";
+            // Absolute fucking nonsense of flags. Neccesary to allow fucking seeking with the tunes. Idk, whatever, I'm kind of mad this is the fix. 
+            // TODO: Figure out what the fuck these flags do instead of just adding random ones you like 
+            newSong.streamUrl = server + "/Audio/" + baseItem.Id + "/stream?static=true&audioCodec=adts&enableAutoStreamCopy=true&allowAudioStreamCopy=true&enableMpegtsM2TsMode=true&context=Static";
             newSong.serverAddress = server;
             
             if (baseItem.RunTimeTicks != null)

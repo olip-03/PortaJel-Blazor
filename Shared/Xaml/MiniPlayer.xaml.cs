@@ -46,7 +46,7 @@ public partial class MiniPlayer : ContentView
             TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
             TimeSpan fullTime = TimeSpan.FromTicks(playbackTime.currentSong.duration);
 
-            float percentage = passedTime.Ticks / fullTime.Ticks;
+            float percentage = (float)passedTime.Ticks / (float)fullTime.Ticks;
 
             if (playbackTime.currentSong.id == lastUpdateTrackId)
             {
