@@ -135,14 +135,22 @@ public partial class MiniPlayer : ContentView
         }
     }
 
-    public void UpdatePlayButton()
+    public void UpdatePlayButton(bool? isPlaying = null)
     {
         if(App.Current == null)
         {
             return;
         }
 
-        if (MauiProgram.MediaService.GetIsPlaying())
+        if (isPlaying == true)
+        {
+            var hasSource = App.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
+            if (hasSource)
+            {
+                ViewModel.PlayButtonSource = (string)imageSource;
+            }
+        }
+        else if (MauiProgram.MediaService.GetIsPlaying())
         {
             var hasSource = App.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
             if (hasSource)

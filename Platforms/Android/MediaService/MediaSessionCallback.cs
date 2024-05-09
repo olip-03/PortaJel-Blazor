@@ -1,4 +1,5 @@
-﻿using Android.Media.Session;
+﻿using Android.Content;
+using Android.Media.Session;
 using Android.OS;
 
 namespace PortaJel_Blazor.Platforms.Android.MediaService
@@ -14,6 +15,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         public Action? OnSkipToNextImpl { get; set; }
         public Action? OnSkipToPreviousImpl { get; set; }
         public Action<string?, Bundle?>? OnCustomActionImpl { get; set; }
+        public Action<Intent?>? OnMediaButtonEventImpl { get; set; }
 
         public override void OnPlay()
         {
@@ -86,6 +88,15 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             {
                 OnCustomActionImpl(action, extras);
             }
+        }
+
+        public override bool OnMediaButtonEvent(Intent mediaButtonIntent)
+        {
+            if(OnMediaButtonEventImpl != null)
+            {
+                OnMediaButtonEventImpl(mediaButtonIntent);
+            }
+            return true;
         }
     }
 }

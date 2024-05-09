@@ -108,14 +108,22 @@ public partial class MediaController : ContentView
         MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
     }
 
-    public void UpdatePlayButton()
+    public void UpdatePlayButton(bool? isPlaying = null)
     {
         if (App.Current == null)
         {
             return;
         }
 
-        if (MauiProgram.MediaService.GetIsPlaying())
+        if(isPlaying == true)
+        {
+            var hasSource = App.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
+            if (hasSource)
+            {
+                ViewModel.PlayButtonSource = (string)imageSource;
+            }
+        }
+        else if (MauiProgram.MediaService.GetIsPlaying())
         {
             var hasSource = App.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
             if (hasSource)
@@ -185,22 +193,27 @@ public partial class MediaController : ContentView
     /// Function which can be called to update the playing song informations time, and which song is currently playing.
     /// </summary>
     /// <param name="playbackTime">Time Information derived from the media player</param>
-    public void UpdateTimestamp(PlaybackInfo? playbackTime)
+    public async void UpdateTimestamp(PlaybackInfo? playbackTime)
     {
         if (playbackTime != null)
         {
             // Check if current song is accurate
-            if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.playingIndex)
+            if (ViewModel.Queue != null && ViewModel.Queue.AllSongs.Count > playbackTime.playingIndex)
             {
-                if (playbackTime.currentSong.id != this.currentPlayingId)
+                if (!playbackTime.currentSong.id.Equals(this.currentPlayingId))
                 {
+                    ImgCarousel.ScrollTo(ViewModel.Queue.AllSongs[playbackTime.playingIndex], animate: true);
+                    await Task.Delay(500);
                     UpdateData(playFromIndex: playbackTime.playingIndex);
-                    // ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.playingIndex], animate: true);
-                    // this.currentPlayingId = playbackTime.currentSong.id;
+                    this.currentPlayingId = playbackTime.currentSong.id;
                 }
             }
 
-            if(playbackTime.currentSong.duration > 0 && !pauseTimeUpdate)
+            // Change playback icon 
+            UpdatePlayButton(playbackTime.isPlaying);
+            MauiProgram.MainPage.MainMiniPlayer.UpdatePlayButton(playbackTime.isPlaying);
+
+            if (playbackTime.currentSong.duration > 0 && !pauseTimeUpdate)
             {
                 TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
                 TimeSpan fullTime = TimeSpan.FromTicks(playbackTime.currentSong.duration);

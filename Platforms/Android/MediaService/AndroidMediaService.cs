@@ -1,10 +1,12 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.InputMethodServices;
 using Android.Media;
 using Android.Media.Session;
 using Android.OS;
 using Android.Runtime;
+using Android.Views;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Extractor;
 using Com.Google.Android.Exoplayer2.Extractor.Mp3;
@@ -83,9 +85,45 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             mediaSessionCallback.OnPauseImpl = () => {
                 Pause();
             };
+            mediaSessionCallback.OnMediaButtonEventImpl = (Intent? intent) =>
+            {
+                if(intent != null)
+                {
+                    if (intent.Action == Intent.ActionMediaButton)
+                    {
+                        KeyEvent? eventVal = (KeyEvent)intent.GetParcelableExtra(Intent.ExtraKeyEvent);
+                        if (eventVal != null)
+                        {
+                            if(eventVal.KeyCode == KeyEvent.KeyCodeFromString("KEYCODE_MEDIA_PLAY"))
+                            {
+                                Play();
+                            }
+                            if (eventVal.KeyCode == KeyEvent.KeyCodeFromString("KEYCODE_MEDIA_PAUSE"))
+                            {
+                                Pause();
+                            }
+                            if (eventVal.KeyCode == KeyEvent.KeyCodeFromString("KEYCODE_MEDIA_NEXT"))
+                            {
+                                Next();
+                            }
+                            if (eventVal.KeyCode == KeyEvent.KeyCodeFromString("KEYCODE_MEDIA_PREVIOUS"))
+                            {
+                                Previous();
+                            }
+                        }
+                    }
+                }
+
+            };
 
             mediaSession.SetFlags(MediaSessionFlags.HandlesMediaButtons | MediaSessionFlags.HandlesTransportControls);
             mediaSession.SetCallback(mediaSessionCallback);
+
+            var startIntent = new Intent(context, typeof(MainActivity));
+            if(intent != null)
+            {
+                startIntent.PutExtras(intent);
+            }
 
             playerNotification = new Notification.Builder(context, channel.Id)
                  .SetChannelId(channel.Id)
@@ -97,7 +135,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                  .Build();
 
             StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
-            return base.OnStartCommand(intent, flags, startId);
+            return base.OnStartCommand(startIntent, flags, startId);
         }
 
         public override IBinder OnBind(Intent? intent)
@@ -137,9 +175,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     playingIndex = Player.CurrentMediaItemIndex;
 
                     MediaMetadata newData = new MediaMetadata.Builder()
-                    .PutString("android.media.metadata.TITLE", "love2goon")
-                    .PutString("android.media.metadata.DISPLAY_TITLE", "love2goon")
-                    .PutString("android.media.metadata.DISPLAY_SUBTITLE", "goonNation")
                     .Build();
                     mediaSession.SetMetadata(newData);
                 }
@@ -151,9 +186,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     fullDuration = Player.Duration;
 
                     MediaMetadata newData = new MediaMetadata.Builder()
-                    .PutString("android.media.metadata.TITLE", "love2goon")
-                    .PutString("android.media.metadata.DISPLAY_TITLE", "love2goon")
-                    .PutString("android.media.metadata.DISPLAY_SUBTITLE", "goonNation")
                     .Build();
                     mediaSession.SetMetadata(newData);
                 }
@@ -530,7 +562,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     newTime = new(
                         Player.CurrentPosition,
                         currentSong,
-                        playingIndex
+                        playingIndex,
+                        Player.IsPlaying
                     );
                 }
                 return newTime;
