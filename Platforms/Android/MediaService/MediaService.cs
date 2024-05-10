@@ -23,7 +23,7 @@ namespace PortaJel_Blazor.Classes.Services
     public partial class MediaService : IMediaInterface
     {
         MediaServiceConnection serviceConnection = new();
-        IDispatcherTimer DispatcherTimer;
+        IDispatcherTimer? DispatcherTimer= null;
 
         public MediaService()
         {
@@ -31,7 +31,6 @@ namespace PortaJel_Blazor.Classes.Services
             Intent mediaServiceIntent = new Intent(Platform.AppContext, typeof(AndroidMediaService));
             Platform.AppContext.StartForegroundService(mediaServiceIntent);
             Platform.AppContext.BindService(mediaServiceIntent, this.serviceConnection, Bind.AutoCreate);
-            
         }
 
         [Obsolete]
@@ -45,17 +44,6 @@ namespace PortaJel_Blazor.Classes.Services
                 DispatcherTimer.Interval = TimeSpan.FromSeconds(0.25);
                 DispatcherTimer.Tick += (s, e) => UpdatePlaystateUi();
                 DispatcherTimer.Start();
-            }
-
-            // Creates background service
-
-            // Do yer notification channel stuffs 
-            if (Build.VERSION.SdkInt < BuildVersionCodes.O)
-            {
-                // Notification channels are new in API 26 (and not a part of the
-                // support library). There is no need to create a notification
-                // channel on older versions of Android.
-                return;
             }
         }
         
@@ -72,21 +60,26 @@ namespace PortaJel_Blazor.Classes.Services
             if ((int)Build.VERSION.SdkInt < 33) return;
 
             if (Platform.AppContext.CheckSelfPermission(Android.Manifest.Permission.PostNotifications) != Android.Content.PM.Permission.Granted
-                || Platform.AppContext.CheckSelfPermission(Android.Manifest.Permission.AccessNotificationPolicy) != Android.Content.PM.Permission.Granted
-                && Platform.CurrentActivity != null)
+                || Platform.AppContext.CheckSelfPermission(Android.Manifest.Permission.AccessNotificationPolicy) != Android.Content.PM.Permission.Granted )
             {
-                Platform.CurrentActivity.RequestPermissions(notifPerms, requestLocationId);
+                if(Platform.CurrentActivity != null)
+                {
+                    Platform.CurrentActivity.RequestPermissions(notifPerms, requestLocationId);
+                }
             }
         }
 
-        private void UpdatePlaystateUi()
+        private async void UpdatePlaystateUi()
         {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                PlaybackInfo? timeInfo = GetPlaybackTimeInfo();
+            PlaybackInfo? timeInfo = GetPlaybackTimeInfo();
 
-                MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
-                MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
+            await Task.Run(() =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
+                    MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
+                });
             });
         }
        
@@ -97,7 +90,7 @@ namespace PortaJel_Blazor.Classes.Services
             {
                 serviceConnection.Binder.Play();
                 UpdatePlaystateUi();
-                DispatcherTimer.Start();
+                // DispatcherTimer.Start();
             }
         }
 
@@ -108,7 +101,7 @@ namespace PortaJel_Blazor.Classes.Services
             {
                 serviceConnection.Binder.Pause();
                 UpdatePlaystateUi();
-                DispatcherTimer.Stop();
+                // DispatcherTimer.Stop();
             }
         }
 
@@ -121,12 +114,12 @@ namespace PortaJel_Blazor.Classes.Services
                 if (serviceConnection.Binder.GetIsPlaying())
                 {
                     UpdatePlaystateUi();
-                    DispatcherTimer.Start();
+                    // DispatcherTimer.Start();
                 }
                 else
                 {
                     UpdatePlaystateUi();
-                    DispatcherTimer.Stop();
+                    // DispatcherTimer.Stop();
                 }
             }
         }

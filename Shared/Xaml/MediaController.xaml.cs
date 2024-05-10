@@ -18,6 +18,7 @@ public partial class MediaController : ContentView
     private double btnInOpacity = 0.5;
     private double btnInSize = 0.8;
     private uint btnAnimSpeedMs = 400;
+    
     private bool pauseTimeUpdate = false;
     private Guid currentPlayingId = Guid.Empty;
 

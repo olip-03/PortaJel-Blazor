@@ -13,7 +13,9 @@ public partial class MiniPlayer : ContentView
     public double PositionY { get => PositionY; private set { } }
     public bool IsOpen { get; private set; } = false;
     private Guid lastUpdateTrackId = Guid.Empty;
-	public MiniPlayer()
+    private Guid currentPlayingId = Guid.Empty;
+
+    public MiniPlayer()
 	{
 		InitializeComponent();
         this.BindingContext = ViewModel;
@@ -39,10 +41,22 @@ public partial class MiniPlayer : ContentView
             this.TranslateTo(0, 120, 450, Easing.SinOut));
     }
 
-    public void UpdateTimestamp(PlaybackInfo? playbackTime)
+    public async void UpdateTimestamp(PlaybackInfo? playbackTime)
     {
         if(playbackTime != null)
         {
+            // Check if current song is accurate
+            if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.playingIndex)
+            {
+                if (!playbackTime.currentSong.id.Equals(this.currentPlayingId))
+                {
+                    ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.playingIndex], animate: true);
+                    await Task.Delay(500);
+                    UpdateData(playFromIndex: playbackTime.playingIndex);
+                    this.currentPlayingId = playbackTime.currentSong.id;
+                }
+            }
+
             TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
             TimeSpan fullTime = TimeSpan.FromTicks(playbackTime.currentSong.duration);
 

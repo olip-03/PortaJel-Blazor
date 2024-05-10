@@ -22,6 +22,7 @@ namespace PortaJel_Blazor.Classes
         private ItemUpdateClient? _itemUpdateClient = null;
         private PlaylistsClient? _playlistsClient = null;
         private PlaylistCreationResult? _playlistCreationResult = null;
+        private PlaystateClient? _playstateClient = null;
         private MediaInfoClient? _mediaInfoClient = null;
         private UserLibraryClient? _userLibraryClient = null;
         private AudioClient? _audioClient = null;
@@ -74,6 +75,7 @@ namespace PortaJel_Blazor.Classes
             _artistsClient = new(_sdkClientSettings, _httpClient);
             _genresClient = new(_sdkClientSettings, _httpClient);
             _playlistsClient = new(_sdkClientSettings, _httpClient);
+            _playstateClient = new(_sdkClientSettings, _httpClient);
             _userLibraryClient = new(_sdkClientSettings, _httpClient);
             _mediaInfoClient = new(_sdkClientSettings, _httpClient);
             _itemUpdateClient = new(_sdkClientSettings, _httpClient);
@@ -712,6 +714,7 @@ namespace PortaJel_Blazor.Classes
         }
         #endregion
 
+        #region Playlists
         public async Task<Playlist[]> GetPlaylistsAsync(int? limit = 50, int? startFromIndex = 0)
         {
             List<BaseItemKind> _includeItemTypes = new List<BaseItemKind> { BaseItemKind.Playlist };
@@ -885,6 +888,79 @@ namespace PortaJel_Blazor.Classes
             await _playlistsClient.RemoveFromPlaylistAsync(apiPlaylistId, toRemove);
             return true;
         }
+        #endregion
+
+        #region PlaybackReporting
+        // POST
+        // ​/Sessions​/Playing
+        // Reports playback has started within a session.
+        public async Task<bool> SessionReportPlaying()
+        {
+            if(_playstateClient != null)
+            {
+                PlaybackStartInfo playbackStartInfo = new PlaybackStartInfo();
+                await _playstateClient.ReportPlaybackStartAsync();
+            }
+            return false;
+        }
+
+        // POST
+        // ​/Sessions​/Playing​/Ping
+        // Pings a playback session.
+        public async Task<bool> SessionReportPing()
+        {
+            return false;
+        }
+
+        // POST
+        // ​/Sessions​/Playing​/Progress
+        // Reports playback progress within a session.
+        public async Task<bool> SessionReportProgress()
+        {
+            return false;
+        }
+
+        // POST
+        // ​/Sessions​/Playing​/Stopped
+        // Reports playback has stopped within a session.
+        public async Task<bool> SessionReportStopped()
+        {
+            return false;
+        }
+
+        // POST
+        // ​/Users​/{userId}​/PlayedItems​/{itemId}
+        // Marks an item as played for user.
+        public async Task<bool> SessionReportUpdatePlayedItem(Guid itemId)
+        {
+            return false;
+        }
+
+        // DELETE
+        // ​/Users​/{userId}​/PlayedItems​/{itemId}
+        // Marks an item as unplayed for user.
+
+        // POST
+        // ​/Users​/{userId}​/PlayingItems​/{itemId}
+        // Reports that a user has begun playing an item.
+        public async Task<bool> SessionReportBeginPlayingItem(Guid itemId)
+        {
+            return false;
+        }
+
+        // DELETE
+        // ​/Users​/{userId}​/PlayingItems​/{itemId}
+        // Reports that a user has stopped playing an item.
+
+        // POST
+        // ​/Users​/{userId}​/PlayingItems​/{itemId}​/Progress
+        // Reports a user's playback progress.
+        public async Task<bool> SessionReportPlaybackProgress(Guid itemId)
+        {
+            return false;
+        }
+        #endregion
+
         public async Task<BaseMusicItem[]> SearchAsync(string _searchTerm, bool? sorted = false, int? searchLimit = 50)
         {
             if (String.IsNullOrWhiteSpace(_searchTerm))
