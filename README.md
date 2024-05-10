@@ -7,4 +7,14 @@ As for what needs to be done, currently my plan is to have the app be fully navi
 
 If you're interested in helping with this project, please feel free to! The less work I have to do, the better. Even more so if you're more experienced with some of the technologies going on here. I'm quite fresh to using .Net MAUI, and am very fresh to making mobile apps. Most of my work has either been for desktop or for web.
 
+Current milestones: 
+- Music playback with a controller is working (quite well too might I add)
+- Browsing, liking, searching is implemented well (although a bit of work could be done tidying the UI, it's not a priority)
+- UI/UX, I'm just personally kind of proud of this one, I think it's looking pretty sharp
+
+Working on: 
+- Finalization of media controller (looping and shuffle aren't there yet)
+- Better support for Android API's (Media Notification isn't working yet)
+- Downloading of songs and better caching of data 
+
 Thank you! 
