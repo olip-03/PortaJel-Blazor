@@ -11,6 +11,7 @@ If you're interested in helping with this project, please feel free to! The less
 
 Current milestones: 
 - Music playback with a controller is working (quite well too might I add)
+- Nasty Android API stuff is on track (music playing in a foreground service and listening events for when the system requests to pause and skip, etc..)
 - Browsing, liking, searching is implemented well (although a bit of work could be done tidying the UI, it's not a priority)
 - UI/UX, I'm just personally kind of proud of this one, I think it's looking pretty sharp
 
