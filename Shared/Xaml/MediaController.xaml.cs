@@ -281,6 +281,7 @@ public partial class MediaController : ContentView
         Btn_Previous.Opacity = btnInOpacity;
         Btn_Previous.Scale = btnInSize;
     }
+
     private async void Btn_Previous_Released(object sender, EventArgs e)
     {
         MauiProgram.MediaService.PreviousTrack();

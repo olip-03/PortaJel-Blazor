@@ -57,19 +57,6 @@ public partial class MainPage : ContentPage
 
         InitializeComponent();
         MauiProgram.MainPage = this;
-        #if ANDROID
-        btn_navnar_home.HeightRequest = 30;
-        btn_navnar_home.WidthRequest = 30;
-
-        btn_navnar_search.HeightRequest = 30;
-        btn_navnar_search.WidthRequest = 30;
-
-        btn_navnar_library.HeightRequest = 30;
-        btn_navnar_library.WidthRequest = 30;
-
-        btn_navnar_favourites.HeightRequest = 30;
-        btn_navnar_favourites.WidthRequest = 30;
-#endif
         // MauiProgram.webView = blazorWebView;
     }
 
@@ -386,19 +373,6 @@ public partial class MainPage : ContentPage
             btn_navnar_home.FadeTo(1, 250)
         );
         MauiProgram.WebView.NavigateHome();
-    }
-    private async void btn_navnar_search_click(object sender, EventArgs e)
-    {
-        ShowLoadingScreen(true);
-        btn_navnar_search.Scale = 0.6;
-        btn_navnar_search.Opacity = 0;
-        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-        await Task.WhenAll<bool>
-        (
-            btn_navnar_search.FadeTo(1, 250),
-            btn_navnar_search.ScaleTo(1, 250)
-        );
-        MauiProgram.WebView.NavigateSearch();
     }
     private async void btn_navnar_library_click(object sender, EventArgs e)
     {

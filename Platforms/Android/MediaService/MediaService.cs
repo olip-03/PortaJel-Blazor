@@ -41,7 +41,9 @@ namespace PortaJel_Blazor.Classes.Services
             if(Application.Current != null)
             {
                 DispatcherTimer = Application.Current.Dispatcher.CreateTimer();
+
                 DispatcherTimer.Interval = TimeSpan.FromSeconds(0.25);
+                DispatcherTimer.IsRepeating = true;
                 DispatcherTimer.Tick += (s, e) => UpdatePlaystateUi();
                 DispatcherTimer.Start();
             }
@@ -69,17 +71,13 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
-        private async void UpdatePlaystateUi()
+        private void UpdatePlaystateUi()
         {
             PlaybackInfo? timeInfo = GetPlaybackTimeInfo();
-
-            await Task.Run(() =>
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
-                    MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
-                });
+                MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
+                MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
             });
         }
        

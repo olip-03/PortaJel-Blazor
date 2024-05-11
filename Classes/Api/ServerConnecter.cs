@@ -899,7 +899,8 @@ namespace PortaJel_Blazor.Classes
             if(_playstateClient != null)
             {
                 PlaybackStartInfo playbackStartInfo = new PlaybackStartInfo();
-                await _playstateClient.ReportPlaybackStartAsync();
+                await _playstateClient.ReportPlaybackStartAsync(body: playbackStartInfo);
+                return true;
             }
             return false;
         }
@@ -907,8 +908,13 @@ namespace PortaJel_Blazor.Classes
         // POST
         // ​/Sessions​/Playing​/Ping
         // Pings a playback session.
-        public async Task<bool> SessionReportPing()
+        public async Task<bool> SessionReportPing(string playSessionId)
         {
+            if (_playstateClient != null)
+            {
+                await _playstateClient.PingPlaybackSessionAsync(playSessionId);
+                return true;
+            }
             return false;
         }
 
@@ -917,6 +923,12 @@ namespace PortaJel_Blazor.Classes
         // Reports playback progress within a session.
         public async Task<bool> SessionReportProgress()
         {
+            if (_playstateClient != null)
+            {
+                PlaybackProgressInfo playbackProgressInfo = new();
+                await _playstateClient.ReportPlaybackProgressAsync(body: playbackProgressInfo);
+                return true;
+            }
             return false;
         }
 
@@ -925,6 +937,12 @@ namespace PortaJel_Blazor.Classes
         // Reports playback has stopped within a session.
         public async Task<bool> SessionReportStopped()
         {
+            if (_playstateClient != null)
+            {
+                PlaybackStopInfo playbackStopInfo = new();
+                await _playstateClient.ReportPlaybackStoppedAsync(playbackStopInfo);
+                return true;
+            }
             return false;
         }
 
@@ -933,6 +951,12 @@ namespace PortaJel_Blazor.Classes
         // Marks an item as played for user.
         public async Task<bool> SessionReportUpdatePlayedItem(Guid itemId)
         {
+            if (_playstateClient != null && userDto != null)
+            {
+                PlaybackStopInfo playbackStopInfo = new();
+                await _playstateClient.MarkPlayedItemAsync(userDto.Id, itemId);
+                return true;
+            }
             return false;
         }
 
@@ -945,6 +969,12 @@ namespace PortaJel_Blazor.Classes
         // Reports that a user has begun playing an item.
         public async Task<bool> SessionReportBeginPlayingItem(Guid itemId)
         {
+            if (_playstateClient != null && userDto != null)
+            {
+                PlaybackStopInfo playbackStopInfo = new();
+                await _playstateClient.MarkUnplayedItemAsync(userDto.Id, itemId);
+                return true;
+            }
             return false;
         }
 
@@ -957,6 +987,12 @@ namespace PortaJel_Blazor.Classes
         // Reports a user's playback progress.
         public async Task<bool> SessionReportPlaybackProgress(Guid itemId)
         {
+            if (_playstateClient != null && userDto != null)
+            {
+                PlaybackProgressInfo playbackProgressInfo = new();
+                await _playstateClient.ReportPlaybackProgressAsync(body: playbackProgressInfo);
+                return true;
+            }
             return false;
         }
         #endregion

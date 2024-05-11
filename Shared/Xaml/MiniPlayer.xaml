@@ -66,8 +66,9 @@
                                  Released="Btn_FavToggle_Released" 
                                  Clicked="Btn_FavToggle_Clicked" 
                                  Aspect="AspectFit" 
-                                 WidthRequest="40" 
-                                 HeightRequest="40" 
+                                 WidthRequest="30" 
+                                 HeightRequest="30" 
+                                 Margin="2.5"
                                  Source="{Binding FavButtonSource}" 
                                  HorizontalOptions="End">
                         <ImageButton.Behaviors>
@@ -82,8 +83,9 @@
                                  Released="Btn_PlayToggle_Released" 
                                  Clicked="Btn_PlayToggle_Clicked" 
                                  Aspect="AspectFill" 
-                                 WidthRequest="40" 
-                                 HeightRequest="40" 
+                                 WidthRequest="30" 
+                                 HeightRequest="30" 
+                                 Margin="2.5"
                                  Source="{Binding PlayButtonSource}" 
                                  HorizontalOptions="End"/>
                 </HorizontalStackLayout>

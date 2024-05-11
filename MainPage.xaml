@@ -35,30 +35,39 @@
 
             <!-- Navigation Buttons -->
             <FlexLayout HeightRequest="60" HorizontalOptions="Fill" VerticalOptions="EndAndExpand" JustifyContent="SpaceEvenly" AlignItems="Center">
-                <ImageButton x:Name="btn_navnar_home" 
+                <StackLayout>
+                    <ImageButton x:Name="btn_navnar_home" 
                              Source="{StaticResource HomeButtonImage}" 
                              Background="Transparent" BorderColor="Transparent"
-                             WidthRequest="80" MinimumWidthRequest="40" 
-                             HeightRequest="40" 
+                             HorizontalOptions="Center"
+                             WidthRequest="30" MinimumWidthRequest="30" 
+                             HeightRequest="30" 
                              Pressed="btn_navnar_home_Pressed" Released="btn_navnar_home_Released" Clicked="btn_navnar_home_click"/>
-                <ImageButton x:Name="btn_navnar_search" 
-                             Source="{StaticResource SearchButtonImage}" 
-                             Background="Transparent" BorderColor="Transparent"
-                             WidthRequest="80" MinimumWidthRequest="40" 
-                             HeightRequest="40" 
-                             Clicked="btn_navnar_search_click"/>
-                <ImageButton x:Name="btn_navnar_library" 
+                    <Label FontSize="12" HorizontalOptions="Center">Discover</Label>
+                </StackLayout>
+
+                <StackLayout>
+                    <ImageButton x:Name="btn_navnar_library" 
                              Source="{StaticResource LibraryButtonImage}" 
                              Background="Transparent" BorderColor="Transparent"
-                             WidthRequest="80" MinimumWidthRequest="40" 
-                             HeightRequest="40" 
+                             HorizontalOptions="Center"
+                             WidthRequest="30" MinimumWidthRequest="30" 
+                             HeightRequest="30" 
                              Clicked="btn_navnar_library_click"/>
-                <ImageButton x:Name="btn_navnar_favourites" 
+                    <Label FontSize="12" HorizontalOptions="Center">Library</Label>
+                </StackLayout>
+
+                <StackLayout>
+                    <ImageButton x:Name="btn_navnar_favourites" 
                              Source="{StaticResource FavButtonImage}" 
                              Background="Transparent" BorderColor="Transparent"
-                             WidthRequest="80" MinimumWidthRequest="40" 
-                             HeightRequest="40" 
+                             HorizontalOptions="Center"
+                             WidthRequest="30" MinimumWidthRequest="30" 
+                             HeightRequest="30" 
                              Clicked="btn_navnar_favourite_click"/>
+                    <Label FontSize="12" HorizontalOptions="Center">Favourites</Label>
+                </StackLayout>
+
             </FlexLayout>
 
             <!-- LAYOUT -->

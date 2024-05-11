@@ -15,6 +15,10 @@ public partial class MiniPlayer : ContentView
     private Guid lastUpdateTrackId = Guid.Empty;
     private Guid currentPlayingId = Guid.Empty;
 
+    private double btnInOpacity = 0.5;
+    private double btnInSize = 0.8;
+    private uint btnAnimSpeedMs = 400;
+
     public MiniPlayer()
 	{
 		InitializeComponent();
@@ -214,6 +218,7 @@ public partial class MiniPlayer : ContentView
 
     private void MiniPlayer_Clicked(object sender, TappedEventArgs e)
     {
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         MauiProgram.MainPage.MainMediaController.Open();
     }
 
@@ -224,21 +229,42 @@ public partial class MiniPlayer : ContentView
 
     private void Btn_PlayToggle_Clicked(object sender, EventArgs e)
     {
-        MauiProgram.MediaService.TogglePlay();
 
-        UpdatePlayButton();
-        MauiProgram.MainPage.MainMediaController.UpdatePlayButton();
     }
 
     private void Btn_PlayToggle_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-        Btn_PlayToggle.Opacity = 0.8;
+        Btn_PlayToggle.Opacity = btnInOpacity;
+        Btn_PlayToggle.Scale = btnInSize;
+
+        if (MauiProgram.MediaService.GetIsPlaying() && App.Current != null)
+        {
+            var hasSource = App.Current.Resources.TryGetValue("InversePlayIcon", out object imageSource);
+            if (hasSource)
+            {
+                ViewModel.PlayButtonSource = (string)imageSource;
+            }
+        }
+        else if (App.Current != null)
+        {
+            var hasSource = App.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
+            if (hasSource)
+            {
+                ViewModel.PlayButtonSource = (string)imageSource;
+            }
+        }
     }
 
     private async void Btn_PlayToggle_Released(object sender, EventArgs e)
     {
-        await Btn_PlayToggle.FadeTo(1, 400, Easing.SinOut);
+        MauiProgram.MediaService.TogglePlay();
+
+        UpdatePlayButton();
+        MauiProgram.MainPage.MainMediaController.UpdatePlayButton();
+        await Task.WhenAll(
+            Btn_PlayToggle.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
+            Btn_PlayToggle.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
     }
 
     private void Btn_FavToggle_Clicked(object sender, EventArgs e)
@@ -252,7 +278,8 @@ public partial class MiniPlayer : ContentView
     private void Btn_FavToggle_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-        Btn_FavToggle.Opacity = 0.8;
+        Btn_FavToggle.Opacity = btnInOpacity;
+        Btn_FavToggle.Scale = btnInSize;
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)

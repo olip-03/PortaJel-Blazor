@@ -149,3 +149,15 @@ img:after {
     position: relative;
     animation: shimmer 1.5s infinite linear;
 }
+
+.searchBar {
+    margin-top: 1rem;
+    width: 100%;
+    border: 0px solid #555;
+    height: 2.3rem;
+    border-radius: 0.3rem;
+    outline: none;
+    padding-left: 25px;
+    background: url("https://static.thenounproject.com/png/101791-200.png") no-repeat left;
+    background-size: 20px;
+}

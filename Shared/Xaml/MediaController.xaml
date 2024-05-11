@@ -83,7 +83,7 @@
                                            Source="{Binding image.sourceAtResolution}" 
                                            Aspect="Fill" 
                                            WidthRequest="350" 
-                       HeightRequest="350"/>
+                                           HeightRequest="350"/>
                                 </Border>
 
                                 <!-- Labels for song title and artist-->
@@ -110,14 +110,14 @@
                 </CarouselView>
 
                 <!-- Playback controls -->
-                <Grid Grid.Row="2">
+                <Grid Grid.Row="2" WidthRequest="350" VerticalOptions="FillAndExpand">
                     <!-- Slider and timestamps -->
-                    <StackLayout Margin="10, 0, 10, 0" 
+                    <StackLayout Margin="0, 0, 0, 0" 
                                  VerticalOptions="Start">
                         <Slider x:Name="DurationSlider" 
+                                WidthRequest="350"
                                 Maximum="{Binding PlaybackMaximum}" 
                                 Value="{Binding PlaybackValue}" 
-                                Margin="0" 
                                 ThumbColor="{StaticResource PrimaryColor}"
                                 MinimumTrackColor="{StaticResource PrimaryColor}"
                                 MaximumTrackColor="{StaticResource PageSecondaryColor}" 
@@ -126,7 +126,7 @@
                                 ValueChanged="DurationSlider_ValueChanged"
                                 DragStarted="DurationSlider_DragStarted"
                                 DragCompleted="DurationSlider_DragCompleted" />
-                        <FlexLayout Margin="20, 0, 20, 0" 
+                        <FlexLayout Margin="0, 0, 0, 0" 
                                     JustifyContent="SpaceBetween" >
                             <Label x:Name="Player_DurationSlider_Lbl_PositionTxt" 
                                        TextColor="{StaticResource PrimaryTextColor}" 
@@ -139,11 +139,11 @@
 
                     <StackLayout VerticalOptions="Center">
                         <FlexLayout JustifyContent="SpaceBetween" 
-                                    AlignItems="Center" 
-                                    Margin="20">
+                                    VerticalOptions="Center"
+                                    AlignItems="Center" >
                             <!-- Repeat Button -->
                             <ImageButton x:Name="Btn_Repeat" 
-                                             HeightRequest="40" WidthRequest="40" 
+                                             HeightRequest="30" WidthRequest="30" 
                                              BackgroundColor="Transparent" 
                                              Source="{StaticResource RepeatOffIcon}" 
                                              Pressed="Btn_Repeat_Pressed"
@@ -164,7 +164,7 @@
                                  Aspect="AspectFit" 
                                  VerticalOptions="Center" HorizontalOptions="Center" 
                                  BackgroundColor="Transparent" 
-                                 HeightRequest="50" WidthRequest="50" 
+                                 HeightRequest="40" WidthRequest="40" 
                                  Source="{Binding PlayButtonSource}"
                                  Pressed="Btn_PlayToggle_Pressed"
                                  Released="Btn_PlayToggle_Released"/>
@@ -178,35 +178,35 @@
                              Released="Btn_Next_Released"></ImageButton>
                             <!-- Shuffle Button -->
                             <ImageButton x:Name="Btn_Shuffle"
-                             HeightRequest="40" WidthRequest="40" 
+                             HeightRequest="30" WidthRequest="30" 
                              BackgroundColor="Transparent" 
                              Source="{StaticResource ShuffleIcon}" 
                              Pressed="Btn_Shuffle_Pressed"
                              Released="Btn_Shuffle_Released"></ImageButton>
                         </FlexLayout>
+                    </StackLayout>
 
-                        <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
-                            <!-- Favourite Button -->
-                            <ImageButton x:Name="Btn_FavToggle" 
+                    <FlexLayout JustifyContent="SpaceBetween" VerticalOptions="End" AlignItems="Center">
+                        <!-- Favourite Button -->
+                        <ImageButton x:Name="Btn_FavToggle" 
                                          Source="{Binding FavButtonSource}" 
-                                         HeightRequest="40" 
-                                         WidthRequest="40" 
+                                         HeightRequest="30" 
+                                         WidthRequest="30" 
                                          BackgroundColor="Transparent" 
                                          Pressed="Btn_FavToggle_Pressed" 
                                          Released="Btn_FavToggle_Released">
-                                <ImageButton.Behaviors>
-                                    <toolkit:IconTintColorBehavior x:Name="Btn_FavToggle_TintColor" TintColor="{Binding FavButtonColor}" />
-                                </ImageButton.Behaviors>
-                            </ImageButton>
-                            <!-- Queue Button -->
-                            <ImageButton x:Name="Btn_ShowQueue" 
+                            <ImageButton.Behaviors>
+                                <toolkit:IconTintColorBehavior x:Name="Btn_FavToggle_TintColor" TintColor="{Binding FavButtonColor}" />
+                            </ImageButton.Behaviors>
+                        </ImageButton>
+                        <!-- Queue Button -->
+                        <ImageButton x:Name="Btn_ShowQueue" 
                                          Source="{StaticResource QueueIcon}" 
-                                         HeightRequest="40" 
-                                         WidthRequest="40" 
+                                         HeightRequest="30" 
+                                         WidthRequest="30" 
                                          BackgroundColor="Transparent" 
                                          Clicked="Btn_ShowQueue_Clicked"></ImageButton>
-                        </FlexLayout>
-                    </StackLayout>
+                    </FlexLayout>
                 </Grid>
 
                 <Grid.RowDefinitions>
