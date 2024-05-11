@@ -3,6 +3,7 @@ let wScrollPrev = window.scrollY || document.documentElement.scrollTop;
 
 window.addEventListener('scroll', function () {
     let toolbar = document.getElementById("mainLayoutToolbar");
+    let libToolbar = this.document.getElementById("libraryToolbar");
     if (toolbar) {
         let wScrollCurrent = window.scrollY || document.documentElement.scrollTop;
         let wScrollDiff = parseFloat(wScrollPrev) - parseFloat(wScrollCurrent);
@@ -30,6 +31,12 @@ window.addEventListener('scroll', function () {
             else {
                 toolbar.style.top = (toolbarTop + wScrollDiff) + 'px';
             }
+        }
+
+        if (libToolbar)
+        {
+            var height = toolbar.offsetHeight;
+            libToolbar.style.top = parseFloat(toolbar.style.top) + height + 'px';
         }
 
         wScrollPrev = wScrollCurrent;

@@ -5,9 +5,7 @@
 @using BlazorAnimate;
 @inject IJSRuntime JS;
 
-<hr />
-
-<div class="button-container boxed PageBackgroundColor">
+<div id="libraryToolbar" class="button-container boxed PageSecondaryColor">
     @if (selected == Selectable.playlists)
     {
         <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
@@ -123,44 +121,46 @@
     </style>
 }
 
-@* Load actual items *@
-@if (isLoading)
-{ // Spinner
-    <div class="album-list">
+<div class="album-list">
+    @if (isLoading)
+    { // Spinner
         <Spinner />
-    </div>
-}
-else
-{
-    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-        <div class="album-list">
-            @if (data.Count() > 0)
-            { // Load information
-                @for (int i = 0; i < data.Count(); i++)
-                {
-                    if (data[i] != null)
+
+    }
+    else
+    {
+        <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+            <div class="album-list">
+                @if (data.Count() > 0)
+                { // Load information
+                    @for (int i = 0; i < data.Count(); i++)
                     {
-                        string base64 = string.Empty;
-                        try { base64 = placeholderImages[i]; }
-                        catch (Exception) { base64 = string.Empty; }
-                        if (i == lastAmount)
+                        if (data[i] != null)
                         {
-                            <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
-                        }
-                        else
-                        {
-                            <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" />
+                            string base64 = string.Empty;
+                            try { base64 = placeholderImages[i]; }
+                            catch (Exception) { base64 = string.Empty; }
+                            if (i == lastAmount)
+                            {
+                                <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
+                            }
+                            else
+                            {
+                                <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" />
+                            }
                         }
                     }
                 }
-            }
-            else
-            { // something went wrong click here to try again
+                else
+                { // something went wrong click here to try again
 
-            }
-        </div>
-    </Animate>
-}
+                }
+            </div>
+        </Animate>
+    }
+</div>
+
+
 
 @code {
     [Parameter] public string showFavourites { get; set; } = "false";

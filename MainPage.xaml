@@ -54,7 +54,7 @@
                              WidthRequest="30" MinimumWidthRequest="30" 
                              HeightRequest="30" 
                              Clicked="btn_navnar_library_click"/>
-                    <Label FontSize="12" HorizontalOptions="Center">Library</Label>
+                    <Label FontSize="12" HorizontalOptions="Center">Catalogue</Label>
                 </StackLayout>
 
                 <StackLayout>

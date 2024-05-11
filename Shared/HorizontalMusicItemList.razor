@@ -16,6 +16,10 @@
     <div class="horizScroll-scrollmenu">
         @for (int i = 0; i < itemCount; i++)
         {
+            bool isFirst = false;
+            bool isLast = false;
+            if(i == 0) { isFirst = true; }
+            if (i == itemCount) { isLast = true; }
             if (albumData != null && albumData.Count() >= itemCount)
             {
                 BaseMusicItem showRecord = albumData[i];

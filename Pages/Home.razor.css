@@ -5,6 +5,7 @@
     gap: 0.45rem;
     list-style: none;
     padding: 0;
+    margin: 0 1rem 0 1rem;
 }
 
 /* CSS for each list item */
@@ -151,13 +152,12 @@ img:after {
 }
 
 .searchBar {
-    margin-top: 1rem;
-    width: 100%;
+    margin: 1rem 1rem 0 1rem;
+    width: calc(100vw - 2rem);
+    padding-left: 1rem;
     border: 0px solid #555;
     height: 2.3rem;
     border-radius: 0.3rem;
     outline: none;
-    padding-left: 25px;
-    background: url("https://static.thenounproject.com/png/101791-200.png") no-repeat left;
-    background-size: 20px;
+    background-size: 1.5rem;
 }
