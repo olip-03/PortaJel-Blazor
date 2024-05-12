@@ -107,7 +107,7 @@
                 </div>
                 forcount++;
             }
-            <hr />
+@*             <hr />
             <h2>Recommended Artists</h2>
             <div class="recommended-artists">
                 
@@ -120,7 +120,7 @@
                         </div>
                     }
                 </div>
-            </div> 
+            </div>  *@
         }
         @errormessage
     </Animate>
@@ -179,8 +179,9 @@
                 base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
             }
 
-            GnodService reccomendations = new();
-            similarArtists = await reccomendations.QueryGnod(album.artists.FirstOrDefault().name);
+            // TODO: Add this as an API in the plugin, not in the app itself 
+            // GnodService reccomendations = new();
+            // similarArtists = await reccomendations.QueryGnod(album.artists.FirstOrDefault().name);
         }
         catch (Exception ex)
         {

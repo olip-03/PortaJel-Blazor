@@ -11,9 +11,8 @@
         <img src="@backgroundImgUrl" class="header-background album-cover-img" />
     </div>
 
-    <button class="GoBackButton" @onclick=GoBack>
-        <img src="/images/back.svg" class="">
-    </button>
+    <img class="GoBackButton" src="/images/back.svg" @onclick=GoBack>
+
 
     <div class="header-nameContainer" @onclick=GoToArtist>
         @if (baseMusicItem != null)

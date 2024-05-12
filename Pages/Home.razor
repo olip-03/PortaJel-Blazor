@@ -11,28 +11,32 @@
 { // Search results (if queried)
     @if (waitingForResult)
     {
-        <Spinner></Spinner>
+        <div style="margin-left: auto; margin-right: auto;">
+            <Spinner></Spinner>
+        </div>
     }
     else if (searchResults.Count() > 0)
     {
-        for (int i = 0; i < searchResults.Length; i++)
-        {
-            BaseMusicItem musicItem = searchResults[i];
-            string placeholderImg = placeholderImages[i];
-
-            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                <SearchResultItem musicObject="@musicItem" cacheAsRecentItem=true placeholderBase64="@placeholderImg" />
-            </Animate>
-
-            if (i <= 6)
+        <div class="music-list">
+            @for (int i = 0; i < searchResults.Length; i++)
             {
-                itemFadeInDelay += 0.05f;
+                BaseMusicItem musicItem = searchResults[i];
+                string placeholderImg = placeholderImages[i];
+
+                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                    <SearchResultItem musicObject="@musicItem" cacheAsRecentItem=true placeholderBase64="@placeholderImg" />
+                </Animate>
+
+                if (i <= 6)
+                {
+                    itemFadeInDelay += 0.05f;
+                }
+                else
+                {
+                    itemFadeInDelay = 0;
+                }
             }
-            else
-            {
-                itemFadeInDelay = 0;
-            }
-        }
+        </div>
     }
     else if (searchResults.Count() <= 0 && !String.IsNullOrWhiteSpace(searchQuery))
     {

@@ -130,32 +130,30 @@
     else
     {
         <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-            <div class="album-list">
-                @if (data.Count() > 0)
-                { // Load information
-                    @for (int i = 0; i < data.Count(); i++)
+            @if (data.Count() > 0)
+            { // Load information
+                @for (int i = 0; i < data.Count(); i++)
+                {
+                    if (data[i] != null)
                     {
-                        if (data[i] != null)
+                        string base64 = string.Empty;
+                        try { base64 = placeholderImages[i]; }
+                        catch (Exception) { base64 = string.Empty; }
+                        if (i == lastAmount)
                         {
-                            string base64 = string.Empty;
-                            try { base64 = placeholderImages[i]; }
-                            catch (Exception) { base64 = string.Empty; }
-                            if (i == lastAmount)
-                            {
-                                <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
-                            }
-                            else
-                            {
-                                <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" />
-                            }
+                            <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
+                        }
+                        else
+                        {
+                            <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" />
                         }
                     }
                 }
-                else
-                { // something went wrong click here to try again
+            }
+            else
+            { // something went wrong click here to try again
 
-                }
-            </div>
+            }
         </Animate>
     }
 </div>

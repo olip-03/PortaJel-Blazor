@@ -30,21 +30,26 @@
                      HeightRequest="40" 
                      Source="{StaticResource ArrowDownIcon}" 
                      Grid.Column="0" />
-
                     <!-- Media Information -->
                     <StackLayout Grid.Column="1" 
                                  VerticalOptions="Center" 
                                  IsVisible="True">
                         <Label x:Name="Player_Lbl_PlayingFromType" 
-                               Text="Playing from Album" 
+                               Text="{Binding PlayingFromCollectionTitle}" 
                                TextColor="{StaticResource PrimaryTextColor}" 
                                FontSize="16" 
                                HorizontalOptions="Center"/>
                         <Label x:Name="Player_Lbl_PlayingFromText" 
-                               Text="Album Name" 
-                               TextColor="{StaticResource PrimaryTextColor}" 
+                               Text="{Binding PlayingFromTitle}" 
+                               TextColor="{StaticResource SecondaryTextColor}" 
                                FontSize="14" 
+                               MaxLines="2"
+                               HorizontalTextAlignment="Center"
+                               LineBreakMode="TailTruncation"
                                HorizontalOptions="Center"/>
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="CollectionLabel_Clicked"/>
+                        </StackLayout.GestureRecognizers>
                     </StackLayout>
 
                     <!-- Context Menu Button -->
@@ -94,15 +99,21 @@
                                            VerticalTextAlignment="Center"
                                            Text="{Binding name}" 
                                            FontSize="24" 
+                                           MaxLines="2"
+                                           LineBreakMode="TailTruncation"
                                            HorizontalOptions="Center" 
-                                           MaximumWidthRequest="350"/>
+                                           MaximumWidthRequest="350">
+                                    </Label>
                                     <Label x:Name="ImgCarousel_ArtistTitle" 
                                            TextColor="{StaticResource SecondaryTextColor}" 
                                            HorizontalTextAlignment="Center" 
                                            Text="{Binding artistCongregate}" 
                                            FontSize="18" 
+                                           MaxLines="2"
+                                           LineBreakMode="TailTruncation"
                                            HorizontalOptions="Center" 
-                                           MaximumWidthRequest="350"/>
+                                           MaximumWidthRequest="350">
+                                    </Label>
                                 </StackLayout>
                             </StackLayout>
                         </DataTemplate>

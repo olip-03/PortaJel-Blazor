@@ -45,6 +45,7 @@ namespace PortaJel_Blazor.Classes
             set => SetValue(PlaybackMaximumTimeValueProperty, value);
         }
 
+        // Represents the play button source image
         public static readonly BindableProperty PlayButtonSourceProperty = BindableProperty.Create(nameof(PlayButtonSource), typeof(string), typeof(MediaControllerViewModel), default(string));
         public string? PlayButtonSource
         {
@@ -52,6 +53,7 @@ namespace PortaJel_Blazor.Classes
             set => SetValue(PlayButtonSourceProperty, value);
         }
 
+        // Represents the favourite button source image
         public static readonly BindableProperty FavButtonSourceProperty = BindableProperty.Create(nameof(FavButtonSource), typeof(string), typeof(MediaControllerViewModel), default(string));
         public string? FavButtonSource
         {
@@ -59,11 +61,26 @@ namespace PortaJel_Blazor.Classes
             set => SetValue(FavButtonSourceProperty, value);
         }
 
+        // Represents the fav button image color
         public static readonly BindableProperty FavButtonColorProperty = BindableProperty.Create(nameof(FavButtonColor), typeof(Color), typeof(MediaControllerViewModel), default(Color));
         public Color? FavButtonColor
         {
             get => (Color?)GetValue(FavButtonColorProperty);
             set => SetValue(FavButtonColorProperty, value);
+        }
+
+        public static readonly BindableProperty PlayingFromCollectionTitleProperty = BindableProperty.Create(nameof(PlayingFromCollectionTitle), typeof(string), typeof(MediaControllerViewModel), default(string));
+        public string? PlayingFromCollectionTitle
+        {
+            get => (string?)GetValue(PlayingFromCollectionTitleProperty);
+            set => SetValue(PlayingFromCollectionTitleProperty, value);
+        }
+
+        public static readonly BindableProperty PlayingFromTitleProperty = BindableProperty.Create(nameof(PlayingFromTitle), typeof(string), typeof(MediaControllerViewModel), default(string));
+        public string? PlayingFromTitle
+        {
+            get => (string?)GetValue(PlayingFromTitleProperty);
+            set => SetValue(PlayingFromTitleProperty, value);
         }
     }
 }

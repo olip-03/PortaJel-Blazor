@@ -98,6 +98,14 @@ public partial class MediaController : ContentView
             }
         }
 
+        BaseMusicItem? playingCollection = MauiProgram.MediaService.GetCurrentlyPlaying().album;
+        if(playingCollection != null)
+        {
+            string type = playingCollection.GetType().Name;
+            ViewModel.PlayingFromCollectionTitle = "Playing from " + type;
+            ViewModel.PlayingFromTitle = playingCollection.name;
+        }
+
         // Update Play Button
         UpdatePlayButton();
 
@@ -470,5 +478,19 @@ public partial class MediaController : ContentView
     private void Queue_Btn_ContextMenu_Clicked(object sender, EventArgs e)
     {
 
+    }
+
+    private void CollectionLabel_Clicked(object sender, EventArgs e)
+    {
+        Album? album = MauiProgram.MediaService.GetCurrentlyPlaying().album;
+        if(album != null)
+        {
+            Guid? itemId = album.id;
+            if(itemId != null)
+            {
+                MauiProgram.WebView.NavigateAlbum((Guid)itemId);
+                Close();
+            }
+        }
     }
 }
