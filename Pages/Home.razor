@@ -24,7 +24,7 @@
                 string placeholderImg = placeholderImages[i];
 
                 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                    <SearchResultItem musicObject="@musicItem" cacheAsRecentItem=true placeholderBase64="@placeholderImg" />
+                    <SearchResultItem musicObject="@musicItem" cacheAsRecentItem=true placeholderBase64="@placeholderImg" isGrid="false"/>
                 </Animate>
 
                 if (i <= 6)
@@ -107,6 +107,14 @@ else
     private float itemFadeInDelay = 0;
 
     private bool isSearching = false;
+    public string searchQuery { get; set; } = String.Empty;
+    private string queudQuery = String.Empty;
+    private bool queryQueued = false;
+    BaseMusicItem[] searchResults = new BaseMusicItem[0];
+    string[] placeholderImages = new string[0];
+
+    private bool waitingForResult = false;
+    private bool isSearchLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -125,6 +133,13 @@ else
 
         await Task.Run(() => LoadApi());
         MauiProgram.MainPage.SetNavbarVisibility(true);
+    }
+
+    protected override void OnParametersSet()
+    {
+        searchQuery = string.Empty;
+        OnInitialized();
+        StateHasChanged();
     }
 
     private async Task LoadApi()
@@ -228,14 +243,7 @@ else
         }
     }
 
-    public string searchQuery { get; set; } = String.Empty;
-    private string queudQuery = String.Empty;
-    private bool queryQueued = false;
-    BaseMusicItem[] searchResults = new BaseMusicItem[0];
-    string[] placeholderImages = new string[0];
 
-    private bool waitingForResult = false;
-    private bool isSearchLoading = true;
 
     private async void SearchTextChange(string? searchFor)
     {

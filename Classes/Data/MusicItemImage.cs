@@ -1,5 +1,6 @@
 ﻿using Blurhash;
 using Jellyfin.Sdk;
+using Jellyfin.Sdk.Generated.Models;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;

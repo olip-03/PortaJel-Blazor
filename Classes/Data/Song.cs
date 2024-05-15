@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Jellyfin.Sdk;
+using Jellyfin.Sdk.Generated.Models;
 namespace PortaJel_Blazor.Data
 {
     /// <summary>
@@ -46,13 +47,17 @@ namespace PortaJel_Blazor.Data
 
         #region Constructors
         public static readonly Song Empty = new(setGuid: Guid.Empty, setName: String.Empty);
-        public Song(Guid setGuid, string setName, string? setPlaylistId = null, string? setServerId = null, Guid[]? setArtistIds = null, Guid? setAlbumID = null, string? setStreamUrl = null, int? setDiskNum = 0, long? setDuration = 0, bool setIsFavourite = false, string? setFileLocation = null, bool setIsDownloaded = false)
+        public Song(Guid? setGuid, string? setName, string? setPlaylistId = null, string? setServerId = null, Guid[]? setArtistIds = null, Guid? setAlbumID = null, string? setStreamUrl = null, int? setDiskNum = 0, long? setDuration = 0, bool? setIsFavourite = false, string? setFileLocation = null, bool? setIsDownloaded = false)
         {
             // Required variables
-            id = setGuid;
-            name = setName;
-
-            // Rest of em
+            if(setGuid != null)
+            {
+                id = (Guid)setGuid;
+            }
+            if(setName != null)
+            {
+                name = setName;
+            }
             if (setArtistIds != null)
             { //Set Artists
                 List<Artist> newArtistsIDs = new();
@@ -90,8 +95,14 @@ namespace PortaJel_Blazor.Data
             { //Set File Location
                 fileLocation = setFileLocation;
             }
-            isFavourite = setIsFavourite;
-            isDownloaded = setIsDownloaded;
+            if(setIsFavourite != null)
+            {
+                isFavourite = (bool)setIsFavourite;
+            }
+            if(setIsDownloaded != null)
+            {
+                isDownloaded = (bool)setIsDownloaded;
+            }
         }
         #endregion
 

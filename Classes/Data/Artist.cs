@@ -1,4 +1,5 @@
 ﻿using Jellyfin.Sdk;
+using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
 using System.Collections.Generic;
