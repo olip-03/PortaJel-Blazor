@@ -1,4 +1,5 @@
 ﻿using Jellyfin.Sdk;
+using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Data;
 using System;
 using System.Collections.Generic;
@@ -78,7 +79,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="sortOrder">The sort order for the albums.</param>
         /// <returns>Album[] (Album array) containing all albums as requested from all servers</returns>
-        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, IEnumerable<String>? sortTypes = null, SortOrder sortOrder = SortOrder.Descending)
+        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, ItemSortBy[]? sortTypes = null, SortOrder sortOrder = SortOrder.Descending)
         {
             List<Album> albumsReturn = new List<Album>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
@@ -119,7 +120,7 @@ namespace PortaJel_Blazor.Classes
         {
             List<Artist> artistsReturn = new List<Artist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                artistsReturn.AddRange(await server.Value.GetAllArtistsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite, cancellationToken: cancellationToken));
+                artistsReturn.AddRange(await server.Value.GetAllArtistsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite));
             });
             // artistsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
 
@@ -153,7 +154,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="sortOrder">The sort order for the retrieved songs. Default is descending.</param>
         /// <returns>An array of songs.</returns>
-        public async Task<Song[]> GetAllSongsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, IEnumerable<String>? sortTypes = null, SortOrder sortOrder = SortOrder.Descending)
+        public async Task<Song[]> GetAllSongsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, ItemSortBy[]? sortTypes = null, SortOrder[]? sortOrder = null)
         {
             List<Song> songsReturn = new List<Song>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {

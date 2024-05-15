@@ -90,8 +90,6 @@ public static class MauiProgram
     public static List<Artist> favouriteArtist = new();
     public static List<Song> favouriteSongs = new();
 
-    // Index page cached data
-
     public static MauiApp CreateMauiApp()
 	{
         Console.WriteLine("CreateMauiApp(): Beginning load data");
@@ -194,17 +192,14 @@ public static class MauiProgram
                         // LOAD CONNECTIONS
                         for (int i = 0; i < srvCount; i++)
                         {
-                            ServerConnecter serverConnector = new ServerConnecter();
 
                             string url = binReader.ReadString();
                             string user = binReader.ReadString();
                             string pass = binReader.ReadString();
 
-                            serverConnector.SetBaseAddress(url);
-                            serverConnector.SetUserDetails(user, pass);
-
                             MauiProgram.UpdateDebugMessage($"Loaded info for {url}");
 
+                            ServerConnecter serverConnector = new ServerConnecter(url, user, pass);
 
                             servers.Add(serverConnector);
                             api.AddServer(serverConnector);
@@ -228,7 +223,7 @@ public static class MauiProgram
             // server.isOffline = !await server.AuthenticateAddressAsync();
             if (!server.isOffline)
             {
-                bool UserPassed = await server.AuthenticateUserAsync();
+                bool UserPassed = await server.AuthenticateServerAsync();
                 if(UserPassed) 
                 {
                     MauiProgram.UpdateDebugMessage($"Successfully logged into {server}");

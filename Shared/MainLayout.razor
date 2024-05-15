@@ -28,7 +28,6 @@
                             </div>
                         </div>
                     }
-
                     @Body
                 </div>
                 <div style="height:120px;"></div>
@@ -80,6 +79,8 @@
 
     private bool showMusicPlayer { get; set; } = true;
 
+    public string currentUri = "/home";
+
     public CancellationToken cancellationToken;
     public CancellationTokenSource cancellationSource = new();
 
@@ -108,7 +109,7 @@
     {
         StateHasChanged();
     }
-    public string currentUri = "/";
+
     public string NavigateHome()
     {
         if (currentUri != "/home")
@@ -125,6 +126,7 @@
         }
         return currentUri;
     }
+
     public string NavigateLibrary()
     {
         if (currentUri != "/library/false")
@@ -141,6 +143,7 @@
         }
         return currentUri;
     }
+
     public string NavigateFavourites()
     {
         if (currentUri != "/library/true")
@@ -157,6 +160,7 @@
         }
         return currentUri;
     }
+
     public string NavigateSearch()
     {
         if (currentUri != "/search")
@@ -173,6 +177,7 @@
         }
         return currentUri;
     }
+
     public string NavigateSearch(string searchTerm)
     {
         if (currentUri != "/search")
@@ -189,6 +194,7 @@
         }
         return currentUri;
     }
+
     public string NavigateDownloads()
     {
         if (currentUri != "/downloads")
@@ -205,6 +211,7 @@
         }
         return currentUri;
     }
+
     public string NavigateSettings()
     {
         MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -223,6 +230,7 @@
         }
         return currentUri;
     }
+
     public string NavigateAlbum(Guid guid)
     {
         if (currentUri != $"/AlbumView/{guid}")
@@ -239,6 +247,7 @@
         }
         return currentUri;
     }
+
     public string NavigateArtist(Guid guid)
     {
         if (currentUri != $"/ArtistView/{guid}")
@@ -255,6 +264,7 @@
         }
         return currentUri;
     }
+
     public string NavigatePlaylist(Guid guid)
     {
         showHeader = false;
@@ -263,17 +273,5 @@
 
         NavManager.NavigateTo($"/PlaylistView/{guid}", forceLoad: true);
         return currentUri;
-    }
-    public void HeaderShowSearchbar()
-    {
-
-    }
-    public void HeaderSearchUpdateAction(Action updateAction)
-    {
-        
-    }
-    public void HeaderReset()
-    {
-
     }
 }

@@ -1,0 +1,74 @@
+﻿@using PortaJel_Blazor.Data;
+@using BlazorAnimate;
+@using PortaJel_Blazor.Classes.Services;
+@using PortaJel_Blazor.Shared;
+@using Blurhash;
+@namespace PortaJel_Blazor.Shared
+
+<div class="songContainer" @oncontextmenu="() => OpenContextMenu(song)">
+    <div @onclick="() => PlaySong(location)" style="width: 100%;">
+        <p class="PrimaryTextColor songTitle">@song.name</p>
+        <p class="SecondaryTextColor songArtistTitle">@song.artistCongregate</p>
+    </div>
+    <!-- Add like and context menu button -->
+    <div class="songitem-options">
+        @if (song.isFavourite)
+        {
+            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" @onclick="() => FavouriteSong(song.id)">
+                <svg class="playback-controls-btn-img favbtn mr-1 PrimaryColor" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 480 -120 L 422 -172 C 354.667 -232.667 299 -285 255 -329 C 211 -373 176 -412.5 150 -447.5 C 124 -482.5 105.833 -514.667 95.5 -544 C 85.167 -573.333 80 -603.333 80 -634 C 80 -696.667 101 -749 143 -791 C 185 -833 237.333 -854 300 -854 C 334.667 -854 367.667 -846.667 399 -832 C 430.333 -817.333 457.333 -796.667 480 -770 C 502.667 -796.667 529.667 -817.333 561 -832 C 592.333 -846.667 625.333 -854 660 -854 C 722.667 -854 775 -833 817 -791 C 859 -749 880 -696.667 880 -634 C 880 -603.333 874.833 -573.333 864.5 -544 C 854.167 -514.667 836 -482.5 810 -447.5 C 784 -412.5 749 -373 705 -329 C 661 -285 605.333 -232.667 538 -172 L 480 -120 Z M 480 -501 Z" fill="currentColor" transform="matrix(1, 0, 0, 1, 7.105427357601002e-15, 1.1368683772161603e-13)" />
+                </svg>
+            </Animate>
+        }
+        else
+        {
+            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" @onclick="() => FavouriteSong(song.id)">
+                <img class="playback-controls-btn-img mr-1" src="/images/heart.svg">
+            </Animate>
+        }
+        <img class="playback-controls-btn-img" src="/images/more-vert.svg" @onclick="() => OpenContextMenu(song)">
+    </div>
+</div>
+
+@code {
+    [Parameter] public Song song { get; set; } = Song.Empty;
+    [Parameter] public string base64BlurHash { get; set; } = string.Empty;
+    int location = -1;
+
+    private async void FavouriteSong(Guid songId)
+    {
+        song.isFavourite = !song.isFavourite;
+        StateHasChanged();
+        await Task.Run<bool>(() => MauiProgram.api.SetFavourite(song, song.isFavourite));
+    }
+
+    private async void OpenContextMenu(BaseMusicItem musicItem)
+    {
+        MauiProgram.MainPage.OpenContextMenu(musicItem, 250, base64BlurHash);
+        await Task.Run(() =>
+        {
+            // Literally just waiting for the fucking thing to close before we refresh
+            while (MauiProgram.MainPage.isContextMenuOpen == true)
+            {
+
+            }
+        });
+        StateHasChanged();
+    }
+
+    private void PlaySong(int songIndex)
+    { // Play selected song, and queue the rest of the album
+        if (song.album == null)
+        {
+            throw new InvalidOperationException($"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!");
+        }
+        MauiProgram.MediaService.SetPlayingCollection(song.album, songIndex);
+
+        MauiProgram.currentAlbumGuid = song.album.id;
+        // MauiProgram.currentSongGuid = album song at index;
+
+        MauiProgram.MainPage.RefreshPlayer();
+        MauiProgram.MediaService.Play();
+        StateHasChanged();
+    }
+}
