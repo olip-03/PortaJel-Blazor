@@ -70,9 +70,9 @@ namespace PortaJel_Blazor.Data
             Artist newArtist = new();
             newArtist.serverAddress = server;
             newArtist.name = baseItem.Name;
-            newArtist.id = baseItem.Id;
+            newArtist.id = (Guid)baseItem.Id;
             newArtist.description = baseItem.Overview;
-            newArtist.isFavourite = baseItem.UserData.IsFavorite;
+            newArtist.isFavourite = (bool)baseItem.UserData.IsFavorite;
             newArtist.image = MusicItemImage.Builder(baseItem, server);
             newArtist.isPartial = false;
 
@@ -90,7 +90,7 @@ namespace PortaJel_Blazor.Data
 
             Artist newArtist = new();
             newArtist.name = nameGuidPair.Name;
-            newArtist.id = nameGuidPair.Id;
+            newArtist.id = (Guid)nameGuidPair.Id;
             newArtist.serverAddress = server;
             newArtist.image = MusicItemImage.Builder(nameGuidPair, server);
             newArtist.isPartial = true;

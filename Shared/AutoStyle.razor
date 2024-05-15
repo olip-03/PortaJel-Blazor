@@ -5,6 +5,9 @@
         background-color: @pageBackgroundColor !important;
     }
 
+    .PageSecondaryBackgroundColor {
+        background-color: @pageSecondaryBackgroundColor !important;
+    }
     .PageSecondaryColor {
         background-color: #202020 !important;
     }
@@ -40,6 +43,7 @@
 
 @code {
     private string pageBackgroundColor = "#101010";
+    private string pageSecondaryBackgroundColor = "#1e1e1e";
     private string primaryColor = "white";
 
     protected override void OnInitialized()
@@ -49,6 +53,7 @@
 
     public void UpdateColors()
     {
+        // PageSecondaryBackgroundColor
         if(App.Current != null)
         {
             var hasPrimaryColor = App.Current.Resources.TryGetValue("PrimaryColor", out object outPrimaryColor);
@@ -56,6 +61,12 @@
             {
                 Color color = (Color)outPrimaryColor;
                 primaryColor = color.ToHex();
+            }
+            var hasSecondaryBackgroundColor = App.Current.Resources.TryGetValue("PageSecondaryBackgroundColor", out object outSecondaryBackgroundColor);
+            if (hasSecondaryBackgroundColor)
+            {
+                Color color = (Color)outSecondaryBackgroundColor;
+                pageSecondaryBackgroundColor = color.ToHex();
             }
             StateHasChanged();
         }

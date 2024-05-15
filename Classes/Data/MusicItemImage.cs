@@ -113,7 +113,7 @@ namespace PortaJel_Blazor.Data
                     imgType = "Backdrop";
                     if (baseItem.ImageBlurHashes.Backdrop != null)
                     { // Set backdrop img 
-                        string? hash = baseItem.ImageBlurHashes.Backdrop.FirstOrDefault().Value;
+                        string? hash = baseItem.ImageBlurHashes.Backdrop.AdditionalData.First().Value.ToString();
                         if (hash != null)
                         {
                             image.blurHash = hash;
@@ -121,7 +121,7 @@ namespace PortaJel_Blazor.Data
                     }
                     else if (baseItem.ImageBlurHashes.Primary != null)
                     { // if there is no backdrop, fall back to primary image
-                        string? hash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                        string? hash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
                         imgType = "Primary";
                         if (hash != null)
                         {
@@ -133,7 +133,7 @@ namespace PortaJel_Blazor.Data
                     imgType = "Logo";
                     if (baseItem.ImageBlurHashes.Logo != null)
                     {
-                        string? hash = baseItem.ImageBlurHashes.Logo.FirstOrDefault().Value;
+                        string? hash = baseItem.ImageBlurHashes.Logo.AdditionalData.First().Value.ToString();
                         if (hash != null)
                         {
                             image.blurHash = hash;
@@ -149,7 +149,7 @@ namespace PortaJel_Blazor.Data
                     imgType = "Primary";
                     if (baseItem.ImageBlurHashes.Primary != null)
                     {
-                        string? hash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                        string? hash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
                         if (hash != null)
                         {
                             image.blurHash = hash;
@@ -162,7 +162,7 @@ namespace PortaJel_Blazor.Data
                     break;
             }
 
-            if (baseItem.Type == BaseItemKind.MusicAlbum)
+            if (baseItem.Type == BaseItemDto_Type.MusicAlbum)
             {
                 if (baseItem.ImageBlurHashes.Primary != null)
                 {
@@ -173,13 +173,13 @@ namespace PortaJel_Blazor.Data
                     image.source = "emptyAlbum.png";
                 }
             }
-            else if (baseItem.Type == BaseItemKind.Playlist)
+            else if (baseItem.Type == BaseItemDto_Type.Playlist)
             {
                 image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
 
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
-            else if (baseItem.Type == BaseItemKind.Audio)
+            else if (baseItem.Type == BaseItemDto_Type.Audio)
             {
                 if (baseItem.AlbumId != null)
                 {
@@ -191,24 +191,24 @@ namespace PortaJel_Blazor.Data
                 }
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
-            else if (baseItem.Type == BaseItemKind.MusicArtist)
+            else if (baseItem.Type == BaseItemDto_Type.MusicArtist)
             {
                 image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
             }
-            else if (baseItem.Type == BaseItemKind.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
+            else if (baseItem.Type == BaseItemDto_Type.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
             {
                 image.source =  server + "/Items/" + baseItem.Id + "/Images/" + imgType;
-                image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                image.blurHash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
             }
             else if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
             {
                 image.source = server + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
-                image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                image.blurHash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
             }
             else if (baseItem.ImageBlurHashes.Primary != null)
             {
                 image.source = server + "/Items/" + baseItem.Id.ToString() + "/Images/" + imgType;
-                image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
+                image.blurHash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
             }
             else if (baseItem.ArtistItems != null)
             {

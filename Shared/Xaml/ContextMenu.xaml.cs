@@ -127,8 +127,8 @@ public partial class ContextMenu : ContentView
             ImageContainer_Img.Source = fullImgUrl;
 
             await Task.WhenAll(
-                Container.TranslateTo(Container.X, 0, 500, Easing.SinOut),
-                this.FadeTo(1, 500, Easing.SinIn));
+                Container.TranslateTo(Container.X, 0, 300, Easing.SinOut),
+                this.FadeTo(1, 300, Easing.SinIn));
             return;
         }
 
@@ -153,8 +153,8 @@ public partial class ContextMenu : ContentView
 
         Trace.WriteLine("Starting image web request.");
         await Task.WhenAll(
-            Container.TranslateTo(Container.X, 0, 500, Easing.SinOut),
-            this.FadeTo(1, 500, Easing.SinIn),
+            Container.TranslateTo(Container.X, 0, 300, Easing.SinOut),
+            this.FadeTo(1, 300, Easing.SinIn),
             imgTask);
 
         Trace.WriteLine("Image downloaded, encoding.");
@@ -179,8 +179,8 @@ public partial class ContextMenu : ContentView
         isOpen = false;
         Container.InputTransparent = true;
         await Task.WhenAny(
-            Container.TranslateTo(Container.X, DeviceDisplay.MainDisplayInfo.Height / 2, 750, Easing.SinIn),
-            this.FadeTo(0, 750, Easing.SinIn)
+            Container.TranslateTo(Container.X, DeviceDisplay.MainDisplayInfo.Height / 2, 300, Easing.SinIn),
+            this.FadeTo(0, 300, Easing.SinIn)
             );
     }
 

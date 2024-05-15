@@ -7,7 +7,7 @@ namespace PortaJel_Blazor.Pages.Xaml;
 
 public partial class AddServerView : ContentPage
 {
-    public ServerConnecter serverConnecter { get; private set; } = new();
+    public ServerConnecter? serverConnecter { get; private set; } = null;
 
 	public UserCredentials UserCredentials { get; set; } = UserCredentials.Empty;
     public bool ServerPassed = false;
@@ -55,8 +55,10 @@ public partial class AddServerView : ContentPage
 
         try
         {
+            serverConnecter = new(entry_server.Text);
+
             ServerPassed = await serverConnecter.AuthenticateAddressAsync(entry_server.Text);
-            UserPassed = await serverConnecter.AuthenticateUserAsync(entry_username.Text, entry_password.Text);
+            UserPassed = await serverConnecter.AuthenticateServerAsync(entry_username.Text, entry_password.Text);
 
             if (!ServerPassed)
             {

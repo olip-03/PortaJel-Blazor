@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PortaJel_Blazor.Resources.Themes.DarkTheme">
     <Color x:Key="PageBackgroundColor">#101010</Color>
+    <Color x:Key="PageSecondaryBackgroundColor">#1e1e1e</Color>
     <Color x:Key="PageSecondaryColor">#202020</Color>
     <Color x:Key="NavigationBarColor">Black</Color>
     <Color x:Key="PrimaryColor">Teal</Color>

@@ -43,10 +43,4 @@
     [Parameter] public BaseMusicItem[] albumData { get; set; } = new BaseMusicItem[0];
     [Parameter] public string[] albumBlurHashData { get; set; } = new string[0];
     [Parameter] public int itemCount { get; set; } = 0;
-
-    private List<BaseItemKind> acceptedTypes = new List<BaseItemKind>
-    {
-        BaseItemKind.MusicAlbum,
-        BaseItemKind.Audio
-    };
 }

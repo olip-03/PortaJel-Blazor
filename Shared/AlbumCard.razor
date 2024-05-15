@@ -7,7 +7,7 @@
 @namespace PortaJel_Blazor.Shared
 
 <div class="containerImg" @onclick="NavigateToAlbum" @oncontextmenu="OpenContextMenu">
-    <div class="imageHolder">
+    <div class="imageHolder PageSecondaryBackgroundColor">
         <img src="data:image/png;base64, @placeholderBase64" class="albumImage lowRes" />
         <img src="@albumImg" class="albumImage album-cover-img opacityTransition" loading="lazy" onerror="this.src='/images/emptyAlbum.png'" />
     </div>

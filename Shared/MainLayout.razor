@@ -44,7 +44,10 @@
         set
         {
             _pageTitle = value;
-            StateHasChanged();
+            if (MauiProgram.webViewInitalized)
+            {
+                StateHasChanged();
+            }
         }
     }
     public bool showHeader
@@ -53,7 +56,10 @@
         set
         {
             _showHeader = value;
-            StateHasChanged();
+            if (MauiProgram.webViewInitalized)
+            {
+                StateHasChanged();
+            }
         }
     }
     private bool loading { get; set; } = true;
@@ -63,7 +69,10 @@
         set
         {
             loading = value;
-            StateHasChanged();
+            if (MauiProgram.webViewInitalized)
+            {
+                StateHasChanged();
+            }
         }
     }
 
@@ -112,11 +121,11 @@
 
     public string NavigateHome()
     {
-        if (currentUri != "/home")
+        if (currentUri != "/")
         {
             showHeader = true;
             pageTitle = "PortaJel";
-            currentUri = "/home";
+            currentUri = "/";
 
             NavManager.NavigateTo(currentUri);
         }

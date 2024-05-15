@@ -226,7 +226,7 @@ namespace PortaJel_Blazor.Data
                     setDiskNum: 0, //TODO: Fix disk num
                     setDuration: duration,
                     setIsFavourite: baseItem.UserData.IsFavorite) ;
-            newSong.playCount = baseItem.UserData.PlayCount;
+            newSong.playCount = (int)baseItem.UserData.PlayCount;
             newSong.image = MusicItemImage.Builder(baseItem, server);
             // Absolute fucking nonsense of flags. Neccesary to allow fucking seeking with the tunes. Idk, whatever, I'm kind of mad this is the fix. 
             // TODO: Figure out what the fuck these flags do instead of just adding random ones you like 

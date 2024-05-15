@@ -62,6 +62,8 @@ public partial class MainPage : ContentPage
 
     public async void Initialize()
     {
+        await MauiProgram.LoadData();
+
         if (MauiProgram.api.GetServers().Count() <= 0)
         {
             AddServerView addServerView = new();
@@ -74,7 +76,6 @@ public partial class MainPage : ContentPage
         MainMediaController.PositionY = AllContent.Height;
 
         MauiProgram.MediaService.Initalize();
-        MauiProgram.WebView.NavigateHome();
     }
 
     public void UpdateDebugText(string updateTo)
@@ -352,27 +353,15 @@ public partial class MainPage : ContentPage
     private bool homeBtnReleased = true;
     private void btn_navnar_home_Pressed(object sender, EventArgs e)
     {
-        homeBtnReleased = false;
         btn_navnar_home.Opacity = 0;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
     }
-    private void btn_navnar_home_Released(object sender, EventArgs e)
+    private async void btn_navnar_home_Released(object sender, EventArgs e)
     {
-        if(homeBtnReleased == false)
-        {
-            btn_navnar_home_click(sender, e);
-        }
-    }
-    private async void btn_navnar_home_click(object sender, EventArgs e)
-    {
-        homeBtnReleased = true;
         ShowLoadingScreen(true);
-
-        await Task.WhenAll<bool>
-        (
-            btn_navnar_home.FadeTo(1, 250)
-        );
         MauiProgram.WebView.NavigateHome();
+
+        await btn_navnar_home.FadeTo(1, 250);
     }
     private async void btn_navnar_library_click(object sender, EventArgs e)
     {

@@ -93,7 +93,6 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
 	{
         Console.WriteLine("CreateMauiApp(): Beginning load data");
-        Task.Run(() => MauiProgram.LoadData());
 
         Console.WriteLine("CreateMauiApp(): Building application");
         var builder = MauiApp.CreateBuilder();
@@ -220,20 +219,16 @@ public static class MauiProgram
         // Validate connection data and log into servers
         await Parallel.ForEachAsync(api.GetServers(), async (server, ct) => {
             firstLoginComplete = true; // double-check set true if any servers exist 
-            // server.isOffline = !await server.AuthenticateAddressAsync();
-            if (!server.isOffline)
+            bool UserPassed = await server.AuthenticateServerAsync();
+            if (UserPassed)
             {
-                bool UserPassed = await server.AuthenticateServerAsync();
-                if(UserPassed) 
-                {
-                    MauiProgram.UpdateDebugMessage($"Successfully logged into {server}");
-                }
-                else
-                {
-                    MauiProgram.UpdateDebugMessage($"Login failed for {server}");
-                }
+                MauiProgram.UpdateDebugMessage($"Successfully logged into {server}");
             }
-        });
+            else
+            {
+                MauiProgram.UpdateDebugMessage($"Login failed for {server}");
+            }
+        }).ConfigureAwait(false);
 
         MauiProgram.UpdateDebugMessage($"Completed data load");
         dataLoadFinished = true;

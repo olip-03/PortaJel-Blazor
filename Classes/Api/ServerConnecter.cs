@@ -55,7 +55,9 @@ namespace PortaJel_Blazor.Classes
         public ServerConnecter(string baseUrl, string? username = null, string? password = null)
         {
             var serviceProvider = ConfigureServices();
-            _sdkClientSettings = new();
+
+            _jellyfinApiClient = serviceProvider.GetRequiredService<JellyfinApiClient>();
+            _sdkClientSettings = serviceProvider.GetRequiredService<JellyfinSdkSettings>();
             _sdkClientSettings.SetServerUrl(baseUrl);
             _sdkClientSettings.Initialize(
                 MauiProgram.applicationName,
@@ -64,7 +66,14 @@ namespace PortaJel_Blazor.Classes
                 Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
             token = cancelTokenSource.Token;
 
-            _jellyfinApiClient = serviceProvider.GetRequiredService<JellyfinApiClient>();
+            if(username != null)
+            {
+                Username = username;
+            }
+            if(password != null)
+            {
+                StoredPassword = password;
+            }
         }
 
         private ServiceProvider ConfigureServices()
@@ -123,7 +132,7 @@ namespace PortaJel_Blazor.Classes
             {
                 Username = username;
             }
-            else
+            else if(Username == null)
             {
                 throw new InvalidOperationException("Cannot authenticate because Username is null!");
             }
@@ -132,7 +141,7 @@ namespace PortaJel_Blazor.Classes
             {
                 StoredPassword = password;
             }
-            else
+            else if(StoredPassword == null)
             {
                 throw new InvalidOperationException("Cannot authenticate because Password is null!");
             }
@@ -157,6 +166,11 @@ namespace PortaJel_Blazor.Classes
                 return false;
             }
             return false;
+        }
+
+        public async Task<bool> AuthenticateAddressAsync(string serverUrl)
+        {
+            return true;
         }
         #endregion
 

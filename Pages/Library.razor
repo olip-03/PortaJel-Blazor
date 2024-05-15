@@ -3,6 +3,8 @@
 @using PortaJel_Blazor.Shared;
 @using PortaJel_Blazor;
 @using BlazorAnimate;
+@using Jellyfin.Sdk;
+@using Jellyfin.Sdk.Generated.Models;
 @inject IJSRuntime JS;
 
 <div id="libraryToolbar" class="button-container boxed PageSecondaryColor">
@@ -284,13 +286,13 @@
                         results = await MauiProgram.api.GetAllPlaylistsAsync(limit: loadLimit, isFavourite: isFavouritesPage);
                         break;
                     case Selectable.albums:
-                        results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit, sortOrder: Jellyfin.Sdk.SortOrder.Ascending, isFavourite: isFavouritesPage);
+                        results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit, sortOrder: SortOrder.Ascending, isFavourite: isFavouritesPage);
                         break;
                     case Selectable.artists:
                         results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit, isFavourite: isFavouritesPage);
                         break;
                     case Selectable.songs:
-                        results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit, sortOrder: Jellyfin.Sdk.SortOrder.Ascending, isFavourite: isFavouritesPage);
+                        results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit, sortOrder: [SortOrder.Ascending], isFavourite: isFavouritesPage);
                         break;
                     case Selectable.genres:
                         results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit);

@@ -42,7 +42,7 @@
                              HorizontalOptions="Center"
                              WidthRequest="30" MinimumWidthRequest="30" 
                              HeightRequest="30" 
-                             Pressed="btn_navnar_home_Pressed" Released="btn_navnar_home_Released" Clicked="btn_navnar_home_click"/>
+                             Pressed="btn_navnar_home_Pressed" Released="btn_navnar_home_Released"/>
                     <Label FontSize="12" HorizontalOptions="Center">Discover</Label>
                 </StackLayout>
 
