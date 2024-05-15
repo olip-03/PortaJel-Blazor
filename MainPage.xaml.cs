@@ -359,9 +359,8 @@ public partial class MainPage : ContentPage
     private async void btn_navnar_home_Released(object sender, EventArgs e)
     {
         ShowLoadingScreen(true);
+        await btn_navnar_home.FadeTo(1, 250).ConfigureAwait(false);
         MauiProgram.WebView.NavigateHome();
-
-        await btn_navnar_home.FadeTo(1, 250);
     }
     private async void btn_navnar_library_click(object sender, EventArgs e)
     {

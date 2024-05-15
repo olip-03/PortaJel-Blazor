@@ -129,7 +129,7 @@
 
             NavManager.NavigateTo(currentUri);
         }
-        else
+        else if (currentUri == "/")
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
@@ -146,7 +146,7 @@
 
             NavManager.NavigateTo(currentUri);
         }
-        else
+        else if (currentUri == "/library/false")
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
@@ -163,41 +163,7 @@
 
             NavManager.NavigateTo(currentUri);
         }
-        else
-        {
-            MauiProgram.MainPage.ShowLoadingScreen(false);
-        }
-        return currentUri;
-    }
-
-    public string NavigateSearch()
-    {
-        if (currentUri != "/search")
-        {
-            showHeader = true;
-            pageTitle = "Search";
-            currentUri = "/search";
-
-            NavManager.NavigateTo(currentUri);
-        }
-        else
-        {
-            MauiProgram.MainPage.ShowLoadingScreen(false);
-        }
-        return currentUri;
-    }
-
-    public string NavigateSearch(string searchTerm)
-    {
-        if (currentUri != "/search")
-        {
-            showHeader = true;
-            pageTitle = "Search";
-            currentUri = "/search";
-
-            NavManager.NavigateTo(currentUri + "/" + searchTerm, forceLoad: false);
-        }
-        else
+        else if (currentUri == "/library/true")
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
@@ -214,7 +180,7 @@
 
             NavManager.NavigateTo(currentUri);
         }
-        else
+        else if (currentUri == "/downloads")
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
@@ -233,7 +199,7 @@
 
             NavManager.NavigateTo(currentUri);
         }
-        else
+        else if (currentUri == "/settings")
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
@@ -250,7 +216,7 @@
 
             NavManager.NavigateTo($"/AlbumView/{guid}");
         }
-        else
+        else if (currentUri == $"/AlbumView/{guid}")
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
@@ -267,7 +233,7 @@
 
             NavManager.NavigateTo($"/ArtistView/{guid}");
         }
-        else
+        else if (currentUri == $"/ArtistView/{guid}")
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
