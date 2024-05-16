@@ -236,17 +236,18 @@ public partial class MediaController : ContentView
                 isPlaying = playbackTime.isPlaying;
             }
 
-            if (playbackTime.currentSong.duration > 0 && !pauseTimeUpdate)
+            ViewModel.PlaybackValue = playbackTime.currentDuration;
+            ViewModel.PlaybackMaximum = playbackTime.currentSong.duration;
+
+            if (playbackTime.currentSong.duration > 0 && 
+                !pauseTimeUpdate &&
+                ViewModel.PlaybackTimeValue != playbackTime.currentDurationText &&
+                IsOpen)
             {
-                TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
-                TimeSpan fullTime = TimeSpan.FromTicks(playbackTime.currentSong.duration);
+                ViewModel.PlaybackTimeValue = playbackTime.currentDurationText;
+                ViewModel.PlaybackMaximumTimeValue = playbackTime.fullDurationText;
 
-                ViewModel.PlaybackValue = passedTime.TotalMilliseconds;
-                ViewModel.PlaybackMaximum = fullTime.TotalMilliseconds;
-
-                ViewModel.PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", passedTime.Minutes, passedTime.Seconds);
-                ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTime.Minutes, fullTime.Seconds);
-                Player_DurationSlider_Lbl_DurationTxt.Text = ViewModel.PlaybackMaximumTimeValue;
+                // Player_DurationSlider_Lbl_DurationTxt.Text = ViewModel.PlaybackMaximumTimeValue;
             }
         }
     }
@@ -453,13 +454,8 @@ public partial class MediaController : ContentView
         if (pauseTimeUpdate)
         {
             long time = (long)DurationSlider.Value;
-            long max = (long)ViewModel.PlaybackMaximum;
-
             TimeSpan passedTime = TimeSpan.FromMilliseconds(time);
-            TimeSpan fullTime = TimeSpan.FromMilliseconds(max);
-
             ViewModel.PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", passedTime.Minutes, passedTime.Seconds);
-            ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTime.Minutes, fullTime.Seconds);
         }
     }
 

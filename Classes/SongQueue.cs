@@ -11,14 +11,14 @@ namespace PortaJel_Blazor.Classes
     {
         private Queue<Song> songQueue = new Queue<Song>();
         public List<Song> dequeuedList = new List<Song>();
-        public async void QueueSong(Song _song)
+        public void QueueSong(Song _song)
         {
             bool showMiniPlayer = songQueue.Count == 0;
             Song? lastSong = songQueue.FirstOrDefault();
             songQueue.Enqueue(_song);
         }
 
-        public async void QueueAtFront(Song _song)
+        public void QueueAtFront(Song _song)
         {
             bool showMiniPlayer = songQueue.Count == 0;
 
@@ -32,7 +32,7 @@ namespace PortaJel_Blazor.Classes
             }
         }
 
-        public async void QueueRange(Song[] _songList)
+        public void QueueRange(Song[] _songList)
         {
             bool showMiniPlayer = songQueue.Count == 0;
 

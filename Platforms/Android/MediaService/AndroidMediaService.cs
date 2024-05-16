@@ -3,10 +3,12 @@ using Android.Content;
 using Android.Content.PM;
 using Android.InputMethodServices;
 using Android.Media;
+using Android.Media.Metrics;
 using Android.Media.Session;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
+using AndroidX.Lifecycle;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.Extractor;
 using Com.Google.Android.Exoplayer2.Extractor.Mp3;
@@ -45,7 +47,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         MediaSession? mediaSession = null;
         MediaMetadata? mediaSessionMetadata = null;
-        PlaybackState? mediaSessionState = null;
         MediaSessionCallback? mediaSessionCallback = null;
         // MediaMetadata? mediaMetadata = null;
 
@@ -578,16 +579,27 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
                 if (Player.PlaybackState == IPlayer.StateReady)
                 {
-                    if(currentSong.duration <= 0)
+                    string PlaybackTimeValue = "00:00";
+                    string PlaybackMaximumTimeValue = "00:00";
+
+                    if (currentSong.duration <= 0)
                     {
-                        TimeSpan passedTime = TimeSpan.FromMilliseconds(Player.Duration);
-                        currentSong.duration = passedTime.Ticks;
+                        currentSong.duration = Player.Duration;
                     }
+
+                    TimeSpan playbackTimeString = TimeSpan.FromMilliseconds(Player.CurrentPosition);
+                    TimeSpan fullTimeString = TimeSpan.FromTicks(currentSong.duration);
+
+                    PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTimeString.Minutes, playbackTimeString.Seconds);
+                    PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTimeString.Minutes, fullTimeString.Seconds);
+                    
                     newTime = new(
                         Player.CurrentPosition,
                         currentSong,
                         playingIndex,
-                        Player.IsPlaying
+                        Player.IsPlaying,
+                        PlaybackTimeValue,
+                        PlaybackMaximumTimeValue
                     );
                 }
                 return newTime;

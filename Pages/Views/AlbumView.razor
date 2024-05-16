@@ -183,8 +183,9 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        MauiProgram.MainPage.ShowLoadingScreen(true);
-        await OnInitializedAsync();
+        // TODO: Come up with a solution to this that doens't cause the app to shit itself 
+        // MauiProgram.MainPage.ShowLoadingScreen(true);
+        // await OnInitializedAsync();
         StateHasChanged();
     }
 
