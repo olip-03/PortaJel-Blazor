@@ -259,18 +259,6 @@ public partial class MainPage : ContentPage
     {
 
     }
-    private string ConvertToTimeFormat(long milliseconds)
-    {
-        // Convert milliseconds to seconds
-        long totalSeconds = milliseconds / 1000;
-
-        // Calculate minutes and seconds
-        long minutes = totalSeconds / 60;
-        long seconds = totalSeconds % 60;
-
-        // Format the time as mm:ss
-        return string.Format("{0:00}:{1:00}", minutes, seconds);
-    }
     /// <summary>
     /// Skips to the next song
     /// </summary>
@@ -353,21 +341,29 @@ public partial class MainPage : ContentPage
     private bool homeBtnReleased = true;
     private void btn_navnar_home_Pressed(object sender, EventArgs e)
     {
-        btn_navnar_home.Opacity = 0;
+        btn_navnar_home.Scale = 0.6;
+        btn_navnar_home.Opacity = 0.6;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
     }
     private async void btn_navnar_home_Released(object sender, EventArgs e)
     {
         ShowLoadingScreen(true);
-        await btn_navnar_home.FadeTo(1, 250).ConfigureAwait(false);
+        await Task.WhenAny<bool>
+        (
+            btn_navnar_home.FadeTo(1, 250),
+            btn_navnar_home.ScaleTo(1, 250)
+        );
         MauiProgram.WebView.NavigateHome();
     }
-    private async void btn_navnar_library_click(object sender, EventArgs e)
+    private void btn_navbar_library_pressed(object sender, EventArgs e)
+    {
+        btn_navnar_library.Scale = 0.6;
+        btn_navnar_library.Opacity = 0.6;
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+    }
+    private async void btn_navnar_library_released(object sender, EventArgs e)
     {
         ShowLoadingScreen(true);
-        btn_navnar_library.Scale = 0.6;
-        btn_navnar_library.Opacity = 0;
-        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         await Task.WhenAny<bool>
         (
             btn_navnar_library.FadeTo(1, 250),
@@ -375,11 +371,15 @@ public partial class MainPage : ContentPage
         );
         MauiProgram.WebView.NavigateLibrary();
     }
-    private async void btn_navnar_favourite_click(object sender, EventArgs e)
+    private void btn_navnar_favourite_pressed(object sender, EventArgs e)
+    {
+        btn_navnar_favourites.Scale = 0.6;
+        btn_navnar_favourites.Opacity = 0.6;
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+    }
+    private async void btn_navnar_favourite_released(object sender, EventArgs e)
     {
         ShowLoadingScreen(true);
-        btn_navnar_favourites.Scale = 0.6;
-        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         await Task.WhenAny<bool>
         (
             btn_navnar_favourites.FadeTo(1, 250),

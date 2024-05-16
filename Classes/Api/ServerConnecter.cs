@@ -265,6 +265,7 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.UserId = userDto.Id;
                         c.QueryParameters.IsFavorite = setFavourites;
                         c.QueryParameters.SortBy = setSortTypes;
+                        c.QueryParameters.SortOrder = [setSortOrder];
                         c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicAlbum];
                         c.QueryParameters.Limit = setLimit;
                         c.QueryParameters.StartIndex = setStartIndex;

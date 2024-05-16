@@ -18,7 +18,8 @@ public partial class MediaController : ContentView
     private double btnInOpacity = 0.5;
     private double btnInSize = 0.8;
     private uint btnAnimSpeedMs = 400;
-    
+
+    private bool isPlaying = false;
     private bool pauseTimeUpdate = false;
     private Guid currentPlayingId = Guid.Empty;
 
@@ -227,8 +228,13 @@ public partial class MediaController : ContentView
             }
 
             // Change playback icon 
-            UpdatePlayButton(playbackTime.isPlaying);
-            MauiProgram.MainPage.MainMiniPlayer.UpdatePlayButton(playbackTime.isPlaying);
+            if(isPlaying != playbackTime.isPlaying)
+            {
+                UpdatePlayButton(playbackTime.isPlaying);
+                MauiProgram.MainPage.MainMiniPlayer.UpdatePlayButton(playbackTime.isPlaying);
+
+                isPlaying = playbackTime.isPlaying;
+            }
 
             if (playbackTime.currentSong.duration > 0 && !pauseTimeUpdate)
             {

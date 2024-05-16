@@ -105,12 +105,6 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
 
-        // File.Delete(filePath);
-        // Load servers from file
-
-        // TODO: Add theme
-        // Application.Current.Resources.Add(new Resources.Themes.DarkTheme());
-
         // Check connection to server
         isConnected = false;
 

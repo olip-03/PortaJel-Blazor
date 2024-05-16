@@ -35,7 +35,7 @@
 
             <!-- Navigation Buttons -->
             <FlexLayout HeightRequest="60" HorizontalOptions="Fill" VerticalOptions="EndAndExpand" JustifyContent="SpaceEvenly" AlignItems="Center">
-                <StackLayout>
+                <StackLayout WidthRequest="80">
                     <ImageButton x:Name="btn_navnar_home" 
                              Source="{StaticResource HomeButtonImage}" 
                              Background="Transparent" BorderColor="Transparent"
@@ -46,25 +46,25 @@
                     <Label FontSize="12" HorizontalOptions="Center">Discover</Label>
                 </StackLayout>
 
-                <StackLayout>
+                <StackLayout WidthRequest="80">
                     <ImageButton x:Name="btn_navnar_library" 
                              Source="{StaticResource LibraryButtonImage}" 
                              Background="Transparent" BorderColor="Transparent"
                              HorizontalOptions="Center"
                              WidthRequest="30" MinimumWidthRequest="30" 
                              HeightRequest="30" 
-                             Clicked="btn_navnar_library_click"/>
+                             Pressed="btn_navbar_library_pressed" Released="btn_navnar_library_released"/>
                     <Label FontSize="12" HorizontalOptions="Center">Catalogue</Label>
                 </StackLayout>
 
-                <StackLayout>
+                <StackLayout WidthRequest="80">
                     <ImageButton x:Name="btn_navnar_favourites" 
                              Source="{StaticResource FavButtonImage}" 
                              Background="Transparent" BorderColor="Transparent"
                              HorizontalOptions="Center"
                              WidthRequest="30" MinimumWidthRequest="30" 
                              HeightRequest="30" 
-                             Clicked="btn_navnar_favourite_click"/>
+                             Pressed="btn_navnar_favourite_pressed" Released="btn_navnar_favourite_released"/>
                     <Label FontSize="12" HorizontalOptions="Center">Favourites</Label>
                 </StackLayout>
 

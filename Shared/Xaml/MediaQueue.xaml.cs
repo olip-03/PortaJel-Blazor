@@ -12,7 +12,7 @@ public partial class MediaQueue : ContentView
     public MediaQueue()
 	{
 		InitializeComponent();
-        // BindingContext = ViewModel;
+        BindingContext = ViewModel;
     }
 
     public async void Open(bool? animate = true)
@@ -56,7 +56,7 @@ public partial class MediaQueue : ContentView
     {
         if (songGroupss != null)
         {
-            ViewModel.SongQueue = songGroupss;
+            ViewModel.SongQueue = songGroupss.SongGroups;
         }
 
         // Update time tracking

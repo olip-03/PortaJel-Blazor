@@ -70,7 +70,7 @@
 
             for (int i = 0; i < album.songs.Length; i++)
             {
-                
+                <AlbumSongItem song="@album.songs[i]" location="@i" base64BlurHash="@base64BlurHash" />
             }
 
             int forcount = 0;
@@ -164,7 +164,7 @@
             // TODO : Implement 'Something went wrong, please try again'
         }
 
-        loaded = true;        
+        loaded = true;    
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -179,6 +179,13 @@
             MauiProgram.WebView.isLoading = false;
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        await OnInitializedAsync();
+        StateHasChanged();
     }
 
     private void SelectArtist(Guid artistId)

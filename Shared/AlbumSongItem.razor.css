@@ -1,0 +1,24 @@
+﻿.songContainer {
+    margin: 0 1rem 0.5rem 1rem;
+    display: flex;
+}
+.songTitle {
+    color: black;
+    font-size: 1rem;
+    margin: 0px;
+}
+
+.songArtistTitle {
+    color: darkgray;
+    font-size: 0.95rem;
+    margin: 0px;
+}
+
+.songitem-options {
+    margin-left: auto;
+    display: flex;
+}
+.playback-controls-btn-img {
+    height: 2rem;
+    width: 2rem;
+}

@@ -9,10 +9,10 @@ namespace PortaJel_Blazor.Classes
 {
     public class QueueViewModel : BindableObject
     {
-        public static readonly BindableProperty SongQueueProperty = BindableProperty.Create(nameof(SongQueue), typeof(double), typeof(QueueViewModel), default(SongGroupCollection));
-        public SongGroupCollection? SongQueue
+        public static readonly BindableProperty SongQueueProperty = BindableProperty.Create(nameof(SongQueue), typeof(ObservableCollection<SongGroup>), typeof(QueueViewModel), default(ObservableCollection<SongGroup>));
+        public ObservableCollection<SongGroup> SongQueue
         {
-            get => (SongGroupCollection?)GetValue(SongQueueProperty);
+            get => (ObservableCollection<SongGroup>)GetValue(SongQueueProperty);
             set => SetValue(SongQueueProperty, value);
 
         }

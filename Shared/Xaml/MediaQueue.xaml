@@ -44,25 +44,23 @@
         <!-- Main Queue -->
         <ScrollView InputTransparent="False" Grid.Row="1">
             <VerticalStackLayout>
-                <!-- Queue Start Label -->
-                <Grid Padding="20, 10, 20, 0" Grid.Row="1" x:Name="Queue_Header">
-                    <Label VerticalOptions="Center" Grid.Row="1" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource PrimaryTextColor}">Queue</Label>
-                    <Button Grid.Row="1" BorderColor="LightGray" BorderWidth="1" HeightRequest="35" WidthRequest="75" BackgroundColor="White" TextColor="Black" HorizontalOptions="End" Text="Clear"></Button>
-                </Grid>
-
                 <!-- Actaul queue CollectionView -->
                 <CollectionView Grid.Row="1" 
                                 x:Name="Queue_List" 
+                                ItemsSource="{Binding SongQueue}" 
                                 CanReorderItems="True" 
                                 IsGrouped="true"
-                                ItemsSource="{Binding SongQueue.SongGroups}" 
                                 InputTransparent="False">
                     <CollectionView.GroupHeaderTemplate>
                         <DataTemplate x:DataType="classes:SongGroup">
-                            <Label Text="{Binding Name}"
-                                   BackgroundColor="LightGray"
+                            <Grid Padding="20, 0, 0, 5" IsVisible="{Binding IsVisible}">
+                                <Label Text="{Binding Name}"
+                                   IsVisible="{Binding IsVisible}"
+                                   BackgroundColor="Transparent"
                                    FontSize="18"
+                                   TextColor="{StaticResource PrimaryTextColor}"
                                    FontAttributes="Bold" />
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>
                     
@@ -91,15 +89,15 @@
 
                                 <Label Grid.Column="1"
                                        Text="{Binding name}"
+                                       TextColor="{StaticResource PrimaryTextColor}" 
                                        FontAttributes="Bold" 
-                                       TextColor="Black"
                                        VerticalOptions="End"/>
                                 <Label Grid.Row="1"
                                        Grid.Column="1"
                                        Text="{Binding artistCongregate}"
                                        FontAttributes="Italic"
                                        VerticalOptions="Start"
-                                       TextColor="Black"/>
+                                       TextColor="{StaticResource PrimaryTextColor}" />
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
@@ -118,7 +116,7 @@
             </Border>
 
             <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Margin="20">
-                <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="{StaticResource RepeatOffIcon}"></ImageButton>
+                <ImageButton HeightRequest="30" WidthRequest="30" BackgroundColor="Transparent" Source="{StaticResource RepeatOffIcon}"></ImageButton>
                 <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="{StaticResource SkipPreviousIcon}"></ImageButton>
                 <Frame CornerRadius="40" 
                        Padding="0" Margin="0" 
@@ -135,7 +133,7 @@
                                     Released="Btn_PlayToggle_Released"/>
                 </Frame>
                 <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="{StaticResource SkipNextIcon}"></ImageButton>
-                <ImageButton HeightRequest="40" WidthRequest="40" BackgroundColor="Transparent" Source="{StaticResource ShuffleIcon}"></ImageButton>
+                <ImageButton HeightRequest="30" WidthRequest="30" BackgroundColor="Transparent" Source="{StaticResource ShuffleIcon}"></ImageButton>
             </FlexLayout>
         </Grid>
 
