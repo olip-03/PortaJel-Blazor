@@ -55,6 +55,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public int playingIndex { get; private set; } = 0;
         public BaseMusicItem? playingFrom { get; private set; } = null;
+        public List<Song> dequeued { get; private set; } = new();
         public List<Song> songQueue { get; private set; } = new();
 
         private string channedId = AppInfo.PackageName;
@@ -278,7 +279,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool SeekToPosition(long position)
         {
-            if (Player != null && position < Player.Duration && position > 0)
+            if (Player != null)
             {
                 Player.PlayWhenReady = false;
                 try
@@ -493,6 +494,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
 
             SongGroupCollection songGroupCollection = new();
+            SongGroup previous = new("Previous");
+            SongGroup currentSong = new("Currently Playing");
             SongGroup queue = new("Queue");
             SongGroup songList = new("Next Up");
 
@@ -582,13 +585,11 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     string PlaybackTimeValue = "00:00";
                     string PlaybackMaximumTimeValue = "00:00";
 
-                    if (currentSong.duration <= 0)
-                    {
-                        currentSong.duration = Player.Duration;
-                    }
-
                     TimeSpan playbackTimeString = TimeSpan.FromMilliseconds(Player.CurrentPosition);
-                    TimeSpan fullTimeString = TimeSpan.FromTicks(currentSong.duration);
+                    TimeSpan fullTimeString = TimeSpan.FromMilliseconds(Player.Duration);
+
+                    // Convert current song duration from ticks to ms 
+                    currentSong.duration = Player.Duration;
 
                     PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTimeString.Minutes, playbackTimeString.Seconds);
                     PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTimeString.Minutes, fullTimeString.Seconds);

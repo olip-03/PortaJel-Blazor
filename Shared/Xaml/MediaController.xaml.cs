@@ -404,7 +404,7 @@ public partial class MediaController : ContentView
             Btn_Shuffle.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
     }
 
-    private void Btn_FavToggle_Pressed(object sender, EventArgs e)
+    private async void Btn_FavToggle_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         Btn_FavToggle.Opacity = btnInOpacity;
@@ -416,10 +416,14 @@ public partial class MediaController : ContentView
         }
 
         int queueIndex = MauiProgram.MediaService.GetQueueIndex();
-        ViewModel.Queue.AllSongs[queueIndex].isFavourite = !ViewModel.Queue.AllSongs[queueIndex].isFavourite;
+        Song song = ViewModel.Queue.AllSongs[queueIndex];
+        bool state = !song.isFavourite;
+
+        ViewModel.Queue.AllSongs[queueIndex].isFavourite = state;
 
         UpdateFavouriteButton();
         MauiProgram.MainPage.MainMiniPlayer.UpdateFavouriteButton(syncToServer: true);
+        await Task.Run(() => MauiProgram.api.SetFavourite(song, state));
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)

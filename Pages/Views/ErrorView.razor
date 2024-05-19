@@ -1,0 +1,15 @@
+﻿<h3>@exception.Message</h3>
+
+@exception.StackTrace
+
+@code {
+    [Parameter] public Exception? exception { get; set; } = null;
+
+    protected override void OnInitialized()
+    {
+        if (exception == null)
+        {
+            MauiProgram.WebView.NavigateHome();
+        }
+    }
+}

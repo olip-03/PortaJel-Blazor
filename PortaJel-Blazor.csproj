@@ -140,13 +140,13 @@
 
 	<ItemGroup>
 	  <Compile Remove="wwwroot\js\NewFolder1\**" />
-	  <Compile Remove="wwwroot\js\NewFolder\**" />
+	  <Compile Remove="wwwroot\js\SongElement\**" />
 	  <Content Remove="wwwroot\js\NewFolder1\**" />
-	  <Content Remove="wwwroot\js\NewFolder\**" />
+	  <Content Remove="wwwroot\js\SongElement\**" />
 	  <EmbeddedResource Remove="wwwroot\js\NewFolder1\**" />
-	  <EmbeddedResource Remove="wwwroot\js\NewFolder\**" />
+	  <EmbeddedResource Remove="wwwroot\js\SongElement\**" />
 	  <None Remove="wwwroot\js\NewFolder1\**" />
-	  <None Remove="wwwroot\js\NewFolder\**" />
+	  <None Remove="wwwroot\js\SongElement\**" />
 	</ItemGroup>
 
 	<ItemGroup>

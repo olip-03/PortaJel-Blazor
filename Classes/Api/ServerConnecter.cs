@@ -367,11 +367,6 @@ namespace PortaJel_Blazor.Classes
                     {
                         // Create object
                         Song newSong = Song.Builder(song, _sdkClientSettings.ServerUrl);
-                        if (songCache.ContainsKey(newSong.id))
-                        {
-                            songList.Add(songCache[newSong.id]);
-                            continue;
-                        }
                         newSong.album = toReturn;
 
                         // Create Artists
@@ -1206,6 +1201,7 @@ namespace PortaJel_Blazor.Classes
                     c.QueryParameters.Limit = limit;
                     c.QueryParameters.StartIndex = startFromIndex;
                     c.QueryParameters.EnableImages = true;
+                    c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
                     c.QueryParameters.EnableTotalRecordCount = true;
                 }, cancellationToken: ctoken);
                 TotalSongRecordCount = (int)songResult.TotalRecordCount;
@@ -1291,11 +1287,17 @@ namespace PortaJel_Blazor.Classes
 
             if (setState)
             {
-                // await _userLibraryClient.MarkFavoriteItemAsync(userDto.Id, id);
+                await _jellyfinApiClient.UserFavoriteItems[id].PostAsync(c =>
+                {
+                    c.QueryParameters.UserId = userDto.Id; 
+                });
             }
             else
             {
-                // await _userLibraryClient.UnmarkFavoriteItemAsync(userDto.Id, id);
+                await _jellyfinApiClient.UserFavoriteItems[id].DeleteAsync(c =>
+                {
+                    c.QueryParameters.UserId = userDto.Id;
+                });
             }
             return setState;
         }

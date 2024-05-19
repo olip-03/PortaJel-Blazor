@@ -113,12 +113,15 @@
                 case "Song":
                     if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.WebView.NavigateAlbum(musicObject.id);
-                    break;
-                case "PlaylistSong":
-                    if (musicObject.id == Guid.Empty) { return; }
-                    if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.WebView.NavigateAlbum(musicObject.id);
+                    Song song = (Song)musicObject;
+                    if (song.album != null)
+                    {
+                        MauiProgram.WebView.NavigateAlbum(song.album.id);
+                    }
+                    else
+                    {
+                        MauiProgram.WebView.NavigateAlbum(musicObject.id);
+                    }
                     break;
                 case "Genre":
                     // TODO: Configure genre page

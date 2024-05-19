@@ -68,18 +68,17 @@
                     <Label FontSize="12" HorizontalOptions="Center">Favourites</Label>
                 </StackLayout>
 
+                <FlexLayout.Background>
+                    <LinearGradientBrush EndPoint="0,1">
+                        <GradientStop Color="{StaticResource TransparentColor}" Offset="0.0" />
+                        <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="0.8" />
+                    </LinearGradientBrush>
+                </FlexLayout.Background>
             </FlexLayout>
 
             <!-- LAYOUT -->
             <!-- Background -->
-            <StackLayout.Background>
-                <LinearGradientBrush EndPoint="0,1">
-                    <GradientStop Color="{StaticResource TransparentColor}" Offset="0.0" />
-                    <!--<GradientStop Color="Transparent" Offset="0.3" />
-                    <GradientStop Color="White" Offset="0.7" />-->
-                    <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="0.9" />
-                </LinearGradientBrush>
-            </StackLayout.Background>
+
         </StackLayout>
 
         <shared:MediaController x:Name="MediaControl" IsVisible="False"/>

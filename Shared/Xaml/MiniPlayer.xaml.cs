@@ -62,7 +62,7 @@ public partial class MiniPlayer : ContentView
             }
 
             TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
-            TimeSpan fullTime = TimeSpan.FromTicks(playbackTime.currentSong.duration);
+            TimeSpan fullTime = TimeSpan.FromMilliseconds(playbackTime.currentSong.duration);
 
             float percentage = (float)passedTime.Ticks / (float)fullTime.Ticks;
 
@@ -188,11 +188,16 @@ public partial class MiniPlayer : ContentView
 
     private async void OnPanUpdated(object sender, PanUpdatedEventArgs e)
     {
+        if (!IsOpen)
+        {
+            return;
+        }
+
         switch (e.StatusType)
         {
             case GestureStatus.Running:
                 this.TranslationY = this.TranslationY + e.TotalY;
-
+                MauiProgram.MainPage.MainMediaController.IsVisible = true;
                 MauiProgram.MainPage.MainMediaController.Opacity = 1;
                 MauiProgram.MainPage.MainMediaController.PositionY = MauiProgram.MainPage.MainMediaController.PositionY + e.TotalY;
                 break;
@@ -269,21 +274,29 @@ public partial class MiniPlayer : ContentView
 
     private void Btn_FavToggle_Clicked(object sender, EventArgs e)
     {
-        MauiProgram.MediaService.GetCurrentlyPlaying().isFavourite = !MauiProgram.MediaService.GetCurrentlyPlaying().isFavourite;
-
-        UpdateFavouriteButton();
-        MauiProgram.MainPage.MainMediaController.UpdateFavouriteButton();
+        
     }
 
-    private void Btn_FavToggle_Pressed(object sender, EventArgs e)
+    private async void Btn_FavToggle_Pressed(object sender, EventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         Btn_FavToggle.Opacity = btnInOpacity;
         Btn_FavToggle.Scale = btnInSize;
+
+        Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
+        bool state = !song.isFavourite;
+
+        MauiProgram.MediaService.GetCurrentlyPlaying().isFavourite = state;
+        UpdateFavouriteButton();
+        MauiProgram.MainPage.MainMediaController.UpdateFavouriteButton();
+
+        await Task.Run(() => MauiProgram.api.SetFavourite(song, state));
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)
     {
-        await Btn_FavToggle.FadeTo(1, 400, Easing.SinOut);
+        await Task.WhenAll(
+            Btn_FavToggle.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
+            Btn_FavToggle.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
     }
 }

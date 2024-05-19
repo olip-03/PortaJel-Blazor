@@ -66,8 +66,8 @@
                                  Released="Btn_FavToggle_Released" 
                                  Clicked="Btn_FavToggle_Clicked" 
                                  Aspect="AspectFit" 
-                                 WidthRequest="30" 
-                                 HeightRequest="30" 
+                                 WidthRequest="28" 
+                                 HeightRequest="28" 
                                  Margin="2.5"
                                  Source="{Binding FavButtonSource}" 
                                  HorizontalOptions="End">
@@ -83,8 +83,8 @@
                                  Released="Btn_PlayToggle_Released" 
                                  Clicked="Btn_PlayToggle_Clicked" 
                                  Aspect="AspectFill" 
-                                 WidthRequest="30" 
-                                 HeightRequest="30" 
+                                 WidthRequest="35" 
+                                 HeightRequest="35" 
                                  Margin="2.5"
                                  Source="{Binding PlayButtonSource}" 
                                  HorizontalOptions="End"/>

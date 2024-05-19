@@ -30,7 +30,14 @@
                     }
                     @Body
                 </div>
-                <div style="height:120px;"></div>
+                @if (MauiProgram.MainPage.MainMiniPlayer.IsOpen)
+                {
+                    <div style="height:120px;"></div>
+                }
+                else
+                {
+                    <div style="height:60px;"></div>
+                }
             </article>
         </Animate>
     </main>
@@ -119,10 +126,31 @@
         StateHasChanged();
     }
 
+    public string NavigateError(Exception ex)
+    {
+        if (currentUri != "/")
+        {
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+
+            showHeader = true;
+            pageTitle = "PortaJel";
+            currentUri = "/";
+
+            NavManager.NavigateTo(currentUri);
+        }
+        else if (currentUri == "/")
+        {
+            MauiProgram.MainPage.ShowLoadingScreen(false);
+        }
+        return currentUri;
+    }
+
     public string NavigateHome()
     {
         if (currentUri != "/")
         {
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+
             showHeader = true;
             pageTitle = "PortaJel";
             currentUri = "/";
@@ -140,6 +168,8 @@
     {
         if (currentUri != "/library/false")
         {
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+
             showHeader = true;
             pageTitle = "Library";
             currentUri = "/library/false";
@@ -157,6 +187,8 @@
     {
         if (currentUri != "/library/true")
         {
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+
             showHeader = true;
             pageTitle = "Favourites";
             currentUri = "/library/true";
@@ -174,6 +206,8 @@
     {
         if (currentUri != "/downloads")
         {
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+
             showHeader = true;
             pageTitle = "Downloads";
             currentUri = "/downloads";
@@ -189,10 +223,10 @@
 
     public string NavigateSettings()
     {
-        MauiProgram.MainPage.ShowLoadingScreen(true);
-
         if (currentUri != "/settings")
         {
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+
             showHeader = true;
             pageTitle = "Settings";
             currentUri = "/settings";

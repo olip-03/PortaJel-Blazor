@@ -39,9 +39,6 @@ public partial class MainPage : ContentPage
     public MediaQueue MainMediaQueue { get => this.Queue; private set { } }
     public MiniPlayer MainMiniPlayer { get => this.MiniPlayer; private set { } }
 
-
-    private ObservableCollection<Song> queue = new ObservableCollection<Song>();
-    private ObservableCollection<Song> playingQueue = new ObservableCollection<Song>();
     private bool canSkipCarousel = false;
     private bool hideMidiPlayer = true;
     long lastSeekPosition = 0;
@@ -178,9 +175,7 @@ public partial class MainPage : ContentPage
         RefreshQueue();
 
         // Update the song that is currently playing
-        
-
-        if (playingQueue.Count() > 0)
+        if (MauiProgram.MediaService.GetQueue().AllSongs.Count() > 0)
         {
             if (!MiniPlayer.IsOpen)
             {
@@ -201,15 +196,12 @@ public partial class MainPage : ContentPage
     {
         canSkipCarousel = false;
         int playingIndex = MauiProgram.MediaService.GetQueueIndex();
-        List<Song> mediaQueue = MauiProgram.MediaService.GetQueue().AllSongs.ToList();
 
-        queue = mediaQueue.ToObservableCollection();
-        mediaQueue.RemoveRange(0, playingIndex);
-        playingQueue = mediaQueue.ToObservableCollection();
+        SongGroupCollection songGroupCollection = MauiProgram.MediaService.GetQueue();
 
-        MiniPlayer.UpdateData(MauiProgram.MediaService.GetQueue().AllSongs.ToArray(), playingIndex);
-        MainMediaController.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex);
-        MainMediaQueue.UpdateData(MauiProgram.MediaService.GetQueue(), playingIndex);
+        MiniPlayer.UpdateData(songGroupCollection.AllSongs.ToArray(), playingIndex);
+        MainMediaController.UpdateData(songGroupCollection, playingIndex);
+        MainMediaQueue.UpdateData(songGroupCollection, playingIndex);
     }
 
     public void ShowMusicController()

@@ -209,11 +209,12 @@ namespace PortaJel_Blazor.Data
         public static Song Builder(BaseItemDto baseItem, string server)
         {
             long duration = -1;
+
             if (baseItem.RunTimeTicks != null)
             {
                 duration = (long)baseItem.RunTimeTicks;
             }
-            else if (baseItem.CumulativeRunTimeTicks != null)
+            if (baseItem.CumulativeRunTimeTicks != null)
             {
                 duration = (long)baseItem.CumulativeRunTimeTicks;
             }

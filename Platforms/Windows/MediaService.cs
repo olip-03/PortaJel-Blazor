@@ -104,12 +104,12 @@ namespace PortaJel_Blazor.Classes.Services
 
         public PlaybackInfo? GetPlaybackTimeInfo()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         SongGroupCollection IMediaInterface.GetQueue()
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }

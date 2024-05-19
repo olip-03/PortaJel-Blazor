@@ -70,6 +70,9 @@
 
             for (int i = 0; i < album.songs.Length; i++)
             {
+                album.songs[i].album = album; // TODO: this should already be set figure out why it isnt
+                                              // either that or complete the re-do of the data structure 
+                                              // again lollllll
                 <AlbumSongItem song="@album.songs[i]" location="@i" base64BlurHash="@base64BlurHash" />
             }
 

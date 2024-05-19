@@ -1,17 +1,38 @@
 ﻿.songContainer {
     margin: 0 1rem 0.5rem 1rem;
     display: flex;
+    width: calc(100% - 2rem);
+
 }
+
+.songTextContainer {
+    text-align: start;
+    transform: scale(1);
+    width: 90%;
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    transition: 0.25s;
+}
+    .songTextContainer:active {
+        transform: scale(0.95);
+        transition: 0s;
+    }
+
 .songTitle {
     color: black;
     font-size: 1rem;
-    margin: 0px;
+    margin-bottom: 0px !important;
 }
 
 .songArtistTitle {
     color: darkgray;
     font-size: 0.95rem;
-    margin: 0px;
+    margin: 0;
 }
 
 .songitem-options {

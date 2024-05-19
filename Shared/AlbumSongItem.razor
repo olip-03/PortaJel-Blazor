@@ -6,11 +6,10 @@
 @namespace PortaJel_Blazor.Shared
 
 <div class="songContainer" @oncontextmenu="() => OpenContextMenu(song)">
-    <div @onclick="() => PlaySong(location)" style="width: 100%;">
+    <button class="songTextContainer" @onclick="() => PlaySong(location)">
         <p class="PrimaryTextColor songTitle">@song.name</p>
         <p class="SecondaryTextColor songArtistTitle">@song.artistCongregate</p>
-    </div>
-    <!-- Add like and context menu button -->
+    </button>
     <div class="songitem-options">
         @if (song.isFavourite)
         {
@@ -57,19 +56,40 @@
         StateHasChanged();
     }
 
-    private void PlaySong(int songIndex)
+    private async void PlaySong(int songIndex)
     { // Play selected song, and queue the rest of the album
-        if (song.album == null)
+        await Task.Delay(300); // await CSS animation to finish
+
+        // Confirm that the item itself is fine.
+        if (song.album == Album.Empty && 
+            Application.Current != null &&
+            Application.Current.MainPage != null)
         {
-            throw new InvalidOperationException($"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!");
+            await Application.Current.MainPage.DisplayAlert("Error?", $"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!", "Continue");
+            return;
         }
-        MauiProgram.MediaService.SetPlayingCollection(song.album, songIndex);
 
-        MauiProgram.currentAlbumGuid = song.album.id;
-        // MauiProgram.currentSongGuid = album song at index;
+        try
+        {
+            MauiProgram.MediaService.SetPlayingCollection(song.album, songIndex);
 
-        MauiProgram.MainPage.RefreshPlayer();
-        MauiProgram.MediaService.Play();
+            MauiProgram.currentAlbumGuid = song.album.id;
+            // MauiProgram.currentSongGuid = album song at index;
+
+            MauiProgram.MainPage.RefreshPlayer();
+            MauiProgram.MediaService.Play();
+        }
+        catch (Exception ex)
+        {
+            if (Application.Current != null &&
+                Application.Current.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error?", $"{ex.Message} at {ex.StackTrace}", "Continue");
+                return;
+            }
+        }
+
         StateHasChanged();
+        MauiProgram.WebView.UpdateState();
     }
 }
