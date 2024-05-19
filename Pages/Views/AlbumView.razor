@@ -180,6 +180,7 @@
         if (loaded)
         {
             MauiProgram.WebView.isLoading = false;
+            await JS.InvokeAsync<string>("InitAllAlbumSongItem");
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
     }

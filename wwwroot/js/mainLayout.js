@@ -1,6 +1,5 @@
 ﻿// Define variables to store previous scroll position
 let wScrollPrev = window.scrollY || document.documentElement.scrollTop;
-
 window.addEventListener('scroll', function () {
     let toolbar = document.getElementById("mainLayoutToolbar");
     let libToolbar = this.document.getElementById("libraryToolbar");

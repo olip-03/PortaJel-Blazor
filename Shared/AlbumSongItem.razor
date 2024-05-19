@@ -5,7 +5,7 @@
 @using Blurhash;
 @namespace PortaJel_Blazor.Shared
 
-<div class="songContainer" @oncontextmenu="() => OpenContextMenu(song)">
+<div class="albumSongItem" @oncontextmenu="() => OpenContextMenu(song)">
     <button class="songTextContainer" @onclick="() => PlaySong(location)">
         <p class="PrimaryTextColor songTitle">@song.name</p>
         <p class="SecondaryTextColor songArtistTitle">@song.artistCongregate</p>

@@ -1,8 +1,7 @@
-﻿.songContainer {
+﻿.albumSongItem {
     margin: 0 1rem 0.5rem 1rem;
     display: flex;
     width: calc(100% - 2rem);
-
 }
 
 .songTextContainer {

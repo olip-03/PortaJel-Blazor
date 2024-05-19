@@ -43,9 +43,7 @@ public partial class MediaController : ContentView
         {
             await Task.WhenAll(
                 MauiProgram.MainPage.MainMiniPlayer.TranslateTo(0, MauiProgram.MainPage.ContentHeight * -1, 450, Easing.SinOut),
-                this.TranslateTo(0, 0, 450, Easing.SinOut));
-
-                
+                this.TranslateTo(0, 0, 450, Easing.SinOut));  
         }
         else
         {
