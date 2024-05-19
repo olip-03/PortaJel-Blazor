@@ -4,6 +4,7 @@ using Microsoft.Kiota.Abstractions.Authentication;
 using Microsoft.Kiota.Abstractions;
 using Newtonsoft.Json.Linq;
 using PortaJel_Blazor.Data;
+using PortaJel_Blazor.Classes.Interfaces;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Headers;
@@ -24,7 +25,7 @@ namespace PortaJel_Blazor.Classes
     // 
     // /Users/{userId}/Items/Latest endpoint to fetch MOST RECENT media added to the server
     // https://github.com/crobibero/jellyfin-client-avalonia/blob/master/src/Jellyfin.Mvvm/Services/LibraryService.cs
-    public class ServerConnecter
+    public class ServerConnecter : IMediaServerConnector //TODO implement all data return classes into this interface
     {
         private UserDto? userDto = null;
 
