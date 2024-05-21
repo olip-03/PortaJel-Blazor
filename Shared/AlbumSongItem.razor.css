@@ -1,13 +1,36 @@
 ﻿.albumSongItem {
-    margin: 0 1rem 0.5rem 1rem;
     display: flex;
-    width: calc(100% - 2rem);
+    overflow-x: scroll!important;
+    white-space: nowrap;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    width: 100vw;
 }
+
+.infoContainer {
+    display: flex;
+    flex-direction: row;
+    height: auto;
+    inline-size: 160px;
+    min-width: 100vw;
+    max-width: 100vw;
+    width: 100vw;
+    overflow: clip;
+    padding: 0 1rem 0.5rem 1rem;
+}
+
+.overscroll {
+    display: flex;
+    min-width: 50vw;
+    background-color: pink;
+}
+
+/* margin: 0 1rem 0.5rem 1rem; */
+
 
 .songTextContainer {
     text-align: start;
     transform: scale(1);
-    width: 90%;
     background: none;
     color: inherit;
     border: none;
@@ -16,6 +39,8 @@
     cursor: pointer;
     outline: inherit;
     transition: 0.25s;
+    max-width: 80%;
+    text-overflow: clip;
 }
     .songTextContainer:active {
         transform: scale(0.95);
@@ -26,12 +51,14 @@
     color: black;
     font-size: 1rem;
     margin-bottom: 0px !important;
+    max-width: inherit;
 }
 
 .songArtistTitle {
     color: darkgray;
     font-size: 0.95rem;
     margin: 0;
+    text-overflow: clip;
 }
 
 .songitem-options {
