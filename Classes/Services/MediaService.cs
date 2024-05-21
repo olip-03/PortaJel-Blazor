@@ -11,6 +11,7 @@ namespace PortaJel_Blazor.Classes.Services
     {
         void Initalize();
         void Play();
+        void SetPlayAddonAction(Action addonAction);
         void Pause();
         void TogglePlay();
         void ToggleShuffle();

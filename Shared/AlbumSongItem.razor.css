@@ -8,6 +8,7 @@
 }
 
 .infoContainer {
+    margin: 0.25rem 0 0.25rem 0;
     display: flex;
     flex-direction: row;
     height: auto;
@@ -16,22 +17,23 @@
     max-width: 100vw;
     width: 100vw;
     overflow: clip;
-    padding: 0 1rem 0.5rem 1rem;
+    padding: 0 1rem 0rem 1rem;
 }
 
-.overscroll {
+.overscroll-25vw {
     display: flex;
-    min-width: 50vw;
-    background-color: pink;
+    min-width: 25vw;
 }
 
-/* margin: 0 1rem 0.5rem 1rem; */
-
+.overscroll-auto {
+    display: flex;
+}
 
 .songTextContainer {
     text-align: start;
     transform: scale(1);
     background: none;
+    margin: auto 0 auto 0;
     color: inherit;
     border: none;
     padding: 0;
@@ -65,6 +67,9 @@
 .songitem-options {
     margin-left: auto;
     display: flex;
+}
+.songitem-optionbtn {
+    margin: auto auto auto 0.5rem;
 }
 .playback-controls-btn-img {
     height: 3rem;

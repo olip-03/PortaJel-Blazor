@@ -47,9 +47,11 @@
                 </div>
                 <div class="playback-controls-container">
                     <div class="playback-controls-btn">
-                        <img class="playback-controls-btn-img" src="/images/shuffle.svg">
+                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" @onclick="(() => PlayAlbum(true))">
+                            <ShuffleIcon Enabled=false ExtraStyle="height: 2rem; width: 2rem;"></ShuffleIcon>
+                        </Animate>
                     </div>
-                    <div class="playback-controls-btn playbtn" @onclick=PlayAlbum>
+                    <div class="playback-controls-btn playbtn" @onclick="(() => PlayAlbum(false))">
                         @if (isCurrentAlbum && MauiProgram.MediaService.GetIsPlaying())
                         {
                             <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
@@ -111,6 +113,7 @@
     private Guid? currentSongGuid { get; set; } = null;
     public bool isCurrentAlbum = false;
     public int selectedSong = -1;
+    private bool isShuffle = false;
 
     // This bullshit we need to do cause the fucking artists arent loading properly in the razor page
     private Dictionary<Guid, KeyValuePair<string, string>> artistData = new();
@@ -151,6 +154,12 @@
                     MauiProgram.UpdateDebugMessage("Starting request for Album data.");
                     album = await MauiProgram.api.GetAlbumAsync(parseId);
                 }
+
+                MauiProgram.UpdateDebugMessage("Setting Play Additional Update Action");
+                MauiProgram.MediaService.SetPlayAddonAction(() =>
+                {
+                    InvokeAsync(() => StateHasChanged());
+                });
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
                 base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
@@ -251,7 +260,7 @@
         }
     }
 
-    private void PlayAlbum()
+    private void PlayAlbum(bool shuffle = false)
     {
         // Move all items in the current queue to the Next Up Queue, to ensure that
         // this item is prioritised, without losing the current queue 
@@ -262,14 +271,17 @@
         }
         else
         {
-            isCurrentAlbum = true;
+            isCurrentAlbum = false;
 
             // When a user clicks on an album to listen to the songs go into the next up list
+            MauiProgram.MediaService.SetPlayingCollection(album, 0);
             MauiProgram.MediaService.SetPlayingCollection(album);
+
+            MauiProgram.MainPage.RefreshPlayer();
             MauiProgram.MediaService.Play();
         }
 
-        MauiProgram.MainPage.RefreshPlayer();
+        // MauiProgram.MainPage.RefreshPlayer();
         StateHasChanged();
     }
 

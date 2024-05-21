@@ -22,6 +22,8 @@ namespace PortaJel_Blazor.Classes.Services
 {
     public partial class MediaService : IMediaInterface
     {
+        public Action? PlayAddonAction { get; set; } = null;
+
         MediaServiceConnection serviceConnection = new();
         IDispatcherTimer? DispatcherTimer= null;
 
@@ -89,9 +91,16 @@ namespace PortaJel_Blazor.Classes.Services
                 serviceConnection.Binder.Play();
                 UpdatePlaystateUi();
                 // DispatcherTimer.Start();
+                if(PlayAddonAction != null)
+                {
+                    PlayAddonAction();
+                }
             }
         }
-
+        public void SetPlayAddonAction(Action addonAction)
+        {
+            PlayAddonAction = addonAction;
+        }
         public void Pause()
         {
             if (serviceConnection != null &&
@@ -99,6 +108,10 @@ namespace PortaJel_Blazor.Classes.Services
             {
                 serviceConnection.Binder.Pause();
                 UpdatePlaystateUi();
+                if (PlayAddonAction != null)
+                {
+                    PlayAddonAction();
+                }
                 // DispatcherTimer.Stop();
             }
         }
@@ -110,13 +123,21 @@ namespace PortaJel_Blazor.Classes.Services
             {
                 serviceConnection.Binder.TogglePlay();
                 if (serviceConnection.Binder.GetIsPlaying())
-                {
+                { // Is Playing
                     UpdatePlaystateUi();
+                    if (PlayAddonAction != null)
+                    {
+                        PlayAddonAction();
+                    }
                     // DispatcherTimer.Start();
                 }
                 else
-                {
+                { // Is Paused
                     UpdatePlaystateUi();
+                    if (PlayAddonAction != null)
+                    {
+                        PlayAddonAction();
+                    }
                     // DispatcherTimer.Stop();
                 }
             }
@@ -181,6 +202,7 @@ namespace PortaJel_Blazor.Classes.Services
             if (serviceConnection != null &&
                 serviceConnection.Binder != null)
             {
+                MauiProgram.currentAlbumGuid = baseMusicItem.id;
                 serviceConnection.Binder.SetPlayingCollection(baseMusicItem, fromIndex);
             }
         }

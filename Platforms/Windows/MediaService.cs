@@ -111,5 +111,10 @@ namespace PortaJel_Blazor.Classes.Services
         {
             return null;
         }
+
+        public void SetPlayAddonAction(Action addonAction)
+        {
+            
+        }
     }
 }
