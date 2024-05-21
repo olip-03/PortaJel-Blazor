@@ -2,6 +2,7 @@
 @using BlazorAnimate;
 @using PortaJel_Blazor.Classes.Services;
 @using PortaJel_Blazor.Shared;
+@using PortaJel_Blazor.Shared.Icons;
 @using Blurhash;
 @inject IJSRuntime JS;
 
@@ -34,17 +35,17 @@
                     @if (album.isFavourite)
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            
+                            <HeartIcon Filled=true ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
                         </Animate>
                     }
                     else
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <img class="playback-controls-btn-img" src="/images/heart.svg">
+                            <HeartIcon Filled=false ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
                         </Animate>
                     }
                 </div>
-                <div class="playback-controls">
+                <div class="playback-controls-container">
                     <div class="playback-controls-btn">
                         <img class="playback-controls-btn-img" src="/images/shuffle.svg">
                     </div>
@@ -215,10 +216,19 @@
 
     private async void FavouriteItem()
     {
-        album.isFavourite = !album.isFavourite;
+        bool resetState = album.isFavourite;
+        try
+        {
+            album.isFavourite = !album.isFavourite;
+            await MauiProgram.api.SetFavourite(album, album.isFavourite);
+        }
+        catch (Exception ex)
+        {
+            album.isFavourite = resetState;
+            await App.Current.MainPage.DisplayAlert("Error?", $"{ex}", "Continue");
+        }
         StateHasChanged();
         // MauiProgram.api.SetFavourite
-        await MauiProgram.api.SetFavourite(album, album.isFavourite);
     }
 
     private async void FavouriteSong(Guid songId)
