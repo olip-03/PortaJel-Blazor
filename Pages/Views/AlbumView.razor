@@ -188,7 +188,7 @@
         if (loaded)
         {
             MauiProgram.WebView.isLoading = false;
-            await JS.InvokeAsync<string>("InitAllAlbumSongItem");
+            // await JS.InvokeAsync<string>("InitAllAlbumSongItem");
             await Task.Delay(150); // allow album items time to snap into place
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }

@@ -4,9 +4,13 @@
 @using PortaJel_Blazor.Classes.Services;
 @using PortaJel_Blazor.Shared;
 @using Blurhash;
+@using CommunityToolkit.Maui.Core;
+@using CommunityToolkit.Maui.Alerts;
 @namespace PortaJel_Blazor.Shared
+@inject IJSRuntime JS;
 
 <div id="@guid.ToString()" @oncontextmenu="() => OpenContextMenu(song)" class="albumSongItem">
+    <!-- Queue overscroll -->
     <div id="@(overscrollId = guid.ToString() + "-overscroll")" class="overscroll-25vw PageBackgroundColor">
         <div class="songitem-optionbtn">
             <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
@@ -14,6 +18,7 @@
             </Animate>
         </div>
     </div>
+    <!-- Song contents -->
     <div class="infoContainer">
         <button class="songTextContainer" @onclick="() => PlaySong(location)">
             <p class="PrimaryTextColor songTitle">@song.name</p>
@@ -34,8 +39,9 @@
             </div>
         </div>
     </div>
-    <div class="overscroll-auto PageBackgroundColor">
-        <div @onclick="() => FavouriteSong(song.id)" class="songitem-optionbtn">
+    <!-- Like overscroll -->
+    <div id="@(overscrollId = guid.ToString() + "-overscrollFav")" class="overscroll-auto PageBackgroundColor">
+        <div class="songitem-optionbtn">
             @if (!song.isFavourite)
             {
                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
@@ -59,6 +65,22 @@
     [Parameter] public string base64BlurHash { get; set; } = string.Empty;
     private Guid guid = Guid.NewGuid();
     private string? overscrollId;
+    private bool FavouriteSongLock = false;
+    private bool QueueSongLock = false;
+
+    protected override void OnInitialized()
+    {
+        guid = song.id;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            var lDotNetReference = DotNetObjectReference.Create(this);
+            await JS.InvokeAsync<string>("InitAlbumSongItem", new object[2] { lDotNetReference, guid });
+        }
+    }
 
     private async void FavouriteSong(Guid songId)
     {
@@ -85,7 +107,7 @@
     { // Play selected song, and queue the rest of the album
         await Task.Delay(300); // await CSS animation to finish
         #if WINDOWS
-        return;
+    return;
         #endif
         // Confirm that the item itself is fine.
         if (song.album == Album.Empty &&
@@ -118,5 +140,50 @@
 
         StateHasChanged();
         MauiProgram.WebView.UpdateState();
+    }
+
+    [JSInvokable("QueueSong")]
+    public async void QueueSong()
+    {
+        if (QueueSongLock)
+        {
+            return;
+        }
+        QueueSongLock = true;
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+
+        await Task.Delay(250);
+
+        MauiProgram.MediaService.AddSong(song);
+
+        #if !WINDOWS
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+        string text = $"{song.name} added to queue.";
+        ToastDuration duration = ToastDuration.Short;
+        double fontSize = 14;
+
+        var toast = Toast.Make(text, duration, fontSize);
+        await toast.Show(cancellationTokenSource.Token);
+        #endif
+        QueueSongLock = false;
+    }
+
+    [JSInvokable("FavouriteSong")]
+    public async void FavouriteSong()
+    {
+        if (FavouriteSongLock)
+        {
+            return;
+        }
+        FavouriteSongLock = true;
+        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+
+        song.isFavourite = !song.isFavourite;
+        await Task.WhenAll(Task.Delay(250),
+        MauiProgram.api.SetFavourite(song, song.isFavourite));
+
+        StateHasChanged();
+        FavouriteSongLock = false;
     }
 }
