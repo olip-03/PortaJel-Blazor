@@ -18,7 +18,7 @@
     }
     else if (searchResults.Count() > 0)
     {
-        <div class="music-list">
+        <div class="@(searchDisplayGrid == true ? "music-list" : "search-list")">
             @for (int i = 0; i < searchResults.Length; i++)
             {
                 BaseMusicItem musicItem = searchResults[i];
@@ -107,6 +107,7 @@ else
     private bool isLoading = true;
     private float itemFadeInDelay = 0;
 
+    private bool searchDisplayGrid = false;
     private bool isSearching = false;
     public string searchQuery { get; set; } = String.Empty;
     private string queudQuery = String.Empty;

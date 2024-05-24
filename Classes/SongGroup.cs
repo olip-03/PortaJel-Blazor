@@ -1,11 +1,26 @@
-﻿using PortaJel_Blazor.Data;
+﻿using AngleSharp.Common;
+using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes
 {
     public class SongGroup : List<Song>
     {
         public string Name { get; private set; } = "New Song Group";
-        public bool IsVisible { get { return (this.Count > 0); } private set { } }
+        public bool IsVisible { 
+            get 
+            {
+                if(this.Name == "Previous")
+                {
+                    foreach (Song song in this)
+                    {
+                        song.IsVisible = false;
+                    }
+                    return false;
+                }
+                return (this.Count > 0);
+            } 
+            private set { } 
+        }
         public SongGroup(string? name, List<Song> songs) : base(songs)
         {
             if (name != null)

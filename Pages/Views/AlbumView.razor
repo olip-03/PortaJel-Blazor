@@ -229,7 +229,7 @@
         try
         {
             album.isFavourite = !album.isFavourite;
-            await MauiProgram.api.SetFavourite(album, album.isFavourite);
+            await MauiProgram.api.SetFavourite(album.id, album.serverAddress, album.isFavourite);
         }
         catch (Exception ex)
         {
@@ -256,7 +256,7 @@
         if(foundItem != null)
         {
             StateHasChanged();
-            await MauiProgram.api.SetFavourite(foundItem, foundItem.isFavourite);
+            await MauiProgram.api.SetFavourite(foundItem.id, foundItem.serverAddress, foundItem.isFavourite);
         }
     }
 

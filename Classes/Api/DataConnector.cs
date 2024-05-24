@@ -198,10 +198,17 @@ namespace PortaJel_Blazor.Classes
         }
         #endregion
     
-        public async Task<bool> SetFavourite(BaseMusicItem item, bool favouriteState)
+        public async Task<bool> SetFavourite(Guid itemId, string serverAddress, bool favouriteState)
         {
-            await connecters[item.serverAddress].FavouriteItem(item.id, favouriteState);
-            return favouriteState;
+            if (connecters.ContainsKey(serverAddress))
+            {
+                await connecters[serverAddress].FavouriteItem(itemId, favouriteState);
+                return true;
+            }
+            else
+            {
+                throw new InvalidOperationException("The specified item does not have a server address in the list of connectors!");
+            }
         }
     }
 }

@@ -41,15 +41,9 @@ public static class MauiProgram
 
     public static MainLayout WebView = new();
     public static MainPage MainPage = new(initialize: false);
+    // TODO: MediaService should be null, initalize once media playback is required
 
     public static IMediaInterface MediaService = new MediaService();
-
-    // Global Data Cache
-    // TODO: Move these to the ServerConnectors
-    public static Dictionary<Guid, Song> songDictionary = new Dictionary<Guid, Song>();
-    public static Dictionary<Guid, Album> albumDictionary = new Dictionary<Guid, Album>();
-    public static Dictionary<Guid, Artist> artistDictionary = new Dictionary<Guid, Artist>();
-    public static Dictionary<Guid, Playlist> playlistDictionary = new Dictionary<Guid, Playlist>();
 
     public static Guid currentAlbumGuid = Guid.Empty;
     public static Guid currentSongGuid = Guid.Empty;

@@ -11,6 +11,7 @@ namespace PortaJel_Blazor.Data
     public class Song : BaseMusicItem
     {
         public string playlistId = string.Empty;
+        public bool IsVisible { get; set; } = true;
         /// <summary>
         /// Reference to the artists of this song.
         /// </summary>
@@ -117,16 +118,7 @@ namespace PortaJel_Blazor.Data
             for (int i = 0; i < artists.Length; i++)
             {
                 Artist? artist = Artist.Empty;
-                bool exists = MauiProgram.artistDictionary.TryGetValue(artists[i].id, out artist);
-                if (!exists)
-                {
-                    // artist = await MauiProgram.servers[0].GetArtistAsync(artists[i].id);
-                    artist = await MauiProgram.api.GetArtistAsync(artists[i].id);
-                }
-                if (artist != null)
-                {
-                    toAdd.Add(artist);
-                }
+                artist = await MauiProgram.api.GetArtistAsync(artists[i].id);
             }
             artists = toAdd.ToArray();
             return artists;
@@ -142,7 +134,7 @@ namespace PortaJel_Blazor.Data
                     MauiProgram.MainPage.CloseContextMenu();
 
                     this.isFavourite = false;
-                    await MauiProgram.api.SetFavourite(this, false);
+                    await MauiProgram.api.SetFavourite(this.id, this.serverAddress, false);
                 })));
             }
             else
@@ -152,7 +144,7 @@ namespace PortaJel_Blazor.Data
                     MauiProgram.MainPage.CloseContextMenu();
 
                     this.isFavourite = true;
-                    await MauiProgram.api.SetFavourite(this, true);
+                    await MauiProgram.api.SetFavourite(this.id, this.serverAddress, true);
                 })));
             }
             contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>

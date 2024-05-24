@@ -305,7 +305,7 @@
     {
         artist.isFavourite = !artist.isFavourite;
         StateHasChanged();
-        await MauiProgram.api.SetFavourite(artist, artist.isFavourite);
+        await MauiProgram.api.SetFavourite(artist.id, artist.serverAddress, artist.isFavourite);
     }
     private async void GoBack()
     {

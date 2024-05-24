@@ -200,7 +200,7 @@ public partial class MediaController : ContentView
         {
             await Task.Run(async () =>
             {
-                await MauiProgram.api.SetFavourite(song, song.isFavourite);
+                await MauiProgram.api.SetFavourite(song.id, song.serverAddress, song.isFavourite);
             });
         }
     }
@@ -421,7 +421,7 @@ public partial class MediaController : ContentView
 
         UpdateFavouriteButton();
         MauiProgram.MainPage.MainMiniPlayer.UpdateFavouriteButton(syncToServer: true);
-        await Task.Run(() => MauiProgram.api.SetFavourite(song, state));
+        await Task.Run(() => MauiProgram.api.SetFavourite(song.id, song.serverAddress, state));
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)

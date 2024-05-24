@@ -82,9 +82,6 @@ public partial class PlaylistViewEditor : ContentPage
         save_activityIndicator.IsVisible = true;
         save_btn.IsVisible = false;
 
-        // Save data from the modal
-        MauiProgram.playlistDictionary[playlist.id].name = txt_playlistName.Text;
-        MauiProgram.playlistDictionary[playlist.id].songs = songList.ToArray();
         // load playlist page from saved data
         // MauiProgram.mainLayout.NavigatePlaylist(playlist.id);
 

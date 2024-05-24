@@ -15,9 +15,12 @@ using Com.Google.Android.Exoplayer2.Extractor.Mp3;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Upstream;
 using Java.Lang;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Services;
 using PortaJel_Blazor.Data;
+using System.Collections.Generic;
+using static Android.Provider.MediaStore.Audio;
 using MediaMetadata = Android.Media.MediaMetadata;
 
 #pragma warning disable CS0618, CS0612, CA1422 // Type or member is obsolete
@@ -28,6 +31,7 @@ using MediaMetadata = Android.Media.MediaMetadata;
 //
 // Looks like an easy enough Kotlin tutorial for the MediaStyle notificaiton mrow :3 
 // https://medium.com/@anafthdev_/create-mediastyle-notification-in-android-anafthdev-70fe7df3397e
+// https://android-developers.googleblog.com/2020/08/playing-nicely-with-media-controls.html
 //
 // This is for the MusicBrainz lookup I want to add, for comparing strings. Not relevent to the Android Media Service here but it will need to be implemented and I have this file open already
 // https://medium.com/@tarakshah/this-article-explains-how-to-check-the-similarity-between-two-string-in-percentage-or-score-from-0-83e206bf6bf5
@@ -48,7 +52,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         MediaSession? mediaSession = null;
         MediaMetadata? mediaSessionMetadata = null;
         MediaSessionCallback? mediaSessionCallback = null;
-        // MediaMetadata? mediaMetadata = null;
+        MediaMetadata? mediaMetadata = null;
 
         Notification? playerNotification = null;
         public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
@@ -57,6 +61,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         public BaseMusicItem? playingFrom { get; private set; } = null;
         public List<Song> dequeued { get; private set; } = new();
         public List<Song> songQueue { get; private set; } = new();
+        private int? queueStart { get; set; } = null;
 
         private string channedId = AppInfo.PackageName;
 
@@ -96,7 +101,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         KeyEvent? eventVal = (KeyEvent)intent.GetParcelableExtra(Intent.ExtraKeyEvent);
                         if (eventVal != null)
                         {
-                            if (eventVal.KeyCode == KeyEvent.KeyCodeFromString("KEYCODE_MEDIA_PLAY"))
+                            if (eventVal.KeyCode == KeyEvent.KeyCodeFromString("KEYCODE_MEDIA_PLAY_PAUSE"))
                             {
                                 TogglePlay();
                             }
@@ -146,17 +151,33 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             playPauseIntent.SetAction("PlayPause");
             PendingIntent? pendingIntentPlayPause = PendingIntent.GetBroadcast(this, 12346, playPauseIntent, PendingIntentFlags.Immutable);
 
+            Notification.Style? mediaStyle = new Notification.MediaStyle()
+                .SetMediaSession(mediaSession.SessionToken)
+                .SetShowActionsInCompactView();
+            //    androidx.media.app.NotificationCompat.MediaStyle()
+            //.setMediaSession(mediaSession!!.sessionToken)
+            //.setShowActionsInCompactView()
+
             Notification.Builder? playerNotificationBuilder = new Notification.Builder(context, channel.Id)
                  .SetChannelId(channel.Id)
                  .SetSmallIcon(Resource.Drawable.heart)
                  .SetContentTitle("Track title")
                  .SetContentText("Artist - Album")
-                 .SetStyle(new Notification.MediaStyle().SetMediaSession(mediaSession.SessionToken))
+                 .SetStyle(mediaStyle)
+                 .SetOngoing(true)
                  .SetAllowSystemGeneratedContextualActions(true);
+
+            int previousIconResId = Resource.Drawable.exo_controls_previous;
+            int playPauseIconResId = Resource.Drawable.exo_controls_play; 
+            int nextIconResId = Resource.Drawable.exo_controls_next;
+            int heartIconResId = Resource.Drawable.heart;
+
             if (pendingIntentLike != null) 
             {
-                playerNotificationBuilder.AddAction(Resource.Drawable.heart, "Yes", pendingIntentLike);
-                playerNotificationBuilder.AddAction(Resource.Drawable.heart, "PlayPause", pendingIntentPlayPause);
+                playerNotificationBuilder.AddAction(playPauseIconResId, "Play/Pause", pendingIntentPlayPause);
+                playerNotificationBuilder.AddAction(previousIconResId, "Previous", pendingIntentLike);
+                playerNotificationBuilder.AddAction(nextIconResId, "Next", pendingIntentLike);
+                playerNotificationBuilder.AddAction(heartIconResId, "Favourite", pendingIntentLike);
             }
             playerNotification = playerNotificationBuilder.Build();
 
@@ -398,9 +419,19 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             {
                 playingFrom = baseMusicItem;
 
+                List<Song> toAdd = new();
+                if(baseMusicItem is Album)
+                {
+                    Album album = (Album)baseMusicItem;
+                    toAdd.AddRange(album.songs);
+                }
+
                 Player.ClearMediaItems();
 
-                foreach (Song song in GetQueue().AllSongs)
+                queueStart = fromIndex + 1;
+                playingIndex = fromIndex;
+
+                foreach (Song song in toAdd)
                 {
                     MediaItem? mediaItem = MediaItem.FromUri(song.streamUrl);
 
@@ -414,9 +445,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         if (media != null)
                         {
                             mediaItem.MediaId = song.id.ToString();
-                            Player.AddMediaSource(media);
+                            Player.AddMediaItem(mediaItem);
                         }
-
                     }
                 }
 
@@ -433,9 +463,20 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             if (Player != null)
             {
+                if (queueStart == null || songQueue.Count() == 0)
+                {
+                    queueStart = playingIndex + 1;
+                }
+
+                if (queueStart + songQueue.Count() > playingIndex)
+                {
+                    songQueue.Clear();
+                    queueStart = playingIndex + 1;
+                }
+
                 songQueue.Add(song);
 
-                int index = (playingIndex + 1) + songQueue.Count();
+                int insertIndex = playingIndex + songQueue.Count();
 
                 if (song.streamUrl != null)
                 {
@@ -450,11 +491,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         if (media != null)
                         {
                             mediaItem.MediaId = song.id.ToString();
-                            Player.AddMediaSource(media);
+                            Player.AddMediaItem(insertIndex, mediaItem);
                         }
                     }
                 }
-
                 return true;
             }
             return false;
@@ -488,33 +528,34 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public SongGroupCollection GetQueue()
         {
-            if (playingFrom == null)
+            if (playingFrom == null || Player == null)
             {
                 return new SongGroupCollection();
             }
 
-            SongGroupCollection songGroupCollection = new();
-            SongGroup previous = new("Previous");
-            SongGroup currentSong = new("Currently Playing");
-            SongGroup queue = new("Queue");
-            SongGroup songList = new("Next Up");
+            List<Song> totalList = new();
 
-            // Add queue after selected song
-            queue.AddRange(songQueue);
-            if (playingFrom is Album)
+            SongGroupCollection songGroupCollection = new();
+            SongGroup queue = new("Queue");
+
+            // Create a list to query songs from
+            List<Song> querySongs = new();
+            if(playingFrom is Album)
             {
                 Album album = (Album)playingFrom;
-                songList.AddRange(album.songs);
+                querySongs.AddRange(album.songs);
             }
-            else if (playingFrom is Playlist)
+            querySongs.AddRange(songQueue);
+
+            // construct queue from player
+            for (int i = 0; i < Player.MediaItemCount; i++)
             {
-                Playlist playlist = (Playlist)playingFrom;
-                songList.AddRange(playlist.songs);
+                Guid id = Guid.Parse(Player.GetMediaItemAt(i).MediaId);
+                Song song = querySongs.FirstOrDefault(song => song.id == id);
+                queue.Add(song);
             }
 
             songGroupCollection.Add(queue);
-            songGroupCollection.Add(songList);
-
             return songGroupCollection;
         }
 
@@ -585,15 +626,23 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     string PlaybackTimeValue = "00:00";
                     string PlaybackMaximumTimeValue = "00:00";
 
-                    TimeSpan playbackTimeString = TimeSpan.FromMilliseconds(Player.CurrentPosition);
-                    TimeSpan fullTimeString = TimeSpan.FromMilliseconds(Player.Duration);
+                    try
+                    {
+                        TimeSpan playbackTimeString = TimeSpan.FromMilliseconds(Player.CurrentPosition);
+                        TimeSpan fullTimeString = TimeSpan.FromMilliseconds(Player.Duration);
 
-                    // Convert current song duration from ticks to ms 
-                    currentSong.duration = Player.Duration;
+                        // Convert current song duration from ticks to ms 
+                        currentSong.duration = Player.Duration;
 
-                    PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTimeString.Minutes, playbackTimeString.Seconds);
-                    PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTimeString.Minutes, fullTimeString.Seconds);
-                    
+                        PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTimeString.Minutes, playbackTimeString.Seconds);
+                        PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTimeString.Minutes, fullTimeString.Seconds);
+                    }
+                    catch (System.Exception)
+                    {
+                        PlaybackTimeValue = "00:00";
+                        PlaybackMaximumTimeValue = "00:00";
+                    }
+   
                     newTime = new(
                         Player.CurrentPosition,
                         currentSong,

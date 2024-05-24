@@ -20,7 +20,6 @@ public partial class MediaQueue : ContentView
         Opacity = 1;
         TranslationY = MauiProgram.MainPage.ContentHeight;
         IsVisible = true;
-        IsOpen = true;
 
         if (animate == true)
         {
@@ -33,6 +32,7 @@ public partial class MediaQueue : ContentView
             MauiProgram.MainPage.MainMiniPlayer.TranslationY = MauiProgram.MainPage.ContentHeight * -1;
             TranslationY = 0;
         }
+        IsOpen = true;
     }
 
     public async void Close(bool? animate = true)

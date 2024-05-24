@@ -66,7 +66,7 @@
                     
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="data:Song">
-                            <Grid Padding="20, 0, 0, 5" HeightRequest="55">
+                            <Grid Padding="20, 0, 0, 10" IsVisible="{Binding IsVisible}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
@@ -81,9 +81,13 @@
                                         WidthRequest="50" 
                                         StrokeShape="RoundRectangle 3,3,3,3"
                                         StrokeThickness="0"
-                                        Margin="0, 0, 5, 0">
+                                        Margin="0, 0, 5, 0"
+                                        IsEnabled="{Binding IsVisible}"
+                                        IsVisible="{Binding IsVisible}">
                                     <Image Grid.RowSpan="2"
                                            Source="{Binding image.sourceAtResolution}"
+                                           IsVisible="{Binding IsVisible}"
+                                           IsEnabled="{Binding IsVisible}"
                                            Aspect="AspectFill"/>
                                 </Border>
 
@@ -91,13 +95,17 @@
                                        Text="{Binding name}"
                                        TextColor="{StaticResource PrimaryTextColor}" 
                                        FontAttributes="Bold" 
-                                       VerticalOptions="End"/>
+                                       VerticalOptions="End"
+                                       IsEnabled="{Binding IsVisible}"
+                                       IsVisible="{Binding IsVisible}"/>
                                 <Label Grid.Row="1"
                                        Grid.Column="1"
                                        Text="{Binding artistCongregate}"
                                        FontAttributes="Italic"
                                        VerticalOptions="Start"
-                                       TextColor="{StaticResource PrimaryTextColor}" />
+                                       TextColor="{StaticResource PrimaryTextColor}" 
+                                       IsEnabled="{Binding IsVisible}"
+                                       IsVisible="{Binding IsVisible}"/>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

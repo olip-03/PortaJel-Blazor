@@ -693,11 +693,6 @@ namespace PortaJel_Blazor.Classes
                 returnArtist.artistAlbums = albums.ToArray();
             }
 
-            if (!MauiProgram.artistDictionary.ContainsKey(returnArtist.id))
-            {
-                MauiProgram.artistDictionary.Add(returnArtist.id, returnArtist);
-            }
-
             return returnArtist;
         }
         #endregion
@@ -823,28 +818,10 @@ namespace PortaJel_Blazor.Classes
                 }
 
                 Song newSong = Song.Builder(songItem, _sdkClientSettings.ServerUrl);
-
-                if (!MauiProgram.songDictionary.ContainsKey(newSong.id))
-                {
-                    MauiProgram.songDictionary.Add(newSong.id, newSong);
-                }
-                else
-                {
-                    MauiProgram.songDictionary[newSong.id] = newSong;
-                }
                 
                 songList.Add(newSong);
             }
             newPlaylist.songs = songList.ToArray();
-
-            if (!MauiProgram.playlistDictionary.ContainsKey(newPlaylist.id))
-            {
-                MauiProgram.playlistDictionary.Add(newPlaylist.id, newPlaylist);
-            }
-            else
-            {
-                MauiProgram.playlistDictionary[newPlaylist.id] = newPlaylist;
-            }
 
             return newPlaylist;
         }

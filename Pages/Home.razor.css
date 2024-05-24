@@ -8,11 +8,15 @@
     margin: 0 1rem 0 1rem;
 }
 
+.search-list {
+    margin: 0 1rem 0 1rem;
+}
+
 /* CSS for each list item */
 .music-item {
     background-color: #f2f2f2;
     border-radius: 5px;
-    overflow:hidden;
+    overflow: hidden;
     display: flex;
     align-items: center;
     max-width: 100%;

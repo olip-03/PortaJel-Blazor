@@ -45,10 +45,12 @@
         </div>
         @if (musicObject is not Genre && !isGrid)
         {
-            <div class="favorite-button" @onclick=FavouriteItem>
+            <div class="favorite-button">
                 @if (MauiProgram.styleSettings.listItemsContextMenu)
                 {
-                    <img class="favorite-button-icon" src="/images/more-vert.svg" @onclick=OpenContextMenu />
+                    <div @onclick=OpenContextMenu>
+                        <PortaJel_Blazor.Shared.Icons.MoreHorizIcon ExtraStyle="aspect-ratio: 1/1; height: 2.25rem; width: 2.25rem;" />
+                    </div>
                 }
                 else
                 {
@@ -143,7 +145,7 @@
         if (musicObject != null)
         {
             musicObject.isFavourite = !musicObject.isFavourite;
-            await MauiProgram.api.SetFavourite(musicObject, musicObject.isFavourite);
+            await MauiProgram.api.SetFavourite(musicObject.id, musicObject.serverAddress, musicObject.isFavourite);
         }
         StateHasChanged();
     }

@@ -149,7 +149,7 @@ public partial class MiniPlayer : ContentView
 
         if (syncToServer == true)
         {
-            await MauiProgram.api.SetFavourite(song, song.isFavourite);
+            await MauiProgram.api.SetFavourite(song.id, song.serverAddress, song.isFavourite);
         }
     }
 
@@ -290,7 +290,7 @@ public partial class MiniPlayer : ContentView
         UpdateFavouriteButton();
         MauiProgram.MainPage.MainMediaController.UpdateFavouriteButton();
 
-        await Task.Run(() => MauiProgram.api.SetFavourite(song, state));
+        await Task.Run(() => MauiProgram.api.SetFavourite(song.id, song.serverAddress, state));
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)

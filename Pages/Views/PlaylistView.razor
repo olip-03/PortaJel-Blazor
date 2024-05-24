@@ -94,17 +94,7 @@
         MauiProgram.WebView.showHeader = false;
 
         Guid parseId = Guid.Parse(playlistId);
-        if (MauiProgram.playlistDictionary.ContainsKey(parseId))
-        {
-            playlist = MauiProgram.playlistDictionary[parseId];
-        }
-        else
-        {
-            if (playlistId != null)
-            {
-                playlist = await MauiProgram.servers[0].FetchPlaylistByIDAsync(parseId);
-            }
-        }
+        playlist = await MauiProgram.servers[0].FetchPlaylistByIDAsync(parseId);
 
         if (playlist != null)
         {
@@ -152,7 +142,7 @@
         {
             playlist.isFavourite = !playlist.isFavourite;
             StateHasChanged();
-            await MauiProgram.api.SetFavourite(playlist, playlist.isFavourite);
+            await MauiProgram.api.SetFavourite(playlist.id, playlist.serverAddress, playlist.isFavourite);
         }
     }
     private void PlayAlbum()
