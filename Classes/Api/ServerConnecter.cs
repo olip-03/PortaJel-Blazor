@@ -10,12 +10,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
-using static Jellyfin.Sdk.Generated.Playlists.Item.Items.ItemsRequestBuilder;
-using Jellyfin.Sdk.Generated.Collections.Item.Items;
-using Microsoft.Maui.Controls;
-using System.Threading;
+using SQLite;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -35,6 +30,13 @@ namespace PortaJel_Blazor.Classes
         private string Username = String.Empty;
         private string StoredPassword = String.Empty;
 
+        public string? DatabaseFilename = string.Empty;
+        public SQLite.SQLiteOpenFlags Flags =
+            SQLite.SQLiteOpenFlags.ReadWrite |  // open the database in read/write mode
+            SQLite.SQLiteOpenFlags.Create |     // create the database if it doesn't exist
+            SQLite.SQLiteOpenFlags.SharedCache; // enable multi-threaded database access
+        public string DatabasePath => Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
+        SQLiteAsyncConnection? Database = null;
         private ConcurrentDictionary<Guid, Album> albumCache = new();
         private ConcurrentDictionary<Guid, Song> songCache = new();
         public ConcurrentDictionary<Guid, Artist> artistCache = new();
@@ -53,8 +55,10 @@ namespace PortaJel_Blazor.Classes
         public CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
         private CancellationToken token;
 
+        // https://stackoverflow.com/questions/26020/what-is-the-best-way-to-connect-and-use-a-sqlite-database-from-c-sharp
         public ServerConnecter(string baseUrl, string? username = null, string? password = null)
         {
+            DatabaseFilename = baseUrl + "-cache.db3";
             var serviceProvider = ConfigureServices();
 
             _jellyfinApiClient = serviceProvider.GetRequiredService<JellyfinApiClient>();
@@ -75,6 +79,7 @@ namespace PortaJel_Blazor.Classes
             {
                 StoredPassword = password;
             }
+
         }
 
         private ServiceProvider ConfigureServices()
@@ -873,6 +878,14 @@ namespace PortaJel_Blazor.Classes
             //    await _playstateClient.ReportPlaybackStartAsync(body: playbackStartInfo);
             //    return true;
             //}
+            if (_jellyfinApiClient != null)
+            {
+                //await _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(c =>
+                //{
+                //    c.
+                //})
+                return true;
+            }
             return false;
         }
 
@@ -881,11 +894,14 @@ namespace PortaJel_Blazor.Classes
         // Pings a playback session.
         public async Task<bool> SessionReportPing(string playSessionId)
         {
-            //if (_playstateClient != null)
-            //{
-            //    await _playstateClient.PingPlaybackSessionAsync(playSessionId);
-            //    return true;
-            //}
+            if(_jellyfinApiClient != null)
+            {
+                await _jellyfinApiClient.Sessions.Playing.Ping.PostAsync(c =>
+                {
+                    c.QueryParameters.PlaySessionId = playSessionId;
+                });
+                return true;
+            }
             return false;
         }
 

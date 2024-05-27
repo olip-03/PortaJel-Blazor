@@ -115,7 +115,7 @@ public static class MauiProgram
     public static void UpdateDebugMessage(string message)
     {
         Console.WriteLine(message);
-        if(Application.Current != null)
+        if (Application.Current != null)
         {
             Application.Current.Dispatcher.Dispatch(() => MainPage.UpdateDebugText(message));
         }

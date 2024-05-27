@@ -11,7 +11,6 @@ namespace PortaJel_Blazor.Data
     public class Song : BaseMusicItem
     {
         public string playlistId = string.Empty;
-        public bool IsVisible { get; set; } = true;
         /// <summary>
         /// Reference to the artists of this song.
         /// </summary>

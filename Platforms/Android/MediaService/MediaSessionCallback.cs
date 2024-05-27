@@ -12,6 +12,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         public Action<long>? OnSeekToImpl { get; set; }
         public Action<string?, Bundle?>? OnPlayFromMediaIdImpl { get; set; }
         public Action? OnPauseImpl { get; set; }
+        public Action? OnPlayPauseImpl { get; set; }
         public Action? OnStopImpl { get; set; }
         public Action? OnSkipToNextImpl { get; set; }
         public Action? OnSkipToPreviousImpl { get; set; }

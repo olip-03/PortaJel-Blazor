@@ -9,16 +9,8 @@ namespace PortaJel_Blazor.Classes
         public bool IsVisible { 
             get 
             {
-                if(this.Name == "Previous")
-                {
-                    foreach (Song song in this)
-                    {
-                        song.IsVisible = false;
-                    }
-                    return false;
-                }
                 return (this.Count > 0);
-            } 
+            }
             private set { } 
         }
         public SongGroup(string? name, List<Song> songs) : base(songs)

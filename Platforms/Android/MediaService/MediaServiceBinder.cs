@@ -19,7 +19,12 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         }
         public bool TogglePlay()
         {
-            return Service.TogglePlay();
+            bool? playState = Service.TogglePlay();
+            if(playState != null)
+            {
+                return playState.Value;
+            }
+            return false;
         }
         public bool Pause()
         {

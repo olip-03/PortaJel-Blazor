@@ -1,6 +1,7 @@
 using CommunityToolkit.Maui.Core.Extensions;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
+using System.Linq;
 
 namespace PortaJel_Blazor.Shared;
 
@@ -33,6 +34,8 @@ public partial class MediaQueue : ContentView
             TranslationY = 0;
         }
         IsOpen = true;
+        BindingContext = null;
+        BindingContext = ViewModel; // Refresh
     }
 
     public async void Close(bool? animate = true)
@@ -50,18 +53,38 @@ public partial class MediaQueue : ContentView
             MauiProgram.MainPage.MainMiniPlayer.TranslationY = 0;
             TranslationY = MauiProgram.MainPage.ContentHeight;
         }
+
+        IsVisible = false;
     }
 
-    public void UpdateData(SongGroupCollection? songGroupss = null, int? playFromIndex = 0)
+    public void UpdateData(SongGroupCollection? songGroups = null, int? playFromIndex = 0)
     {
-        if (songGroupss != null)
+        if (songGroups != null)
         {
-            ViewModel.SongQueue = songGroupss.SongGroups;
+            SongGroup? sg = songGroups.FirstOrDefault(sg => sg.Name == "Previous");
+            if(sg != null)
+            {
+                songGroups.Remove(sg);
+            }
+
+            ViewModel.SongQueue = songGroups.SongGroups;
         }
 
         // Update time tracking
         PlaybackInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
         MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
+    }
+
+    public void InsertIntoQueue(Song song)
+    {
+        SongGroupCollection sgc = MauiProgram.MediaService.GetQueue();
+        SongGroup? queueGroup = ViewModel.SongQueue.FirstOrDefault(sg => sg.Name == "Queue");
+
+        if (queueGroup != null)
+        {
+            int insertInto = sgc.QueueCount - 1;
+            ViewModel.SongQueue.FirstOrDefault(sg => sg.Name == "Queue").Insert(insertInto, song);
+        }
     }
 
     private void Btn_Close_Clicked(object sender, EventArgs e)

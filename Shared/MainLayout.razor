@@ -223,17 +223,17 @@
 
     public string NavigateSettings()
     {
-        if (currentUri != "/settings")
+        if (currentUri != "/settingshome")
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
 
             showHeader = true;
             pageTitle = "Settings";
-            currentUri = "/settings";
+            currentUri = "/settingshome";
 
             NavManager.NavigateTo(currentUri);
         }
-        else if (currentUri == "/settings")
+        else if (currentUri == "/settingshome")
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }

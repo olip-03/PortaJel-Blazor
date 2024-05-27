@@ -7,6 +7,17 @@
     width: 100vw;
 }
 
+.numberholder {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+    width: 2rem;
+    text-anchor: middle;
+    align-content: center;
+    text-align: center;
+}
+
 .infoContainer {
     margin: 0.25rem 0 0.25rem 0;
     display: flex;

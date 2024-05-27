@@ -1,0 +1,48 @@
+﻿@page "/connectionsettings"
+
+<div class="header">
+    <div class="title">Connections</div>
+    <button class="add-button" @onclick=AddConnection>Add</button>
+</div>
+
+@foreach (var serverConnector in MauiProgram.api.GetServers())
+{
+    <div class="connection-container">
+        <div class="connection-details">
+            <div class="user-profile">
+                <img class="user-profile-img" src="@serverConnector.GetProfileImage()" onerror="this.src='/images/avatar.png'" />
+            </div>
+            <div>
+                <div class="user-profile-name">@serverConnector.GetUsername()</div>
+                <div class="user-profile-connection">@serverConnector.GetBaseAddress()</div>
+            </div>
+        </div>
+        <button class="remove-button" @onclick="() => DeleteConnection(serverConnector.GetBaseAddress())">Remove</button>
+    </div>
+}
+@if (!MauiProgram.isConnected)
+{
+    <button class="reconnect-button">Reconnect</button>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        MauiProgram.WebView.pageTitle = "Connection Settings";
+        MauiProgram.WebView.currentUri = "/connectionsettings";
+        MauiProgram.WebView.showHeader = true;
+
+        MauiProgram.WebView.isLoading = false;
+        MauiProgram.MainPage.ShowLoadingScreen(false);
+    }
+
+    public void DeleteConnection(string baseAddress)
+    {
+
+    }
+
+    public void AddConnection()
+    {
+        
+    }
+}

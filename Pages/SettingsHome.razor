@@ -1,0 +1,58 @@
+﻿@using PortaJel_Blazor.Classes;
+@using Microsoft.Maui.Controls;
+@using PortaJel_Blazor.Shared;
+@using PortaJel_Blazor.Pages.Xaml;
+@using PortaJel_Blazor.Shared.Icons;
+@using BlazorAnimate;
+@page "/settingshome"
+
+<ul>
+    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+    <li @onclick=NavigateConnections>
+        <LanIcon ExtraStyle="width: 2rem; height: 2rem; margin: auto 1rem auto 0rem" />
+        <div class="listContent">
+            <h4>Connections</h4>
+            <p class="SecondaryTextColor">Add or remove connected servers</p>
+        </div>
+    </li>
+    <li @onclick=NavigateConnections>
+        <PhoneIcon ExtraStyle="width: 2rem; height: 2rem; margin: auto 1rem auto 0rem" />
+        <div class="listContent">
+            <h4>Display</h4>
+            <p class="SecondaryTextColor">Theme, Font Size, Style</p>
+        </div>
+    </li>
+    <li @onclick=NavigateConnections>
+        <VolumeIcon ExtraStyle="width: 2rem; height: 2rem; margin: auto 1rem auto 0rem" />
+        <div class="listContent">
+            <h4>Audio</h4>
+            <p class="SecondaryTextColor">Transcoding, Playback</p>
+        </div>
+    </li>
+    <li @onclick=NavigateConnections>
+        <DownloadIcon ExtraStyle="width: 2rem; height: 2rem; margin: auto 1rem auto 0rem" />
+        <div class="listContent">
+            <h4>Downloads</h4>
+            <p class="SecondaryTextColor">Storage Usage, File Location, Cache</p>
+        </div>
+    </li>
+    </Animate>
+</ul>
+
+
+@code {
+    protected override void OnInitialized()
+    {
+        MauiProgram.WebView.pageTitle = "Settings";
+        MauiProgram.WebView.currentUri = "/settingshome";
+        MauiProgram.WebView.showHeader = true;
+
+        MauiProgram.WebView.isLoading = false;
+        MauiProgram.MainPage.ShowLoadingScreen(false);
+    }
+
+    private void NavigateConnections()
+    {
+        
+    }
+}

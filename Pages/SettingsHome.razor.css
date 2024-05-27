@@ -1,4 +1,21 @@
-﻿/* Styles for the connection boxes */
+﻿ul {
+    list-style-type: none;
+    color: #fff;
+    content: ' \2022';
+    padding-left: 1rem;
+}
+li {
+    list-style-type: none;
+    color: #fff;
+    content: ' \2022';
+    font-size: 1rem;
+    display: flex;
+    margin-top: 1rem;
+}
+.listContent {
+
+}
+/* Styles for the connection boxes */
 .connection-container {
     display: flex;
     align-items: center;
@@ -8,6 +25,13 @@
     padding: 10px;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+h3 {
+    margin: 0;
+}
+p {
+    margin: 0;
 }
 
 .draggable-container {

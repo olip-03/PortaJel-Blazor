@@ -1,0 +1,67 @@
+﻿@page "/displaysettings"
+
+<label for="combox-select">Theme & Style</label>
+
+<select name="pets" id="pet-select">
+    <option value="">--Please choose an option--</option>
+    <option value="dog">Dog</option>
+    <option value="cat">Cat</option>
+    <option value="hamster">Hamster</option>
+    <option value="parrot">Parrot</option>
+    <option value="spider">Spider</option>
+    <option value="goldfish">Goldfish</option>
+</select>
+
+<!-- Home Settings-->
+<div>
+    <!-- Layout Configuration Options -->
+    <div class="header">
+        <div class="title">Home Layout</div>
+    </div>
+
+    <!-- TODO: This is just a design, It needs proper implemntation -->
+    <div class="connection-container">
+        <div class="connection-details">
+            <div class="user-profile-name">Edit Layout</div>
+        </div>
+        <img class="button-dropdown" src="/images/expand-right.svg" />
+    </div>
+</div>
+<br />
+
+<!-- Favourites Settings -->
+<div>
+    <div class="header">
+        <div class="title">Favourites</div>
+    </div>
+
+    <!-- Hide M3U Playlists -->
+    <div class="header">
+        <div class="checkbox-wrapper-22">
+            <label class="switch" for="checkbox">
+                <input type="checkbox" id="checkbox" @bind="hidem3u" />
+                <div class="slider round"></div>
+            </label>
+        </div>
+
+        <p>Hide .m3u files in Playlists</p>
+    </div>
+</div>
+
+@code {
+    public bool hidem3u
+    {
+        get { return MauiProgram.hideM3u; }
+        set { MauiProgram.hideM3u = value; }
+    }
+
+    protected override void OnInitialized()
+    {
+        MauiProgram.WebView.pageTitle = "Display Settings";
+        MauiProgram.WebView.currentUri = "/displaysettings";
+        MauiProgram.WebView.showHeader = true;
+
+        MauiProgram.WebView.isLoading = false;
+        MauiProgram.MainPage.ShowLoadingScreen(false);
+    }
+}

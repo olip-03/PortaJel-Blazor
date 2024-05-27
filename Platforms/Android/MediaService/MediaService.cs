@@ -4,6 +4,7 @@ using PortaJel_Blazor.Data;
 using System.Timers;
 using Android.OS;
 using System.Runtime.CompilerServices;
+using Java.Lang;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 
@@ -37,7 +38,7 @@ namespace PortaJel_Blazor.Classes.Services
 
         [Obsolete]
         public void Initalize()
-        {
+        { 
             CheckPermissions();
 
             if(Application.Current != null)
@@ -97,10 +98,12 @@ namespace PortaJel_Blazor.Classes.Services
                 }
             }
         }
+
         public void SetPlayAddonAction(Action addonAction)
         {
             PlayAddonAction = addonAction;
         }
+
         public void Pause()
         {
             if (serviceConnection != null &&
@@ -218,7 +221,11 @@ namespace PortaJel_Blazor.Classes.Services
 
         public void AddSongs(Song[] songs)
         {
-            throw new NotImplementedException();
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                serviceConnection.Binder.AddSongs(songs);
+            }
         }
 
         public void RemoveSong(int index)

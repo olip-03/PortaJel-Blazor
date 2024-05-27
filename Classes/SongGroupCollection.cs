@@ -7,6 +7,8 @@ namespace PortaJel_Blazor.Classes
     {
         public ObservableCollection<SongGroup> SongGroups => this.ToObservableCollection();
         public ObservableCollection<Song> AllSongs => this.SelectMany(group => group).ToObservableCollection();
+        public int QueueStartIndex { get; set; } = -1;
+        public int QueueCount { get; set; } = -1;
         public int GetTotalItems()
         {
             return this.SelectMany(group => group).Count();

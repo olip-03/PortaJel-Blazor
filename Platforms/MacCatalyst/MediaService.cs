@@ -141,11 +141,6 @@ namespace PortaJel_Blazor.Classes.Services
             throw new NotImplementedException();
         }
 
-        Song[] IMediaInterface.GetQueue()
-        {
-            throw new NotImplementedException();
-        }
-
         int IMediaInterface.GetQueueIndex()
         {
             throw new NotImplementedException();
@@ -172,6 +167,16 @@ namespace PortaJel_Blazor.Classes.Services
         }
 
         public PlaybackInfo? GetPlaybackTimeInfo()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPlayAddonAction(Action addonAction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SongGroupCollection GetQueue()
         {
             throw new NotImplementedException();
         }

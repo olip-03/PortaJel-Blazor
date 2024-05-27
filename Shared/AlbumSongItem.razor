@@ -20,6 +20,14 @@
     </div>
     <!-- Song contents -->
     <div class="infoContainer">
+        @if (location >= 0)
+        {
+            <div class="numberholder songArtistTitle PrimaryTextColor">
+                @{int displayLocation = location + 1;}
+                @displayLocation
+            </div>    
+        }
+
         <button class="songTextContainer" @onclick="() => PlaySong(location)">
             <p class="PrimaryTextColor songTitle">@song.name</p>
             <p class="SecondaryTextColor songArtistTitle">@song.artistCongregate</p>
@@ -107,7 +115,7 @@
     { // Play selected song, and queue the rest of the album
         await Task.Delay(300); // await CSS animation to finish
         #if WINDOWS
-        return;
+    return;
         #endif
         // Confirm that the item itself is fine.
         if (song.album == Album.Empty &&
@@ -155,7 +163,8 @@
         await Task.Delay(250);
 
         MauiProgram.MediaService.AddSong(song);
-        MauiProgram.MainPage.RefreshQueue();
+        MauiProgram.MainPage.MainMediaQueue.InsertIntoQueue(song);
+        // MauiProgram.MainPage.RefreshQueue();
 
         #if !WINDOWS
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();

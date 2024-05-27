@@ -19,6 +19,7 @@ using Microsoft.Maui.Layouts;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Maui.Controls.Internals;
 using PortaJel_Blazor.Shared;
+
 #if ANDROID
 using Android;
 #endif
@@ -46,7 +47,7 @@ public partial class MainPage : ContentPage
     private uint animationSpeed = 550;
 
     public MainPage(bool? initialize = true)
-	{
+    {
         if (initialize == false)
         {
             return;
@@ -80,26 +81,26 @@ public partial class MainPage : ContentPage
         LoadingBlockout_DebugText.Text = updateTo;
     }
 
-    private void Bwv_BlazorWebViewInitialized(object sender, Microsoft.AspNetCore.Components.WebView.BlazorWebViewInitializedEventArgs e)
-    {
-#if ANDROID
-               e.WebView.Settings.MixedContentMode = Android.Webkit.MixedContentHandling.AlwaysAllow;
-#endif
-    }
+//    private void Bwv_BlazorWebViewInitialized(object sender, BlazorWebViewInitializedEventArgs e)
+//    {
+//#if ANDROID
+//        e.WebView.Settings.MixedContentMode = Android.Webkit.MixedContentHandling.AlwaysAllow;
+//#endif
+//    }
 
     protected override void OnHandlerChanged()
     {
         base.OnHandlerChanged();
-		// Disabled overscroll 'stretch' effect that I fucking hate.
-		// CLEAR giveaway this app uses webview lolz
+        // Disabled overscroll 'stretch' effect that I fucking hate.
+        // CLEAR giveaway this app uses webview lolz
 
 #if ANDROID
-		//var blazorView = this.blazorWebView;
-  //      if(blazorView.Handler != null && blazorView.Handler.PlatformView != null)
-  //      {
-  //          var platformView = (Android.Webkit.WebView)blazorView.Handler.PlatformView;
-  //          platformView.OverScrollMode = Android.Views.OverScrollMode.Never;
-  //      }	        
+        //var blazorView = this.blazorWebView;
+        //      if(blazorView.Handler != null && blazorView.Handler.PlatformView != null)
+        //      {
+        //          var platformView = (Android.Webkit.WebView)blazorView.Handler.PlatformView;
+        //          platformView.OverScrollMode = Android.Views.OverScrollMode.Never;
+        //      }	        
 #endif
     }
 
@@ -113,11 +114,11 @@ public partial class MainPage : ContentPage
         if (CanExecuteChanged != null)
             CanExecuteChanged(this, new EventArgs());
     }
-    
+
     #region Methods
     public async Task PushModalAsync(Page page, bool? animate = true)
     {
-        if(animate == true)
+        if (animate == true)
         {
             await Navigation.PushModalAsync(page, true);
             return;
@@ -198,6 +199,7 @@ public partial class MainPage : ContentPage
         int playingIndex = MauiProgram.MediaService.GetQueueIndex();
 
         SongGroupCollection songGroupCollection = MauiProgram.MediaService.GetQueue();
+
 
         MiniPlayer.UpdateData(songGroupCollection.AllSongs.ToArray(), playingIndex);
         MainMediaController.UpdateData(songGroupCollection, playingIndex);
