@@ -133,7 +133,14 @@ else
             StateHasChanged();
         }
 
-        await Task.Run(() => LoadApi());
+        await Task.Run(async () => 
+        { 
+            while (MauiProgram.dataLoadFinished == false)
+            {
+                // twiddle our thumbs
+            }
+            await LoadApi().ConfigureAwait(false);
+        });
         MauiProgram.MainPage.SetNavbarVisibility(true);
     }
 

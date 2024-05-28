@@ -86,11 +86,25 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 mediaSessionCallback.OnPlayImpl = () =>
                 {
                     Play();
+                    UpdateMetadata();
                 };
 
                 mediaSessionCallback.OnPauseImpl = () =>
                 {
                     Pause();
+                    UpdateMetadata();
+                };
+
+                mediaSessionCallback.OnSkipToNextImpl = () =>
+                {
+                    Next();
+                    UpdateMetadata();
+                };
+
+                mediaSessionCallback.OnSkipToPreviousImpl = () =>
+                {
+                    Previous();
+                    UpdateMetadata();
                 };
 
                 mediaSessionCallback.OnMediaButtonEventImpl = (Intent? intent) =>
@@ -130,7 +144,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 mediaSession.SetFlags(MediaSessionFlags.HandlesMediaButtons | MediaSessionFlags.HandlesTransportControls);
                 mediaSession.SetCallback(mediaSessionCallback);
             }
-
 
             var startIntent = new Intent(context, typeof(MainActivity));
             if (intent != null)
@@ -280,14 +293,26 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             .PutString(MediaMetadata.MetadataKeyAlbum, currentlyPlaying.album.name)
             .PutLong(MediaMetadata.MetadataKeyDuration, Player.ContentDuration).Build());
 
-            PlaybackState.Builder psBuilder = new PlaybackState.Builder().SetState(PlaybackStateCode.Playing, Player.CurrentPosition, 1f)
+            PlaybackStateCode playstateCode = PlaybackStateCode.Playing;
+            if (!Player.IsPlaying && !Player.PlayWhenReady)
+            {
+                playstateCode = PlaybackStateCode.Paused;
+            }
+
+            PlaybackState.Builder? psBuilder = new PlaybackState.Builder(); 
+
+            if(psBuilder != null)
+            {
+                psBuilder.SetState(playstateCode, Player.CurrentPosition, 1f)
                 .SetActions(PlaybackState.ActionSeekTo |
-                        PlaybackState.ActionPause |
-                        PlaybackState.ActionSkipToNext |
-                        PlaybackState.ActionSkipToPrevious |
-                        PlaybackState.ActionPlayPause);
-            mediaSession.SetPlaybackState(psBuilder.Build());
-            mediaSession.Active = true;
+                            PlaybackState.ActionPause |
+                            PlaybackState.ActionSkipToNext |
+                            PlaybackState.ActionSkipToPrevious |
+                            PlaybackState.ActionPlayPause);
+
+                mediaSession.SetPlaybackState(psBuilder.Build());
+                mediaSession.Active = true;
+            }
         }
 
         public NotificationChannel GetNotificationChannel()
