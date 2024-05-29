@@ -78,6 +78,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
 
             mediaSession = new MediaSession(context, channedId);
+            PlaybackState.Builder? psBuilder = new PlaybackState.Builder();
             UpdateNotification();
 
             // Define callback functions here
@@ -214,6 +215,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     UpdateNotification();
                 }
             };
+            PlayerEventListener.OnIsPlayingChangedImpl = (isPlaying) =>
+            {
+                UpdateMetadata();
+            };
 
             Com.Google.Android.Exoplayer2.Audio.AudioAttributes? audioAttributes = new Com.Google.Android.Exoplayer2.Audio.AudioAttributes.Builder()
                 .SetUsage((int)AudioUsageKind.Media)
@@ -281,17 +286,30 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
             playerNotification = playerNotificationBuilder.Build();
 
-            StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
+            // StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
         }
 
         private void UpdateMetadata()
         {
+            if(Player == null)
+            {
+                return;
+            }
+
+            if (Player.CurrentPosition > 0)
+            {
+                currentDuration = Player.CurrentPosition;
+                fullDuration = Player.Duration;
+            }
+
+            System.Diagnostics.Trace.WriteLine("Updating metadata for " + currentlyPlaying.name);
+
             mediaSession.SetMetadata(new MediaMetadata.Builder() // mannnn shut up
             .PutString(MediaMetadata.MetadataKeyTitle, currentlyPlaying.name)
             .PutString(MediaMetadata.MetadataKeyArtist, currentlyPlaying.artistCongregate)
             .PutString(MediaMetadata.MetadataKeyAlbumArtUri, currentlyPlaying.image.source)
             .PutString(MediaMetadata.MetadataKeyAlbum, currentlyPlaying.album.name)
-            .PutLong(MediaMetadata.MetadataKeyDuration, Player.ContentDuration).Build());
+            .PutLong(MediaMetadata.MetadataKeyDuration, fullDuration).Build());
 
             PlaybackStateCode playstateCode = PlaybackStateCode.Playing;
             if (!Player.IsPlaying && !Player.PlayWhenReady)
@@ -299,16 +317,23 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 playstateCode = PlaybackStateCode.Paused;
             }
 
-            PlaybackState.Builder? psBuilder = new PlaybackState.Builder(); 
-
-            if(psBuilder != null)
+            // Like action
+            PlaybackState.CustomAction.Builder psActionBuilder = new PlaybackState.CustomAction.Builder("CUSTOM_ACTION_FAVOURITE_ADD", "CUSTOM_ACTION_FAVOURITE_ADD", Resource.Drawable.heart);
+            if (currentlyPlaying.isFavourite)
             {
-                psBuilder.SetState(playstateCode, Player.CurrentPosition, 1f)
-                .SetActions(PlaybackState.ActionSeekTo |
+                psActionBuilder = new PlaybackState.CustomAction.Builder("CUSTOM_ACTION_FAVOURITE_REMOVE", "CUSTOM_ACTION_FAVOURITE_REMOVE", Resource.Drawable.heart_full);
+            }
+
+            PlaybackState.Builder? psBuilder = new PlaybackState.Builder();
+            if (psBuilder != null)
+            {
+                psBuilder.SetState(playstateCode, currentDuration, 1f);
+                psBuilder.SetActions(PlaybackState.ActionSeekTo |
                             PlaybackState.ActionPause |
                             PlaybackState.ActionSkipToNext |
                             PlaybackState.ActionSkipToPrevious |
                             PlaybackState.ActionPlayPause);
+                psBuilder.AddCustomAction(psActionBuilder.Build());
 
                 mediaSession.SetPlaybackState(psBuilder.Build());
                 mediaSession.Active = true;
@@ -330,6 +355,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             if (Player != null)
             {
                 Player.Play();
+                UpdateMetadata();
                 return true;
             }
             return false;
@@ -340,6 +366,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             if (Player != null)
             {
                 Player.Pause();
+                UpdateMetadata();
                 return true;
             }
             return false;
@@ -374,6 +401,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     long TIME_UNSET = Long.MinValue + 1;
                     long seekPosition = Player.Duration == TIME_UNSET ? 0 : System.Math.Min(System.Math.Max(0, position), Player.Duration);
                     Player.SeekTo(seekPosition);
+                    UpdateMetadata();
                 }
                 catch
                 {
@@ -461,7 +489,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 if (Player.HasNext)
                 {
                     Player.Next();
+                    currentDuration = 0;
                     playingIndex = Player.CurrentMediaItemIndex;
+                    UpdateMetadata();
                 }
                 return true;
             }
@@ -473,7 +503,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             if (Player != null)
             {
                 Player.Previous();
+                currentDuration = 0;
                 playingIndex = Player.CurrentMediaItemIndex;
+                UpdateMetadata();
                 return true;
             }
             return false;
@@ -520,6 +552,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 // Seek to position of that last song
                 playingIndex = fromIndex;
                 Player.SeekTo(playingIndex, Player.Duration);
+                UpdateMetadata();
                 return true;
             }
             return false;
@@ -574,7 +607,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 {
                     AddSong(song);
                 }
-
+                UpdateMetadata();
                 return true;
             }
             return false;
@@ -586,7 +619,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             {
                 songQueue.RemoveAt(index);
                 Player.RemoveMediaItem(index);
-
+                UpdateMetadata();
                 return true;
             }
             return true;
@@ -704,24 +737,25 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 playingIndex = Player.CurrentMediaItemIndex;
 
                 Song currentSong = GetCurrentlyPlaying();
+                if(Player.CurrentPosition > 0)
+                {
+                    currentDuration = Player.CurrentPosition;
+                    fullDuration = Player.Duration;
+                    currentSong.duration = Player.Duration;
+                }
+                currentlyPlaying = currentSong;
 
                 if (Player.PlaybackState == IPlayer.StateReady)
                 {
                     string PlaybackTimeValue = "00:00";
                     string PlaybackMaximumTimeValue = "00:00";
-
+                    TimeSpan playbackTimeSpan = TimeSpan.FromMilliseconds(Player.CurrentPosition);
+                    TimeSpan fullDuratioinTimeSpan = TimeSpan.FromMilliseconds(Player.Duration);
                     try
                     {
-                        currentDuration = Player.CurrentPosition;
 
-                        TimeSpan playbackTimeString = TimeSpan.FromMilliseconds(Player.CurrentPosition);
-                        TimeSpan fullTimeString = TimeSpan.FromMilliseconds(Player.Duration);
-
-                        // Convert current song duration from ticks to ms 
-                        currentSong.duration = Player.Duration;
-
-                        PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTimeString.Minutes, playbackTimeString.Seconds);
-                        PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullTimeString.Minutes, fullTimeString.Seconds);
+                        PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTimeSpan.Minutes, playbackTimeSpan.Seconds);
+                        PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullDuratioinTimeSpan.Minutes, fullDuratioinTimeSpan.Seconds);
                     }
                     catch (System.Exception)
                     {
@@ -730,7 +764,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     }
 
                     newTime = new(
-                        Player.CurrentPosition,
+                        currentDuration,
                         currentSong,
                         playingIndex,
                         Player.IsPlaying,

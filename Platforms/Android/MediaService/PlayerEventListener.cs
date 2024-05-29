@@ -218,7 +218,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public void OnPlayWhenReadyChanged(bool playWhenReady, int reason)
         {
-            
+            if(OnPlayWhenReadyChangedImpl != null)
+            {
+                OnPlayWhenReadyChangedImpl(playWhenReady, reason);
+            }
         }
 
         public void OnPositionDiscontinuity(int reason)

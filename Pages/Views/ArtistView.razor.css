@@ -4,6 +4,7 @@
     position: relative;
     width: 100%;
     height: 100%;
+    margin: 0 1rem 0 1rem;
 }
 .backgroundImgContainer {
     width: 100vw;
@@ -12,7 +13,6 @@
     object-fit: cover;
     position: absolute;
     top: -1rem;
-    left: -1rem;
     z-index: -10;
     background-size: cover;
     overflow: hidden;
@@ -22,6 +22,7 @@
 
 .additional-info {
     width: 100%;
+    margin: 0 1rem 0 1rem;
     border-radius: 0.5rem;
     background-color: white;
     padding: 1rem;
@@ -199,6 +200,7 @@
 /* Container for the list of albums */
 .album-list {
     width: 100%;
+    margin: 0 0 0 1rem;
 }
 
 /* Individual album container */
@@ -238,7 +240,7 @@
 }
 
 .tool-container {
-    margin-top: 10px;
+    margin: 0 1rem 0 1rem;
     display: flex;
     justify-content: space-between;
     user-select: none;
@@ -326,15 +328,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin: 0 1rem 1rem 1rem;
     /*    width: 100vw;
     height: 5rem;
     display: flex;*/
 }
 
+.playback-controls-container {
+    display: flex;
+}
+
 .playback-controls-btn {
     aspect-ratio: 1/1;
-    height: 4rem;
+    height: 3rem;
     min-height: 100%;
     width: auto;
     display: flex;
@@ -344,8 +350,8 @@
 }
 
 .playback-controls-btn-img {
-    height: 2.5rem;
-    width: 2.5rem;
+    height: 2rem;
+    width: 2rem;
 }
 
 .playbtn {

@@ -54,7 +54,6 @@
                 // bump the haptics
                 // DotNet.invokeMethodAsync("BumpHaptics");
             }
-            console.log(favContainer.offsetWidth + queueContainer.offsetWidth);
         });
         elmnt.addEventListener("scrollend", (event) => {
 
@@ -64,12 +63,10 @@
             if (event.target.scrollLeft <= 15) {
                 // Invoke add to queue function
                 DotNet.invokeMethodAsync("BumpHaptics");
-                console.log("Adding element to queue");
             }
             if (event.target.scrollLeft >= favContainer.offsetWidth + queueContainer.offsetWidth - 15) {
                 // Invoke favourite toggle funciton
                 DotNet.invokeMethodAsync("BumpHaptics");
-                console.log("Adding element to Favourites");
             }
             ScrollTo(elmnt, false);
         });
@@ -96,7 +93,6 @@ function InitAlbumSongItem(pDotNetReference, targetId) {
             return;
         }
 
-        console.error("Could not determine overscroll container for " + elmnt.id + "-overscroll");
         if (instant == true) {
             elmnt.scroll({
                 top: 0,
@@ -130,7 +126,6 @@ function InitAlbumSongItem(pDotNetReference, targetId) {
                 // bump the haptics
                 // DotNet.invokeMethodAsync("BumpHaptics");
             }
-            console.log(favContainer.offsetWidth + queueContainer.offsetWidth);
         });
         elmnt.addEventListener("scrollend", (event) => {
 
@@ -140,12 +135,10 @@ function InitAlbumSongItem(pDotNetReference, targetId) {
             if (event.target.scrollLeft <= 15) {
                 // Invoke add to queue function
                 pDotNetReference.invokeMethodAsync("QueueSong");
-                console.log("Adding element to queue");
             }
             if (event.target.scrollLeft >= favContainer.offsetWidth + queueContainer.offsetWidth - 15) {
                 // Invoke favourite toggle funciton
                 pDotNetReference.invokeMethodAsync("FavouriteSong");
-                console.log("Adding element to Favourites");
             }
             ScrollTo(elmnt, false);
         });

@@ -1,156 +1,158 @@
 ﻿@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared;
 @using BlazorAnimate;
+@using PortaJel_Blazor.Shared.Icons;
+
 @inject IJSRuntime JS;
 @page "/ArtistView/{artistId}"
 
 @if (!isLoading)
 {
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-    
-    <ViewHeader backgroundImgUrl="@backgroundImgUrl" backgroundImgUrlPlaceholder="@backgroundImgUrlPlaceholder" baseMusicItem=@artist/>
 
-    <!-- Container for background image-->
-    <div class="backgroundImgContainer">
-        <img src="@backgroundImgUrl" class="backgroundImg album-cover-img"/>
-        <img src="data:image/png;base64, @backgroundImgUrlPlaceholder" class="backgroundImgPlaceholder" />
-    </div>
+        <ViewHeader backgroundImgUrl="@backgroundImgUrl" backgroundImgUrlPlaceholder="@backgroundImgUrlPlaceholder" baseMusicItem=@artist />
 
-    <div class="artistInfoContainer">
-        <!-- Artist Images -->
-        <div class="artistImgContainer">
-            <img class="artistImg album-cover-img" src="@imgUrl" />
-            <img class="artistImgPlaceholder" src="data:image/png;base64, @imgUrlPlaceholder" />
-        </div>
-        <div class="artistNameContainer">
-            @if (hasLogo)
-            {
-                <!-- Logo image -->
-                <div class="logoImgContainer">
-                    <img src="@logoUrl" class="logoImg album-cover-img" loading="eager"/>
-                    <!-- Placeholders dont really work for logos :( -->
-                </div>
-            }
-            <h1 class="artistName PrimaryTextColor">@artist.name</h1>
+        <!-- Container for background image-->
+        <div class="backgroundImgContainer">
+            <img src="@backgroundImgUrl" class="backgroundImg album-cover-img" />
+            <img src="data:image/png;base64, @backgroundImgUrlPlaceholder" class="backgroundImgPlaceholder" />
         </div>
 
-    </div>
-
-    <div class="playback-controls">
-            <div @onclick=FavouriteItem id="playback-controls-fav">
-            @if (artist.isFavourite)
-            {
-                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <svg class="playback-controls-btn-img favbtn PrimaryColor" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M 480 -120 L 422 -172 C 354.667 -232.667 299 -285 255 -329 C 211 -373 176 -412.5 150 -447.5 C 124 -482.5 105.833 -514.667 95.5 -544 C 85.167 -573.333 80 -603.333 80 -634 C 80 -696.667 101 -749 143 -791 C 185 -833 237.333 -854 300 -854 C 334.667 -854 367.667 -846.667 399 -832 C 430.333 -817.333 457.333 -796.667 480 -770 C 502.667 -796.667 529.667 -817.333 561 -832 C 592.333 -846.667 625.333 -854 660 -854 C 722.667 -854 775 -833 817 -791 C 859 -749 880 -696.667 880 -634 C 880 -603.333 874.833 -573.333 864.5 -544 C 854.167 -514.667 836 -482.5 810 -447.5 C 784 -412.5 749 -373 705 -329 C 661 -285 605.333 -232.667 538 -172 L 480 -120 Z M 480 -501 Z" fill="currentColor" transform="matrix(1, 0, 0, 1, 7.105427357601002e-15, 1.1368683772161603e-13)" />
-                    </svg>
-                </Animate>
-            }
-            else
-            {
-                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <img class="playback-controls-btn-img" src="/images/heart.svg">
-                </Animate>
-            }
-        </div>
-            <div class="playback-controls" id="playback-controls-btns">
-            <div class="playback-controls-btn">
-                <img class="playback-controls-btn-img" src="/images/shuffle.svg">
+        <div class="artistInfoContainer">
+            <!-- Artist Images -->
+            <div class="artistImgContainer">
+                <img class="artistImg album-cover-img" src="@imgUrl" />
+                <img class="artistImgPlaceholder" src="data:image/png;base64, @imgUrlPlaceholder" />
             </div>
-            <div class="playback-controls-btn playbtn">
-                <img class="playback-controls-btn-img" src="/images/play.svg">
-            </div>
-        </div>
-    </div>
-
-    <div>
-        <div class="tool-container">
-            <div @onclick=ToggleSort>
-                @switch (sort)
+            <div class="artistNameContainer">
+                @if (hasLogo)
                 {
-                    case sortMethod.byActivity:
-                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                                <p class="tools-text PrimaryTextColor">Activity</p>
-                        </Animate>
-                        break;
-                    case sortMethod.byArtist:
-                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                                <p class="tools-text PrimaryTextColor">Artist</p>
-                        </Animate>
-                        break;
-                    case sortMethod.byName:
-                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                                <p class="tools-text PrimaryTextColor">Name</p>
-                        </Animate>
-                        break;
-                    case sortMethod.byDate:
-                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
-                                <p class="tools-text PrimaryTextColor">Date</p>
-                        </Animate>
-                        break;
+                    <!-- Logo image -->
+                    <div class="logoImgContainer">
+                        <img src="@logoUrl" class="logoImg album-cover-img" loading="eager" />
+                        <!-- Placeholders dont really work for logos :( -->
+                    </div>
                 }
+                <h1 class="artistName PrimaryTextColor">@artist.name</h1>
             </div>
-            <div @onclick=ToggleView>
-                @if (showGrid)
+
+        </div>
+
+        <div class="playback-controls">
+            <div @onclick=FavouriteItem id="playback-controls-fav">
+                @if (artist.isFavourite)
                 {
                     <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
+                        <HeartIcon Filled=true ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
                     </Animate>
                 }
                 else
                 {
                     <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                        <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
+                        <HeartIcon Filled=false ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
                     </Animate>
                 }
             </div>
+            <div class="playback-controls-container" id="playback-controls-btns">
+                <div class="playback-controls-btn">
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <ShuffleIcon Enabled=false ExtraStyle="height: 2rem; width: 2rem;"></ShuffleIcon>
+                    </Animate>
+                </div>
+                <div class="playback-controls-btn playbtn">
+                    <img class="playback-controls-btn-img" src="/images/play.svg">
+                </div>
+            </div>
         </div>
 
-        @* Custom styling for items when grid mode is selected *@
-        @if (showGrid)
-        {
-            <style>
-                .album-list {
-                    width: 100%;
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    grid-gap: 20px 10px;
-                }
-            </style>
-        }
-
-        @* Load actual items *@
-        <div class="album-list">
-            @if (isLoading)
-            { // Spinner
-                <Spinner />
-            }
-            else if (artistAlbums.Length > 0)
-            { // Load information
-                for (int i = 0; i < artistAlbums.Length; i++)
-                {
-                    Album item = new Album();
-                    if (artistAlbums[i] != null)
+        <div>
+            <div class="tool-container">
+                <div @onclick=ToggleSort>
+                    @switch (sort)
                     {
-                        item = artistAlbums[i];
+                        case sortMethod.byActivity:
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                                <p class="tools-text PrimaryTextColor">Activity</p>
+                            </Animate>
+                            break;
+                        case sortMethod.byArtist:
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                                <p class="tools-text PrimaryTextColor">Artist</p>
+                            </Animate>
+                            break;
+                        case sortMethod.byName:
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                                <p class="tools-text PrimaryTextColor">Name</p>
+                            </Animate>
+                            break;
+                        case sortMethod.byDate:
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                                <p class="tools-text PrimaryTextColor">Date</p>
+                            </Animate>
+                            break;
                     }
+                </div>
+                <div @onclick=ToggleView>
+                    @if (showGrid)
+                    {
+                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                            <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
+                        </Animate>
+                    }
+                    else
+                    {
+                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                            <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
+                        </Animate>
+                    }
+                </div>
+            </div>
 
-                    string placeholderImg = string.Empty;
-                    try { placeholderImg = placeholderImages[i]; }
-                    catch { placeholderImg = string.Empty; }
-                    <SearchResultItem musicObject="@item" isGrid=@showGrid placeholderBase64="@placeholderImg" />
+            @* Custom styling for items when grid mode is selected *@
+            @if (showGrid)
+            {
+                <style>
+                    .album-list {
+                        width: 100%;
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        grid-gap: 20px 10px;
+                    }
+                </style>
+            }
+
+            @* Load actual items *@
+            <div class="album-list">
+                @if (isLoading)
+                { // Spinner
+                    <Spinner />
                 }
-            }
-            else
-            { // TODO: 'something went wrong click here to try again' prompt
+                else if (artistAlbums.Length > 0)
+                { // Load information
+                    for (int i = 0; i < artistAlbums.Length; i++)
+                    {
+                        Album item = new Album();
+                        if (artistAlbums[i] != null)
+                        {
+                            item = artistAlbums[i];
+                        }
 
-            }
+                        string placeholderImg = string.Empty;
+                        try { placeholderImg = placeholderImages[i]; }
+                        catch { placeholderImg = string.Empty; }
+                        <SearchResultItem musicObject="@item" isGrid=@showGrid placeholderBase64="@placeholderImg" />
+                    }
+                }
+                else
+                { // TODO: 'something went wrong click here to try again' prompt
+
+                }
+            </div>
         </div>
-    </div>
 
         @if (!String.IsNullOrWhiteSpace(artist.description))
         {
@@ -160,8 +162,8 @@
             </div>
         }
 
-    <p>@errorMsg</p>
-</Animate>
+        <p>@errorMsg</p>
+    </Animate>
 }
 
 @code {
@@ -266,7 +268,7 @@
     {
         await JS.InvokeAsync<string>("InitAllImages");
         await JS.InvokeAsync<string>("InitalizeArtistView");
-        if(!isLoading)
+        if (!isLoading)
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }

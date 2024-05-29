@@ -202,12 +202,14 @@ namespace PortaJel_Blazor.Data
             long duration = -1;
 
             if (baseItem.RunTimeTicks != null)
+            if (baseItem.RunTimeTicks != null)
             {
-                duration = (long)baseItem.RunTimeTicks;
+                duration = TimeSpan.FromSeconds((double)TimeSpan.FromTicks((long)baseItem.RunTimeTicks).Seconds).Milliseconds;
             }
             if (baseItem.CumulativeRunTimeTicks != null)
             {
-                duration = (long)baseItem.CumulativeRunTimeTicks;
+
+                duration = TimeSpan.FromSeconds((double)TimeSpan.FromTicks((long)baseItem.CumulativeRunTimeTicks).Seconds).Milliseconds;
             }
 
             Song newSong = new(

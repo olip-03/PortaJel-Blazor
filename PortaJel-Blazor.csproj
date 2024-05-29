@@ -55,6 +55,7 @@
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
 		<AndroidEnableMultiDex>False</AndroidEnableMultiDex>
+		<AotAssemblies>True</AotAssemblies>
 		<AndroidDexTool>d8</AndroidDexTool>
 		<AndroidUseAapt2>true</AndroidUseAapt2>
 	</PropertyGroup>
@@ -81,6 +82,7 @@
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+		<AotAssemblies>True</AotAssemblies>
 		<AndroidEnableMultiDex>False</AndroidEnableMultiDex>
 		<AndroidDexTool>d8</AndroidDexTool>
 		<AndroidUseAapt2>true</AndroidUseAapt2>
