@@ -7,10 +7,18 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
     public class MediaServiceBinder : Binder
     {
+        public BaseMusicItem? PlayingCollection { get; set; } = null;
+        public int PlayingCollecionFromIndex { get; set; } = -1;
+        public Song? AddToQueue { get; set; } = null;
         public AndroidMediaService Service { get; private set; }
         public MediaServiceBinder(AndroidMediaService service)
         {
             this.Service = service;
+        }
+
+        public void Initalize()
+        {
+            Service.Initalize();
         }
 
         public bool Play()

@@ -72,7 +72,7 @@ public partial class MainPage : ContentPage
         double spacing = (AllContent.Width - 350) / 2;
         MainMediaController.PositionY = AllContent.Height;
 
-        MauiProgram.MediaService.Initalize();
+        // MauiProgram.MediaService.Initalize();
     }
 
     public void UpdateDebugText(string updateTo)
@@ -198,7 +198,6 @@ public partial class MainPage : ContentPage
         int playingIndex = MauiProgram.MediaService.GetQueueIndex();
 
         SongGroupCollection songGroupCollection = MauiProgram.MediaService.GetQueue();
-
 
         MiniPlayer.UpdateData(songGroupCollection.AllSongs.ToArray(), playingIndex);
         MainMediaController.UpdateData(songGroupCollection, playingIndex);

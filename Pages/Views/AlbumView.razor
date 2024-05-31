@@ -156,10 +156,14 @@
                 }
 
                 MauiProgram.UpdateDebugMessage("Setting Play Additional Update Action");
-                MauiProgram.MediaService.SetPlayAddonAction(() =>
+
+                if (MauiProgram.MediaService != null)
                 {
+                    MauiProgram.MediaService.SetPlayAddonAction(() =>
+                    {
                     InvokeAsync(() => StateHasChanged());
-                });
+                    });
+                }
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
                 base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);

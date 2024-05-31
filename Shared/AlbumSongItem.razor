@@ -118,9 +118,13 @@
     return;
         #endif
         // Confirm that the item itself is fine.
-        if (song.album == Album.Empty &&
-            Application.Current != null &&
-            Application.Current.MainPage != null)
+
+        if (song.album == null && Application.Current != null && Application.Current.MainPage != null)
+        {
+            await Application.Current.MainPage.DisplayAlert("Error?", $"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!", "Continue");
+            return;
+        }
+        if (song.album == Album.Empty && Application.Current != null && Application.Current.MainPage != null)
         {
             await Application.Current.MainPage.DisplayAlert("Error?", $"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!", "Continue");
             return;
@@ -128,6 +132,11 @@
 
         try
         {
+            if (MauiProgram.MediaService == null)
+            {
+                MauiProgram.MediaService = new MediaService();
+                await MauiProgram.MediaService.Initalize();
+            }
             MauiProgram.MediaService.SetPlayingCollection(song.album, songIndex);
 
             MauiProgram.currentAlbumGuid = song.album.id;
@@ -161,6 +170,12 @@
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
 
         await Task.Delay(250);
+
+        if(MauiProgram.MediaService == null)
+        {
+            MauiProgram.MediaService = new MediaService();
+            await MauiProgram.MediaService.Initalize();
+        }
 
         MauiProgram.MediaService.AddSong(song);
         MauiProgram.MainPage.MainMediaQueue.InsertIntoQueue(song);

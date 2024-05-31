@@ -35,6 +35,10 @@ using MediaMetadata = Android.Media.MediaMetadata;
 //
 // This is for the MusicBrainz lookup I want to add, for comparing strings. Not relevent to the Android Media Service here but it will need to be implemented and I have this file open already
 // https://medium.com/@tarakshah/this-article-explains-how-to-check-the-similarity-between-two-string-in-percentage-or-score-from-0-83e206bf6bf5
+//
+// To bind service with attached data, see explanations:
+// https://stackoverflow.com/questions/45574022/how-to-pass-a-value-when-starting-a-background-service-on-android-using-xamarin
+
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
     [Service(Name = "PortaJel.MediaService", IsolatedProcess = true, ForegroundServiceType = ForegroundService.TypeMediaPlayback)]
@@ -43,7 +47,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         public IBinder? Binder { get; private set; }
 
         public IExoPlayer? Player = null;
-        public MediaPlayer MediaPlayer { get; private set; }
         PlayerEventListener PlayerEventListener = new();
         private long currentDuration = -1;
         private long fullDuration = -1;
@@ -79,7 +82,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
             mediaSession = new MediaSession(context, channedId);
             PlaybackState.Builder? psBuilder = new PlaybackState.Builder();
-            UpdateNotification();
 
             // Define callback functions here
             if (mediaSessionCallback != null)
@@ -89,25 +91,21 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     Play();
                     UpdateMetadata();
                 };
-
                 mediaSessionCallback.OnPauseImpl = () =>
                 {
                     Pause();
                     UpdateMetadata();
                 };
-
                 mediaSessionCallback.OnSkipToNextImpl = () =>
                 {
                     Next();
                     UpdateMetadata();
                 };
-
                 mediaSessionCallback.OnSkipToPreviousImpl = () =>
                 {
                     Previous();
                     UpdateMetadata();
                 };
-
                 mediaSessionCallback.OnMediaButtonEventImpl = (Intent? intent) =>
                 {
                     if (intent != null)
@@ -141,7 +139,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         }
                     }
                 };
-
                 mediaSession.SetFlags(MediaSessionFlags.HandlesMediaButtons | MediaSessionFlags.HandlesTransportControls);
                 mediaSession.SetCallback(mediaSessionCallback);
             }
@@ -159,7 +156,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
 
             UpdateNotification();
-
             StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
             return base.OnStartCommand(startIntent, flags, startId);
         }
@@ -180,10 +176,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 extractorsFactory.SetConstantBitrateSeekingEnabled(true);
                 extractorsFactory.SetMp3ExtractorFlags(Mp3Extractor.FlagEnableIndexSeeking);
 
-                SimpleExoPlayer.Builder? newBuilder = new SimpleExoPlayer.Builder(this)
-                     .SetMediaSourceFactory(new DefaultMediaSourceFactory(context, extractorsFactory));
+                SimpleExoPlayer.Builder? newBuilder = new SimpleExoPlayer.Builder(this).SetMediaSourceFactory(new DefaultMediaSourceFactory(context, extractorsFactory));
                 if (newBuilder != null)
-                {
+                { //Create the player here!
                     Player = newBuilder.Build();
                 }
                 if (Player != null)
@@ -191,6 +186,12 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     Player.RepeatMode = IPlayer.RepeatModeOff;
                 }
                 string deviceId = Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString();
+            }
+
+            // Add all songs that might have been added on initialization
+            foreach (Song item in songQueue)
+            {
+                AddSong(item);
             }
 
             // Add event for when the Player changes track
@@ -249,9 +250,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             Notification.Style? mediaStyle = new Notification.MediaStyle().SetMediaSession(mediaSession.SessionToken);
 
             // MediaMetadataCompat
-
-            UpdateMetadata(); 
-
             mediaSessionCallback = new MediaSessionCallback();
 
             Notification.Builder? playerNotificationBuilder = new Notification.Builder(context, channel.Id)
@@ -284,8 +282,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 playerNotificationBuilder.AddAction(nextIconResId, "Next", pendingIntentLike);
                 playerNotificationBuilder.AddAction(heartIconResId, "Favourite", pendingIntentLike);
             }
+            UpdateMetadata();
             playerNotification = playerNotificationBuilder.Build();
-
             // StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
         }
 
@@ -348,6 +346,11 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             {
                 Description = channelDescription,
             };
+        }
+
+        public void Initalize()
+        {
+
         }
 
         public bool Play()
@@ -513,33 +516,32 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public bool SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
         {
+            List<Song> toAdd = new();
+            if (baseMusicItem is Album)
+            {
+                Album album = (Album)baseMusicItem;
+                toAdd.AddRange(album.songs);
+            }
+
             if (Player != null)
             {
                 playingFrom = baseMusicItem;
-
-                List<Song> toAdd = new();
-                if (baseMusicItem is Album)
+                if(currentlyPlaying == Song.Empty)
                 {
-                    Album album = (Album)baseMusicItem;
-                    toAdd.AddRange(album.songs);
+                    currentlyPlaying = toAdd[fromIndex];
                 }
-
                 Player.ClearMediaItems();
-
                 queueStart = fromIndex + 1;
                 playingIndex = fromIndex;
-
                 foreach (Song song in toAdd)
                 {
                     MediaItem? mediaItem = MediaItem.FromUri(song.streamUrl);
-
                     if (mediaItem != null)
                     {
                         // TODO: Add checks for if the file is a stream or local file
                         DefaultHttpDataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
                         ProgressiveMediaSource.Factory mediaFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
                         IMediaSource? media = mediaFactory.CreateMediaSource(mediaItem);
-
                         if (media != null)
                         {
                             mediaItem.MediaId = song.id.ToString();
@@ -547,15 +549,36 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         }
                     }
                 }
-
+                // Set data only if the player has not been set
+                currentlyPlaying = toAdd[fromIndex];
                 Player.SeekToDefaultPosition();
-                // Seek to position of that last song
                 playingIndex = fromIndex;
                 Player.SeekTo(playingIndex, Player.Duration);
                 UpdateMetadata();
                 return true;
             }
-            return false;
+
+            playingFrom = baseMusicItem;
+
+            List<Song> songList = new();
+            if (playingFrom is Album)
+            {
+                Album tempAlbum = (Album)playingFrom;
+                songList.AddRange(tempAlbum.songs);
+            }
+            if (playingFrom is Playlist)
+            {
+                Playlist tempPlaylist = (Playlist)playingFrom;
+                songList.AddRange(tempPlaylist.songs);
+            }
+
+            currentlyPlaying = songList[fromIndex];
+
+            foreach (Song song in songList)
+            {
+                songQueue.Add(song);
+            }
+            return true;
         }
 
         public bool AddSong(Song song)
@@ -564,6 +587,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             {
                 if (queueStart == null || songQueue.Count() == 0)
                 {
+                    currentlyPlaying = song;
                     queueStart = playingIndex + 1;
                 }
 
@@ -594,9 +618,13 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         }
                     }
                 }
+                UpdateMetadata();
                 return true;
             }
-            return false;
+
+            currentlyPlaying = song;
+            songQueue.Add(song);
+            return true;
         }
 
         public bool AddSongs(Song[] songs)
@@ -625,6 +653,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             return true;
         }
 
+        /// <summary>
+        /// This should be the most reliable fukcing method ever. Bruh. TRUST THE METHOD
+        /// </summary>
+        /// <returns></returns>
         public SongGroupCollection GetQueue()
         {
             if (playingFrom == null || Player == null)
@@ -634,6 +666,11 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
             List<Song> totalList = new();
 
+            if(queueStart == null)
+            {
+                queueStart = playingIndex;
+            }
+              
             SongGroupCollection songGroupCollection = new();
             songGroupCollection.QueueStartIndex = (int)queueStart;
 
@@ -654,20 +691,17 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             // construct queue from player
             for (int i = 0; i < Player.MediaItemCount; i++)
             {
-                Guid id = Guid.Parse(Player.GetMediaItemAt(i).MediaId);
-                Song song = querySongs.FirstOrDefault(song => song.id == id);
-                if (i < playingIndex)
-                {
-                    previous.Add(song);
-                }
-                if (i == playingIndex)
-                {
-                    current.Add(song);
-                }
-                if (i > playingIndex)
-                {
-                    queue.Add(song);
-                }
+                MediaItem? getItem = Player.GetMediaItemAt(i);
+                if (getItem == null) break;
+                if (getItem.MediaId == null) break;
+
+                Guid id = Guid.Parse(getItem.MediaId);
+                Song? song = querySongs.FirstOrDefault(song => song.id == id);
+                if(song == null) break;
+
+                if (i < playingIndex) previous.Add(song);
+                if (i == playingIndex) current.Add(song);
+                if (i > playingIndex) queue.Add(song);
             }
 
             songGroupCollection.Add(previous);

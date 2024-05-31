@@ -41,9 +41,9 @@ public static class MauiProgram
 
     public static MainLayout WebView = new();
     public static MainPage MainPage = new(initialize: false);
-    // TODO: MediaService should be null, initalize once media playback is required
 
-    public static IMediaInterface MediaService = new MediaService();
+    // TODO: MediaService should be null, initalize once media playback is required
+    public static IMediaInterface? MediaService { get; set; } = null;
 
     public static Guid currentAlbumGuid = Guid.Empty;
     public static Guid currentSongGuid = Guid.Empty;

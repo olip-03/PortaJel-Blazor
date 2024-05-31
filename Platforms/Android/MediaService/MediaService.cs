@@ -37,21 +37,35 @@ namespace PortaJel_Blazor.Classes.Services
         }
 
         [Obsolete]
-        public void Initalize()
-        { 
-            CheckPermissions();
-
-            if(Application.Current != null)
+        public async Task<bool> Initalize()
+        {
+            try
             {
-                DispatcherTimer = Application.Current.Dispatcher.CreateTimer();
+                CheckPermissions();
 
-                DispatcherTimer.Interval = TimeSpan.FromSeconds(0.25);
-                DispatcherTimer.IsRepeating = true;
-                DispatcherTimer.Tick += (s, e) => UpdatePlaystateUi();
-                DispatcherTimer.Start();
+                if (Application.Current != null)
+                {
+                    DispatcherTimer = Application.Current.Dispatcher.CreateTimer();
+
+                    DispatcherTimer.Interval = TimeSpan.FromSeconds(0.25);
+                    DispatcherTimer.IsRepeating = true;
+                    DispatcherTimer.Tick += (s, e) => UpdatePlaystateUi();
+                    DispatcherTimer.Start();
+                }
+
+                // Dont allow init to complete until the Binding has been made. Idgaf if we gotta wait a while 
+                while (serviceConnection.Binder == null)
+                {
+                    await Task.Delay(100).ConfigureAwait(false); // Adjust the delay as needed
+                }
+                return true;
+            }
+            catch (System.Exception)
+            {
+                return false;
             }
         }
-        
+
         private void CheckPermissions()
         {
             const int requestLocationId = 0;
