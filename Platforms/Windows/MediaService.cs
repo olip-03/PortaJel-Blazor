@@ -10,9 +10,15 @@ namespace PortaJel_Blazor.Classes.Services
 {
     public partial class MediaService : IMediaInterface
     {
-        public void Initalize()
+        async Task<bool> Initalize()
         {
-
+            await Task.Delay(100);
+            return true;
+        }
+        async Task<bool> IMediaInterface.Initalize()
+        {
+            await Task.Delay(100);
+            return true;
         }
         public void Play()
         {

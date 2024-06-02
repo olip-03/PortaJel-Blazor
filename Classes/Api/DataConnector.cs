@@ -113,6 +113,22 @@ namespace PortaJel_Blazor.Classes
             });
             return toReturn;
         }
+
+        /// <summary>
+        /// Retrieves similar albums asynchronously based on the provided album set ID.
+        /// </summary>
+        /// <param name="setId">The ID of the album set to find similar albums for.</param>
+        /// <returns>An array of albums that are similar to the provided album set.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the server connector has not been initialized.</exception>
+        public async Task<Album[]> GetSimilarAlbumsAsync(Guid setId, int limit = 30)
+        {
+            List<Album> toReturn = new();
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                Album[] toAdd = await server.Value.GetSimilarAlbumsAsync(setId, limit);
+                toReturn.AddRange(toAdd); 
+            });
+            return toReturn.ToArray();
+        }
         #endregion
 
         #region ArtistEndoings

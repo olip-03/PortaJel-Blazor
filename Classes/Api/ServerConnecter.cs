@@ -10,14 +10,13 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
-using SQLite;
 
 namespace PortaJel_Blazor.Classes
 {
     // https://media.olisshittyserver.xyz/api-docs/swagger/index.html
     // {69c72555-b29b-443d-9a17-01d735bd6f9f} UID
     // /Artists to get all artists 
-    // 
+    // +
     // /Users/{userId}/Items/Latest endpoint to fetch MOST RECENT media added to the server
     // https://github.com/crobibero/jellyfin-client-avalonia/blob/master/src/Jellyfin.Mvvm/Services/LibraryService.cs
     public class ServerConnecter : IMediaServerConnector //TODO implement all data return classes into this interface
@@ -30,13 +29,6 @@ namespace PortaJel_Blazor.Classes
         private string Username = String.Empty;
         private string StoredPassword = String.Empty;
 
-        public string? DatabaseFilename = string.Empty;
-        public SQLite.SQLiteOpenFlags Flags =
-            SQLite.SQLiteOpenFlags.ReadWrite |  // open the database in read/write mode
-            SQLite.SQLiteOpenFlags.Create |     // create the database if it doesn't exist
-            SQLite.SQLiteOpenFlags.SharedCache; // enable multi-threaded database access
-        public string DatabasePath => Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
-        SQLiteAsyncConnection? Database = null;
         private ConcurrentDictionary<Guid, Album> albumCache = new();
         private ConcurrentDictionary<Guid, Song> songCache = new();
         public ConcurrentDictionary<Guid, Artist> artistCache = new();
@@ -58,7 +50,6 @@ namespace PortaJel_Blazor.Classes
         // https://stackoverflow.com/questions/26020/what-is-the-best-way-to-connect-and-use-a-sqlite-database-from-c-sharp
         public ServerConnecter(string baseUrl, string? username = null, string? password = null)
         {
-            DatabaseFilename = baseUrl + "-cache.db3";
             var serviceProvider = ConfigureServices();
 
             _jellyfinApiClient = serviceProvider.GetRequiredService<JellyfinApiClient>();
@@ -396,10 +387,34 @@ namespace PortaJel_Blazor.Classes
                     isOffline = true;
                     ReturnFromCache();
                 }
-
             }
 
             return toReturn;
+        }
+
+        /// <summary>
+        /// Retrieves similar albums asynchronously based on the provided album set ID.
+        /// </summary>
+        /// <param name="setId">The ID of the album set to find similar albums for.</param>
+        /// <returns>An array of albums that are similar to the provided album set.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the server connector has not been initialized.</exception>
+        public async Task<Album[]> GetSimilarAlbumsAsync(Guid setId, int limit = 30)
+        {
+            if (_jellyfinApiClient == null || userDto == null) throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
+            List<Album> toReturn = new();
+            BaseItemDtoQueryResult? result = await _jellyfinApiClient.Albums[setId].Similar.GetAsync(c =>
+            {
+                c.QueryParameters.UserId = userDto.Id;
+                c.QueryParameters.Limit = limit;
+            });
+            if(result != null && result.Items != null)
+            {
+                foreach (BaseItemDto albumResult in result.Items)
+                {
+                    toReturn.Add(AlbumBuilder(albumResult));
+                }
+            }
+            return toReturn.ToArray();
         }
         #endregion
 

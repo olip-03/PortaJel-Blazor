@@ -247,10 +247,6 @@ public partial class MainPage : ContentPage
         await toast.Show();
     }
     private bool mediaCntrollerSliderDragging = false;
-    public void UpdatePlaystate(long duration, long position)
-    {
-
-    }
     /// <summary>
     /// Skips to the next song
     /// </summary>

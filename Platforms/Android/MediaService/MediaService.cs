@@ -231,6 +231,13 @@ namespace PortaJel_Blazor.Classes.Services
             {
                 serviceConnection.Binder.AddSong(song);
             }
+
+            MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                MauiProgram.MainPage.MainMediaQueue.InsertIntoQueue(song);
+                MauiProgram.MainPage.MainMiniPlayer.InsertIntoQueue(song);
+                MauiProgram.MainPage.MainMediaController.InsertIntoQueue(song);
+            });
         }
 
         public void AddSongs(Song[] songs)

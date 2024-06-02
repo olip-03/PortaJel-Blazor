@@ -45,60 +45,68 @@ namespace PortaJel_Blazor.Data
             }
             return source;
         }
-        public Task<string> BlurhashToBase64Async(int width = 0, int height = 0)
+        public Task<string?> BlurhashToBase64Async(int width = 0, int height = 0)
         {
-            // Assuming you have a method to decode the blurhash into a pixel array
-            Pixel[,] pixels = new Pixel[width, height];
-            Blurhash.Core.Decode(blurHash, pixels);
+            try
+            {            
+                // Assuming you have a method to decode the blurhash into a pixel array
+                Pixel[,] pixels = new Pixel[width, height];
+                Blurhash.Core.Decode(blurHash, pixels);
 
-            // Create a SkiaSharp bitmap
-            using (SKBitmap bitmap = new SKBitmap(width, height))
-            {
-                // Lock the pixels of the bitmap
-                using (var canvas = bitmap.PeekPixels())
+                // Create a SkiaSharp bitmap
+                using (SKBitmap bitmap = new SKBitmap(width, height))
                 {
-                    for (int y = 0; y < height; y++)
+                    // Lock the pixels of the bitmap
+                    using (var canvas = bitmap.PeekPixels())
                     {
-                        for (int x = 0; x < width; x++)
+                        for (int y = 0; y < height; y++)
                         {
-                            var pixel = pixels[x, y];
-                            int scaledRed = (int)(pixel.Red * 255);
-                            int scaledGreen = (int)(pixel.Green * 255);
-                            int scaledBlue = (int)(pixel.Blue * 255);
+                            for (int x = 0; x < width; x++)
+                            {
+                                var pixel = pixels[x, y];
+                                int scaledRed = (int)(pixel.Red * 255);
+                                int scaledGreen = (int)(pixel.Green * 255);
+                                int scaledBlue = (int)(pixel.Blue * 255);
 
-                            // Increase brightness by multiplying with a factor (e.g., 1.2 for 20% increase)
-                            float brightnessFactor = 2f; // Additional brightness
-                            scaledRed = (int)(scaledRed * brightnessFactor);
-                            scaledGreen = (int)(scaledGreen * brightnessFactor);
-                            scaledBlue = (int)(scaledBlue * brightnessFactor);
+                                // Increase brightness by multiplying with a factor (e.g., 1.2 for 20% increase)
+                                float brightnessFactor = 2f; // Additional brightness
+                                scaledRed = (int)(scaledRed * brightnessFactor);
+                                scaledGreen = (int)(scaledGreen * brightnessFactor);
+                                scaledBlue = (int)(scaledBlue * brightnessFactor);
 
-                            // Clamp values to ensure they stay within the valid range (0-255)
-                            scaledRed = Math.Clamp(scaledRed, 0, 255);
-                            scaledGreen = Math.Clamp(scaledGreen, 0, 255);
-                            scaledBlue = Math.Clamp(scaledBlue, 0, 255);
+                                // Clamp values to ensure they stay within the valid range (0-255)
+                                scaledRed = Math.Clamp(scaledRed, 0, 255);
+                                scaledGreen = Math.Clamp(scaledGreen, 0, 255);
+                                scaledBlue = Math.Clamp(scaledBlue, 0, 255);
 
-                            // Convert int to byte
-                            byte red = (byte)scaledRed;
-                            byte green = (byte)scaledGreen;
-                            byte blue = (byte)scaledBlue;
+                                // Convert int to byte
+                                byte red = (byte)scaledRed;
+                                byte green = (byte)scaledGreen;
+                                byte blue = (byte)scaledBlue;
 
-                            // Create SKColor
-                            SKColor color = new SKColor(red, green, blue);
-                            bitmap.SetPixel(x, y, color);
+                                // Create SKColor
+                                SKColor color = new SKColor(red, green, blue);
+                                bitmap.SetPixel(x, y, color);
+                            }
                         }
                     }
-                }
 
-                // Convert the bitmap to a base64 string
-                using (var image = SKImage.FromBitmap(bitmap))
-                using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
-                using (var stream = new MemoryStream())
-                {
-                    data.SaveTo(stream);
-                    byte[] imageBytes = stream.ToArray();
-                    string base64String = Convert.ToBase64String(imageBytes);
-                    return Task.FromResult<string>(base64String);
+                    // Convert the bitmap to a base64 string
+                    using (var image = SKImage.FromBitmap(bitmap))
+                    using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                    using (var stream = new MemoryStream())
+                    {
+                        data.SaveTo(stream);
+                        byte[] imageBytes = stream.ToArray();
+                        string base64String = Convert.ToBase64String(imageBytes);
+                        return Task.FromResult<string?>(base64String);
+                    }
                 }
+            }
+            catch (Exception)
+            {
+                string? noval = null;
+                return Task.FromResult<string?>(noval); ;
             }
         }
         public static MusicItemImage Builder(BaseItemDto baseItem, string server, ImageBuilderImageType? imageType = ImageBuilderImageType.Primary)

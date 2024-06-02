@@ -176,9 +176,9 @@
             MauiProgram.MediaService = new MediaService();
             await MauiProgram.MediaService.Initalize();
         }
-
+        
+        // Adds song to Queue as well as UI
         MauiProgram.MediaService.AddSong(song);
-        MauiProgram.MainPage.MainMediaQueue.InsertIntoQueue(song);
         // MauiProgram.MainPage.RefreshQueue();
 
         #if !WINDOWS

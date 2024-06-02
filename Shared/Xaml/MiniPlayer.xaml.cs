@@ -31,6 +31,12 @@ public partial class MiniPlayer : ContentView
         this.TranslationY = 120;
         IsOpen = true;
 
+        // Update Play Button
+        UpdatePlayButton();
+
+        // Update Favourite Button
+        UpdateFavouriteButton();
+
         await Task.WhenAny(
                 this.FadeTo(1, 450, Easing.SinOut),
                 this.TranslateTo(0, 0, 450, Easing.SinOut));
@@ -112,10 +118,8 @@ public partial class MiniPlayer : ContentView
 
     public async void UpdateFavouriteButton(bool? syncToServer = false)
     {
-        if (App.Current == null)
-        {
-            return;
-        }
+        if (App.Current == null) return;
+        if(MauiProgram.MediaService == null) return;
 
         Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
         if (song.isFavourite)
@@ -155,10 +159,8 @@ public partial class MiniPlayer : ContentView
 
     public void UpdatePlayButton(bool? isPlaying = null)
     {
-        if(App.Current == null)
-        {
-            return;
-        }
+        if (App.Current == null) return;
+        if (MauiProgram.MediaService == null) return;
 
         if (isPlaying == true)
         {
@@ -183,6 +185,28 @@ public partial class MiniPlayer : ContentView
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
             }
+        }
+    }
+    public void InsertIntoQueue(Song song)
+    {
+        // Insert item into viewmodel
+        if (MauiProgram.MediaService == null) return;
+        if (ViewModel.Queue == null) ViewModel.Queue = new();
+
+        try
+        {
+            SongGroupCollection sgc = MauiProgram.MediaService.GetQueue();
+            int insertInto = sgc.QueueStartIndex + (sgc.QueueCount - 1);
+            ViewModel.Queue.Insert(insertInto, song);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine(ex.ToString());
+        }
+
+        if (!IsOpen)
+        {
+            Show();
         }
     }
 

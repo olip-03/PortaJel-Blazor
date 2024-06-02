@@ -1,6 +1,7 @@
 using CommunityToolkit.Maui.Core.Extensions;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PortaJel_Blazor.Shared;
@@ -77,13 +78,23 @@ public partial class MediaQueue : ContentView
 
     public void InsertIntoQueue(Song song)
     {
-        SongGroupCollection sgc = MauiProgram.MediaService.GetQueue();
-        SongGroup? queueGroup = ViewModel.SongQueue.FirstOrDefault(sg => sg.Name == "Queue");
+        if (MauiProgram.MediaService == null) return;
+        if(ViewModel.SongQueue  == null) ViewModel.SongQueue = MauiProgram.MediaService.GetQueue();
 
-        if (queueGroup != null)
+        try
         {
-            int insertInto = sgc.QueueCount - 1;
-            ViewModel.SongQueue.FirstOrDefault(sg => sg.Name == "Queue").Insert(insertInto, song);
+            SongGroupCollection sgc = MauiProgram.MediaService.GetQueue();
+            SongGroup? queueGroup = ViewModel.SongQueue.FirstOrDefault(sg => sg.Name == "Queue");
+
+            if (queueGroup != null)
+            {
+                int insertInto = sgc.QueueCount;
+                ViewModel.SongQueue.FirstOrDefault(sg => sg.Name == "Queue").Insert(insertInto, song);
+            }
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine(ex.ToString());
         }
     }
 

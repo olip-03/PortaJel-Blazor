@@ -83,6 +83,6 @@
 
         <shared:MediaController x:Name="MediaControl" IsVisible="False"/>
         <shared:MediaQueue x:Name="Queue" IsVisible="False"/>
-        <shared:ContextMenu x:Name="ContextMenu" Opacity="0" IsVisible="False"></shared:ContextMenu>
+        <shared:ContextMenu x:Name="ContextMenu" Opacity="0" IsVisible="False"/>
     </Grid>
 </ContentPage>

@@ -71,7 +71,7 @@
                 <CarouselView x:Name="ImgCarousel" 
                               Grid.Row="1" VerticalOptions="Center" 
                               HorizontalOptions="FillAndExpand" 
-                              ItemsSource="{Binding Queue.AllSongs}" 
+                              ItemsSource="{Binding Queue}" 
                               Loop="False" 
                               Scrolled="ImgCarousel_Scrolled"
                               ScrollToRequested="ImgCarousel_ScrollToRequested"

@@ -69,6 +69,7 @@
                 </div>
             </div>
 
+            // Add Songs
             for (int i = 0; i < album.songs.Length; i++)
             {
                 album.songs[i].album = album; // TODO: this should already be set figure out why it isnt
@@ -77,29 +78,32 @@
                 <AlbumSongItem song="@album.songs[i]" location="@i" base64BlurHash="@base64BlurHash" />
             }
 
-            int forcount = 0;
-            foreach (var artist in album.artists)
+            // Add Artists
+            @if(album.artists.Count() > 0)
             {
-                <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.id)">
-                    <img src="@artist.image.SourceAtResolution(40)" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
-                    @artist.name
-                </div>
-                forcount++;
+                <br />
+                int forcount = 0;
+                foreach (var artist in album.artists)
+                {
+                    <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.id)">
+                        <img src="@artist.image.SourceAtResolution(40)" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
+                        @artist.name
+                    </div>
+                    forcount++;
+                }
             }
-@*             <hr />
-            <h2>Recommended Artists</h2>
-            <div class="recommended-artists">
-                
-                <div class="artists-list">
-                    @foreach (string reco in similarArtists)
-                    {
-                        <div class="artist">
-                            <div class="artist-image"></div>
-                            <p class="artist-name">@reco</p>
-                        </div>
-                    }
-                </div>
-            </div>  *@
+
+            // Add Similar
+            @if (similarAlbumsBase64BlurHash.Count() > 0)
+            { // but only after the blurhash is done lol
+                <br />
+                <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="@similarAlbums" albumBlurHashData="@similarAlbumsBase64BlurHash" />
+            }
+            else
+            {
+                <br />
+                <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="null" albumBlurHashData="null" />
+            }
         }
         @errormessage
     </Animate>
@@ -120,18 +124,49 @@
 
     private Album album { get; set; } = Album.Empty;
     private bool loaded = false;
-    private string[] similarArtists = new string[0];
+    private int similarAlbumLimit = 30;
+    private Album[] similarAlbums = new Album[0];
+    private string?[] similarAlbumsBase64BlurHash = new string?[0];
 
-    private string errormessage = null;
-    string base64BlurHash = String.Empty;
+    private string errormessage = String.Empty;
+    string? base64BlurHash = String.Empty;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         MauiProgram.WebView.pageTitle = "Album";
         MauiProgram.WebView.currentUri = $"/AlbumView/{albumId}";
         MauiProgram.WebView.showHeader = false;
         MauiProgram.UpdateDebugMessage("Page Loaded.");
+    }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(album != null)
+        {
+            await JS.InvokeAsync<string>("InitAllImages");
+            await JS.InvokeAsync<string>("InitImageLoader", album.id);
+        }
+        if (loaded)
+        {
+            MauiProgram.WebView.isLoading = false;
+            await JS.InvokeAsync<string>("InitAllAlbumSongItem");
+            await Task.Delay(150); // allow album items time to snap into place
+            MauiProgram.MainPage.ShowLoadingScreen(false);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        loaded = false;
+        similarAlbums = new Album[0];
+        similarAlbumsBase64BlurHash = new string?[0];
+        StateHasChanged();
+        LoadAlbum();
+    }
+
+    private async void LoadAlbum()
+    {
+        // Block for getting all the album info
         try
         {
             if (album != null)
@@ -152,7 +187,11 @@
                 {
                     // album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
                     MauiProgram.UpdateDebugMessage("Starting request for Album data.");
-                    album = await MauiProgram.api.GetAlbumAsync(parseId);
+                    Task<Album> getAlbum = MauiProgram.api.GetAlbumAsync(parseId);
+                    Task<Album[]> getSimilarAlbum = MauiProgram.api.GetSimilarAlbumsAsync(parseId, similarAlbumLimit);
+                    await Task.WhenAll(getAlbum, getSimilarAlbum);
+                    album = getAlbum.Result;
+                    similarAlbums = getSimilarAlbum.Result;
                 }
 
                 MauiProgram.UpdateDebugMessage("Setting Play Additional Update Action");
@@ -161,7 +200,7 @@
                 {
                     MauiProgram.MediaService.SetPlayAddonAction(() =>
                     {
-                    InvokeAsync(() => StateHasChanged());
+                        InvokeAsync(() => StateHasChanged());
                     });
                 }
 
@@ -169,7 +208,7 @@
                 base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
             }
 
-            // TODO: Add this as an API in the plugin, not in the app itself 
+            // TODO: Add this as an API in the plugin, not in the app itself
             // GnodService reccomendations = new();
             // similarArtists = await reccomendations.QueryGnod(album.artists.FirstOrDefault().name);
         }
@@ -179,30 +218,18 @@
             // TODO : Implement 'Something went wrong, please try again'
         }
 
-        loaded = true;    
-    }
+        // Set up the songs
+        loaded = true;
+        StateHasChanged();
+        await JS.InvokeAsync<string>("InitAllAlbumSongItem");
+        await Task.Delay(250); // allow album items time to snap into place
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if(album != null)
-        {
-            await JS.InvokeAsync<string>("InitAllImages");
-            await JS.InvokeAsync<string>("InitImageLoader", album.id);
-        }
-        if (loaded)
-        {
-            MauiProgram.WebView.isLoading = false;
-            // await JS.InvokeAsync<string>("InitAllAlbumSongItem");
-            await Task.Delay(150); // allow album items time to snap into place
-            MauiProgram.MainPage.ShowLoadingScreen(false);
-        }
-    }
+        MauiProgram.WebView.isLoading = false;
+        MauiProgram.MainPage.ShowLoadingScreen(false);
 
-    protected override async Task OnParametersSetAsync()
-    {
-        // TODO: Come up with a solution to this that doens't cause the app to shit itself 
-        // MauiProgram.MainPage.ShowLoadingScreen(true);
-        // await OnInitializedAsync();
+        // fetching similar items isn't neccesary right away so ill run this after the page has loaded\
+        Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarAlbums);
+        similarAlbumsBase64BlurHash = await runSimilarBlurhash;
         StateHasChanged();
     }
 
@@ -289,8 +316,6 @@
         StateHasChanged();
     }
 
-
-
     private async void OpenContextMenu(BaseMusicItem musicItem)
     {
         MauiProgram.MainPage.OpenContextMenu(musicItem, 250, base64BlurHash);
@@ -303,5 +328,22 @@
             }
         });
         StateHasChanged();
+    }
+
+    private async Task<string[]> GenerateBlurHash(BaseMusicItem[] data)
+    {
+        String[] toReturn = new string[data.Count()];
+        for (int i = 0; i < data.Count(); i++)
+        {
+            try
+            {
+                toReturn[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+            }
+            catch (Exception)
+            {
+                toReturn[i] = string.Empty;
+            }
+        }
+        return toReturn;
     }
 }
