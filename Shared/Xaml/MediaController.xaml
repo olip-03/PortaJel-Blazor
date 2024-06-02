@@ -68,7 +68,7 @@
                 </Grid>
 
                 <!-- Image Carousel-->
-                <CarouselView x:Name="ImgCarousel" 
+                <CarouselView x:Name="ImgCarousel"
                               Grid.Row="1" VerticalOptions="Center" 
                               HorizontalOptions="FillAndExpand" 
                               ItemsSource="{Binding Queue}" 
@@ -78,7 +78,7 @@
                               PositionChanged="ImgCarousel_PositionChanged">
                     <CarouselView.ItemTemplate>
                         <DataTemplate x:DataType="data:Song">
-                            <StackLayout>
+                            <StackLayout VerticalOptions="Center">
                                 <!-- Image inside of border -->
                                 <Border StrokeThickness="0"
                                         StrokeShape="RoundRectangle 5,5,5,5"
@@ -121,17 +121,17 @@
                 </CarouselView>
 
                 <!-- Playback controls -->
-                <Grid Grid.Row="2" WidthRequest="350" VerticalOptions="FillAndExpand">
+                <Grid Grid.Row="2" Padding="0 20 0 20" VerticalOptions="FillAndExpand">
                     <!-- Slider and timestamps -->
                     <StackLayout Margin="0, 0, 0, 0" 
                                  VerticalOptions="Start">
                         <Slider x:Name="DurationSlider" 
-                                WidthRequest="350"
+                                WidthRequest="380"
                                 Maximum="{Binding PlaybackMaximum}" 
                                 Value="{Binding PlaybackValue}" 
                                 ThumbColor="{StaticResource PrimaryColor}"
                                 MinimumTrackColor="{StaticResource PrimaryColor}"
-                                MaximumTrackColor="{StaticResource PageSecondaryColor}" 
+                                MaximumTrackColor="{StaticResource SecondaryTextColor}" 
                                 BackgroundColor="Transparent" 
                                 HorizontalOptions="FillAndExpand" 
                                 ValueChanged="DurationSlider_ValueChanged"
@@ -223,7 +223,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="70"/>
                     <RowDefinition Height="2*"/>
-                    <RowDefinition Height="1.2*"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
             </Grid>
             <Border.Shadow>

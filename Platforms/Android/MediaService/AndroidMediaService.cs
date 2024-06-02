@@ -823,7 +823,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 {
                     currentDuration = Player.CurrentPosition;
                     fullDuration = Player.Duration;
-                    currentSong.duration = Player.Duration;
                 }
                 CurrentlyPlaying = currentSong;
 
@@ -832,18 +831,19 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     string PlaybackTimeValue = "00:00";
                     string PlaybackMaximumTimeValue = "00:00";
 
-                    try
+                    TimeSpan fullDuratioinTimeSpan = TimeSpan.FromMilliseconds(currentSong.duration);
+
+                    PlaybackTimeValue = "00:00";
+                    PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullDuratioinTimeSpan.Minutes, fullDuratioinTimeSpan.Seconds);
+
+                    if (Player.Duration >= 0)
                     {
                         TimeSpan playbackTimeSpan = TimeSpan.FromMilliseconds(Player.CurrentPosition);
-                        TimeSpan fullDuratioinTimeSpan = TimeSpan.FromMilliseconds(Player.Duration);
-                        PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTimeSpan.Minutes, playbackTimeSpan.Seconds);
-                        PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullDuratioinTimeSpan.Minutes, fullDuratioinTimeSpan.Seconds);
-                    }
-                    catch (System.Exception)
-                    {
-                        TimeSpan fullDuratioinTimeSpan = TimeSpan.FromMilliseconds(GetCurrentlyPlaying().duration);
+                        fullDuratioinTimeSpan = TimeSpan.FromMilliseconds(Player.Duration);
 
-                        PlaybackTimeValue = "00:00";
+                        currentSong.duration = Player.Duration;
+
+                        PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTimeSpan.Minutes, playbackTimeSpan.Seconds);
                         PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullDuratioinTimeSpan.Minutes, fullDuratioinTimeSpan.Seconds);
                     }
 
