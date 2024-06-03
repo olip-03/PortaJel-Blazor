@@ -80,7 +80,7 @@ public class MainActivity : MauiAppCompatActivity
                     }
                     else
                     {
-                        MauiProgram.MainPage.MainMediaController.Close();
+                        MauiProgram.MainPage.MainMediaController.Close().ConfigureAwait(false);
                         return false;
                     }
                 }

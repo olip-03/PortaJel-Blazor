@@ -6,10 +6,9 @@
 @inject IJSRuntime JS;
 @page "/ArtistView/{artistId}"
 
-@if (!isLoading)
+@if (loaded)
 {
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-
         <ViewHeader backgroundImgUrl="@backgroundImgUrl" backgroundImgUrlPlaceholder="@backgroundImgUrlPlaceholder" baseMusicItem=@artist />
 
         <!-- Container for background image-->
@@ -72,25 +71,25 @@
                     {
                         case sortMethod.byActivity:
                             <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                                <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
                                 <p class="tools-text PrimaryTextColor">Activity</p>
                             </Animate>
                             break;
                         case sortMethod.byArtist:
                             <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                                <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
                                 <p class="tools-text PrimaryTextColor">Artist</p>
                             </Animate>
                             break;
                         case sortMethod.byName:
                             <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                                <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
                                 <p class="tools-text PrimaryTextColor">Name</p>
                             </Animate>
                             break;
                         case sortMethod.byDate:
                             <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                                <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
                                 <p class="tools-text PrimaryTextColor">Date</p>
                             </Animate>
                             break;
@@ -100,13 +99,13 @@
                     @if (showGrid)
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
+                            <ListViewIcon IsGrid=@showGrid ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
                         </Animate>
                     }
                     else
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
+                            <ListViewIcon IsGrid=@showGrid ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
                         </Animate>
                     }
                 </div>
@@ -127,29 +126,18 @@
 
             @* Load actual items *@
             <div class="album-list">
-                @if (isLoading)
-                { // Spinner
-                    <Spinner />
-                }
-                else if (artistAlbums.Length > 0)
-                { // Load information
-                    for (int i = 0; i < artistAlbums.Length; i++)
+                @for (int i = 0; i < artistAlbums.Length; i++)
+                {
+                    Album item = new Album();
+                    if (artistAlbums[i] != null)
                     {
-                        Album item = new Album();
-                        if (artistAlbums[i] != null)
-                        {
-                            item = artistAlbums[i];
-                        }
-
-                        string placeholderImg = string.Empty;
-                        try { placeholderImg = placeholderImages[i]; }
-                        catch { placeholderImg = string.Empty; }
-                        <SearchResultItem musicObject="@item" isGrid=@showGrid placeholderBase64="@placeholderImg" />
+                        item = artistAlbums[i];
                     }
-                }
-                else
-                { // TODO: 'something went wrong click here to try again' prompt
 
+                    string placeholderImg = string.Empty;
+                    try { placeholderImg = placeholderImages[i]; }
+                    catch { placeholderImg = string.Empty; }
+                    <SearchResultItem musicObject="@item" isGrid=@showGrid placeholderBase64="@placeholderImg" />
                 }
             </div>
         </div>
@@ -158,8 +146,16 @@
         {
             <div class="PageSecondaryColor additional-info" @onclick=ToggleExpandDescription>
                 <p class="additional-info-text PrimaryTextColor">@artist.description</p>
-                <p style="position: absolute; bottom: 100%; left: 100%;">Read more</p>
             </div>
+        }
+
+        @if (similarArtistsBase64BlurHash.Count() > 0)
+        { // but only after the blurhash is done lol
+            <HorizontalMusicItemList Title="More Like This" itemCount="@similarArtists.Count()" albumData="@similarArtists" albumBlurHashData="@similarArtistsBase64BlurHash" />
+        }
+        else if (similarArtists.Count() > 0)
+        { // and again only if we actually HAVE reccomedation
+            <HorizontalMusicItemList Title="More Like This" itemCount="@similarArtists.Count()" albumData="null" albumBlurHashData="null" />
         }
 
         <p>@errorMsg</p>
@@ -181,8 +177,11 @@
     // List view stuff
     public Album[] artistAlbums = new Album[0];
     private string[] placeholderImages = new string[0];
+    private int similarArtistLimit = 30;
+    private Artist[] similarArtists = new Artist[0];
+    private string?[] similarArtistsBase64BlurHash = new string?[0];
     private int totalRecordCount = 0;
-    private bool isLoading = false;
+    private bool loaded = false;
 
     private bool showGrid = false;
 
@@ -207,71 +206,93 @@
 
     protected override async Task OnInitializedAsync()
     {
-        isLoading = true;
+
         MauiProgram.WebView.pageTitle = "Artist View";
         MauiProgram.WebView.currentUri = $"/ArtistView/{artistId}";
         MauiProgram.WebView.showHeader = false;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (artist != null)
+        {
+            await JS.InvokeAsync<string>("InitAllImages");
+            await JS.InvokeAsync<string>("InitalizeArtistView");
+        }
+        if (loaded)
+        {
+            MauiProgram.WebView.isLoading = false;
+            MauiProgram.MainPage.ShowLoadingScreen(false);
+        }
+    }
+    protected override void OnParametersSet()
+    {
+        loaded = false;
+        similarArtists = new Artist[0];
+        similarArtistsBase64BlurHash = new string?[0];
+        StateHasChanged();
+        LoadArtist();
+    }
+    private async void LoadArtist()
+    {
+        if (Application.Current == null) return;
+        Window? window = Application.Current.Windows.FirstOrDefault();
+        if (window == null) return;
 
         try
         {
             Guid parseId = Guid.Parse(artistId);
             if (artistId != null)
             {
-                artist = await MauiProgram.api.GetArtistAsync(parseId);
+                MauiProgram.UpdateDebugMessage("Starting request for Artists data.");
+                Task<Artist> getArtist = MauiProgram.api.GetArtistAsync(parseId);
+                Task<Artist[]> getSimilarArtist = MauiProgram.api.GetSimilarArtistsAsync(parseId, similarArtistLimit);
+                await Task.WhenAll(getArtist, getSimilarArtist);
+                artist = getArtist.Result;
+                similarArtists = getSimilarArtist.Result;
+
+                MauiProgram.UpdateDebugMessage("Setting Image resolution.");
+                int screenWidth = (int)window.Width;
+                backgroundImgUrl = artist.backgroundImage.SourceAtResolution(screenWidth);
+
+                int imgScale = (int)(window.Width * 0.4);
+                imgUrl = artist.image.SourceAtResolution(imgScale);
+
+                MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
+                artistAlbums = artist.artistAlbums;
+                placeholderImages = await GenerateBlurHash(artistAlbums);
+
+                string? artistBlurhash = await artist.image.BlurhashToBase64Async(20, 20);
+                string? backgrounBlurhash = await artist.backgroundImage.BlurhashToBase64Async(20, 20);
+                imgUrlPlaceholder = artistBlurhash == null ? string.Empty : artistBlurhash;
+                backgroundImgUrlPlaceholder = backgrounBlurhash == null ? string.Empty : backgrounBlurhash;
+
+                logoUrl = artist.logoImage.source;
+                if (!String.IsNullOrWhiteSpace(logoUrl))
+                {
+                    string? getLogoblurhash = await artist.logoImage.BlurhashToBase64Async(20, 20);
+                    logoUrlPlaceholder = getLogoblurhash == null ? string.Empty : getLogoblurhash;
+                    hasLogo = true;
+                }
+
+                Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarArtists);
+                similarArtistsBase64BlurHash = await runSimilarBlurhash;
             }
             else
             {
                 MauiProgram.WebView.NavigateHome();
                 return;
             }
-
-            if (artist != null)
-            {
-                int screenWidth = (int)Application.Current.Windows.FirstOrDefault().Width;
-                backgroundImgUrl = artist.backgroundImage.SourceAtResolution(screenWidth);
-
-                int imgScale = (int)(Application.Current.Windows.FirstOrDefault().Width * 0.4);
-                imgUrl = artist.image.SourceAtResolution(imgScale);
-
-                artistAlbums = artist.artistAlbums;
-                placeholderImages = new string[artistAlbums.Length];
-                for (int i = 0; i < artistAlbums.Length; i++)
-                {
-                    try
-                    {
-                        placeholderImages[i] = await artistAlbums[i].image.BlurhashToBase64Async(20, 20);
-                    }
-                    catch (Exception)
-                    {
-                        placeholderImages[i] = string.Empty;
-                    }
-                }
-                imgUrlPlaceholder = await artist.image.BlurhashToBase64Async(20, 20);
-                backgroundImgUrlPlaceholder = await artist.backgroundImage.BlurhashToBase64Async(20, 20);
-
-                logoUrl = artist.logoImage.source;
-                if (!String.IsNullOrWhiteSpace(logoUrl))
-                {
-                    logoUrlPlaceholder = await artist.logoImage.BlurhashToBase64Async(20, 20);
-                    hasLogo = true;
-                }
-            }
         }
         catch (Exception ex)
         {
             errorMsg = ex.ToString();
         }
-        isLoading = false;
+
+        loaded = true;
+        StateHasChanged();
+        await Task.Delay(250); // allow page to catch up 
         MauiProgram.WebView.isLoading = false;
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await JS.InvokeAsync<string>("InitAllImages");
-        await JS.InvokeAsync<string>("InitalizeArtistView");
-        if (!isLoading)
-        {
-            MauiProgram.MainPage.ShowLoadingScreen(false);
-        }
+        MauiProgram.MainPage.ShowLoadingScreen(false);
     }
     private void SelectPage(int page)
     {
@@ -321,5 +342,21 @@
             bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
             MauiProgram.WebView.NavigateHome();
         }
+    }
+    private async Task<string[]> GenerateBlurHash(BaseMusicItem[] data)
+    {
+        String[] toReturn = new string[data.Count()];
+        for (int i = 0; i < data.Count(); i++)
+        {
+            try
+            {
+                toReturn[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+            }
+            catch (Exception)
+            {
+                toReturn[i] = string.Empty;
+            }
+        }
+        return toReturn;
     }
 }

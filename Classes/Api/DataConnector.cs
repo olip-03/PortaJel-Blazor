@@ -158,6 +158,16 @@ namespace PortaJel_Blazor.Classes
             });
             return toReturn;
         }
+
+        public async Task<Artist[]> GetSimilarArtistsAsync(Guid setId, int limit = 30)
+        {
+            List<Artist> toReturn = new();
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                Artist[] toAdd = await server.Value.GetSimilarArtistsAsync(setId, limit);
+                toReturn.AddRange(toAdd);
+            });
+            return toReturn.ToArray();
+        }
         #endregion
 
         #region SongsEndpoints

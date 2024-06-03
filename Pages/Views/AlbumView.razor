@@ -24,9 +24,9 @@
             <div class="item-title">
                 <div class="title-text">
                     <h2 class="PrimaryTextColor" style="margin: 0px">@album.name</h2>
-                    <div class="SecondaryTextColor artistInfo" @onclick="() => SelectArtist(album.artists.FirstOrDefault().id)">
+                    <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(album.artists.FirstOrDefault().id)">
                         @album.GetArtistName()
-                    </div>
+                    </h5>
                 </div>
             </div>
 
@@ -65,7 +65,6 @@
                             </Animate>
                         }
                     </div>
-
                 </div>
             </div>
 
@@ -87,7 +86,7 @@
                 {
                     <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.id)">
                         <img src="@artist.image.SourceAtResolution(40)" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
-                        @artist.name
+                        <p class="artistInfoText">@artist.name</p>
                     </div>
                     forcount++;
                 }
@@ -99,8 +98,8 @@
                 <br />
                 <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="@similarAlbums" albumBlurHashData="@similarAlbumsBase64BlurHash" />
             }
-            else
-            {
+            else if(similarAlbums.Count() > 0)
+            { // and again only if we actually HAVE reccomedation
                 <br />
                 <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="null" albumBlurHashData="null" />
             }
@@ -149,7 +148,7 @@
         if (loaded)
         {
             MauiProgram.WebView.isLoading = false;
-            await JS.InvokeAsync<string>("InitAllAlbumSongItem");
+            // await JS.InvokeAsync<string>("InitAllAlbumSongItem");
             await Task.Delay(150); // allow album items time to snap into place
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
@@ -193,6 +192,11 @@
                     album = getAlbum.Result;
                     similarAlbums = getSimilarAlbum.Result;
                 }
+                else
+                {
+                    MauiProgram.WebView.NavigateHome();
+                    return;
+                }
 
                 MauiProgram.UpdateDebugMessage("Setting Play Additional Update Action");
 
@@ -206,6 +210,8 @@
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
                 base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
+                Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarAlbums);
+                similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }
 
             // TODO: Add this as an API in the plugin, not in the app itself
@@ -223,14 +229,8 @@
         StateHasChanged();
         await JS.InvokeAsync<string>("InitAllAlbumSongItem");
         await Task.Delay(250); // allow album items time to snap into place
-
         MauiProgram.WebView.isLoading = false;
         MauiProgram.MainPage.ShowLoadingScreen(false);
-
-        // fetching similar items isn't neccesary right away so ill run this after the page has loaded\
-        Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarAlbums);
-        similarAlbumsBase64BlurHash = await runSimilarBlurhash;
-        StateHasChanged();
     }
 
     private void SelectArtist(Guid artistId)

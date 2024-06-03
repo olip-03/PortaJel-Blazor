@@ -12,8 +12,10 @@ li {
     display: flex;
     margin-top: 1rem;
 }
+h4{
+    margin: 0;
+}
 .listContent {
-
 }
 /* Styles for the connection boxes */
 .connection-container {

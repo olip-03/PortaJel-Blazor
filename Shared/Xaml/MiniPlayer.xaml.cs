@@ -232,23 +232,23 @@ public partial class MiniPlayer : ContentView
                     await Task.WhenAll(
                         this.TranslateTo(0, MauiProgram.MainPage.ContentHeight * -1, 450, Easing.SinOut),
                         MauiProgram.MainPage.MainMediaController.TranslateTo(0, 0, 450, Easing.SinOut));
-                    MauiProgram.MainPage.MainMediaController.Open(animate: false);
+                    await MauiProgram.MainPage.MainMediaController.Open(animate: false);
                 }
                 else
                 {
                     await Task.WhenAll(
                         this.TranslateTo(0, 0, 450, Easing.SinOut),
                         MauiProgram.MainPage.MainMediaController.TranslateTo(0, MauiProgram.MainPage.ContentHeight, 450, Easing.SinOut));
-                    MauiProgram.MainPage.MainMediaController.Close(animate: false);
+                    await MauiProgram.MainPage.MainMediaController.Close(animate: false);
                 }
                 break;
         }
     }
 
-    private void MiniPlayer_Clicked(object sender, TappedEventArgs e)
+    private async void MiniPlayer_Clicked(object sender, TappedEventArgs e)
     {
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-        MauiProgram.MainPage.MainMediaController.Open();
+        await MauiProgram.MainPage.MainMediaController.Open();
     }
 
     private void MiniPlayer_Swiped(object sender, SwipedEventArgs e)

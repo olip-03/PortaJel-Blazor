@@ -91,6 +91,12 @@
     color: red;
 }
 
+.textContainer {
+    height: 100%;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
 .gridLayout{
     flex-direction: column;
     height: 100%;

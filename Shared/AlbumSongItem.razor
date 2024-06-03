@@ -83,7 +83,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
+        if (firstRender)
         {
             var lDotNetReference = DotNetObjectReference.Create(this);
             await JS.InvokeAsync<string>("InitAlbumSongItem", new object[2] { lDotNetReference, guid });

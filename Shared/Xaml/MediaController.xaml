@@ -13,13 +13,12 @@
       HorizontalOptions="FillAndExpand" 
       InputTransparent="False" 
       IsVisible="True">
-
         <!-- Controller -->
         <Border x:Name="Player" 
           VerticalOptions="FillAndExpand" 
           HorizontalOptions="FillAndExpand"
           BackgroundColor="{StaticResource PageBackgroundColor}"
-          StrokeThickness="2">
+          StrokeThickness="0">
             <Grid>
                 <!-- Header -->
                 <Grid Grid.Row="0">
@@ -121,12 +120,10 @@
                 </CarouselView>
 
                 <!-- Playback controls -->
-                <Grid Grid.Row="2" Padding="0 20 0 20" VerticalOptions="FillAndExpand">
+                <Grid Grid.Row="2" Margin="20, 0, 20, 0"  VerticalOptions="FillAndExpand">
                     <!-- Slider and timestamps -->
-                    <StackLayout Margin="0, 0, 0, 0" 
-                                 VerticalOptions="Start">
+                    <StackLayout VerticalOptions="Start">
                         <Slider x:Name="DurationSlider" 
-                                WidthRequest="380"
                                 Maximum="{Binding PlaybackMaximum}" 
                                 Value="{Binding PlaybackValue}" 
                                 ThumbColor="{StaticResource PrimaryColor}"
@@ -219,7 +216,11 @@
                                          Clicked="Btn_ShowQueue_Clicked"></ImageButton>
                     </FlexLayout>
                 </Grid>
-
+                
+                <!-- Background Image  -->
+                <Grid Grid.RowSpan="3" ZIndex="-50">
+                    <Image x:Name="BackgroundImage" Source="{Binding BackgroundImageSource}"  Aspect="AspectFit" WidthRequest="1000"></Image>
+                </Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="70"/>
                     <RowDefinition Height="2*"/>

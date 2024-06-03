@@ -393,7 +393,7 @@ namespace PortaJel_Blazor.Classes
         }
 
         /// <summary>
-        /// Retrieves similar albums asynchronously based on the provided album set ID.
+        /// Retrieves similar albums asynchronously based on the provided album ID.
         /// </summary>
         /// <param name="setId">The ID of the album set to find similar albums for.</param>
         /// <returns>An array of albums that are similar to the provided album set.</returns>
@@ -714,6 +714,25 @@ namespace PortaJel_Blazor.Classes
             }
 
             return returnArtist;
+        }
+        
+        public async Task<Artist[]> GetSimilarArtistsAsync(Guid setId, int limit = 30)
+        {
+            if (_jellyfinApiClient == null || userDto == null) throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
+            List<Artist> toReturn = new();
+            BaseItemDtoQueryResult? result = await _jellyfinApiClient.Artists[setId.ToString()].Similar.GetAsync(c =>
+            {
+                c.QueryParameters.UserId = userDto.Id;
+                c.QueryParameters.Limit = limit;
+            });
+            if (result != null && result.Items != null)
+            {
+                foreach (BaseItemDto albumResult in result.Items)
+                {
+                    toReturn.Add(ArtistBuilder(albumResult));
+                }
+            }
+            return toReturn.ToArray();
         }
         #endregion
 

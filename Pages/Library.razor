@@ -5,6 +5,7 @@
 @using BlazorAnimate;
 @using Jellyfin.Sdk;
 @using Jellyfin.Sdk.Generated.Models;
+@using PortaJel_Blazor.Shared.Icons;
 @inject IJSRuntime JS;
 
 <div id="libraryToolbar" class="button-container boxed PageSecondaryColor">
@@ -76,19 +77,19 @@
         {
             case sortMethod.byActivity:
                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                    <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
                     <p class="tools-text PrimaryTextColor">Activity</p>
                 </Animate>
                 break;
             case sortMethod.byArtist:
                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                    <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
                     <p class="tools-text PrimaryTextColor">Artist</p>
                 </Animate>
                 break;
             case sortMethod.byName:
                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <img src="/images/sort.svg" alt="Sort Icon" class="tools-icon" />
+                    <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
                     <p class="tools-text PrimaryTextColor">Name</p>
                 </Animate>
                 break;
@@ -98,13 +99,13 @@
         @if (showGrid)
         {
             <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                <img src="/images/gridview.svg" alt="Grid Icon" class="tools-icon" />
+                <ListViewIcon IsGrid=@showGrid ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
             </Animate>
         }
         else
         {
             <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                <img src="/images/listview.svg" alt="Grid Icon" class="tools-icon" />
+                <ListViewIcon IsGrid=@showGrid ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
             </Animate>
         }
     </div>
@@ -127,7 +128,6 @@
     @if (isLoading)
     { // Spinner
         <Spinner />
-
     }
     else
     {
@@ -159,8 +159,6 @@
         </Animate>
     }
 </div>
-
-
 
 @code {
     [Parameter] public string showFavourites { get; set; } = "false";

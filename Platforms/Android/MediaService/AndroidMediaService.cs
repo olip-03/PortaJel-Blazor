@@ -573,11 +573,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 if(MainQueue.Count > 0)
                 {
                     QueueStartIndex = fromIndex + 1;
+                    toAdd.InsertRange(QueueStartIndex, MainQueue);
                 }
                 PlayingIndex = fromIndex;
-
-                // Insert the users queue
-                toAdd.InsertRange(QueueStartIndex, MainQueue);
 
                 foreach (Song song in toAdd)
                 {

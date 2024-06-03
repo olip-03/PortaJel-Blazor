@@ -73,3 +73,11 @@ img:after {
     text-align: center;
     content: attr(alt);
 }
+
+.artistCircle {
+    border-radius: 50% !important;
+}
+
+.artistText {
+    text-align: center;
+}

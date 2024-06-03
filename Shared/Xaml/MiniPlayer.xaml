@@ -87,7 +87,13 @@
                                  HeightRequest="35" 
                                  Margin="2.5"
                                  Source="{Binding PlayButtonSource}" 
-                                 HorizontalOptions="End"/>
+                                 HorizontalOptions="End">
+                        <ImageButton.Behaviors>
+                            <toolkit:IconTintColorBehavior 
+                                x:Name="Btn_PlayToggle_TintColor" 
+                                TintColor="{StaticResource PrimaryTextColor}" />
+                        </ImageButton.Behaviors>
+                    </ImageButton>
                 </HorizontalStackLayout>
 
                 <Grid.ColumnDefinitions>

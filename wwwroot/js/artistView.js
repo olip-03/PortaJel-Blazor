@@ -44,7 +44,6 @@ function ToggleExpandDescription() {
     if (additionalInfo.style.overflow == 'visible') {
         // Set to strict layout
         additionalInfo.style.overflow = 'hidden';
-        additionalInfo.style.width = '100%';
         additionalInfo.style.borderRadius = '0.5rem';
         additionalInfo.style.backgroundColor = 'white';
         additionalInfo.style.padding = '1rem';
@@ -52,10 +51,10 @@ function ToggleExpandDescription() {
         additionalInfo.style.display = '-webkit-box';
         additionalInfo.style.webkitLineClamp = '3';
         additionalInfo.style.webkitBoxOrient = 'vertical';
-        additionalInfo.style.margin = '1rem 0';
+        additionalInfo.style.margin = '1rem';
         additionalInfo.style.boxShadow = '0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.5)';
 
-        additionalInfoText.style.background = '-webkit-linear-gradient(#333, #333, #eee)';
+        additionalInfoText.style.background = '-webkit-linear-gradient(#eee, #eee, #333)';
         additionalInfoText.style.webkitBackgroundClip = 'text';
         additionalInfoText.style.webkitTextFillColor = 'transparent';
     }

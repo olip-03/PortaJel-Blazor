@@ -7,23 +7,23 @@
 @namespace PortaJel_Blazor.Shared
 
 <div class="containerImg" @onclick="NavigateToAlbum" @oncontextmenu="OpenContextMenu">
-    <div class="imageHolder PageSecondaryBackgroundColor">
-        <img src="data:image/png;base64, @placeholderBase64" class="albumImage lowRes" />
-        <img src="@albumImg" class="albumImage album-cover-img opacityTransition" loading="lazy" onerror="this.src='/images/emptyAlbum.png'" />
+    <div class="imageHolder PageSecondaryBackgroundColor @(isArtist == true ? "artistCircle" : "")">
+        <img src="data:image/png;base64, @placeholderBase64" class="albumImage lowRes @(isArtist == true ? "artistCircle" : "")" />
+        <img src="@albumImg" class="albumImage album-cover-img opacityTransition @(isArtist == true ? "artistCircle" : "")" loading="lazy" onerror="this.src='/images/emptyAlbum.png'" />
     </div>
 
     @if(musicObject != null)
     {
-        <p class="albumText">
+        <p class="albumText @(isArtist == true ? "artistText" : "")">
             @if (musicObject is Song)
             { // Show the little song icon
                 <img src="/images/song.svg" style="height: 1rem; width: 1rem;"/>
             }
-            else
+            else if(musicObject is Album)
             {
                 <img src="/images/album.svg" style="height: 1rem; width: 1rem;"/>
             }
-            @musicObject.name • @artistName
+            @titleCongregate
         </p>
     }
 </div>
@@ -42,8 +42,10 @@
     [Parameter] public BaseMusicItem musicObject { get; set; } = new Album();
     [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
     [Parameter] public int? albumResolutionpx { get; set; } = 160;
+    bool isArtist = false;
     string? albumText = null;
     string? artistName = null;
+    string? titleCongregate = null;
 
     private int resolution = 250;
 
@@ -56,16 +58,22 @@
         {
             albumImg = musicObject.image.SourceAtResolution(resolution);
             backImg = musicObject.image.SourceAtResolution(25);
-
             if (musicObject is Album)
             {
                 Album album = (Album)musicObject;
                 artistName = album.artistCongregate;
+                titleCongregate = musicObject.name + " • " + artistName;
             }
             if (musicObject is Song)
             {
                 Song song = (Song)musicObject;
                 artistName = song.artistCongregate;
+                titleCongregate = musicObject.name + " • " + artistName;
+            }
+            if(musicObject is Artist)
+            {
+                isArtist = true;
+                titleCongregate = musicObject.name;
             }
             StateHasChanged();
         }
@@ -90,6 +98,12 @@
                     MauiProgram.MainPage.ShowLoadingScreen(true);
                     MauiProgram.WebView.NavigateAlbum(album.id);
                 }
+            }
+            if(musicObject is Artist)
+            {
+                if (musicObject.id == Guid.Empty) { return; }
+                MauiProgram.MainPage.ShowLoadingScreen(true);
+                MauiProgram.WebView.NavigateArtist(musicObject.id);
             }
         }
     }

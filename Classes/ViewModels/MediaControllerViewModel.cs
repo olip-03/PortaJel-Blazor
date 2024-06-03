@@ -82,5 +82,12 @@ namespace PortaJel_Blazor.Classes
             get => (string?)GetValue(PlayingFromTitleProperty);
             set => SetValue(PlayingFromTitleProperty, value);
         }
+
+        public static readonly BindableProperty BackgroundImageSourceProperty = BindableProperty.Create(nameof(BackgroundImageSource), typeof(ImageSource), typeof(MediaControllerViewModel), default(ImageSource));
+        public ImageSource BackgroundImageSource
+        {
+            get => (ImageSource)GetValue(BackgroundImageSourceProperty);
+            set => SetValue(BackgroundImageSourceProperty, value);
+        }
     }
 }

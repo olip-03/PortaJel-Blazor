@@ -1,9 +1,5 @@
-using BlazorAnimate;
-using CommunityToolkit.Maui.Core.Extensions;
-using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
-using System;
 using System.Diagnostics;
 namespace PortaJel_Blazor.Shared;
 
@@ -24,35 +20,37 @@ public partial class MediaController : ContentView
     private Guid currentPlayingId = Guid.Empty;
 
     public MediaController()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         BindingContext = ViewModel;
-	}
+    }
 
-    public async void Open(bool? animate = true)
+    public async Task<bool> Open(bool? animate = true)
     {
         UpdatePlayButton();
         UpdateFavouriteButton();
 
         Opacity = 1;
         TranslationY = MauiProgram.MainPage.ContentHeight;
+        BackgroundImage.WidthRequest = MauiProgram.MainPage.ContentHeight;
         IsVisible = true;
-        IsOpen = true;
 
         if (animate == true)
         {
             await Task.WhenAll(
                 MauiProgram.MainPage.MainMiniPlayer.TranslateTo(0, MauiProgram.MainPage.ContentHeight * -1, 450, Easing.SinOut),
-                this.TranslateTo(0, 0, 450, Easing.SinOut));  
+                this.TranslateTo(0, 0, 450, Easing.SinOut)).ConfigureAwait(false); ;
         }
         else
         {
             MauiProgram.MainPage.MainMiniPlayer.TranslationY = MauiProgram.MainPage.ContentHeight * -1;
-            TranslationY = 0; 
+            TranslationY = 0;
         }
+        IsOpen = true;
+        return true;
     }
 
-    public async void Close(bool? animate = true)
+    public async Task<bool> Close(bool? animate = true)
     {
         IsOpen = false;
 
@@ -60,23 +58,22 @@ public partial class MediaController : ContentView
         {
             await Task.WhenAll(
                 MauiProgram.MainPage.MainMiniPlayer.TranslateTo(0, 0, 450, Easing.SinOut),
-                this.TranslateTo(0, MauiProgram.MainPage.ContentHeight, 450, Easing.SinOut));
+                this.TranslateTo(0, MauiProgram.MainPage.ContentHeight, 450, Easing.SinOut)).ConfigureAwait(false);
         }
         else
         {
             MauiProgram.MainPage.MainMiniPlayer.TranslationY = 0;
             TranslationY = MauiProgram.MainPage.ContentHeight;
         }
+        return true;
     }
-    
-    public void UpdateData(SongGroupCollection? songs = null, int? playFromIndex = 0)
-    { 
-        if(playFromIndex == null)
-        {
-            playFromIndex = 0;
-        }
 
-        if(songs != null)
+    public async void UpdateData(SongGroupCollection? songs = null, int? playFromIndex = 0)
+    {
+        if (MauiProgram.MediaService == null) return;
+        if (playFromIndex == null) playFromIndex = 0;
+
+        if (songs != null)
         {
             ViewModel.Queue = songs.AllSongs;
             Song? fromIndex = songs.AllSongs[(int)playFromIndex];
@@ -87,7 +84,7 @@ public partial class MediaController : ContentView
                 ImgCarousel.ScrollTo(fromIndex, animate: false);
             }
         }
-        else if(ViewModel.Queue != null && ViewModel.Queue.Count() > playFromIndex && songs != null)
+        else if (ViewModel.Queue != null && ViewModel.Queue.Count() > playFromIndex && songs != null)
         {
             Song? fromIndex = songs.AllSongs[(int)playFromIndex];
             if (playFromIndex != null && fromIndex != null)
@@ -98,18 +95,17 @@ public partial class MediaController : ContentView
         }
 
         BaseMusicItem? playingCollection = MauiProgram.MediaService.GetCurrentlyPlaying().album;
-        if(playingCollection != null)
+        if (playingCollection != null)
         {
             string type = playingCollection.GetType().Name;
             ViewModel.PlayingFromCollectionTitle = "Playing from " + type;
             ViewModel.PlayingFromTitle = playingCollection.name;
         }
 
-        // Update Play Button
+        // Update Elements
         UpdatePlayButton();
-
-        // Update Favourite Button
         UpdateFavouriteButton();
+        await UpdateBackground();
 
         // Update time tracking
         PlaybackInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
@@ -134,12 +130,10 @@ public partial class MediaController : ContentView
     }
     public void UpdatePlayButton(bool? isPlaying = null)
     {
-        if (App.Current == null)
-        {
-            return;
-        }
+        if (App.Current == null) return;
+        if (MauiProgram.MediaService == null) return;
 
-        if(isPlaying == true)
+        if (isPlaying == true)
         {
             var hasSource = App.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
             if (hasSource)
@@ -147,7 +141,7 @@ public partial class MediaController : ContentView
                 ViewModel.PlayButtonSource = (string)imageSource;
             }
         }
-        else if(isPlaying == false)
+        else if (isPlaying == false)
         {
             var hasSource = App.Current.Resources.TryGetValue("InversePlayIcon", out object imageSource);
             if (hasSource)
@@ -172,13 +166,11 @@ public partial class MediaController : ContentView
             }
         }
     }
-
     public async void UpdateFavouriteButton(bool? syncToServer = false)
     {
-        if (App.Current == null || ViewModel.Queue == null)
-        {
-            return;
-        }
+        if (App.Current == null) return;
+        if (MauiProgram.MediaService == null) return;
+        if (ViewModel.Queue == null) ViewModel.Queue = MauiProgram.MediaService.GetQueue().AllSongs;
 
         int queueIndex = MauiProgram.MediaService.GetQueueIndex();
         Song song = ViewModel.Queue[queueIndex];
@@ -220,7 +212,25 @@ public partial class MediaController : ContentView
             });
         }
     }
-
+    public async Task<bool> UpdateBackground()
+    {
+        if (MauiProgram.MediaService == null) return false;
+        MemoryStream? imageDecodeStream = null;
+        Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
+        await Task.Run(async () =>
+        {
+            // Fuck yeah get the image to move based on gyro
+            //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
+            string? base64 = await currentSong.image.BlurhashToBase64Async(100, 100).ConfigureAwait(false);
+            if (base64 != null)
+            {
+                var imageBytes = Convert.FromBase64String(base64);
+                imageDecodeStream = new(imageBytes);
+            }
+        });
+        ViewModel.BackgroundImageSource = ImageSource.FromStream(() => imageDecodeStream);
+        return true;
+    }
     /// <summary>
     /// Function which can be called to update the playing song informations time, and which song is currently playing.
     /// </summary>
@@ -242,7 +252,7 @@ public partial class MediaController : ContentView
             }
 
             // Change playback icon 
-            if(isPlaying != playbackTime.isPlaying)
+            if (isPlaying != playbackTime.isPlaying)
             {
                 UpdatePlayButton(playbackTime.isPlaying);
                 MauiProgram.MainPage.MainMiniPlayer.UpdatePlayButton(playbackTime.isPlaying);
@@ -253,7 +263,7 @@ public partial class MediaController : ContentView
             ViewModel.PlaybackValue = playbackTime.currentDuration;
             ViewModel.PlaybackMaximum = playbackTime.currentSong.duration;
 
-            if (playbackTime.currentSong.duration > 0 && 
+            if (playbackTime.currentSong.duration > 0 &&
                 !pauseTimeUpdate &&
                 ViewModel.PlaybackTimeValue != playbackTime.currentDurationText &&
                 IsOpen)
@@ -266,17 +276,22 @@ public partial class MediaController : ContentView
         }
     }
 
-    private void Btn_Close_Clicked(object sender, EventArgs e)
+    private async void Btn_Close_Clicked(object sender, EventArgs e)
     {
-        Close();
+        await Close();
     }
 
     private async void Btn_ContextMenu_Clicked(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
+        if (MauiProgram.MediaService == null) return;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
 
         Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
-        string base64 = await song.image.BlurhashToBase64Async(200, 200);
+
+        var base64Result = await song.image.BlurhashToBase64Async(200, 200);
+        string base64 = base64Result == null ? string.Empty : base64Result;
+
         MauiProgram.MainPage.OpenContextMenu(song, 250, base64);
     }
 
@@ -313,6 +328,7 @@ public partial class MediaController : ContentView
 
     private async void Btn_Previous_Released(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
         MauiProgram.MediaService.PreviousTrack();
 
         PlaybackInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
@@ -335,10 +351,12 @@ public partial class MediaController : ContentView
         await Task.WhenAll(
             Btn_Previous.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
             Btn_Previous.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
+        await UpdateBackground();
     }
 
     private void Btn_PlayToggle_Pressed(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         Btn_PlayToggle.Opacity = btnInOpacity;
         Btn_PlayToggle.Scale = btnInSize;
@@ -351,7 +369,7 @@ public partial class MediaController : ContentView
                 ViewModel.PlayButtonSource = (string)imageSource;
             }
         }
-        else if(App.Current != null)
+        else if (App.Current != null)
         {
             var hasSource = App.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
             if (hasSource)
@@ -363,6 +381,7 @@ public partial class MediaController : ContentView
 
     private async void Btn_PlayToggle_Released(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         MauiProgram.MediaService.TogglePlay();
         UpdatePlayButton();
@@ -381,6 +400,7 @@ public partial class MediaController : ContentView
     }
     private async void Btn_Next_Released(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
         MauiProgram.MediaService.NextTrack();
 
         PlaybackInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
@@ -402,6 +422,7 @@ public partial class MediaController : ContentView
         await Task.WhenAll(
             Btn_Next.FadeTo(1, btnAnimSpeedMs, Easing.SinOut),
             Btn_Next.ScaleTo(1, btnAnimSpeedMs, Easing.SinOut));
+        await UpdateBackground();
     }
 
     private void Btn_Shuffle_Pressed(object sender, EventArgs e)
@@ -420,6 +441,7 @@ public partial class MediaController : ContentView
 
     private async void Btn_FavToggle_Pressed(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         Btn_FavToggle.Opacity = btnInOpacity;
         Btn_FavToggle.Scale = btnInSize;
@@ -484,6 +506,7 @@ public partial class MediaController : ContentView
 
     private void DurationSlider_DragCompleted(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
         pauseTimeUpdate = false;
         long position = (long)DurationSlider.Value;
         MauiProgram.MediaService.SeekToPosition(position);
@@ -500,18 +523,18 @@ public partial class MediaController : ContentView
 
     }
 
-    private void CollectionLabel_Clicked(object sender, EventArgs e)
+    private async void CollectionLabel_Clicked(object sender, EventArgs e)
     {
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MainPage.ShowLoadingScreen(true);
+        await Close();
         Album? album = MauiProgram.MediaService.GetCurrentlyPlaying().album;
-        if(album != null)
+        if (album != null)
         {
             Guid? itemId = album.id;
-            if(itemId != null)
+            if (itemId != null)
             {
                 MauiProgram.WebView.NavigateAlbum((Guid)itemId);
-                Close();
             }
         }
     }

@@ -60,11 +60,11 @@
             let queueContainer = document.getElementById(elmnt.id + "-overscroll");
             let favContainer = document.getElementById(elmnt.id + "-overscrollFav");
 
-            if (event.target.scrollLeft <= 15) {
+            if (event.target.scrollLeft <= 30) {
                 // Invoke add to queue function
                 DotNet.invokeMethodAsync("BumpHaptics");
             }
-            if (event.target.scrollLeft >= favContainer.offsetWidth + queueContainer.offsetWidth - 15) {
+            if (event.target.scrollLeft >= favContainer.offsetWidth + queueContainer.offsetWidth - 30) {
                 // Invoke favourite toggle funciton
                 DotNet.invokeMethodAsync("BumpHaptics");
             }
@@ -132,11 +132,11 @@ function InitAlbumSongItem(pDotNetReference, targetId) {
             let queueContainer = document.getElementById(elmnt.id + "-overscroll");
             let favContainer = document.getElementById(elmnt.id + "-overscrollFav");
 
-            if (event.target.scrollLeft <= 15) {
+            if (event.target.scrollLeft <= 30) {
                 // Invoke add to queue function
                 pDotNetReference.invokeMethodAsync("QueueSong");
             }
-            if (event.target.scrollLeft >= favContainer.offsetWidth + queueContainer.offsetWidth - 15) {
+            if (event.target.scrollLeft >= favContainer.offsetWidth + queueContainer.offsetWidth - 30) {
                 // Invoke favourite toggle funciton
                 pDotNetReference.invokeMethodAsync("FavouriteSong");
             }

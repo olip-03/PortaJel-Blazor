@@ -329,7 +329,7 @@ public partial class MainPage : ContentPage
     private bool homeBtnReleased = true;
     private void btn_navnar_home_Pressed(object sender, EventArgs e)
     {
-        btn_navnar_home.Scale = 0.6;
+        btn_navnar_home.Scale = 0.8;
         btn_navnar_home.Opacity = 0.6;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
     }
@@ -345,7 +345,7 @@ public partial class MainPage : ContentPage
     }
     private void btn_navbar_library_pressed(object sender, EventArgs e)
     {
-        btn_navnar_library.Scale = 0.6;
+        btn_navnar_library.Scale = 0.8;
         btn_navnar_library.Opacity = 0.6;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
     }
@@ -361,7 +361,7 @@ public partial class MainPage : ContentPage
     }
     private void btn_navnar_favourite_pressed(object sender, EventArgs e)
     {
-        btn_navnar_favourites.Scale = 0.6;
+        btn_navnar_favourites.Scale = 0.8;
         btn_navnar_favourites.Opacity = 0.6;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
     }
