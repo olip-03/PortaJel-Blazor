@@ -599,7 +599,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         IMediaSource? media = mediaFactory.CreateMediaSource(mediaItem);
                         if (media != null)
                         {
-                            mediaItem.MediaId = song.playlistId;
+                            mediaItem.MediaId = song.playlistId; 
                             Player.AddMediaItem(mediaItem);
                         }
                     }

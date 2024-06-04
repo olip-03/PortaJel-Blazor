@@ -221,18 +221,20 @@ public partial class MediaController : ContentView
         Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
         if (currentSong.image.blurHash == currentBlurhash) return false; // dont run if hash is the same
         currentBlurhash = currentSong.image.blurHash;
-        await Task.Run(async () =>
+        await Task.WhenAll(Task.Run(async () =>
         {
             // Fuck yeah get the image to move based on gyro
             //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
-            string? base64 = await currentSong.image.BlurhashToBase64Async(100, 100, 0.25f).ConfigureAwait(false);
+            string? base64 = await currentSong.image.BlurhashToBase64Async(100, 100, 0.5f).ConfigureAwait(false);
             if (base64 != null)
             {
                 var imageBytes = Convert.FromBase64String(base64);
                 imageDecodeStream = new(imageBytes);
             }
-        });
+        }), BackgroundImage.FadeTo(0, 1000, Easing.SinOut));
+         
         ViewModel.BackgroundImageSource = ImageSource.FromStream(() => imageDecodeStream);
+        await BackgroundImage.FadeTo(1, 1000, Easing.SinIn);
         return true;
     }
     /// <summary>
