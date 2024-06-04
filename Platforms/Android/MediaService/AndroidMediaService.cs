@@ -20,6 +20,7 @@ using Microsoft.Maui.Controls.PlatformConfiguration;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Services;
 using PortaJel_Blazor.Data;
+using System.Collections;
 using System.Collections.Generic;
 using static Android.Provider.MediaStore.Audio;
 using MediaMetadata = Android.Media.MediaMetadata;
@@ -63,7 +64,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public int PlayingIndex { get; private set; } = 0;
         public BaseMusicItem? playingFrom { get; private set; } = null;
-        public Song CurrentlyPlaying = Song.Empty;
+        public Song CurrentlyPlaying { get; private set; } = Song.Empty;
+        public List<Song> QueueRepresentation { get; private set; } = new();
         public List<Song> MainQueue { get; private set; } = new();
         private int QueueStartIndex { get; set; } = -1;
 
@@ -201,8 +203,15 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         PlayingIndex = Player.CurrentMediaItemIndex;
                         CurrentlyPlaying = GetQueue().AllSongs[PlayingIndex];
                         UpdateMetadata();
-
-                        // Check if the song we've just played was a part of the queue, if so remove it from the queue list 
+                        // Check if the song we've just played was a part of the queue, if so remove it from the queue list \
+                        if (song == null) return;
+                        if (string.IsNullOrWhiteSpace(song.MediaId)) return; // Only Queued Songs have a MediaID 
+                        QueueStartIndex = index;
+                        int queueIndex = MainQueue.FindIndex(queueSong => queueSong.playlistId == song.MediaId);
+                        if (queueIndex >= 0)
+                        {
+                            MainQueue.RemoveAt(queueIndex);
+                        }
                     }
                 }
             };
@@ -570,11 +579,13 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 playingFrom = baseMusicItem;
 
                 Player.ClearMediaItems();
-                if(MainQueue.Count > 0)
+                if (MainQueue.Count > 0)
                 {
                     QueueStartIndex = fromIndex + 1;
+                    QueueRepresentation.InsertRange(QueueStartIndex, MainQueue);
                     toAdd.InsertRange(QueueStartIndex, MainQueue);
                 }
+                QueueRepresentation = toAdd;
                 PlayingIndex = fromIndex;
 
                 foreach (Song song in toAdd)
@@ -588,7 +599,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         IMediaSource? media = mediaFactory.CreateMediaSource(mediaItem);
                         if (media != null)
                         {
-                            mediaItem.MediaId = song.id.ToString();
+                            mediaItem.MediaId = song.playlistId;
                             Player.AddMediaItem(mediaItem);
                         }
                     }
@@ -619,6 +630,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
             foreach (Song song in songList)
             {
+                song.playlistId = Guid.NewGuid().ToString();
                 MainQueue.Add(song);
             }
             return true;
@@ -640,8 +652,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     QueueStartIndex = PlayingIndex + 1;
                 }
 
+                song.playlistId = Guid.NewGuid().ToString();
                 MainQueue.Add(song);
-                int insertIndex = PlayingIndex + MainQueue.Count();
+                int insertIndex = QueueStartIndex + MainQueue.Count();
 
                 if (song.streamUrl != null)
                 {
@@ -655,7 +668,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
                         if (media != null)
                         {
-                            mediaItem.MediaId = song.id.ToString();
+                            // MediaID is only added to songs that are in the queue
+                            mediaItem.MediaId = song.playlistId;
+                            QueueRepresentation.Insert(insertIndex, song);
                             Player.AddMediaItem(insertIndex, mediaItem);
                         }
                     }
@@ -720,7 +735,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
             if(QueueStartIndex == -1)
             {
-                QueueStartIndex = PlayingIndex;
+                QueueStartIndex = PlayingIndex + 1;
             }
 
             // Create a list to query songs from
@@ -737,13 +752,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             // construct queue from player
             for (int i = 0; i < Player.MediaItemCount; i++)
             {
-                MediaItem? getItem = Player.GetMediaItemAt(i);
-                if (getItem == null) break;
-                if (getItem.MediaId == null) break;
-
-                Guid id = Guid.Parse(getItem.MediaId);
-                Song? song = querySongs.FirstOrDefault(song => song.id == id);
-                if(song == null) break;
+                Song? song = QueueRepresentation[i];
+                if (song == null) break;
 
                 if (i < PlayingIndex) previous.Add(song);
                 if (i == PlayingIndex) current.Add(song);

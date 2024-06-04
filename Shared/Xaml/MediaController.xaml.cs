@@ -1,5 +1,6 @@
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
+using SkiaSharp;
 using System.Diagnostics;
 namespace PortaJel_Blazor.Shared;
 
@@ -14,6 +15,7 @@ public partial class MediaController : ContentView
     private double btnInOpacity = 0.5;
     private double btnInSize = 0.8;
     private uint btnAnimSpeedMs = 400;
+    private string currentBlurhash = string.Empty;
 
     private bool isPlaying = false;
     private bool pauseTimeUpdate = false;
@@ -120,7 +122,7 @@ public partial class MediaController : ContentView
         try
         {
             SongGroupCollection sgc = MauiProgram.MediaService.GetQueue();
-            int insertInto = sgc.QueueStartIndex + (sgc.QueueCount - 1);
+            int insertInto = sgc.QueueStartIndex + sgc.QueueCount;
             ViewModel.Queue.Insert(insertInto, song);
         }
         catch (Exception ex)
@@ -217,11 +219,13 @@ public partial class MediaController : ContentView
         if (MauiProgram.MediaService == null) return false;
         MemoryStream? imageDecodeStream = null;
         Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
+        if (currentSong.image.blurHash == currentBlurhash) return false; // dont run if hash is the same
+        currentBlurhash = currentSong.image.blurHash;
         await Task.Run(async () =>
         {
             // Fuck yeah get the image to move based on gyro
             //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
-            string? base64 = await currentSong.image.BlurhashToBase64Async(100, 100).ConfigureAwait(false);
+            string? base64 = await currentSong.image.BlurhashToBase64Async(100, 100, 0.25f).ConfigureAwait(false);
             if (base64 != null)
             {
                 var imageBytes = Convert.FromBase64String(base64);

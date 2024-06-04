@@ -85,10 +85,10 @@ public partial class MediaQueue : ContentView
         {
             SongGroupCollection sgc = MauiProgram.MediaService.GetQueue();
             SongGroup? queueGroup = ViewModel.SongQueue.FirstOrDefault(sg => sg.Name == "Queue");
-
-            if (queueGroup != null)
+            PlaybackInfo? playbackInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
+            if (queueGroup != null && playbackInfo != null)
             {
-                int insertInto = sgc.QueueCount;
+                int insertInto = sgc.QueueStartIndex + sgc.QueueCount;
                 ViewModel.SongQueue.FirstOrDefault(sg => sg.Name == "Queue").Insert(insertInto, song);
             }
         }

@@ -45,7 +45,7 @@ namespace PortaJel_Blazor.Data
             }
             return source;
         }
-        public Task<string?> BlurhashToBase64Async(int width = 0, int height = 0)
+        public Task<string?> BlurhashToBase64Async(int width = 0, int height = 0, float brightness = 1)
         {
             try
             {            
@@ -69,7 +69,7 @@ namespace PortaJel_Blazor.Data
                                 int scaledBlue = (int)(pixel.Blue * 255);
 
                                 // Increase brightness by multiplying with a factor (e.g., 1.2 for 20% increase)
-                                float brightnessFactor = 2f; // Additional brightness
+                                float brightnessFactor = 2f * brightness; // Additional brightness
                                 scaledRed = (int)(scaledRed * brightnessFactor);
                                 scaledGreen = (int)(scaledGreen * brightnessFactor);
                                 scaledBlue = (int)(scaledBlue * brightnessFactor);
