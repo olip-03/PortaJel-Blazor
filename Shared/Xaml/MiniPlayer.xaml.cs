@@ -30,6 +30,7 @@ public partial class MiniPlayer : ContentView
     {
         this.Opacity = 0;
         this.TranslationY = 120;
+        IsVisible = true;
         IsOpen = true;
 
         // Update Play Button
@@ -46,10 +47,10 @@ public partial class MiniPlayer : ContentView
     public async void Hide()
     {
         IsOpen = false;
-
         await Task.WhenAny(
             this.FadeTo(0, 450, Easing.SinOut),
             this.TranslateTo(0, 120, 450, Easing.SinOut));
+        IsVisible = false;
     }
 
     public async void UpdateTimestamp(PlaybackInfo? playbackTime)

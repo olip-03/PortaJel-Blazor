@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
+using SQLite;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -28,6 +29,12 @@ namespace PortaJel_Blazor.Classes
 
         private string Username = String.Empty;
         private string StoredPassword = String.Empty;
+
+        private SQLiteAsyncConnection? Database = null;
+        private SQLite.SQLiteOpenFlags DBFlags =
+        SQLite.SQLiteOpenFlags.ReadWrite |        // open the database in read/write mode       
+        SQLite.SQLiteOpenFlags.Create | // create the database if it doesn't exist
+        SQLite.SQLiteOpenFlags.SharedCache; // enable multi-threaded database access
 
         private ConcurrentDictionary<Guid, Album> albumCache = new();
         private ConcurrentDictionary<Guid, Song> songCache = new();
@@ -71,6 +78,8 @@ namespace PortaJel_Blazor.Classes
                 StoredPassword = password;
             }
 
+            string filePath = Path.Combine(FileSystem.AppDataDirectory, $"{baseUrl}.db");
+            Database = new SQLiteAsyncConnection(filePath, DBFlags);
         }
 
         private ServiceProvider ConfigureServices()

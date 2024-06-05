@@ -91,8 +91,6 @@ public partial class MainPage : ContentPage
     {
         base.OnHandlerChanged();
         // Disabled overscroll 'stretch' effect that I fucking hate.
-        // CLEAR giveaway this app uses webview lolz
-
 #if ANDROID
         //var blazorView = this.blazorWebView;
         //      if(blazorView.Handler != null && blazorView.Handler.PlatformView != null)
@@ -141,6 +139,12 @@ public partial class MainPage : ContentPage
         await Navigation.PushModalAsync(new PlaylistViewEditor(setPlaylist));
     }
 
+    public void ShowStatusIndicator(StatusIndicator statusIndicator)
+    {
+        if (statusIndicator == null) return;
+
+    }
+
     public INavigation GetNavigation()
     {
         return Navigation;
@@ -171,6 +175,7 @@ public partial class MainPage : ContentPage
     /// <returns></returns>
     public void RefreshPlayer()
     {
+        if (MauiProgram.MediaService == null) return;
         canSkipCarousel = false;
         RefreshQueue();
 
@@ -194,6 +199,8 @@ public partial class MainPage : ContentPage
     }
     public void RefreshQueue()
     {
+        if (MauiProgram.MediaService == null) return;
+
         canSkipCarousel = false;
         int playingIndex = MauiProgram.MediaService.GetQueueIndex();
 
@@ -204,25 +211,21 @@ public partial class MainPage : ContentPage
         MainMediaQueue.UpdateData(songGroupCollection, playingIndex);
     }
 
-    public void ShowMusicController()
-    {
-
-    }
-    public Task AwaitContextMenuClose()
+    public async Task<bool> AwaitContextMenuClose()
     {
         while (ContextMenu.isOpen)
         {
-
+            await Task.Delay(100);
         }
-        return Task.CompletedTask;
+        return true;
     }
-    public Task AwaitContextMenuOpen()
+    public async Task<bool> AwaitContextMenuOpen()
     {
         while (!ContextMenu.isOpen)
         {
-
+            await Task.Delay(100);
         }
-        return Task.CompletedTask;
+        return true;
     }
     public async void ShowLoadingScreen(bool value)
     {
@@ -382,7 +385,7 @@ public partial class MainPage : ContentPage
     }
     private double imgDragDistance = 0;
 
-    void MiniPlayer_Swiped(object sender, SwipedEventArgs e)
+    private async void MiniPlayer_Swiped(object sender, SwipedEventArgs e)
     {
         switch (e.Direction)
         {
@@ -393,7 +396,7 @@ public partial class MainPage : ContentPage
                 MediaCntroller_Player_Next_btn_Clicked(sender, e);
                 break;
             case SwipeDirection.Up:
-                ShowMusicController();
+                await MainMediaController.Open();
                 break;
             case SwipeDirection.Down:
                 // Handle the swipe
@@ -401,7 +404,7 @@ public partial class MainPage : ContentPage
         }
     }
     double distance = 0;
-    private void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
+    private async void Navbar_PinchUpdated(object sender, PanUpdatedEventArgs e)
     {
 #if !WINDOWS
         switch (e.StatusType)
@@ -436,11 +439,11 @@ public partial class MainPage : ContentPage
                 screenHeight = AllContent.Height;
                 if (distance > screenHeight / 3)
                 {
-                    ShowMusicController();
+                    await MainMediaController.Open();
                 }
                 else
                 {
-                    MauiProgram.MainPage.MainMediaController.Close();
+                    await MauiProgram.MainPage.MainMediaController.Close();
                 }
                 break;
         }

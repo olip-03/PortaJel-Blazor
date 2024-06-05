@@ -7,6 +7,7 @@
              x:Class="PortaJel_Blazor.Shared.MiniPlayer"
              x:DataType="classes:MiniPlayerViewModel"
              Opacity="0"
+             IsVisible="False"
              InputTransparent="False">
     <!-- MiniPlayer -->
     <Border x:Name="Container" 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="PortaJel_Blazor.Shared.StatusIndicator">
     <Border x:Name="Player_Status"
                 Stroke="LightGray"
@@ -8,19 +9,21 @@
                 StrokeShape="RoundRectangle 5,5,5,5"
                 Margin="10, 0, 10, 5"
                 ZIndex="5" 
-                IsVisible="False">
+                IsVisible="True">
         <Border.Shadow>
             <Shadow Brush="Black"
                         Offset="5,5"
                         Radius="15"
                         Opacity="0.7" />
         </Border.Shadow>
-        <Grid BackgroundColor="White" HeightRequest="25">
-            <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
-                <Image  x:Name="Player_status_Img" Aspect="Fill" Margin="2.5, 0, 2.5, 0" Source="offline24x24.png" WidthRequest="20" HeightRequest="20"></Image>
+        <Grid BackgroundColor="{StaticResource PageSecondaryBackgroundColor}" HeightRequest="40">
+
+            <HorizontalStackLayout HorizontalOptions="Start" VerticalOptions="Center" ZIndex="10">
+                <Image x:Name="Player_status_Img" Aspect="Fill" Margin="15, 0, 10, 0" Source="offline24x24.png" WidthRequest="25" HeightRequest="25"  ZIndex="10"/>
                 <!-- Status Text-->
-                <Label VerticalOptions="Center" x:Name="Player_status_txt" Text="Unable to connect to https://media.olisshittyserver.xyz/" MaxLines="1" FontSize="14" TextColor="Black"/>
+                <Label VerticalOptions="Center" x:Name="Player_status_txt" Text="Unable to connect to https://media.olisshittyserver.xyz/" MaxLines="1" FontSize="14" TextColor="{StaticResource PrimaryTextColor}"  ZIndex="10"/>
             </HorizontalStackLayout>
+            <Button WidthRequest="70" HeightRequest="30" HorizontalOptions="End" VerticalOptions="Center" Margin="0, 0 ,5, 0" ZIndex="20" Text="Dismiss"></Button>
         </Grid>
     </Border>
 </ContentView>
