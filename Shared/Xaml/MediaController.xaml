@@ -153,7 +153,7 @@
                             <ImageButton x:Name="Btn_Repeat" 
                                              HeightRequest="30" WidthRequest="30" 
                                              BackgroundColor="Transparent" 
-                                             Source="{StaticResource RepeatOffIcon}" 
+                                             Source="{Binding RepeatButtonSource}" 
                                              Pressed="Btn_Repeat_Pressed"
                                              Released="Btn_Repeat_Released"/>
                             <!-- Previous Button -->
@@ -227,13 +227,13 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
             </Grid>
-            <Border.Shadow>
+            <!--<Border.Shadow>
                 <Shadow x:Name="Container_BorderShadow"
                         Brush="Black"
                         Offset="0,-5"
                         Radius="30"
                         Opacity="0.7" />
-            </Border.Shadow>
+            </Border.Shadow>-->
         </Border>
 
         <Grid.GestureRecognizers>

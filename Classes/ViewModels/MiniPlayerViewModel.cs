@@ -40,5 +40,13 @@ namespace PortaJel_Blazor.Classes
             get => (Color?)GetValue(FavButtonColorProperty);
             set => SetValue(FavButtonColorProperty, value);
         }
+
+        // Background Image 
+        public static readonly BindableProperty BackgroundImageSourceProperty = BindableProperty.Create(nameof(BackgroundImageSource), typeof(ImageSource), typeof(MediaControllerViewModel), default(ImageSource));
+        public ImageSource BackgroundImageSource
+        {
+            get => (ImageSource)GetValue(BackgroundImageSourceProperty);
+            set => SetValue(BackgroundImageSourceProperty, value);
+        }
     }
 }

@@ -41,6 +41,7 @@ public static class MauiProgram
 
     public static MainLayout WebView = new();
     public static MainPage MainPage = new(initialize: false);
+    public static int SystemHeaderHeight = 0;
 
     // TODO: MediaService should be null, initalize once media playback is required
     public static IMediaInterface? MediaService { get; set; } = null;

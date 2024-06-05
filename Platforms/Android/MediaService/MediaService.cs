@@ -169,6 +169,15 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
+        public void SetRepeat(MediaServiceRepeatMode repeatMode)
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            {
+                serviceConnection.Binder.SetRepeat(repeatMode);
+            }
+        }
+
         public void ToggleRepeat()
         {
             if (serviceConnection != null &&

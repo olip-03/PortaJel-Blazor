@@ -1,9 +1,12 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Content.Res;
 using Android.OS;
 using Android.Views;
+using AndroidX.Core.View;
 using Google.Android.Material.Color;
+using Google.Android.Material.Internal;
 
 namespace PortaJel_Blazor;
 
@@ -16,8 +19,16 @@ public class MainActivity : MauiAppCompatActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
-        if (Application != null && Window != null && App.Current != null)
+        if (Application != null && Window != null && App.Current != null && Theme != null)
         {
+            // TODO: Fix style to make application fullscreen :3 
+            // WindowCompat.SetDecorFitsSystemWindows(Window, false);
+
+            TypedArray styledAttributes = Theme.ObtainStyledAttributes(new int[] { Android.Resource.Attribute.ActionBarSize });
+            var height = (int)styledAttributes.GetDimension(0, 0);
+            MauiProgram.SystemHeaderHeight = height;
+            styledAttributes.Recycle();
+
             var hasSource = App.Current.Resources.TryGetValue("PageBackgroundColor", out object imageSource);
 
             if (hasSource)

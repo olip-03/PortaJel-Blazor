@@ -24,7 +24,6 @@
         <Grid>
             <Grid HorizontalOptions="FillAndExpand" 
                             VerticalOptions="FillAndExpand" 
-                            BackgroundColor="{StaticResource PageSecondaryColor}" 
                             HeightRequest="60">
                 <!-- Carousel for MiniPlayer -->
                 <CarouselView x:Name="ImgCarousel" 
@@ -101,7 +100,10 @@
                     <ColumnDefinition Width="100"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
             </Grid>
-
+            <!-- Background Image  -->
+            <Grid Grid.ColumnSpan="2" ZIndex="-50" BackgroundColor="{StaticResource PageSecondaryColor}">
+                <Image x:Name="BackgroundImage" Source="{Binding BackgroundImageSource}" HeightRequest="60" Aspect="Center"></Image>
+            </Grid>
             <Border StrokeThickness="0"
                         StrokeShape="RoundRectangle 2,2,2,2"
                         Margin="20, 0, 20, 0"

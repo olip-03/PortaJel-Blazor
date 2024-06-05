@@ -22,6 +22,8 @@
     <x:String x:Key="MoreHorizIcon">light_more_horiz.png</x:String>
     <x:String x:Key="MoreVertIcon">light_more_horiz.png</x:String>
     <x:String x:Key="RepeatOffIcon">light_repeat_off.png</x:String>
+    <x:String x:Key="RepeatOneIcon">light_repeat_on_single.png</x:String>
+    <x:String x:Key="RepeatAllIcon">light_repeat_on.png</x:String>
     <x:String x:Key="SkipPreviousIcon">light_skip_previous.png</x:String>
     <x:String x:Key="PlayIcon">light_play.svg</x:String>
     <x:String x:Key="InversePlayIcon">play.svg</x:String>

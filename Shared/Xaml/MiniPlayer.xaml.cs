@@ -14,6 +14,7 @@ public partial class MiniPlayer : ContentView
     public bool IsOpen { get; private set; } = false;
     private Guid lastUpdateTrackId = Guid.Empty;
     private Guid currentPlayingId = Guid.Empty;
+    private string currentBlurhash = string.Empty;
 
     private double btnInOpacity = 0.5;
     private double btnInSize = 0.8;
@@ -87,8 +88,9 @@ public partial class MiniPlayer : ContentView
         }
     }
 
-    public void UpdateData(Song[]? songs = null, int? playFromIndex = 0)
+    public async void UpdateData(Song[]? songs = null, int? playFromIndex = 0)
     {
+        if (MauiProgram.MediaService == null) return;
         if (songs != null)
         {
             ViewModel.Queue = songs.ToObservableCollection();
@@ -105,11 +107,10 @@ public partial class MiniPlayer : ContentView
             }
         }
 
-        // Update Play Button
+        // Update Elements
         UpdatePlayButton();
-
-        // Update Favourite Button
         UpdateFavouriteButton();
+        await UpdateBackground();
 
         // Update time tracking
         PlaybackInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
@@ -187,6 +188,31 @@ public partial class MiniPlayer : ContentView
             }
         }
     }
+
+    public async Task<bool> UpdateBackground()
+    {
+        if (MauiProgram.MediaService == null) return false;
+        MemoryStream? imageDecodeStream = null;
+        Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
+        if (currentSong.image.blurHash == currentBlurhash) return false; // dont run if hash is the same
+        currentBlurhash = currentSong.image.blurHash;
+        await Task.WhenAll(Task.Run(async () =>
+        {
+            // Fuck yeah get the image to move based on gyro
+            //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
+            string? base64 = await currentSong.image.BlurhashToBase64Async(100, 100, 0.3f).ConfigureAwait(false);
+            if (base64 != null)
+            {
+                var imageBytes = Convert.FromBase64String(base64);
+                imageDecodeStream = new(imageBytes);
+            }
+        }), BackgroundImage.FadeTo(0, 1000, Easing.SinOut));
+
+        ViewModel.BackgroundImageSource = ImageSource.FromStream(() => imageDecodeStream);
+        await BackgroundImage.FadeTo(1, 1000, Easing.SinIn);
+        return true;
+    }
+
     public void InsertIntoQueue(Song song)
     {
         // Insert item into viewmodel
@@ -196,7 +222,7 @@ public partial class MiniPlayer : ContentView
         try
         {
             SongGroupCollection sgc = MauiProgram.MediaService.GetQueue();
-            int insertInto = sgc.QueueStartIndex + (sgc.QueueCount - 1);
+            int insertInto = sgc.QueueStartIndex + sgc.QueueCount;
             ViewModel.Queue.Insert(insertInto, song);
         }
         catch (Exception ex)
@@ -263,6 +289,8 @@ public partial class MiniPlayer : ContentView
 
     private void Btn_PlayToggle_Pressed(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
+
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         Btn_PlayToggle.Opacity = btnInOpacity;
         Btn_PlayToggle.Scale = btnInSize;
@@ -287,6 +315,8 @@ public partial class MiniPlayer : ContentView
 
     private async void Btn_PlayToggle_Released(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
+
         MauiProgram.MediaService.TogglePlay();
 
         UpdatePlayButton();
@@ -303,6 +333,8 @@ public partial class MiniPlayer : ContentView
 
     private async void Btn_FavToggle_Pressed(object sender, EventArgs e)
     {
+        if (MauiProgram.MediaService == null) return;
+
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
         Btn_FavToggle.Opacity = btnInOpacity;
         Btn_FavToggle.Scale = btnInSize;

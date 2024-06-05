@@ -61,6 +61,14 @@ namespace PortaJel_Blazor.Classes
             set => SetValue(FavButtonSourceProperty, value);
         }
 
+        // Represents the favourite button source image
+        public static readonly BindableProperty RepeatButtonSourceProperty = BindableProperty.Create(nameof(RepeatButtonSource), typeof(string), typeof(MediaControllerViewModel), default(string));
+        public string? RepeatButtonSource
+        {
+            get => (string?)GetValue(RepeatButtonSourceProperty);
+            set => SetValue(RepeatButtonSourceProperty, value);
+        }
+
         // Represents the fav button image color
         public static readonly BindableProperty FavButtonColorProperty = BindableProperty.Create(nameof(FavButtonColor), typeof(Color), typeof(MediaControllerViewModel), default(Color));
         public Color? FavButtonColor
