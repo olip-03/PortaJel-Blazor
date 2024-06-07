@@ -2,39 +2,44 @@
 @inject IJSRuntime JS
 @namespace PortaJel_Blazor.Shared
 
-<div class="header">
-    <div class="header-imgcontainer" id="header-backgroundPlaceholder">
+<div class="header" style="height: @headerHeight">
+    <div class="header-imgcontainer" style="height: @headerHeight" id="header-backgroundPlaceholder">
         <img src="data:image/png;base64, @backgroundImgUrlPlaceholder" class="header-background" />
     </div>
 
-    <div class="header-imgcontainer" id="header-backgroundImg">
+    <div class="header-imgcontainer" style="height: @headerHeight" id="header-backgroundImg">
         <img src="@backgroundImgUrl" class="header-background album-cover-img" />
     </div>
 
-    <img class="GoBackButton" src="/images/back.svg" @onclick=GoBack>
+    <div style="margin-top: auto; display: flex; height: @contentHeight">
+        <img class="GoBackButton" src="/images/back.svg" @onclick=GoBack>
 
-
-    <div class="header-nameContainer" @onclick=GoToArtist>
-        @if (baseMusicItem != null)
-        {
-            if (baseMusicItem is Album)
+        <div class="header-nameContainer" @onclick=GoToArtist>
+            @if (baseMusicItem != null)
             {
-                Album item = (Album)baseMusicItem;
-                <h3 class="header-text hidden">@item.name</h3>
-                <h5 class="header-text hidden">@item.artistCongregate</h5>
+                if (baseMusicItem is Album)
+                {
+                    Album item = (Album)baseMusicItem;
+                    <h3 class="header-text hidden">@item.name</h3>
+                    <h5 class="header-text hidden">@item.artistCongregate</h5>
+                }
+                else
+                {
+                    <h3 id="header-text" class="header-text hidden">@baseMusicItem.name</h3>
+                }
             }
-            else
-            {
-                <h3 id="header-text" class="header-text hidden">@baseMusicItem.name</h3>
-            }
-        }
+        </div>
     </div>
+
 </div>
 
 @code {
     [Parameter] public string backgroundImgUrlPlaceholder { get; set; } = string.Empty;
     [Parameter] public string backgroundImgUrl { get; set; } = string.Empty;
     [Parameter] public BaseMusicItem? baseMusicItem { get; set; } = null;
+
+    private string headerHeight = (MauiProgram.SystemHeaderHeight * 2) + "px!important";
+    private string contentHeight = (MauiProgram.SystemHeaderHeight) + "px!important";
 
     private async void GoBack()
     {

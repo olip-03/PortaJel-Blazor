@@ -10,12 +10,12 @@
 
 @if (loaded)
 {
-    <ViewHeader backgroundImgUrl="@album.image.source" backgroundImgUrlPlaceholder="@base64BlurHash" baseMusicItem=@album/>
+    <ViewHeader backgroundImgUrl="@album.image.source" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album />
 
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
-        <img src="data:image/png;base64, @base64BlurHash" class="background-blur" alt="backgound" />
+        <img src="data:image/png;base64, @backgroundBlurHash" class="background-blur" alt="backgound" style="top: @backgroundBlurHeight" />
 
-        <div class="image-container">
+        <div class="image-container" style="top: @headerHeight">
             <img src="data:image/png;base64, @base64BlurHash" class="placeholder" alt="Placeholder Image">
             <img src="@album.image.source" id="@album.id" class="album-cover-img" onerror="this.src='/images/emptyAlbum.png'" alt="@album.name album cover">
         </div>
@@ -129,6 +129,10 @@
 
     private string errormessage = String.Empty;
     string? base64BlurHash = String.Empty;
+    string? backgroundBlurHash = String.Empty;
+
+    private string backgroundBlurHeight = "-" + (MauiProgram.SystemHeaderHeight* 2) + "px!important"; 
+    private string headerHeight = "-" + (MauiProgram.SystemHeaderHeight ) + "px!important";
 
     protected override void OnInitialized()
     {
@@ -210,6 +214,7 @@
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
                 base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
+                backgroundBlurHash = await album.image.BlurhashToBase64Async(20, 20, 0.3f);
                 Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarAlbums);
                 similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }

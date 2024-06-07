@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using PortaJel_Blazor.Pages;
 using System.Threading;
+using System.Diagnostics;
 
 namespace PortaJel_Blazor;
 
@@ -31,6 +32,7 @@ public static class MauiProgram
 
     public static StyleSettings styleSettings = new();
 
+    public static bool debugMode = false;
     public static bool isConnected = false;
     public static bool firstLoginComplete = false;
     public static bool webViewInitalized = false;
@@ -41,7 +43,8 @@ public static class MauiProgram
 
     public static MainLayout WebView = new();
     public static MainPage MainPage = new(initialize: false);
-    public static int SystemHeaderHeight = 0;
+    public static double SystemHeaderHeight = 0;
+    public static double systemWidth = 0;
 
     // TODO: MediaService should be null, initalize once media playback is required
     public static IMediaInterface? MediaService { get; set; } = null;
@@ -113,9 +116,14 @@ public static class MauiProgram
         return builder.Build();
 	}
 
+    /// <summary>
+    /// Thread-safe method of updating debug messages avalialbe on the UI 
+    /// </summary>
+    /// <param name="message">Debug message to display</param>
     public static void UpdateDebugMessage(string message)
     {
-        Console.WriteLine(message);
+        if (!debugMode) return;
+        Trace.WriteLine(message);
         if (Application.Current != null)
         {
             Application.Current.Dispatcher.Dispatch(() => MainPage.UpdateDebugText(message));

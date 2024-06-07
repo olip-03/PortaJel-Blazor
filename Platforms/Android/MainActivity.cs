@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Content.PM;
 using Android.Content.Res;
 using Android.OS;
+using Android.Util;
 using Android.Views;
 using AndroidX.Core.View;
 using Google.Android.Material.Color;
@@ -21,16 +22,31 @@ public class MainActivity : MauiAppCompatActivity
     {
         if (Application != null && Window != null && App.Current != null && Theme != null)
         {
-            // TODO: Fix style to make application fullscreen :3 
-            // WindowCompat.SetDecorFitsSystemWindows(Window, false);
+            // Fit contants to whole screen and set header to be transparent
+            WindowCompat.SetDecorFitsSystemWindows(Window, false);
+            Window.SetFlags(WindowManagerFlags.LayoutNoLimits, WindowManagerFlags.LayoutNoLimits);
 
-            TypedArray styledAttributes = Theme.ObtainStyledAttributes(new int[] { Android.Resource.Attribute.ActionBarSize });
-            var height = (int)styledAttributes.GetDimension(0, 0);
-            MauiProgram.SystemHeaderHeight = height;
-            styledAttributes.Recycle();
+            // Gets the headers height so we can space things correctly 
+            if (Resources != null)
+            {
+                double statBarHeight = Resources.GetDimensionPixelSize(Resources.GetIdentifier("status_bar_height", "dimen", "android"));
 
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                WindowManager.DefaultDisplay.GetMetrics(displayMetrics);
+                double androidheight = displayMetrics.HeightPixels;
+                double mauiheight = DeviceDisplay.MainDisplayInfo.Height;
+                double diff = androidheight / mauiheight;
+                if(androidheight > mauiheight) { diff =  mauiheight / androidheight; }
+                if(androidheight < mauiheight) { diff = androidheight / mauiheight; }
+
+                statBarHeight /= DeviceDisplay.Current.MainDisplayInfo.Density;
+                statBarHeight *= diff;
+
+                MauiProgram.SystemHeaderHeight = statBarHeight;
+            }
+            
+            // Themeing Settings
             var hasSource = App.Current.Resources.TryGetValue("PageBackgroundColor", out object imageSource);
-
             if (hasSource)
             {
                 Color color = (Color)imageSource;
@@ -38,6 +54,7 @@ public class MainActivity : MauiAppCompatActivity
                 Window.SetNavigationBarColor(newColor);
             }
 
+            // Apply dynamic colors TODO: Implement dynamic colors
             DynamicColors.ApplyToActivitiesIfAvailable(Application);
         }
         

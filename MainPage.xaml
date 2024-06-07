@@ -34,7 +34,7 @@
                 <shared:MiniPlayer x:Name="MiniPlayer"/>
             </VerticalStackLayout>
             <!-- Navigation Buttons -->
-            <FlexLayout HeightRequest="60" HorizontalOptions="Fill" VerticalOptions="EndAndExpand" JustifyContent="SpaceEvenly" AlignItems="Center">
+            <FlexLayout HeightRequest="100" HorizontalOptions="Fill" VerticalOptions="EndAndExpand" JustifyContent="SpaceEvenly" AlignItems="Start">
                 <StackLayout WidthRequest="80">
                     <ImageButton x:Name="btn_navnar_home" 
                              Source="{StaticResource HomeButtonImage}" 
@@ -71,7 +71,7 @@
                 <FlexLayout.Background>
                     <LinearGradientBrush EndPoint="0,1">
                         <GradientStop Color="{StaticResource TransparentColor}" Offset="0.0" />
-                        <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="0.8" />
+                        <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="0.9" />
                     </LinearGradientBrush>
                 </FlexLayout.Background>
             </FlexLayout>

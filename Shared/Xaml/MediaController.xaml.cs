@@ -24,6 +24,8 @@ public partial class MediaController : ContentView
 
     public MediaController()
     {
+        ViewModel.HeaderHeightValue = MauiProgram.SystemHeaderHeight;
+
         InitializeComponent();
         BindingContext = ViewModel;
     }
@@ -34,6 +36,7 @@ public partial class MediaController : ContentView
         UpdateFavouriteButton();
         UpdateRepeatButton();
 
+        ViewModel.HeaderHeightValue = MauiProgram.SystemHeaderHeight;
         Opacity = 1;
         TranslationY = MauiProgram.MainPage.ContentHeight;
         BackgroundImage.WidthRequest = MauiProgram.MainPage.ContentHeight;

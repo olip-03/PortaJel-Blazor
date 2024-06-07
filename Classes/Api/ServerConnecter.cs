@@ -10,7 +10,9 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
+using PortaJel_Blazor.Classes.SQL;
 using SQLite;
+using System.Security.Cryptography;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -37,6 +39,7 @@ namespace PortaJel_Blazor.Classes
         SQLite.SQLiteOpenFlags.SharedCache; // enable multi-threaded database access
 
         private ConcurrentDictionary<Guid, Album> albumCache = new();
+        private List<Guid> storedAlbums = new();
         private ConcurrentDictionary<Guid, Song> songCache = new();
         public ConcurrentDictionary<Guid, Artist> artistCache = new();
         public ConcurrentDictionary<Guid, Playlist> playlistCache = new();
@@ -78,8 +81,16 @@ namespace PortaJel_Blazor.Classes
                 StoredPassword = password;
             }
 
-            string filePath = Path.Combine(FileSystem.AppDataDirectory, $"{baseUrl}.db");
+            Guid? result = null;
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(baseUrl));
+                result = new Guid(hash);
+            }
+
+            string filePath = Path.Combine(FileSystem.AppDataDirectory, $"{result}.db");
             Database = new SQLiteAsyncConnection(filePath, DBFlags);
+            InitDb();
         }
 
         private ServiceProvider ConfigureServices()
@@ -116,6 +127,12 @@ namespace PortaJel_Blazor.Classes
 
             // Add sample service
             return serviceCollection.BuildServiceProvider();
+        }
+
+        private async void InitDb()
+        {
+            if (Database == null) return;
+            var result = await Database.CreateTableAsync<SQLAlbum>();
         }
 
         #region Authentication
@@ -199,7 +216,7 @@ namespace PortaJel_Blazor.Classes
         /// </exception>
         public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy[]? setSortTypes = null, SortOrder setSortOrder = SortOrder.Ascending)
         {
-            if (_jellyfinApiClient == null || userDto == null)
+            if (_jellyfinApiClient == null || userDto == null || Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
@@ -254,7 +271,7 @@ namespace PortaJel_Blazor.Classes
 
             if(setSortTypes == null)
             {
-                setSortTypes = new ItemSortBy[] { ItemSortBy.Name };
+                setSortTypes = [ItemSortBy.Name];
             }
 
             if (isOffline)
@@ -266,6 +283,7 @@ namespace PortaJel_Blazor.Classes
                 try
                 {
                     // Call server and return items
+                    MauiProgram.UpdateDebugMessage("Calling Items Endpoint for All Albums...");
                     BaseItemDtoQueryResult? serverResults = await _jellyfinApiClient.Items.GetAsync(c =>
                     {
                         c.QueryParameters.UserId = userDto.Id;
@@ -281,19 +299,25 @@ namespace PortaJel_Blazor.Classes
                     }).ConfigureAwait(false);
                     if(serverResults != null && serverResults.Items != null)
                     {
+                        MauiProgram.UpdateDebugMessage("Retrieved! Updating tables.");
                         for (int i = 0; i < serverResults.Items.Count(); i++)
                         {
+                            // Add to list to be returned 
                             Album newAlbum = AlbumBuilder(serverResults.Items[i]);
                             toReturn.Add(newAlbum);
-                            if (!albumCache.TryAdd(newAlbum.id, newAlbum))
-                            { // Add to cache
-                                albumCache[newAlbum.id] = newAlbum;
+                            storedAlbums.Add(newAlbum.id);
+                            
+                            if (!storedAlbums.Contains(newAlbum.id))
+                            { // Add to SQLite DB 
+                                SQLAlbum dbInset = SQLAlbum.Builder(newAlbum);
+                                await Database.InsertOrReplaceAsync(dbInset);
                             }
                         }
                     }
                 }
                 catch (HttpRequestException)
                 {
+                    MauiProgram.UpdateDebugMessage("Failed from HTTP Excetion! Returning from Cache.");
                     isOffline = true;
                     ReturnFromCache();
                 }

@@ -46,6 +46,7 @@ namespace PortaJel_Blazor.Data
             id
         }
         public static readonly Album Empty = new();
+        
         public string GetArtistName()
         {
             if(artists == null)
@@ -84,11 +85,13 @@ namespace PortaJel_Blazor.Data
             }
             return resolve;
         }
+        
         public string imageAtResolution(int px)
         {
             string data = imageSrc + $"?fillHeight={px}&fillWidth={px}&quality=96";
             return data;
         }
+        
         public List<ContextMenuItem> GetContextMenuItems()
         {
             contextMenuItems.Clear();

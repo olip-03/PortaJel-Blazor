@@ -11,17 +11,17 @@
     <Grid x:Name="Container" 
       VerticalOptions="FillAndExpand" 
       HorizontalOptions="FillAndExpand" 
-      InputTransparent="False" 
+      InputTransparent="False"
       IsVisible="True">
         <!-- Controller -->
         <Border x:Name="Player" 
           VerticalOptions="FillAndExpand" 
           HorizontalOptions="FillAndExpand"
-          BackgroundColor="{StaticResource PageBackgroundColor}"
+          BackgroundColor="{StaticResource PageBackgroundColor}"  
           StrokeThickness="0">
             <Grid>
                 <!-- Header -->
-                <Grid Grid.Row="0">
+                <Grid x:Name="HeaderContainer" Grid.Row="1">
                     <!-- Close Button -->
                     <ImageButton x:Name="Btn_Close" 
                      Clicked="Btn_Close_Clicked" 
@@ -68,7 +68,7 @@
 
                 <!-- Image Carousel-->
                 <CarouselView x:Name="ImgCarousel"
-                              Grid.Row="1" VerticalOptions="Center" 
+                              Grid.Row="2" VerticalOptions="Center" 
                               HorizontalOptions="FillAndExpand" 
                               ItemsSource="{Binding Queue}" 
                               Loop="False" 
@@ -120,7 +120,7 @@
                 </CarouselView>
 
                 <!-- Playback controls -->
-                <Grid Grid.Row="2" Margin="20, 0, 20, 0"  VerticalOptions="FillAndExpand">
+                <Grid Grid.Row="3" Margin="20, 0, 20, 0"  VerticalOptions="FillAndExpand">
                     <!-- Slider and timestamps -->
                     <StackLayout VerticalOptions="Start">
                         <Slider x:Name="DurationSlider" 
@@ -218,10 +218,11 @@
                 </Grid>
                 
                 <!-- Background Image  -->
-                <Grid Grid.RowSpan="3" ZIndex="-50">
+                <Grid Grid.RowSpan="4" ZIndex="-50">
                     <Image x:Name="BackgroundImage" Source="{Binding BackgroundImageSource}"  Aspect="AspectFit" WidthRequest="1000"></Image>
                 </Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="{Binding HeaderHeightValue}"/>
                     <RowDefinition Height="70"/>
                     <RowDefinition Height="2*"/>
                     <RowDefinition Height="*"/>

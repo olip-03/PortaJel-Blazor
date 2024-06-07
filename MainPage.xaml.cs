@@ -80,25 +80,26 @@ public partial class MainPage : ContentPage
         LoadingBlockout_DebugText.Text = updateTo;
     }
 
-//    private void Bwv_BlazorWebViewInitialized(object sender, BlazorWebViewInitializedEventArgs e)
-//    {
-//#if ANDROID
-//        e.WebView.Settings.MixedContentMode = Android.Webkit.MixedContentHandling.AlwaysAllow;
-//#endif
-//    }
+    //    private void Bwv_BlazorWebViewInitialized(object sender, BlazorWebViewInitializedEventArgs e)
+    //    {
+    //#if ANDROID
+    //        e.WebView.Settings.MixedContentMode = Android.Webkit.MixedContentHandling.AlwaysAllow;
+    //#endif
+    //    }
 
     protected override void OnHandlerChanged()
     {
-        base.OnHandlerChanged();
         // Disabled overscroll 'stretch' effect that I fucking hate.
-#if ANDROID
-        //var blazorView = this.blazorWebView;
-        //      if(blazorView.Handler != null && blazorView.Handler.PlatformView != null)
-        //      {
-        //          var platformView = (Android.Webkit.WebView)blazorView.Handler.PlatformView;
-        //          platformView.OverScrollMode = Android.Views.OverScrollMode.Never;
-        //      }	        
-#endif
+        // I'd actually be okay enabling this but only once the headers become native elements
+        #if ANDROID
+        var blazorview = this.blazorWebView;
+        if (blazorview.Handler != null && blazorview.Handler.PlatformView != null)
+        {
+            var platformview = (Android.Webkit.WebView)blazorview.Handler.PlatformView;
+            platformview.OverScrollMode = Android.Views.OverScrollMode.Never;
+        }
+        #endif
+        base.OnHandlerChanged();
     }
 
     public interface IRelayCommand : ICommand
