@@ -61,7 +61,7 @@
             if (musicObject is Album)
             {
                 Album album = (Album)musicObject;
-                artistName = album.artistCongregate;
+                artistName = album.ArtistNames;
                 titleCongregate = musicObject.name + " • " + artistName;
             }
             if (musicObject is Song)
@@ -92,7 +92,7 @@
             if (musicObject is Song)
             {
                 Song song = (Song)musicObject;
-                Album? album = song.album;
+                Album? album = song.AlbumData;
                 if(album != null)
                 {
                     MauiProgram.MainPage.ShowLoadingScreen(true);

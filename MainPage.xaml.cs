@@ -39,6 +39,7 @@ public partial class MainPage : ContentPage
     public MediaController MainMediaController { get => this.MediaControl; private set { } }
     public MediaQueue MainMediaQueue { get => this.Queue; private set { } }
     public MiniPlayer MainMiniPlayer { get => this.MiniPlayer; private set { } }
+    public ContextMenu MainContextMenu { get => this.ContextMenu; private set { } }
 
     private bool canSkipCarousel = false;
     private bool hideMidiPlayer = true;
@@ -262,10 +263,6 @@ public partial class MainPage : ContentPage
         ContextMenu.UpdateData(baseMusicItem, blurBase64: setBlurBase64, opacity: 0);
         ContextMenu.Show();
         return true;
-    }
-    public void CloseContextMenu()
-    {
-        ContextMenu.Close();
     }
     #endregion
 

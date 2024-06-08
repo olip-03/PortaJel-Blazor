@@ -96,7 +96,7 @@ public partial class PlaylistViewEditor : ContentPage
                 if (!songList.Contains(song))
                 { // This song has been removed
                     removedSongs.Add(new Tuple<int, Song>(index, song));
-                    await MauiProgram.servers[0].RemovePlaylistItem(playlist.id, song.playlistId);
+                    await MauiProgram.servers[0].RemovePlaylistItem(playlist.id, song.PlaylistId);
                     unorderedList.Remove(song);
                 }
                 index++;
@@ -113,7 +113,7 @@ public partial class PlaylistViewEditor : ContentPage
                 bool completedLoop = true;
                 for (int i = 0; i < unorderedList.Count; i++)
                 {
-                    if (unorderedList[i].id != songList[i].id)
+                    if (unorderedList[i].Id != songList[i].Id)
                     {
                         int newIndex = songList.IndexOf(unorderedList[i]);
                         Song item = unorderedList[i];
@@ -122,7 +122,7 @@ public partial class PlaylistViewEditor : ContentPage
                         unorderedList.RemoveAt(i);
                         unorderedList.Insert(newIndex, item);
 
-                        bool passed = await MauiProgram.servers[0].MovePlaylistItem(playlist.id, item.playlistId, newIndex);
+                        bool passed = await MauiProgram.servers[0].MovePlaylistItem(playlist.id, item.PlaylistId, newIndex);
                         if (!passed)
                         {
                             // wah wah

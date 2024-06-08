@@ -1,5 +1,6 @@
 ﻿using Jellyfin.Sdk;
 using PortaJel_Blazor.Classes;
+using PortaJel_Blazor.Classes.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,23 +9,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
+using PortaJel_Blazor.Classes.Database;
 
 namespace PortaJel_Blazor.Data
 {
     public class Album : BaseMusicItem, IComparable<Album>
     {
-        public string imageSrc { get; set; } = "/images/emptyAlbum.png";
-        public Artist[] artists { get; set; } = new Artist[0];
-        public string artistCongregate
+        public string ImgSource { get; set; } = "/images/emptyAlbum.png";
+        public ArtistData[] Artists => _artistData;
+        public string ArtistNames
         {
             get
             {
-                if(artists == null) { return String.Empty; }
+                if(Artists == null) { return String.Empty; }
                 string data = string.Empty;
-                for (int i = 0; i < artists.Length; i++)
+                for (int i = 0; i < Artists.Length; i++)
                 {
-                    data += artists[i].name;
-                    if (i < artists.Length - 1)
+                    data += Artists[i].Name;
+                    if (i < Artists.Length - 1)
                     {
                         data += ", ";
                     }
@@ -37,8 +39,11 @@ namespace PortaJel_Blazor.Data
             }
         }
         public Song[] songs { get; set; } = new Song[0];
+
+        private SongData[] _songData;
+        private ArtistData[] _artistData;
+
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;
-        public string serverAddress { get; set; } = string.Empty;
         public enum AlbumSortMethod
         {
             name,
@@ -49,11 +54,11 @@ namespace PortaJel_Blazor.Data
         
         public string GetArtistName()
         {
-            if(artists == null)
+            if(Artists == null)
             {
                 return string.Empty;
             }
-            string artistName = string.Join(", ", artists.Select(artist => artist.name));
+            string artistName = string.Join(", ", Artists.Select(artist => artist.name));
             return artistName;
         }
 
@@ -73,8 +78,8 @@ namespace PortaJel_Blazor.Data
                     resolve = string.Compare(GetArtistName().ToString(), other.GetArtistName().ToString(), StringComparison.OrdinalIgnoreCase);
                     break;
                 case AlbumSortMethod.id:
-                    if (id == Guid.Empty) { return -1; }
-                    if (other.id == Guid.Empty) { return -1; }
+                    if (id == System.Guid.Empty) { return -1; }
+                    if (other.id == System.Guid.Empty) { return -1; }
                     resolve = string.Compare(id.ToString(), other.id.ToString(), StringComparison.OrdinalIgnoreCase);
                     break;
                 default:
@@ -88,10 +93,16 @@ namespace PortaJel_Blazor.Data
         
         public string imageAtResolution(int px)
         {
-            string data = imageSrc + $"?fillHeight={px}&fillWidth={px}&quality=96";
+            string data = ImgSource + $"?fillHeight={px}&fillWidth={px}&quality=96";
             return data;
         }
         
+        public static async Task<Album> Builder(AlbumData sqlalbum)
+        {
+            await Task.Delay(100);
+            return new Album();
+        }
+
         public List<ContextMenuItem> GetContextMenuItems()
         {
             contextMenuItems.Clear();
@@ -145,11 +156,11 @@ namespace PortaJel_Blazor.Data
                 MauiProgram.MainPage.ShowLoadingScreen(true);
                 MauiProgram.WebView.NavigateAlbum(this.id);
             })));
-            if(this.artists.Count() > 0)
+            if(this.Artists.Count() > 0)
             {
                 contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async () =>
                 {
-                    Artist? artist = this.artists.FirstOrDefault();
+                    Artist? artist = this.Artists.FirstOrDefault();
                     if(artist != null)
                     {
                         MauiProgram.MainPage.CloseContextMenu();

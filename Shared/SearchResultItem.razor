@@ -31,7 +31,7 @@
                     if (musicObject is Album)
                     {
                         Album album = (Album)musicObject;
-                        artistName = album.artistCongregate;
+                        artistName = album.ArtistNames;
                     }
                     if (musicObject is Song)
                     {
@@ -116,9 +116,9 @@
                     if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
                     Song song = (Song)musicObject;
-                    if (song.album != null)
+                    if (song.AlbumData != null)
                     {
-                        MauiProgram.WebView.NavigateAlbum(song.album.id);
+                            MauiProgram.WebView.NavigateAlbum(song.AlbumData.id);
                     }
                     else
                     {

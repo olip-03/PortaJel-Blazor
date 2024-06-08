@@ -178,12 +178,12 @@ else
             List<Album> getRecentAlbums = new();
             foreach (Song song in runGetRecent.Result)
             {
-                if (song.album != null)
+                if (song.AlbumData != null)
                 {
-                    if (!songAlbumIDs.Contains(song.album.id))
+                    if (!songAlbumIDs.Contains(song.AlbumData.id))
                     {
-                        songAlbumIDs.Add(song.album.id);
-                        recentPlayAlbumTasks.Add(MauiProgram.api.GetAlbumAsync(song.album.id));
+                        songAlbumIDs.Add(song.AlbumData.id);
+                        recentPlayAlbumTasks.Add(MauiProgram.api.GetAlbumAsync(song.AlbumData.id));
                     }
                 }
             }

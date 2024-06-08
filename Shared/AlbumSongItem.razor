@@ -29,12 +29,12 @@
         }
 
         <button class="songTextContainer" @onclick="() => PlaySong(location)">
-            <p class="PrimaryTextColor songTitle">@song.name</p>
+            <p class="PrimaryTextColor songTitle">@song.Name</p>
             <p class="SecondaryTextColor songArtistTitle">@song.artistCongregate</p>
         </button>
         <div class="songitem-options">
-            <div @onclick="() => FavouriteSong(song.id)" class="songitem-optionbtn">
-                @if (song.isFavourite)
+            <div @onclick="() => FavouriteSong(song.Id)" class="songitem-optionbtn">
+                @if (song.IsFavourite)
                 {
                     <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
                         <HeartIcon Filled="true" ExtraStyle="width: calc(2rem * 0.8); height: calc(2rem * 0.8);"/>
@@ -50,7 +50,7 @@
     <!-- Like overscroll -->
     <div id="@(overscrollId = guid.ToString() + "-overscrollFav")" class="overscroll-auto PageBackgroundColor">
         <div class="songitem-optionbtn">
-            @if (!song.isFavourite)
+            @if (!song.IsFavourite)
             {
                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
                     <HeartIcon Filled="true" ExtraStyle="width: calc(2rem * 0.8); height: calc(2rem * 0.8); margin: 0 1rem 0 1rem;" />
@@ -78,7 +78,7 @@
 
     protected override void OnInitialized()
     {
-        guid = song.id;
+        guid = song.Id;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -92,9 +92,9 @@
 
     private async void FavouriteSong(Guid songId)
     {
-        song.isFavourite = !song.isFavourite;
+        song.IsFavourite = !song.IsFavourite;
         StateHasChanged();
-        await Task.Run<bool>(() => MauiProgram.api.SetFavourite(song.id, song.serverAddress, song.isFavourite));
+        await Task.Run<bool>(() => MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, song.IsFavourite));
     }
 
     private async void OpenContextMenu(BaseMusicItem musicItem)
@@ -119,12 +119,12 @@
         #endif
         // Confirm that the item itself is fine.
 
-        if (song.album == null && Application.Current != null && Application.Current.MainPage != null)
+        if (song.AlbumData == null && Application.Current != null && Application.Current.MainPage != null)
         {
             await Application.Current.MainPage.DisplayAlert("Error?", $"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!", "Continue");
             return;
         }
-        if (song.album == Album.Empty && Application.Current != null && Application.Current.MainPage != null)
+        if (song.AlbumData == Album.Empty && Application.Current != null && Application.Current.MainPage != null)
         {
             await Application.Current.MainPage.DisplayAlert("Error?", $"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!", "Continue");
             return;
@@ -137,9 +137,9 @@
                 MauiProgram.MediaService = new MediaService();
                 await MauiProgram.MediaService.Initalize();
             }
-            MauiProgram.MediaService.SetPlayingCollection(song.album, songIndex);
+            MauiProgram.MediaService.SetPlayingCollection(song.AlbumData, songIndex);
 
-            MauiProgram.currentAlbumGuid = song.album.id;
+            MauiProgram.currentAlbumGuid = song.AlbumData.id;
             // MauiProgram.currentSongGuid = album song at index;
 
             MauiProgram.MainPage.RefreshPlayer();
@@ -184,7 +184,7 @@
         #if !WINDOWS
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-        string text = $"{song.name} added to queue.";
+        string text = $"{song.Name} added to queue.";
         ToastDuration duration = ToastDuration.Short;
         double fontSize = 14;
 
@@ -204,11 +204,11 @@
         FavouriteSongLock = true;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
 
-        song.isFavourite = !song.isFavourite;
+        song.IsFavourite = !song.IsFavourite;
         await Task.Delay(250);
 
         StateHasChanged();
         FavouriteSongLock = false;
-        await Task.Run(() => MauiProgram.api.SetFavourite(song.id, song.serverAddress, song.isFavourite));
+        await Task.Run(() => MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, song.IsFavourite));
     }
 }

@@ -25,7 +25,7 @@
                 <div class="title-text">
                     <h2 class="PrimaryTextColor" style="margin: 0px">@album.name</h2>
                     <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(
-                        album.artists.FirstOrDefault().id)">
+                        album.Artists.FirstOrDefault().id)">
                         @album.GetArtistName()
                     </h5>
                 </div>
@@ -72,18 +72,18 @@
             // Add Songs
             for (int i = 0; i < album.songs.Length; i++)
             {
-                album.songs[i].album = album; // TODO: this should already be set figure out why it isnt
+                album.songs[i].AlbumId = album; // TODO: this should already be set figure out why it isnt
                                               // either that or complete the re-do of the data structure 
                                               // again lollllll
                 <AlbumSongItem song="@album.songs[i]" location="@i" base64BlurHash="@base64BlurHash" />
             }
 
             // Add Artists
-            @if(album.artists.Count() > 0)
+            @if(album.Artists.Count() > 0)
             {
                 <br />
                 int forcount = 0;
-                foreach (var artist in album.artists)
+                foreach (var artist in album.Artists)
                 {
                     <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.id)">
                         <img src="@artist.image.SourceAtResolution(40)" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
@@ -282,9 +282,9 @@
         Song foundItem = null;
         foreach (var song in album.songs)
         {
-            if(song.id == songId)
+            if(song.Id == songId)
             {
-                song.isFavourite = !song.isFavourite;
+                song.IsFavourite = !song.IsFavourite;
                 foundItem = song;
                 break;
             }
@@ -293,7 +293,7 @@
         if(foundItem != null)
         {
             StateHasChanged();
-            await MauiProgram.api.SetFavourite(foundItem.id, foundItem.serverAddress, foundItem.isFavourite);
+            await MauiProgram.api.SetFavourite(foundItem.Id, foundItem.ServerAddress, foundItem.IsFavourite);
         }
     }
 

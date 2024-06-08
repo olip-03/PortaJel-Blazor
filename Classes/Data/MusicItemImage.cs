@@ -16,7 +16,7 @@ namespace PortaJel_Blazor.Data
         // Variables
         public string serverAddress { get; set; } = string.Empty;
         public string source { get; set; } = string.Empty;
-        public string blurHash { get; set; } = string.Empty;
+        public string Blurhash { get; set; } = string.Empty;
         public int soureResolution { get; set; } = 500;
         public string sourceAtResolution { get
             {
@@ -51,7 +51,7 @@ namespace PortaJel_Blazor.Data
             {            
                 // Assuming you have a method to decode the blurhash into a pixel array
                 Pixel[,] pixels = new Pixel[width, height];
-                Blurhash.Core.Decode(blurHash, pixels);
+                global::Blurhash.Core.Decode(Blurhash, pixels);
 
                 // Create a SkiaSharp bitmap
                 using (SKBitmap bitmap = new SKBitmap(width, height))
@@ -124,7 +124,7 @@ namespace PortaJel_Blazor.Data
                         string? hash = baseItem.ImageBlurHashes.Backdrop.AdditionalData.First().Value.ToString();
                         if (hash != null)
                         {
-                            image.blurHash = hash;
+                            image.Blurhash = hash;
                         }
                     }
                     else if (baseItem.ImageBlurHashes.Primary != null)
@@ -133,7 +133,7 @@ namespace PortaJel_Blazor.Data
                         imgType = "Primary";
                         if (hash != null)
                         {
-                            image.blurHash = hash;
+                            image.Blurhash = hash;
                         }
                     }
                     break;
@@ -144,12 +144,12 @@ namespace PortaJel_Blazor.Data
                         string? hash = baseItem.ImageBlurHashes.Logo.AdditionalData.First().Value.ToString();
                         if (hash != null)
                         {
-                            image.blurHash = hash;
+                            image.Blurhash = hash;
                         }
                     }
                     else
                     {
-                        image.blurHash = String.Empty;
+                        image.Blurhash = String.Empty;
                         return image; // bascially returning nothing if no logo is found
                     }
                     break;
@@ -160,12 +160,12 @@ namespace PortaJel_Blazor.Data
                         string? hash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
                         if (hash != null)
                         {
-                            image.blurHash = hash;
+                            image.Blurhash = hash;
                         }
                     }
                     else
                     {
-                        image.blurHash = String.Empty;
+                        image.Blurhash = String.Empty;
                     }
                     break;
             }
@@ -206,17 +206,17 @@ namespace PortaJel_Blazor.Data
             else if (baseItem.Type == BaseItemDto_Type.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
             {
                 image.source =  server + "/Items/" + baseItem.Id + "/Images/" + imgType;
-                image.blurHash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
+                image.Blurhash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
             }
             else if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
             {
                 image.source = server + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
-                image.blurHash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
+                image.Blurhash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
             }
             else if (baseItem.ImageBlurHashes.Primary != null)
             {
                 image.source = server + "/Items/" + baseItem.Id.ToString() + "/Images/" + imgType;
-                image.blurHash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
+                image.Blurhash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
             }
             else if (baseItem.ArtistItems != null)
             {

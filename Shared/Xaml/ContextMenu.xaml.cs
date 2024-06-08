@@ -33,36 +33,101 @@ public partial class ContextMenu : ContentView
         int? opacity = 100,
         bool? isCircle = false)
     {
-        if (baseMusicItem != null)
+        if (baseMusicItem != null && ViewModel.ContextMenuItems != null)
         {
             ViewModel.ContextMenuMainText = baseMusicItem.name ?? string.Empty;
             fullImgUrl = baseMusicItem.image.source ?? string.Empty;
 
+            ViewModel.ContextMenuItems.Clear();
+
+            /// #####################################################
+            /// CREATE CONTEXT MENU ITEMS FOR ARTIST HERE
+            /// #####################################################
             if (baseMusicItem is Album)
             {
                 Album album = (Album)baseMusicItem;
                 album.image.soureResolution = 500;
 
                 ViewModel.ContextMenuItems = album.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                ViewModel.ContextMenuSubText = "Album • " + album.artistCongregate;
+                ViewModel.ContextMenuSubText = "Album • " + album.ArtistNames;
             }
-            else if(baseMusicItem is Song)
+            /// #####################################################
+            /// CREATE CONTEXT MENU ITEMS FOR SONG HERE
+            /// #####################################################
+            else if (baseMusicItem is Song)
             {
                 Song song = (Song)baseMusicItem;
                 song.image.soureResolution = 500;
 
-                ViewModel.ContextMenuItems = song.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
-                ViewModel.ContextMenuSubText = "Song • " + song.artistCongregate;
+                if (song.IsFavourite)
+                {
+                    ViewModel.ContextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
+                    {
+                        await MauiProgram.MainPage.MainContextMenu.Close();
+
+                        song.IsFavourite = false;
+                        await MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, false);
+                    })));
+                }
+                else
+                {
+                    ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
+                    {
+                        await MauiProgram.MainPage.MainContextMenu.Close();
+
+                        song.IsFavourite = true;
+                        await MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, true);
+                    })));
+                }
+                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
+
+
+            ViewModel.ContextMenuSubText = "Song • " + song.ArtistNames;
             }
+            /// #####################################################
+            /// CREATE CONTEXT MENU ITEMS FOR ARTIST HERE
+            /// #####################################################
             else if (baseMusicItem is Artist)
             {
                 Artist artist = (Artist)baseMusicItem;
                 artist.image.soureResolution = 500;
 
                 isCircle = true;
-                ViewModel.ContextMenuItems = artist.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
+                if (artist.isFavourite)
+                {
+                    ViewModel.ContextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
+                    {
+                        artist.isFavourite = false;
+                        await MauiProgram.api.SetFavourite(artist.id, artist.serverAddress, false);
+                        await MauiProgram.MainPage.MainContextMenu.Close();
+                    })));
+                }
+                else
+                {
+                    ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
+                    {
+                        artist.isFavourite = true;
+                        await MauiProgram.api.SetFavourite(artist.id, artist.serverAddress, true);
+                        await MauiProgram.MainPage.MainContextMenu.Close();
+                    })));
+                }
+                ViewModel.ContextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async () =>
+                {
+                    MauiProgram.MainPage.ShowLoadingScreen(true);
+
+                    await MauiProgram.MainPage.MainContextMenu.Close();
+                    MauiProgram.WebView.NavigateArtist(artist.id);
+                })));
+                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
+                {
+                    await MauiProgram.MainPage.MainContextMenu.Close();
+                })));
+
                 ViewModel.ContextMenuSubText = "Artist";
             }
+            /// #####################################################
+            /// CREATE CONTEXT MENU ITEMS FOR PLAYLIST HERE
+            /// #####################################################
             else if (baseMusicItem is Playlist)
             {
                 Playlist playlist = (Playlist)baseMusicItem;
@@ -111,15 +176,12 @@ public partial class ContextMenu : ContentView
 
     public async void Show()
     {
-        HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
         isOpen = true;
 
         this.InputTransparent = false;
         this.Opacity = 0;
         Container.InputTransparent = false;
         Container.TranslationY = DeviceDisplay.MainDisplayInfo.Height / 4;
-
-        Trace.WriteLine("Opening context menu.");
 
         if (loadedImages.Contains(fullImgUrl))
         {
@@ -172,7 +234,7 @@ public partial class ContextMenu : ContentView
         await ImageContainer_Img.FadeTo(1, 750, Easing.SinIn);
     }
 
-    public async void Close()
+    public async Task<bool> Close()
     {
         // TODO: Change to animation
         this.InputTransparent = true;
@@ -182,6 +244,7 @@ public partial class ContextMenu : ContentView
             Container.TranslateTo(Container.X, DeviceDisplay.MainDisplayInfo.Height / 2, 300, Easing.SinIn),
             this.FadeTo(0, 300, Easing.SinIn)
             );
+        return true;
     }
 
     private void PanGestureRecognizer_PanUpdated(object sender, PanUpdatedEventArgs e)

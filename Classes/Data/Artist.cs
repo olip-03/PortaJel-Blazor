@@ -24,42 +24,6 @@ namespace PortaJel_Blazor.Data
         public Album[] artistAlbums { get; set; } = new Album[0];
 
         public static Artist Empty = new Artist(); 
-        public List<ContextMenuItem> GetContextMenuItems()
-        {
-            contextMenuItems.Clear();
-
-            if (this.isFavourite)
-            {
-                contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
-                {
-                    this.isFavourite = false;
-                    await MauiProgram.api.SetFavourite(this.id, this.serverAddress, false);
-                    MauiProgram.MainPage.CloseContextMenu();
-                })));
-            }
-            else
-            {
-                contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
-                {
-                    this.isFavourite = true;
-                    await MauiProgram.api.SetFavourite(this.id, this.serverAddress, true);
-                    MauiProgram.MainPage.CloseContextMenu();
-                })));
-            }
-            contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async() =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-                await MauiProgram.MainPage.AwaitContextMenuClose();
-                MauiProgram.MainPage.ShowLoadingScreen(true);
-                MauiProgram.WebView.NavigateArtist(this.id);
-            })));
-            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async() =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-            })));
-
-            return contextMenuItems;
-        }
         public static Artist Builder(BaseItemDto baseItem, string server)
         {
             if (baseItem == null)

@@ -105,7 +105,7 @@ public partial class MediaController : ContentView
 
             if (playFromIndex != null)
             {
-                this.currentPlayingId = fromIndex.id;
+                this.currentPlayingId = fromIndex.Id;
                 ImgCarousel.ScrollTo(fromIndex, animate: false);
             }
         }
@@ -114,12 +114,12 @@ public partial class MediaController : ContentView
             Song? fromIndex = songs.AllSongs[(int)playFromIndex];
             if (playFromIndex != null && fromIndex != null)
             {
-                this.currentPlayingId = fromIndex.id;
+                this.currentPlayingId = fromIndex.Id;
                 ImgCarousel.ScrollTo(fromIndex, animate: false);
             }
         }
 
-        BaseMusicItem? playingCollection = MauiProgram.MediaService.GetCurrentlyPlaying().album;
+        BaseMusicItem? playingCollection = MauiProgram.MediaService.GetCurrentlyPlaying().AlbumData;
         if (playingCollection != null)
         {
             string type = playingCollection.GetType().Name;
@@ -204,7 +204,7 @@ public partial class MediaController : ContentView
         int queueIndex = MauiProgram.MediaService.GetQueueIndex();
         Song song = ViewModel.Queue[queueIndex];
 
-        if (song.isFavourite)
+        if (song.IsFavourite)
         {
             var hasColor = App.Current.Resources.TryGetValue("PrimaryColor", out object primaryColor);
             var hasSource = App.Current.Resources.TryGetValue("HeartIcon", out object imageSource);
@@ -237,7 +237,7 @@ public partial class MediaController : ContentView
         {
             await Task.Run(async () =>
             {
-                await MauiProgram.api.SetFavourite(song.id, song.serverAddress, song.isFavourite);
+                await MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, song.IsFavourite);
             });
         }
     }
@@ -281,8 +281,8 @@ public partial class MediaController : ContentView
         if (MauiProgram.MediaService == null) return false;
         MemoryStream? imageDecodeStream = null;
         Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
-        if (currentSong.image.blurHash == currentBlurhash) return false; // dont run if hash is the same
-        currentBlurhash = currentSong.image.blurHash;
+        if (currentSong.image.Blurhash == currentBlurhash) return false; // dont run if hash is the same
+        currentBlurhash = currentSong.image.Blurhash;
         await Task.WhenAll(Task.Run(async () =>
         {
             // Fuck yeah get the image to move based on gyro
@@ -311,12 +311,12 @@ public partial class MediaController : ContentView
             // Check if current song is accurate
             if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.playingIndex)
             {
-                if (!playbackTime.currentSong.id.Equals(this.currentPlayingId))
+                if (!playbackTime.currentSong.Id.Equals(this.currentPlayingId))
                 {
                     ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.playingIndex], animate: true);
                     await Task.Delay(500);
                     UpdateData(playFromIndex: playbackTime.playingIndex);
-                    this.currentPlayingId = playbackTime.currentSong.id;
+                    this.currentPlayingId = playbackTime.currentSong.Id;
                 }
             }
 
@@ -330,9 +330,9 @@ public partial class MediaController : ContentView
             }
 
             ViewModel.PlaybackValue = playbackTime.currentDuration;
-            ViewModel.PlaybackMaximum = playbackTime.currentSong.duration;
+            ViewModel.PlaybackMaximum = playbackTime.currentSong.DurationMs;
 
-            if (playbackTime.currentSong.duration > 0 &&
+            if (playbackTime.currentSong.DurationMs > 0 &&
                 !pauseTimeUpdate &&
                 ViewModel.PlaybackTimeValue != playbackTime.currentDurationText &&
                 IsOpen)
@@ -410,7 +410,7 @@ public partial class MediaController : ContentView
         MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
 
         Song scrollTo = MauiProgram.MediaService.GetCurrentlyPlaying();
-        TimeSpan durationTime = TimeSpan.FromTicks(scrollTo.duration);
+        TimeSpan durationTime = TimeSpan.FromTicks(scrollTo.DurationMs);
 
         ViewModel.PlaybackValue = 0;
         ViewModel.PlaybackTimeValue = "00:00";
@@ -482,7 +482,7 @@ public partial class MediaController : ContentView
         MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
 
         Song scrollTo = MauiProgram.MediaService.GetCurrentlyPlaying();
-        TimeSpan durationTime = TimeSpan.FromTicks(scrollTo.duration);
+        TimeSpan durationTime = TimeSpan.FromTicks(scrollTo.DurationMs);
 
         ViewModel.PlaybackValue = 0;
         ViewModel.PlaybackTimeValue = "00:00";
@@ -527,13 +527,13 @@ public partial class MediaController : ContentView
 
         int queueIndex = MauiProgram.MediaService.GetQueueIndex();
         Song song = ViewModel.Queue[queueIndex];
-        bool state = !song.isFavourite;
+        bool state = !song.IsFavourite;
 
-        ViewModel.Queue[queueIndex].isFavourite = state;
+        ViewModel.Queue[queueIndex].IsFavourite = state;
 
         UpdateFavouriteButton();
         MauiProgram.MainPage.MainMiniPlayer.UpdateFavouriteButton(syncToServer: true);
-        await Task.Run(() => MauiProgram.api.SetFavourite(song.id, song.serverAddress, state));
+        await Task.Run(() => MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, state));
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)
@@ -606,7 +606,7 @@ public partial class MediaController : ContentView
     {
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MainPage.ShowLoadingScreen(true);
-        Album? album = MauiProgram.MediaService.GetCurrentlyPlaying().album;
+        Album? album = MauiProgram.MediaService.GetCurrentlyPlaying().AlbumData;
         if (album != null)
         {
             Guid? itemId = album.id;
