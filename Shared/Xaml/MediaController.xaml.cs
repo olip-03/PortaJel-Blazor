@@ -1,7 +1,10 @@
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
 using SkiaSharp;
 using System.Diagnostics;
+using System.Threading;
 namespace PortaJel_Blazor.Shared;
 
 public partial class MediaController : ContentView
@@ -603,7 +606,6 @@ public partial class MediaController : ContentView
     {
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MainPage.ShowLoadingScreen(true);
-        await Close();
         Album? album = MauiProgram.MediaService.GetCurrentlyPlaying().album;
         if (album != null)
         {
@@ -611,6 +613,35 @@ public partial class MediaController : ContentView
             if (itemId != null)
             {
                 MauiProgram.WebView.NavigateAlbum((Guid)itemId);
+                await Close();
+            }
+            else
+            {
+                string text = $"Couldn't navigate to album as it was null!";
+                var toast = Toast.Make(text, ToastDuration.Short, 14);
+                await toast.Show();
+            }
+        }
+    }
+
+    private async void ArtistLabel_Clicked(object sender, EventArgs e)
+    {
+        if (MauiProgram.MediaService == null) return;
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        Artist? artist = MauiProgram.MediaService.GetCurrentlyPlaying().artists.FirstOrDefault();
+        if (artist != null)
+        {
+            Guid? itemId = artist.id;
+            if (itemId != null)
+            {
+                MauiProgram.WebView.NavigateArtist((Guid)itemId);
+                await Close();
+            }
+            else
+            {
+                string text = $"Couldn't navigate to artist as it was null!";
+                var toast = Toast.Make(text, ToastDuration.Short, 14);
+                await toast.Show();
             }
         }
     }

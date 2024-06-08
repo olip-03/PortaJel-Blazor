@@ -32,7 +32,7 @@ public static class MauiProgram
 
     public static StyleSettings styleSettings = new();
 
-    public static bool debugMode = false;
+    public static bool debugMode = true;
     public static bool isConnected = false;
     public static bool firstLoginComplete = false;
     public static bool webViewInitalized = false;
@@ -43,7 +43,7 @@ public static class MauiProgram
 
     public static MainLayout WebView = new();
     public static MainPage MainPage = new(initialize: false);
-    public static double SystemHeaderHeight = 0;
+    public static double SystemHeaderHeight = 44;
     public static double systemWidth = 0;
 
     // TODO: MediaService should be null, initalize once media playback is required

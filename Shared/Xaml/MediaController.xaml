@@ -102,7 +102,7 @@
                                            LineBreakMode="TailTruncation"
                                            HorizontalOptions="Center" 
                                            MaximumWidthRequest="350">
-                                    </Label>
+                                    </Label> 
                                     <Label x:Name="ImgCarousel_ArtistTitle" 
                                            TextColor="{StaticResource SecondaryTextColor}" 
                                            HorizontalTextAlignment="Center" 
@@ -112,6 +112,9 @@
                                            LineBreakMode="TailTruncation"
                                            HorizontalOptions="Center" 
                                            MaximumWidthRequest="350">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="ArtistLabel_Clicked"></TapGestureRecognizer>
+                                        </Label.GestureRecognizers>
                                     </Label>
                                 </StackLayout>
                             </StackLayout>

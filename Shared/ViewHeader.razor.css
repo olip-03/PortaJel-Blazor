@@ -14,6 +14,8 @@
     position: absolute;
     width: 100vw;
     height: 6rem;
+    opacity: 0;
+    background-color: pink;
 }
 
 .header-background {
@@ -22,7 +24,6 @@
     height: auto;
     transform: scale(2);
     filter: blur(1.5rem);
-    opacity: 0;
     background-color: rgba(0, 0, 0, 0.5);
 }
 
@@ -33,6 +34,9 @@
 .header-text {
     margin-top: auto;
     margin-bottom: auto;
+    margin-right: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
     z-index: 200;
     transition: opacity 0.25s ease-in-out; /* Smooth transition */
     mix-blend-mode: difference;
@@ -54,6 +58,7 @@
 .header-nameContainer{
     z-index: 200;
     position: relative;
+    height: 100%;
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 1rem;

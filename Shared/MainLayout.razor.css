@@ -78,6 +78,11 @@ main {
 
     padding: 1rem;
 }
+.toolbar-block {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
 
 .toolbar-img {
     cursor: pointer;

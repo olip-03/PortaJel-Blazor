@@ -5,36 +5,30 @@ var stickyLockviewEngagedScroll
 function InitalizeArtistView() {
     // Get the header element
     const header = document.getElementById('header-backgroundPlaceholder');
-    const headerBackground = document.getElementById('header-backgroundImg');
     const headerText = document.getElementById('header-text');
-    const playbackButton = document.getElementById('playback-controls-btns');
-    const favoriteButton = document.getElementById('playback-controls-fav');
 
     // Function to update the header position
-    function updateHeaderPosition() {
+    function updateHeaderOpacity() {
         if (header) {
-            if (headerBackground) {
-                const scrollFraction = Math.min(Math.max(window.scrollY / 100, 0), 1);
+            const scrollFraction = Math.min(Math.max(window.scrollY / 100, 0), 1);
 
-                header.style.opacity = scrollFraction;
-                headerBackground.style.opacity = scrollFraction;
-                if (headerText) {
-                    if (scrollFraction == 1) {
-                        headerText.style.opacity = scrollFraction;
-                    }
-                    else {
-                        headerText.style.opacity = 0;
-                    }
+            header.style.opacity = scrollFraction;
+            if (headerText) {
+                if (scrollFraction == 1) {
+                    headerText.style.opacity = scrollFraction;
+                }
+                else {
+                    headerText.style.opacity = 0;
                 }
             }
         }
     }
 
     // Event listener for the scroll event
-    window.addEventListener('scroll', updateHeaderPosition);
+    window.addEventListener('scroll', updateHeaderOpacity);
 
     // Initial call to position the header correctly
-    updateHeaderPosition();
+    updateHeaderOpacity();
 }
 function ToggleExpandDescription() {
     const additionalInfo = document.querySelector('.additional-info');

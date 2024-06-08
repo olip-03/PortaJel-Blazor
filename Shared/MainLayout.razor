@@ -15,7 +15,11 @@
                 <div class="bodyContainer">
                     @if (_showHeader)
                     {
-                        <div id="mainLayoutToolbar" class="toolbar PageSecondaryColor">
+                        <div class="PageSecondaryColor toolbar-block" style="height: @headerHeight">
+
+                        </div>
+                        <div id="mainLayoutToolbar" class="toolbar PageSecondaryColor" style="height: @headerHeight">
+
                             <h2 class="PrimaryTextColor" style="margin: 0;">@pageTitle</h2>
                             <div>
                                 <a @onclick="(() => NavigateDownloads())" style="margin-right: 0.2rem">
@@ -32,11 +36,14 @@
                 </div>
                 @if (MauiProgram.MainPage.MainMiniPlayer.IsOpen)
                 {
-                    <div style="height:120px;"></div>
+                    string height = 120 + (MauiProgram.SystemHeaderHeight) + "px";
+                    <div style="height:@height;"></div>
                 }
                 else
                 {
-                    <div style="height:60px;"></div>
+                    string height = 60 + (MauiProgram.SystemHeaderHeight) + "px";
+
+                    <div style="height:@height;"></div>
                 }
             </article>
         </Animate>
@@ -45,6 +52,9 @@
 
 @code
 {
+    private string headerHeight = (MauiProgram.SystemHeaderHeight) + "px!important";
+    private string bottomHeight = (MauiProgram.SystemHeaderHeight) + "px!important";
+
     public string pageTitle
     {
         get { return _pageTitle; }
@@ -108,9 +118,10 @@
     }
     private currentHeaderContent headerContent = currentHeaderContent.none;
 
-    protected override void OnInitialized()
-    {
+    protected override async Task OnInitializedAsync()
+    { 
         MauiProgram.WebView = this;
+        await JS.InvokeAsync<string>("InitMainLayout", new object[1] { MauiProgram.SystemHeaderHeight });
     }
 
     protected override void OnAfterRender(bool firstRender)
