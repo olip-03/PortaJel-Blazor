@@ -48,7 +48,22 @@ public partial class ContextMenu : ContentView
                 Album album = (Album)baseMusicItem;
                 album.image.soureResolution = 500;
 
-                ViewModel.ContextMenuItems = album.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
+                if (album.IsFavourite)
+                {
+                    ViewModel.ContextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
+                    {
+                        album.IsFavourite = false;
+                        await MauiProgram.api.SetFavourite(album.Id, album.ServerAddress, false);
+                    })));
+                }
+                else
+                {
+                    ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
+                    {
+                        album.IsFavourite = true;
+                        await MauiProgram.api.SetFavourite(album.Id, album.ServerAddress, true);
+                    })));
+                }
                 ViewModel.ContextMenuSubText = "Album • " + album.ArtistNames;
             }
             /// #####################################################
@@ -65,8 +80,8 @@ public partial class ContextMenu : ContentView
                     {
                         await MauiProgram.MainPage.MainContextMenu.Close();
 
-                        song.IsFavourite = false;
-                        await MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, false);
+                        song.SetIsFavourite(false);
+                        await MauiProgram.api.SetFavourite((Guid)song.Id, song.ServerAddress, false);
                     })));
                 }
                 else
@@ -75,8 +90,8 @@ public partial class ContextMenu : ContentView
                     {
                         await MauiProgram.MainPage.MainContextMenu.Close();
 
-                        song.IsFavourite = true;
-                        await MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, true);
+                        song.SetIsFavourite(true);
+                        await MauiProgram.api.SetFavourite((Guid)song.Id, song.ServerAddress, true);
                     })));
                 }
                 ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>

@@ -609,7 +609,7 @@ public partial class MediaController : ContentView
         Album? album = MauiProgram.MediaService.GetCurrentlyPlaying().AlbumData;
         if (album != null)
         {
-            Guid? itemId = album.id;
+            Guid? itemId = album.Id;
             if (itemId != null)
             {
                 MauiProgram.WebView.NavigateAlbum((Guid)itemId);

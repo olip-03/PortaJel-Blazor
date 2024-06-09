@@ -17,13 +17,13 @@
 
         <div class="image-container" style="top: @headerHeight">
             <img src="data:image/png;base64, @base64BlurHash" class="placeholder" alt="Placeholder Image">
-            <img src="@album.image.source" id="@album.id" class="album-cover-img" onerror="this.src='/images/emptyAlbum.png'" alt="@album.name album cover">
+            <img src="@album.image.source" id="@album.Id" class="album-cover-img" onerror="this.src='/images/emptyAlbum.png'" alt="@album.Name album cover">
         </div>
         @if (album != null)
         {
             <div class="item-title">
                 <div class="title-text">
-                    <h2 class="PrimaryTextColor" style="margin: 0px">@album.name</h2>
+                    <h2 class="PrimaryTextColor" style="margin: 0px">@album.Name</h2>
                     <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(
                         album.Artists.FirstOrDefault().id)">
                         @album.GetArtistName()
@@ -33,7 +33,7 @@
 
             <div class="playback-controls">
                 <div @onclick=FavouriteItem>
-                    @if (album.isFavourite)
+                    @if (album.IsFavourite)
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                             <HeartIcon Filled=true ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
@@ -148,7 +148,7 @@
         if(album != null)
         {
             await JS.InvokeAsync<string>("InitAllImages");
-            await JS.InvokeAsync<string>("InitImageLoader", album.id);
+            await JS.InvokeAsync<string>("InitImageLoader", album.Id);
         }
         if (loaded)
         {
@@ -177,7 +177,7 @@
             {
                 currentAlbumGuid = MauiProgram.currentAlbumGuid;
                 currentSongGuid = MauiProgram.currentSongGuid;
-                if (currentAlbumGuid != null && currentAlbumGuid != Guid.Empty && currentAlbumGuid == album.id)
+                if (currentAlbumGuid != null && currentAlbumGuid != Guid.Empty && currentAlbumGuid == album.Id)
                 {
                     isCurrentAlbum = true;
                 }
@@ -262,15 +262,15 @@
 
     private async void FavouriteItem()
     {
-        bool resetState = album.isFavourite;
+        bool resetState = album.IsFavourite;
         try
         {
-            album.isFavourite = !album.isFavourite;
-            await MauiProgram.api.SetFavourite(album.id, album.serverAddress, album.isFavourite);
+            album.IsFavourite = !album.IsFavourite;
+            await MauiProgram.api.SetFavourite(album.Id, album.ServerAddress, album.IsFavourite);
         }
         catch (Exception ex)
         {
-            album.isFavourite = resetState;
+            album.IsFavourite = resetState;
             await App.Current.MainPage.DisplayAlert("Error?", $"{ex}", "Continue");
         }
         StateHasChanged();
@@ -301,7 +301,7 @@
     {
         // Move all items in the current queue to the Next Up Queue, to ensure that
         // this item is prioritised, without losing the current queue 
-        if (MauiProgram.currentAlbumGuid == album.id)
+        if (MauiProgram.currentAlbumGuid == album.Id)
         {
             isCurrentAlbum = true;
             MauiProgram.MediaService.TogglePlay();

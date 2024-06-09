@@ -87,7 +87,7 @@
             {
                 Album album = (Album)musicObject;
                 MauiProgram.MainPage.ShowLoadingScreen(true);
-                MauiProgram.WebView.NavigateAlbum(album.id);
+                MauiProgram.WebView.NavigateAlbum(album.Id);
             }
             if (musicObject is Song)
             {
@@ -96,7 +96,7 @@
                 if(album != null)
                 {
                     MauiProgram.MainPage.ShowLoadingScreen(true);
-                    MauiProgram.WebView.NavigateAlbum(album.id);
+                    MauiProgram.WebView.NavigateAlbum(album.Id);
                 }
             }
             if(musicObject is Artist)

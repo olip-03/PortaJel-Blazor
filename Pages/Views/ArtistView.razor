@@ -142,10 +142,10 @@
             </div>
         </div>
 
-        @if (!String.IsNullOrWhiteSpace(artist.description))
+        @if (!String.IsNullOrWhiteSpace(artist.Description))
         {
             <div class="PageSecondaryColor additional-info" @onclick=ToggleExpandDescription>
-                <p class="additional-info-text PrimaryTextColor">@artist.description</p>
+                <p class="additional-info-text PrimaryTextColor">@artist.Description</p>
             </div>
         }
 
@@ -258,7 +258,7 @@
                 imgUrl = artist.image.SourceAtResolution(imgScale);
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
-                artistAlbums = artist.artistAlbums;
+                artistAlbums = artist.Albums;
                 placeholderImages = await GenerateBlurHash(artistAlbums);
 
                 string? artistBlurhash = await artist.image.BlurhashToBase64Async(20, 20);

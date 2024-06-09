@@ -6,7 +6,8 @@ namespace PortaJel_Blazor.Classes.Database
     public class ArtistData
     {
         [PrimaryKey, NotNull]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
+        public string ServerAddress { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;
         public string Description { get; set; } = string.Empty;

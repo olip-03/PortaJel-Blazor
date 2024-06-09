@@ -178,12 +178,12 @@ else
             List<Album> getRecentAlbums = new();
             foreach (Song song in runGetRecent.Result)
             {
-                if (song.AlbumData != null)
+                if (song.Album != null)
                 {
-                    if (!songAlbumIDs.Contains(song.AlbumData.id))
+                    if (!songAlbumIDs.Contains(song.Album.Id))
                     {
-                        songAlbumIDs.Add(song.AlbumData.id);
-                        recentPlayAlbumTasks.Add(MauiProgram.api.GetAlbumAsync(song.AlbumData.id));
+                        songAlbumIDs.Add(song.Album.Id);
+                        recentPlayAlbumTasks.Add(MauiProgram.api.GetAlbumAsync((Guid)song.Album.Id));
                     }
                 }
             }
@@ -295,26 +295,13 @@ else
                     return;
                 }
 
-                // Filter exact matches (case-insensitive and exclude special characters)
-                var exactMatches = searchResults
-                    .Where(item => RemoveSpecialCharacters(item.name).Equals(RemoveSpecialCharacters(searchFor), StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-
-                var sortedItems = searchResults
-                    .Except(exactMatches)
-                    .OrderBy(item => item.name.CompareTo(searchFor))
-                    .ToList();
-
-                // Combine exact matches and sorted items
-                var modifiedResults = exactMatches.Concat(sortedItems).ToArray();
-
-                searchResults = modifiedResults;
                 placeholderImages = new string[searchResults.Length];
                 for (int i = 0; i < searchResults.Length; i++)
                 {
                     try
                     {
-                        placeholderImages[i] = await searchResults[i].image.BlurhashToBase64Async(20, 20);
+                        string? base64 = await MusicItemImage.BlurhashToBase64Async(searchResults[i], 20, 20);
+                        placeholderImages[i] = base64 == null ? string.Empty : base64;
                     }
                     catch (Exception)
                     {
@@ -360,7 +347,8 @@ else
         {
             try
             {
-                toReturn[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
+                toReturn[i] = base64 == null ? string.Empty : base64;
             }
             catch (Exception)
             {

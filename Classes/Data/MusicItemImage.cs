@@ -1,13 +1,7 @@
 ﻿using Blurhash;
-using Jellyfin.Sdk;
+using Java.Lang;
 using Jellyfin.Sdk.Generated.Models;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PortaJel_Blazor.Data
 {
@@ -45,13 +39,17 @@ namespace PortaJel_Blazor.Data
             }
             return source;
         }
-        public Task<string?> BlurhashToBase64Async(int width = 0, int height = 0, float brightness = 1)
+        public static Task<string?> BlurhashToBase64Async(string? blurhash, int width = 0, int height = 0, float brightness = 1)
         {
+            if(blurhash == null)
+            {
+                return Task.FromResult<string?>(string.Empty);
+            }
             try
             {            
                 // Assuming you have a method to decode the blurhash into a pixel array
                 Pixel[,] pixels = new Pixel[width, height];
-                global::Blurhash.Core.Decode(Blurhash, pixels);
+                Core.Decode(blurhash, pixels);
 
                 // Create a SkiaSharp bitmap
                 using (SKBitmap bitmap = new SKBitmap(width, height))
@@ -106,9 +104,40 @@ namespace PortaJel_Blazor.Data
             catch (Exception)
             {
                 string? noval = null;
-                return Task.FromResult<string?>(noval); ;
+                return Task.FromResult<string?>(noval);
             }
         }
+        public static Task<string?> BlurhashToBase64Async(BaseMusicItem musicItem, int width = 0, int height = 0, float brightness = 1)
+        {
+            string base64 = string.Empty;
+            if (musicItem is Album)
+            {
+                Album? album = musicItem as Album;
+                return Task.FromResult<string?>(BlurhashToBase64Async(album.ImgBlurhash, 20, 20).Result);
+            }
+            if (musicItem is Song)
+            {
+                Song? song = musicItem as Song;
+                return Task.FromResult<string?>(BlurhashToBase64Async(song.ImgBlurhash, 20, 20).Result);
+            }
+            if (musicItem is Artist)
+            {
+                Artist? artist = musicItem as Artist;
+                return Task.FromResult<string?>(BlurhashToBase64Async(artist.ImgBlurhash, 20, 20).Result);
+            }
+            if (musicItem is Playlist)
+            {
+                Playlist? playlist = musicItem as Playlist;
+                // TODO: Implementation 
+                // string? imgString = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20);
+                // if (imgString != null)
+                // {
+                //     placeholderImages[i] = imgString;
+                // }
+            }
+            return Task.FromResult<string?>(null);
+        }
+
         public static MusicItemImage Builder(BaseItemDto baseItem, string server, ImageBuilderImageType? imageType = ImageBuilderImageType.Primary)
         {
             MusicItemImage image = new();

@@ -72,11 +72,11 @@ namespace PortaJel_Blazor.Classes
                 Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
             token = cancelTokenSource.Token;
 
-            if(username != null)
+            if (username != null)
             {
                 Username = username;
             }
-            if(password != null)
+            if (password != null)
             {
                 StoredPassword = password;
             }
@@ -96,7 +96,7 @@ namespace PortaJel_Blazor.Classes
         private ServiceProvider ConfigureServices()
         {
             ServiceCollection serviceCollection = new ServiceCollection();
-            
+
             // Add Http Client
             serviceCollection.AddHttpClient("Default", c =>
             {
@@ -151,11 +151,11 @@ namespace PortaJel_Blazor.Classes
                 throw new InvalidOperationException("API Client is Null!");
             }
 
-            if(username != null)
+            if (username != null)
             {
                 Username = username;
             }
-            else if(Username == null)
+            else if (Username == null)
             {
                 throw new InvalidOperationException("Cannot authenticate because Username is null!");
             }
@@ -164,7 +164,7 @@ namespace PortaJel_Blazor.Classes
             {
                 StoredPassword = password;
             }
-            else if(StoredPassword == null)
+            else if (StoredPassword == null)
             {
                 throw new InvalidOperationException("Cannot authenticate because Password is null!");
             }
@@ -177,7 +177,7 @@ namespace PortaJel_Blazor.Classes
                     Pw = this.StoredPassword
                 }).ConfigureAwait(false);
 
-                if(authenticationResult != null)
+                if (authenticationResult != null)
                 {
                     _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
                     userDto = authenticationResult.User;
@@ -199,7 +199,7 @@ namespace PortaJel_Blazor.Classes
 
         #region Albums
         /// <summary>
-        /// Retrieves all albums based on the specified parameters asynchronously.
+        /// Retrieves partial albums based on the specified parameters asynchronously.
         /// </summary>
         /// <param name="setLimit">The maximum number of albums to retrieve.</param>
         /// <param name="setStartIndex">The index from which to start retrieving albums.</param>
@@ -207,71 +207,64 @@ namespace PortaJel_Blazor.Classes
         /// <param name="setSortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="setSortOrder">The sort order for the albums.</param>
         /// <returns>
-        /// A task representing the asynchronous operation. The task result is an array of albums 
+        /// A task representing the asynchronous operation. The task result is an array of partial albums 
         /// matching the specified criteria.
         /// </returns>
         /// <exception cref="InvalidOperationException">
         /// Thrown when the server connector has not been initialized. Ensure that 
         /// AuthenticateUserAsync method has been called.
         /// </exception>
-        public async Task<Data.Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy[]? setSortTypes = null, SortOrder setSortOrder = SortOrder.Ascending)
+        public async Task<Data.Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder setSortOrder = SortOrder.Ascending)
         {
-            if (_jellyfinApiClient == null || userDto == null || Database == null)
+            if (_jellyfinApiClient == null || userDto == null || Database == null || _sdkClientSettings.ServerUrl == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
-            List<Data.Album> toReturn = new();
+            List<Album> toReturn = new();
             // Function to run that returns data from the cache
-            void ReturnFromCache()
+            async void ReturnFromCache()
             {
-                // TODO: REPLACE WITH SQLITE QUERY TO PULL FROM LOCAL STORAGE :3 
-
                 // Filter the cache based on the provided parameters
-                List<Data.Album> filteredCache = albumCache.Values.ToList();
-
-                // Apply filters based on parameters
-                if (setFavourites == true)
+                if (setLimit == null)
                 {
-                    filteredCache = filteredCache.Where(album => album.isFavourite == setFavourites.Value).ToList();
+                    setLimit = 50;
+                }
+                List<AlbumData> filteredCache = new();
+                switch (setSortTypes)
+                {
+                    case ItemSortBy.DateCreated:
+                        filteredCache.AddRange(await Database.Table<AlbumData>()
+                            .OrderByDescending(album => album.DateAdded)
+                            .Take((int)setLimit).ToListAsync());
+                        break;
+                    case ItemSortBy.Name:
+                        filteredCache.AddRange(await Database.Table<AlbumData>()
+                            .OrderByDescending(album => album.Name)
+                            .Take((int)setLimit).ToListAsync());
+                        break;
+                    case ItemSortBy.Random:
+                        filteredCache = await Database.Table<AlbumData>()
+                            .OrderBy(album => Guid.NewGuid())
+                            .Take((int)setLimit)
+                            .ToListAsync();
+                        break;
+                    case ItemSortBy.PlayCount:
+                        filteredCache.AddRange(await Database.Table<AlbumData>()
+                            .OrderByDescending(album => album.PlayCount)
+                            .Take((int)setLimit).ToListAsync());
+                        break;
+                    default:
+                        filteredCache.AddRange(await Database.Table<AlbumData>()
+                            .OrderByDescending(album => album.Name)
+                            .Take((int)setLimit).ToListAsync());
+                        break;
                 }
 
-                // Apply sorting if sort types are providedObject reference not set to an instance of an object.'
-                if (setSortTypes != null && setSortTypes.Any())
+                foreach (AlbumData dbItem in filteredCache)
                 {
-                    foreach (var sortType in setSortTypes)
-                    {
-                        switch (sortType)
-                        {
-                            // Implement sorting logic based on sort types
-                            // For example, sorting by album name
-                            case ItemSortBy.Name:
-                                filteredCache = setSortOrder == SortOrder.Ascending ?
-                                    filteredCache.OrderBy(album => album.name).ToList() :
-                                    filteredCache.OrderByDescending(album => album.name).ToList();
-                                break;
-                                // Add cases for other sort types if needed
-                        }
-                    }
+                    toReturn.Add(new Album(dbItem));
                 }
-
-                // Apply count limits
-                if (setStartIndex.HasValue)
-                {
-                    filteredCache = filteredCache.Skip(setStartIndex.Value).ToList();
-                }
-                if (setLimit.HasValue)
-                {
-                    filteredCache = filteredCache.Take(setLimit.Value).ToList();
-                }
-
-                // Update toReturn with filtered and sorted cache items
-                toReturn.AddRange(filteredCache);
-            }
-
-            if(setSortTypes == null)
-            {
-                setSortTypes = [ItemSortBy.Name];
             }
 
             if (isOffline)
@@ -288,7 +281,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         c.QueryParameters.UserId = userDto.Id;
                         c.QueryParameters.IsFavorite = setFavourites;
-                        c.QueryParameters.SortBy = setSortTypes;
+                        c.QueryParameters.SortBy = [setSortTypes];
                         c.QueryParameters.SortOrder = [setSortOrder];
                         c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicAlbum];
                         c.QueryParameters.Limit = setLimit;
@@ -297,15 +290,16 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.EnableImages = true;
                         c.QueryParameters.EnableTotalRecordCount = true;
                     }).ConfigureAwait(false);
-                    if(serverResults != null && serverResults.Items != null)
+                    if (serverResults != null && serverResults.Items != null)
                     {
                         MauiProgram.UpdateDebugMessage("Retrieved! Updating tables.");
                         for (int i = 0; i < serverResults.Items.Count(); i++)
                         {
                             // Add to list to be returned 
-                            Data.Album newAlbum = AlbumBuilder(serverResults.Items[i]);
+                            Album newAlbum = Album.Builder(serverResults.Items[i], _sdkClientSettings.ServerUrl);
                             toReturn.Add(newAlbum);
-
+                            
+                            // Do not store partial data 
                             // TODO: Reconsider... Do we rlly need to be storing items we dont have the full info for.. 
                             // See how it goes. For now I'll leave it lmoa 
 
@@ -336,10 +330,10 @@ namespace PortaJel_Blazor.Classes
         /// <param name="setId">The optional ID of the album to retrieve. If null, returns an empty album.</param>
         /// <returns>Returns the retrieved album asynchronously.</returns>
         /// <exception cref="InvalidOperationException">Thrown when the server connector has not been initialized. Ensure that AuthenticateUserAsync has been called.</exception>
-        public async Task<Data.Album> GetAlbumAsync(System.Guid setId)
+        public async Task<Album> GetAlbumAsync(System.Guid setId)
         {
-            Data.Album toReturn = Data.Album.Empty;
-            if(_jellyfinApiClient == null || userDto == null || Database == null)
+            Album toReturn = Album.Empty;
+            if (_jellyfinApiClient == null ||  userDto == null || Database == null || _sdkClientSettings.ServerUrl == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
@@ -347,14 +341,7 @@ namespace PortaJel_Blazor.Classes
             async void ReturnFromCache()
             {
                 // Filter the cache based on the provided parameters
-                Database.AlbumData fromDb = await Database.Table<Database.AlbumData>().Where(album => album.Id == setId).FirstOrDefaultAsync();
-                Data.Album? fromCache = await Data.Album.Builder(fromDb);
-
-                albumCache.TryGetValue(setId, out fromCache);
-                if(fromCache != null)
-                {
-                    toReturn = fromCache;
-                }
+                AlbumData fromDb = await Database.Table<AlbumData>().Where(album => album.Id == setId).FirstOrDefaultAsync();
             }
 
             if (isOffline || storedAlbums.Contains(setId))
@@ -384,42 +371,31 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.Recursive = true;
                         c.QueryParameters.EnableImages = true;
                     }, cancellationToken: token);
-
-                    await Task.WhenAll(albumResult, songResult);
-
-                    if(albumResult.Result != null)
+                    Task<BaseItemDtoQueryResult?> artistResults = _jellyfinApiClient.Items.GetAsync(c =>
                     {
-                        BaseItemDto? album = albumResult.Result.Items.FirstOrDefault();
-                        if (album == null)
-                        {
-                            return Data.Album.Empty;
-                        }
-                        toReturn = await AlbumBuilder(album, true);
-                    }
+                        c.QueryParameters.UserId = userDto.Id;
+                        c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicArtist];
+                        c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
+                        c.QueryParameters.SortOrder = [SortOrder.Ascending];
+                        c.QueryParameters.ParentId = setId;
+                        c.QueryParameters.Recursive = true;
+                        c.QueryParameters.EnableImages = true;
+                    }, cancellationToken: token);
 
-                    // Set Song information
-                    List<Song> songList = new List<Song>();
-                    foreach (var song in songResult.Result.Items)
-                    {
-                        // Create object
-                        Song newSong = Song.Builder(song, _sdkClientSettings.ServerUrl);
-                        newSong.AlbumId = toReturn;
+                    await Task.WhenAll(albumResult, songResult, artistResults);
 
-                        // Create Artists
-                        List<Artist> artistList = new List<Artist>();
-                        foreach (NameGuidPair partialArtist in song.ArtistItems)
-                        {
-                            if (artistCache.ContainsKey((System.Guid)partialArtist.Id))
-                            {
-                                artistList.Add(artistCache[(System.Guid)partialArtist.Id]);
-                            }
-                            artistList.Add(ArtistBuilder(partialArtist));
-                        }
-                        newSong.artists = artistList.ToArray();
+                    if (albumResult.Result == null || albumResult.Result.Items == null) return Album.Empty;
+                    if (songResult.Result == null || songResult.Result.Items == null) return Album.Empty;
+                    if (artistResults.Result == null || artistResults.Result.Items == null) return Album.Empty; // TODO: Check if results are valid on next build
 
-                        songList.Add(newSong);
-                    }
-                    toReturn.songs = songList.ToArray();
+                    BaseItemDto? album = albumResult.Result.Items.FirstOrDefault();
+
+                    if (album == null) return Album.Empty;
+
+                    BaseItemDto[] songList = songResult.Result.Items.ToArray();
+                    BaseItemDto[] artistData = artistResults.Result.Items.ToArray();
+
+                    toReturn = Album.Builder(album, _sdkClientSettings.ServerUrl, songList, artistData);
                 }
                 catch (HttpRequestException)
                 {
@@ -446,7 +422,7 @@ namespace PortaJel_Blazor.Classes
                 c.QueryParameters.UserId = userDto.Id;
                 c.QueryParameters.Limit = limit;
             });
-            if(result != null && result.Items != null)
+            if (result != null && result.Items != null)
             {
                 foreach (BaseItemDto albumResult in result.Items)
                 {
@@ -477,7 +453,7 @@ namespace PortaJel_Blazor.Classes
             List<Song> toReturn = new();
             // Function to run that returns data from the cache
             void ReturnFromCache()
-            { 
+            {
                 // TODO: Return information from SQLite 
                 // Filter the cache based on the provided parameters
                 List<Song> filteredCache = songCache.Values.ToList();
@@ -512,7 +488,7 @@ namespace PortaJel_Blazor.Classes
                                 Random random = new Random();
                                 filteredCache = filteredCache.OrderBy(song => random.Next()).ToList();
                                 break;
-                            // Add cases as needed
+                                // Add cases as needed
                         }
                     }
                 }
@@ -647,7 +623,7 @@ namespace PortaJel_Blazor.Classes
         // TODO: Update to include caching la la la
         public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false)
         {
-            if(_jellyfinApiClient == null || userDto == null)
+            if (_jellyfinApiClient == null || userDto == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
@@ -668,7 +644,7 @@ namespace PortaJel_Blazor.Classes
                     c.QueryParameters.StartIndex = startFromIndex;
                     c.QueryParameters.Recursive = true;
                     c.QueryParameters.EnableImages = true;
-                    c.QueryParameters.EnableTotalRecordCount = true; 
+                    c.QueryParameters.EnableTotalRecordCount = true;
                 });
                 TotalArtistRecordCount = (int)artistResult.TotalRecordCount;
             }
@@ -703,7 +679,8 @@ namespace PortaJel_Blazor.Classes
             // Call GetItemsAsync with the specified parameters
             try
             {
-                Task<BaseItemDtoQueryResult?> runArtistInfo = _jellyfinApiClient.Items.GetAsync(c => {
+                Task<BaseItemDtoQueryResult?> runArtistInfo = _jellyfinApiClient.Items.GetAsync(c =>
+                {
                     c.QueryParameters.UserId = userDto.Id;
                     c.QueryParameters.Ids = [artistId];
                     c.QueryParameters.SortBy = [ItemSortBy.Name];
@@ -714,7 +691,8 @@ namespace PortaJel_Blazor.Classes
                     c.QueryParameters.EnableImages = true;
                     c.QueryParameters.EnableTotalRecordCount = true;
                 });
-                Task<BaseItemDtoQueryResult?> runAlbumInfo = _jellyfinApiClient.Items.GetAsync(c => {
+                Task<BaseItemDtoQueryResult?> runAlbumInfo = _jellyfinApiClient.Items.GetAsync(c =>
+                {
                     c.QueryParameters.UserId = userDto.Id;
                     c.QueryParameters.ArtistIds = [artistId];
                     c.QueryParameters.SortBy = [ItemSortBy.Name];
@@ -725,7 +703,7 @@ namespace PortaJel_Blazor.Classes
                     c.QueryParameters.EnableImages = true;
                     c.QueryParameters.EnableTotalRecordCount = true;
                 });
-                await Task.WhenAll( runArtistInfo, runAlbumInfo);
+                await Task.WhenAll(runArtistInfo, runAlbumInfo);
 
                 artistInfo = runArtistInfo.Result;
                 albumResult = runAlbumInfo.Result;
@@ -749,12 +727,12 @@ namespace PortaJel_Blazor.Classes
                 {
                     albums.Add(AlbumBuilder(album));
                 }
-                returnArtist.artistAlbums = albums.ToArray();
+                returnArtist.Albums = albums.ToArray();
             }
 
             return returnArtist;
         }
-        
+
         public async Task<Artist[]> GetSimilarArtistsAsync(System.Guid setId, int limit = 30)
         {
             if (_jellyfinApiClient == null || userDto == null) throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
@@ -876,7 +854,7 @@ namespace PortaJel_Blazor.Classes
             Playlist newPlaylist = new Playlist();
             foreach (BaseItemDto item in playlistResult.Result.Items)
             {
-                if(item.Id == playlistId)
+                if (item.Id == playlistId)
                 {
                     newPlaylist.id = playlistId;
                     newPlaylist.name = item.Name;
@@ -896,7 +874,7 @@ namespace PortaJel_Blazor.Classes
                 }
 
                 Song newSong = Song.Builder(songItem, _sdkClientSettings.ServerUrl);
-                
+
                 songList.Add(newSong);
             }
             newPlaylist.songs = songList.ToArray();
@@ -967,7 +945,7 @@ namespace PortaJel_Blazor.Classes
         // Pings a playback session.
         public async Task<bool> SessionReportPing(string playSessionId)
         {
-            if(_jellyfinApiClient != null)
+            if (_jellyfinApiClient != null)
             {
                 await _jellyfinApiClient.Sessions.Playing.Ping.PostAsync(c =>
                 {
@@ -1070,7 +1048,7 @@ namespace PortaJel_Blazor.Classes
                 return new BaseMusicItem[0];
             }
 
-            List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> {  };
+            List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { };
 
             SearchHintResult? searchResult = await _jellyfinApiClient.Search.Hints.GetAsync(c =>
             {
@@ -1091,7 +1069,7 @@ namespace PortaJel_Blazor.Classes
             List<System.Guid?> searchedIds = new List<System.Guid?>();
             foreach (var item in searchResult.SearchHints)
             {
-               searchedIds.Add(item.Id);
+                searchedIds.Add(item.Id);
             }
 
             BaseItemDtoQueryResult? itemsResult;
@@ -1245,7 +1223,7 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalSongRecordCount;
         }
-        public async Task<Song[]> GetAllSongsAsync(int? limit= 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
+        public async Task<Song[]> GetAllSongsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
         {
             if (_jellyfinApiClient == null || userDto == null)
             {
@@ -1347,7 +1325,7 @@ namespace PortaJel_Blazor.Classes
         }
         public async Task<bool> FavouriteItem(System.Guid id, bool setState)
         {
-            if(userDto == null || _jellyfinApiClient == null)
+            if (userDto == null || _jellyfinApiClient == null)
             {
                 return false;
             }
@@ -1356,7 +1334,7 @@ namespace PortaJel_Blazor.Classes
             {
                 await _jellyfinApiClient.UserFavoriteItems[id].PostAsync(c =>
                 {
-                    c.QueryParameters.UserId = userDto.Id; 
+                    c.QueryParameters.UserId = userDto.Id;
                 });
             }
             else
@@ -1419,16 +1397,16 @@ namespace PortaJel_Blazor.Classes
         }
         private async Task<Data.Album> AlbumBuilder(BaseItemDto baseItem, bool fetchFullArtists, Song[]? songs = null)
         {
-            if(baseItem == null)
+            if (baseItem == null)
             {
                 return Data.Album.Empty;
             }
 
             Data.Album newAlbum = new();
-            newAlbum.name = baseItem.Name;
-            newAlbum.id = (System.Guid)baseItem.Id;
+            newAlbum.Name = baseItem.Name;
+            newAlbum.Id = (System.Guid)baseItem.Id;
             newAlbum.image = MusicItemImageBuilder(baseItem);
-            newAlbum.serverAddress = _sdkClientSettings.ServerUrl;
+            newAlbum.ServerAddress = _sdkClientSettings.ServerUrl;
 
             if (songs == null)
             {
@@ -1440,11 +1418,11 @@ namespace PortaJel_Blazor.Classes
             }
 
             // Artists
-            if (baseItem.Type != BaseItemDto_Type.MusicArtist) 
+            if (baseItem.Type != BaseItemDto_Type.MusicArtist)
             {
                 if (fetchFullArtists == true && baseItem.AlbumArtists.Count > 0)
                 {
-                    List<BaseItemKind> _includeItemTypesArtist = new List<BaseItemKind> {  };
+                    List<BaseItemKind> _includeItemTypesArtist = new List<BaseItemKind> { };
                     List<System.Guid?> _searchIds = new List<System.Guid?>();
                     BaseItemDtoQueryResult? artistFetchRequest = new BaseItemDtoQueryResult();
 
@@ -1492,9 +1470,9 @@ namespace PortaJel_Blazor.Classes
             }
 
             // Favourite Info
-            if(baseItem.UserData.IsFavorite == true)
+            if (baseItem.UserData.IsFavorite == true)
             {
-                newAlbum.isFavourite = true;
+                newAlbum.IsFavourite = true;
             }
 
             return newAlbum;
@@ -1506,14 +1484,14 @@ namespace PortaJel_Blazor.Classes
                 return null;
             }
 
-            Artist newArtist= new();
+            Artist newArtist = new();
             newArtist.serverAddress = _sdkClientSettings.ServerUrl;
             newArtist.name = baseItem.Name;
             newArtist.id = (System.Guid)baseItem.Id;
-            newArtist.description = baseItem.Overview;
+            newArtist.Description = baseItem.Overview;
             newArtist.isFavourite = (bool)baseItem.UserData.IsFavorite;
             newArtist.image = MusicItemImageBuilder(baseItem);
-            newArtist.isPartial = false;
+            newArtist.IsPartial = false;
 
             newArtist.backgroundImage = MusicItemImageBuilder(baseItem, ImageBuilderImageType.Backdrop);
             newArtist.logoImage = MusicItemImageBuilder(baseItem, ImageBuilderImageType.Logo);
@@ -1532,7 +1510,7 @@ namespace PortaJel_Blazor.Classes
             newArtist.id = (System.Guid)nameGuidPair.Id;
             newArtist.serverAddress = _sdkClientSettings.ServerUrl;
             newArtist.image = MusicItemImageBuilder(nameGuidPair);
-            newArtist.isPartial = true;
+            newArtist.IsPartial = true;
 
             return newArtist;
         }
@@ -1631,7 +1609,7 @@ namespace PortaJel_Blazor.Classes
 
             if (baseItem.Type == BaseItemDto_Type.MusicAlbum)
             {
-                if(baseItem.ImageBlurHashes.Primary != null)
+                if (baseItem.ImageBlurHashes.Primary != null)
                 {
                     image.source = _sdkClientSettings.ServerUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
                 }
@@ -1640,7 +1618,7 @@ namespace PortaJel_Blazor.Classes
                     image.source = "emptyAlbum.png";
                 }
             }
-            else if(baseItem.Type == BaseItemDto_Type.Playlist)
+            else if (baseItem.Type == BaseItemDto_Type.Playlist)
             {
                 image.source = _sdkClientSettings.ServerUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
 
@@ -1648,7 +1626,7 @@ namespace PortaJel_Blazor.Classes
             }
             else if (baseItem.Type == BaseItemDto_Type.Audio)
             {
-                if(baseItem.AlbumId != null)
+                if (baseItem.AlbumId != null)
                 {
                     image.source = _sdkClientSettings.ServerUrl + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
                 }
@@ -1658,11 +1636,11 @@ namespace PortaJel_Blazor.Classes
                 }
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
-            else if(baseItem.Type == BaseItemDto_Type.MusicArtist)
+            else if (baseItem.Type == BaseItemDto_Type.MusicArtist)
             {
                 image.source = _sdkClientSettings.ServerUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
             }
-            else if(baseItem.Type == BaseItemDto_Type.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
+            else if (baseItem.Type == BaseItemDto_Type.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
             {
                 image.source = _sdkClientSettings.ServerUrl + "/Items/" + baseItem.Id + "/Images/" + imgType;
                 image.Blurhash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
@@ -1694,7 +1672,7 @@ namespace PortaJel_Blazor.Classes
                     image.source += "?format=jpg";
                     break;
             }
-            
+
 
             return image;
         }
@@ -1734,7 +1712,7 @@ namespace PortaJel_Blazor.Classes
                 newPlaylist.image = MusicItemImageBuilder(baseItem);
 
                 return newPlaylist;
-            });   
+            });
         }
     }
 }

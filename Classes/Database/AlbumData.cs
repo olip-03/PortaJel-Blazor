@@ -8,7 +8,7 @@ namespace PortaJel_Blazor.Classes.Database
     public class AlbumData
     {
         [PrimaryKey, NotNull]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;
         public int PlayCount { get; set; } = 0;
