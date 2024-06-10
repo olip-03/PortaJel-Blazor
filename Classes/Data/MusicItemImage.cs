@@ -47,6 +47,7 @@ namespace PortaJel_Blazor.Data
             }
             try
             {            
+                // TODO: SQLite DB for Blurhashes you have already decoded ;) 
                 // Assuming you have a method to decode the blurhash into a pixel array
                 Pixel[,] pixels = new Pixel[width, height];
                 Core.Decode(blurhash, pixels);

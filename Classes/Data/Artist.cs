@@ -46,13 +46,17 @@ namespace PortaJel_Blazor.Data
             {
                 throw new ArgumentException("Cannot create Artist without Artist UserData! Please fix server call flags!");
             }
+            if (baseItem.Id == null)
+            {
+                throw new ArgumentException("Cannot create Artist without Artist UserData! Please fix server call flags!");
+            }
 
             MusicItemImage artistLogo = MusicItemImage.Builder(baseItem, server, ImageBuilderImageType.Logo);
             MusicItemImage artistBackdrop = MusicItemImage.Builder(baseItem, server, ImageBuilderImageType.Backdrop);
             MusicItemImage artistImg = MusicItemImage.Builder(baseItem, server, ImageBuilderImageType.Primary);
 
             ArtistData toAdd = new();
-            toAdd.Id = baseItem.Id;
+            toAdd.Id = (Guid)baseItem.Id;
             toAdd.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
             toAdd.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
             toAdd.Description = baseItem.Overview == null ? string.Empty : baseItem.Overview;
@@ -67,17 +71,21 @@ namespace PortaJel_Blazor.Data
             {
                 if(albumItem.UserData == null)
                 {
-                    throw new ArgumentException("Cannot create Artist without Artist UserData! Please fix server call flags!");
+                    throw new ArgumentException("Cannot create Artist without Album Data UserData! Please fix server call flags!");
                 }
                 if (albumItem.AlbumArtists == null)
                 {
-                    throw new ArgumentException("Cannot create Artist without Artist UserData! Please fix server call flags!");
+                    throw new ArgumentException("Cannot create Artist without Album Data Album Artists! Please fix server call flags!");
+                }
+                if (albumItem.Id == null)
+                {
+                    throw new ArgumentException("Cannot create Artist without Album Data ID! Please fix server call flags!");
                 }
 
                 MusicItemImage albumImg = MusicItemImage.Builder(albumItem, server, ImageBuilderImageType.Primary);
 
                 AlbumData album = new();
-                album.Id = albumItem.Id;
+                album.Id = (Guid)albumItem.Id;
                 album.Name = albumItem.Name == null ? string.Empty : albumItem.Name;
                 album.IsFavourite = albumItem.UserData.IsFavorite == null ? false : (bool)albumItem.UserData.IsFavorite;
                 // album.PlayCount = albumData.PlayCount; TODO: Implement playcount

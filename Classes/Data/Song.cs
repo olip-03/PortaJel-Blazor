@@ -140,7 +140,7 @@ namespace PortaJel_Blazor.Data
                     MusicItemImage artistImg = MusicItemImage.Builder(artist, server, ImageBuilderImageType.Primary);
 
                     ArtistData toAdd = new();
-                    toAdd.Id = artist.Id;
+                    toAdd.Id = (Guid)artist.Id;
                     toAdd.Name = artist.Name == null ? string.Empty : artist.Name;
                     toAdd.IsFavourite = artist.UserData.IsFavorite == null ? false : (bool)artist.UserData.IsFavorite;
                     toAdd.Description = artist.Overview == null ? string.Empty : artist.Overview;

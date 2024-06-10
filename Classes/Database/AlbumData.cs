@@ -26,5 +26,30 @@ namespace PortaJel_Blazor.Classes.Database
         {
             return JsonSerializer.Deserialize<Guid[]>(SongIdsJson);
         }
+        public static AlbumData Builder(BaseItemDto baseItem, string server)
+        {
+            if (baseItem.UserData == null)
+            {
+                throw new ArgumentException("Cannot create Song without Album UserData! Please fix server call flags!");
+            }
+            if (baseItem.Id == null)
+            {
+                throw new ArgumentException("Cannot create Song without ID! Please fix server call flags!");
+            }
+
+            MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
+            AlbumData album = new();
+            album.Id = (Guid)baseItem.Id;
+            album.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
+            album.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
+            // album.PlayCount = albumData.PlayCount; TODO: Implement playcount
+            album.DateAdded = baseItem.DateCreated;
+            album.ServerAddress = server;
+            album.ImgSource = musicItemImage.source;
+            album.ImgBlurhash = musicItemImage.Blurhash;
+            album.ArtistIdsJson = JsonSerializer.Serialize(baseItem.ArtistItems.Select(idPair => idPair.Id).ToArray());
+
+            return album;
+        }
     }
 }
