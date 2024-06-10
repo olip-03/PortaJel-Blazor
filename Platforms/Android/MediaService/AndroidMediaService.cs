@@ -571,7 +571,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             if (baseMusicItem is Playlist)
             {
                 Playlist playlist = (Playlist)baseMusicItem;
-                toAdd.AddRange(playlist.songs);
+                toAdd.AddRange(playlist.Songs);
             }
 
             if (Player != null)
@@ -623,7 +623,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             if (playingFrom is Playlist)
             {
                 Playlist tempPlaylist = (Playlist)playingFrom;
-                songList.AddRange(tempPlaylist.songs);
+                songList.AddRange(tempPlaylist.Songs);
             }
 
             CurrentlyPlaying = songList[fromIndex];

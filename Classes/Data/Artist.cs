@@ -16,6 +16,7 @@ namespace PortaJel_Blazor.Data
         public string ImgSource => _artistData.ImgSource;
         public string ImgBlurhash => _artistData.ImgBlurhash;
         public Guid[]? AlbumIds => _artistData.GetAlbumIds();
+        public string ServerAddress => _artistData.ServerAddress;
         public bool IsPartial { get; set; } = false;
         public AlbumData[] Albums => _albumData;
 

@@ -46,15 +46,15 @@ public partial class PlaylistViewEditor : ContentPage
             loadingScreen.IsVisible = isLoading;
             // Neccesary to stop the page from lagging when you open it
             await Task.Run(() => { Thread.Sleep(200); });
-            Playlist? getPlaylist = await MauiProgram.servers[0].FetchPlaylistByIDAsync(playlistId);
+            Playlist? getPlaylist = await MauiProgram.servers[0].GetPlaylistAsync(playlistId);
             if(getPlaylist != null)
             {
                 playlist = getPlaylist;
             }
         }
 
-        songList = playlist.songs.ToList();
-        unorderedList = playlist.songs.ToList();
+        songList = playlist.Songs.ToList();
+        unorderedList = playlist.Songs.ToList();
         img_main.Source = playlist.image.source;
         txt_playlistName.Text = playlist.name;
 

@@ -2,10 +2,8 @@
 using Jellyfin.Sdk.Generated.Models;
 using Microsoft.Kiota.Abstractions.Authentication;
 using Microsoft.Kiota.Abstractions;
-using Newtonsoft.Json.Linq;
 using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Classes.Interfaces;
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
@@ -13,7 +11,8 @@ using System.Text;
 using PortaJel_Blazor.Classes.Database;
 using SQLite;
 using System.Security.Cryptography;
-using System.Collections.Generic;
+using System.Linq;
+using CoreVideo;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -134,6 +133,8 @@ namespace PortaJel_Blazor.Classes
             if (Database == null) return;
             await Database.CreateTableAsync<AlbumData>();
             await Database.CreateTableAsync<SongData>();
+            await Database.CreateTableAsync<ArtistData>();
+            await Database.CreateTableAsync<PlaylistData>();
         }
 
         #region Authentication
@@ -430,11 +431,16 @@ namespace PortaJel_Blazor.Classes
         /// <param name="setId">The ID of the album set to find similar albums for.</param>
         /// <returns>An array of albums that are similar to the provided album set.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the server connector has not been initialized.</exception>
-        public async Task<Data.Album[]> GetSimilarAlbumsAsync(System.Guid setId, int limit = 30)
+        public async Task<Album[]> GetSimilarAlbumsAsync(System.Guid setId, int limit = 30)
         {
-            if (_jellyfinApiClient == null || userDto == null)
+            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
+            }
+
+            if (isOffline)
+            {
+                return [];
             }
 
             List<Album> toReturn = new();
@@ -447,7 +453,7 @@ namespace PortaJel_Blazor.Classes
             {
                 foreach (BaseItemDto albumResult in result.Items)
                 {
-                    toReturn.Add(AlbumBuilder(albumResult));
+                    toReturn.Add(new Album(AlbumData.Builder(albumResult, _sdkClientSettings.ServerUrl)));
                 }
             }
             return toReturn.ToArray();
@@ -704,7 +710,6 @@ namespace PortaJel_Blazor.Classes
                             .Take((int)limit).ToListAsync());
                         break;
                 }
-
                 foreach (ArtistData dbItem in filteredCache)
                 {
                     toReturn.Add(new Artist(dbItem));
@@ -731,13 +736,14 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.EnableImages = true;
                         c.QueryParameters.EnableTotalRecordCount = true;
                     });
+                    if (artistResult == null || artistResult.Items == null) return [];
+                    if (artistResult.TotalRecordCount == null) return [];
                     TotalArtistRecordCount = (int)artistResult.TotalRecordCount;
 
                     foreach (var item in artistResult.Items)
                     {
-                        Artist toAdd = ArtistBuilder(item);
-                        toAdd.image = MusicItemImageBuilder(item);
-                        toReturn.Add(toAdd);
+                        ArtistData artistData = ArtistData.Builder(item, _sdkClientSettings.ServerUrl);
+                        toReturn.Add(new Artist(artistData));
                     }
                 }
                 catch (HttpRequestException)
@@ -753,74 +759,99 @@ namespace PortaJel_Blazor.Classes
         // TODO: Update to include caching
         public async Task<Artist> GetArtistAsync(System.Guid artistId)
         {
-            if (_jellyfinApiClient == null || userDto == null)
+            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null || Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
-            BaseItemDtoQueryResult? artistInfo = new BaseItemDtoQueryResult();
-            BaseItemDtoQueryResult? albumResult = new BaseItemDtoQueryResult();
-
-            // Call GetItemsAsync with the specified parameters
-            try
-            {
-                Task<BaseItemDtoQueryResult?> runArtistInfo = _jellyfinApiClient.Items.GetAsync(c =>
-                {
-                    c.QueryParameters.UserId = userDto.Id;
-                    c.QueryParameters.Ids = [artistId];
-                    c.QueryParameters.SortBy = [ItemSortBy.Name];
-                    c.QueryParameters.SortOrder = [SortOrder.Ascending];
-                    c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicArtist];
-                    c.QueryParameters.Recursive = true;
-                    c.QueryParameters.Fields = [ItemFields.Overview];
-                    c.QueryParameters.EnableImages = true;
-                    c.QueryParameters.EnableTotalRecordCount = true;
-                });
-                Task<BaseItemDtoQueryResult?> runAlbumInfo = _jellyfinApiClient.Items.GetAsync(c =>
-                {
-                    c.QueryParameters.UserId = userDto.Id;
-                    c.QueryParameters.ArtistIds = [artistId];
-                    c.QueryParameters.SortBy = [ItemSortBy.Name];
-                    c.QueryParameters.SortOrder = [SortOrder.Ascending];
-                    c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicAlbum];
-                    c.QueryParameters.Recursive = true;
-                    c.QueryParameters.Fields = [ItemFields.Overview];
-                    c.QueryParameters.EnableImages = true;
-                    c.QueryParameters.EnableTotalRecordCount = true;
-                });
-                await Task.WhenAll(runArtistInfo, runAlbumInfo);
-
-                artistInfo = runArtistInfo.Result;
-                albumResult = runAlbumInfo.Result;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            // Catch blocks
-            if (artistInfo == null || artistInfo.Items == null || albumResult == null || token.IsCancellationRequested) { return Artist.Empty; }
-            if (artistInfo.Items.Count <= 0 || token.IsCancellationRequested) { return Artist.Empty; }
-
             Artist returnArtist = new Artist();
-            foreach (var item in artistInfo.Items)
+
+            async void ReturnFromCache()
             {
-                returnArtist = ArtistBuilder(item);
-                List<Data.Album> albums = new List<Data.Album>();
-                foreach (var album in albumResult.Items)
-                {
-                    albums.Add(AlbumBuilder(album));
-                }
-                returnArtist.Albums = albums.ToArray();
+                ArtistData artistDbItem = await Database.Table<ArtistData>().Where(artist => artist.Id == artistId).FirstOrDefaultAsync();
+                
+                Guid[] albumIds = artistDbItem.GetAlbumIds();
+                AlbumData[] albumData = await Database.Table<AlbumData>().Where(album => albumIds.Contains(album.Id)).ToArrayAsync();
+
+                returnArtist = new Artist(artistDbItem, albumData);
             }
 
+            if (isOffline)
+            {
+                ReturnFromCache();
+            }
+            else
+            {
+                try
+                {
+                    BaseItemDtoQueryResult? artistInfo = new BaseItemDtoQueryResult();
+                    BaseItemDtoQueryResult? albumResult = new BaseItemDtoQueryResult();
+                    Task<BaseItemDtoQueryResult?> runArtistInfo = _jellyfinApiClient.Items.GetAsync(c =>
+                    {
+                        c.QueryParameters.UserId = userDto.Id;
+                        c.QueryParameters.Ids = [artistId];
+                        c.QueryParameters.SortBy = [ItemSortBy.Name];
+                        c.QueryParameters.SortOrder = [SortOrder.Ascending];
+                        c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicArtist];
+                        c.QueryParameters.Recursive = true;
+                        c.QueryParameters.Fields = [ItemFields.Overview];
+                        c.QueryParameters.EnableImages = true;
+                        c.QueryParameters.EnableTotalRecordCount = true;
+                    });
+                    Task<BaseItemDtoQueryResult?> runAlbumInfo = _jellyfinApiClient.Items.GetAsync(c =>
+                    {
+                        c.QueryParameters.UserId = userDto.Id;
+                        c.QueryParameters.ArtistIds = [artistId];
+                        c.QueryParameters.SortBy = [ItemSortBy.Name];
+                        c.QueryParameters.SortOrder = [SortOrder.Ascending];
+                        c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicAlbum];
+                        c.QueryParameters.Recursive = true;
+                        c.QueryParameters.Fields = [ItemFields.Overview];
+                        c.QueryParameters.EnableImages = true;
+                        c.QueryParameters.EnableTotalRecordCount = true;
+                    });
+                    await Task.WhenAll(runArtistInfo, runAlbumInfo);
+
+                    artistInfo = runArtistInfo.Result;
+                    albumResult = runAlbumInfo.Result;
+
+                    // Catch blocks
+                    if (artistInfo == null || artistInfo.Items == null || albumResult == null || albumResult.Items == null || token.IsCancellationRequested)  return Artist.Empty; 
+                    if (artistInfo.Items.Count <= 0 || token.IsCancellationRequested)  return Artist.Empty; 
+
+                    foreach (BaseItemDto item in artistInfo.Items)
+                    {
+                        ArtistData artistData = ArtistData.Builder(item, _sdkClientSettings.ServerUrl);
+                        AlbumData[] albumData = albumResult.Items.Select(album => AlbumData.Builder(album, _sdkClientSettings.ServerUrl)).ToArray();
+
+                        returnArtist = new Artist(artistData, albumData);
+                    }
+                }
+                catch (HttpRequestException)
+                {
+                    isOffline = true;
+                    ReturnFromCache();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    throw;
+                }
+            }
+            
             return returnArtist;
         }
 
         public async Task<Artist[]> GetSimilarArtistsAsync(System.Guid setId, int limit = 30)
         {
-            if (_jellyfinApiClient == null || userDto == null) throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
+            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+            {
+                throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
+            }
+            if (isOffline)
+            {
+                return [];
+            }
             List<Artist> toReturn = new();
             BaseItemDtoQueryResult? result = await _jellyfinApiClient.Artists[setId.ToString()].Similar.GetAsync(c =>
             {
@@ -831,7 +862,7 @@ namespace PortaJel_Blazor.Classes
             {
                 foreach (BaseItemDto albumResult in result.Items)
                 {
-                    toReturn.Add(ArtistBuilder(albumResult));
+                    toReturn.Add(new Artist(ArtistData.Builder(albumResult, _sdkClientSettings.ServerUrl)));
                 }
             }
             return toReturn.ToArray();
@@ -839,132 +870,146 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region Playlists
-        public async Task<Playlist[]> GetPlaylistsAsync(int? limit = 50, int? startFromIndex = 0)
+        public async Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int? startFromIndex = 0)
         {
-            if (_jellyfinApiClient == null || userDto == null)
+            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
-
-            BaseItemDtoQueryResult? playlistResult = new BaseItemDtoQueryResult();
-            try
-            {
-                playlistResult = await _jellyfinApiClient.Items.GetAsync(c =>
-                {
-                    c.QueryParameters.UserId = userDto.Id;
-                    c.QueryParameters.SortBy = [ItemSortBy.Name];
-                    c.QueryParameters.IncludeItemTypes = [BaseItemKind.Playlist];
-                    c.QueryParameters.Limit = limit;
-                    c.QueryParameters.StartIndex = startFromIndex;
-                    c.QueryParameters.Recursive = true;
-                    c.QueryParameters.EnableImages = true;
-                    c.QueryParameters.EnableTotalRecordCount = true;
-                    c.QueryParameters.Fields = [ItemFields.Path];
-                }, cancellationToken: token);
-
-                TotalPlaylistRecordCount = (int)playlistResult.TotalRecordCount;
-            }
-            catch (HttpRequestException netEx)
-            { // NETWORK EXCEPTION, NETWORK FAILURE
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            if (playlistResult == null || token.IsCancellationRequested) { return new Playlist[0]; }
-            if (playlistResult.Items == null || token.IsCancellationRequested) { return new Playlist[0]; }
 
             List<Playlist> playlists = new List<Playlist>();
-            foreach (BaseItemDto item in playlistResult.Items)
-            {
-                Playlist toAdd = PlaylistBuilder(item);
 
-                if (MauiProgram.hideM3u)
+            async void ReturnFromCache()
+            {
+                List<PlaylistData> filteredCache = new();
+                filteredCache.AddRange(await Database.Table<PlaylistData>()
+                    .OrderByDescending(playlist => playlist.Name)
+                    .Take(limit).ToListAsync());
+                foreach (PlaylistData dbItem in filteredCache)
                 {
-                    if (!toAdd.path.EndsWith(".m3u") && !toAdd.path.EndsWith(".m3u8"))
-                    {
-                        playlists.Add(toAdd);
-                    }
-                }
-                else
-                {
-                    playlists.Add(toAdd);
+                    playlists.Add(new Playlist(dbItem));
                 }
             }
+
+            if (isOffline)
+            {
+                ReturnFromCache();
+            }
+            else
+            {
+                try
+                {
+                    BaseItemDtoQueryResult? playlistResult = new BaseItemDtoQueryResult();
+
+                    playlistResult = await _jellyfinApiClient.Items.GetAsync(c =>
+                    {
+                        c.QueryParameters.UserId = userDto.Id;
+                        c.QueryParameters.SortBy = [ItemSortBy.Name];
+                        c.QueryParameters.IncludeItemTypes = [BaseItemKind.Playlist];
+                        c.QueryParameters.Limit = limit;
+                        c.QueryParameters.StartIndex = startFromIndex;
+                        c.QueryParameters.Recursive = true;
+                        c.QueryParameters.EnableImages = true;
+                        c.QueryParameters.EnableTotalRecordCount = true;
+                        c.QueryParameters.Fields = [ItemFields.Path];
+                    }, cancellationToken: token);
+
+                    TotalPlaylistRecordCount = (int)playlistResult.TotalRecordCount;
+
+                    if (playlistResult == null || token.IsCancellationRequested) { return new Playlist[0]; }
+                    if (playlistResult.Items == null || token.IsCancellationRequested) { return new Playlist[0]; }
+
+                    foreach (BaseItemDto item in playlistResult.Items)
+                    {
+                        Playlist toAdd = new Playlist(PlaylistData.Builder(item, _sdkClientSettings.ServerUrl));
+
+                        if (MauiProgram.hideM3u)
+                        {
+                            if (!toAdd.Path.EndsWith(".m3u") && !toAdd.Path.EndsWith(".m3u8"))
+                            {
+                                playlists.Add(toAdd);
+                            }
+                        }
+                        else
+                        {
+                            playlists.Add(toAdd);
+                        }
+                    }
+                }
+                catch (HttpRequestException)
+                {
+                    ReturnFromCache();
+                    isOffline = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    throw;
+                }
+            }
+
             return playlists.ToArray();
         }
-        public async Task<Playlist?> FetchPlaylistByIDAsync(System.Guid playlistId)
+        public async Task<Playlist?> GetPlaylistAsync(Guid playlistId)
         {
-            if (_jellyfinApiClient == null || userDto == null)
+            if (_jellyfinApiClient == null || userDto == null || Database == null || _sdkClientSettings.ServerUrl == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
-            List<System.Guid> _filterIds = new List<System.Guid> { playlistId };
+            Playlist toReturn = new Playlist();
 
-            Task<BaseItemDtoQueryResult?> playlistSongResult;
-            Task<BaseItemDtoQueryResult?> playlistResult;
-            try
+            async void ReturnFromCache()
             {
-                playlistResult = _jellyfinApiClient.Items.GetAsync(c =>
-                {
-                    c.QueryParameters.UserId = userDto.Id;
-                    c.QueryParameters.Ids = [playlistId];
-                    c.QueryParameters.Recursive = true;
-                    c.QueryParameters.EnableImages = true;
-                }, cancellationToken: token);
-                playlistSongResult = _jellyfinApiClient.Items.GetAsync(c =>
-                {
-                    c.QueryParameters.UserId = userDto.Id;
-                    c.QueryParameters.ParentId = playlistId;
-                    c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
-                    c.QueryParameters.EnableImages = true;
-                });
-                await Task.WhenAll(playlistResult, playlistSongResult);
-            }
-            catch (Exception)
-            {
-                throw;
+                PlaylistData playlistDbItem = await Database.Table<PlaylistData>().Where(artist => artist.Id == playlistId).FirstOrDefaultAsync();
+
+                Guid[] songIds = playlistDbItem.GetSongIds();
+                SongData[] songData = await Database.Table<SongData>().Where(song => songIds.Contains(song.Id)).ToArrayAsync();
+
+                toReturn = new Playlist(playlistDbItem, songData);
             }
 
-            if (playlistResult == null || token.IsCancellationRequested)
+            if (isOffline)
             {
-                cancelTokenSource = new();
-                return Playlist.Empty;
+                ReturnFromCache();
             }
-
-            Playlist newPlaylist = new Playlist();
-            foreach (BaseItemDto item in playlistResult.Result.Items)
+            else
             {
-                if (item.Id == playlistId)
+                try
                 {
-                    newPlaylist.id = playlistId;
-                    newPlaylist.name = item.Name;
-                    newPlaylist.isFavourite = (bool)item.UserData.IsFavorite;
-                    newPlaylist.image = MusicItemImageBuilder(item);
+                    Task<BaseItemDtoQueryResult?> playlistQueryResult = _jellyfinApiClient.Items.GetAsync(c =>
+                    {
+                        c.QueryParameters.UserId = userDto.Id;
+                        c.QueryParameters.Ids = [playlistId];
+                        c.QueryParameters.Recursive = true;
+                        c.QueryParameters.EnableImages = true;
+                    }, cancellationToken: token);
+                    Task<BaseItemDtoQueryResult?> playlistSongResult = _jellyfinApiClient.Items.GetAsync(c =>
+                    {
+                        c.QueryParameters.UserId = userDto.Id;
+                        c.QueryParameters.ParentId = playlistId;
+                        c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
+                        c.QueryParameters.EnableImages = true;
+                    });
+                    await Task.WhenAll(playlistQueryResult, playlistSongResult);
+                    if (playlistQueryResult.Result == null || playlistQueryResult.Result.Items == null) return Playlist.Empty;
+                    if (playlistSongResult.Result == null || playlistSongResult.Result.Items == null) return Playlist.Empty;
+                    BaseItemDto? playlistResult = playlistQueryResult.Result.Items.FirstOrDefault();
+                    BaseItemDto[] songResult = playlistSongResult.Result.Items.ToArray();
+                    if (playlistResult == null) return Playlist.Empty;
+                    PlaylistData playlistData = PlaylistData.Builder(playlistResult, _sdkClientSettings.ServerUrl);
+                    SongData[] songData = songResult.Select(song => SongData.Builder(song, _sdkClientSettings.ServerUrl)).ToArray();
+
+                    toReturn = new Playlist(playlistData, songData);
+                }
+                catch (HttpRequestException)
+                {
+                    ReturnFromCache();
+                    isOffline = true;
                 }
             }
 
-            List<Song> songList = new();
-            foreach (BaseItemDto songItem in playlistSongResult.Result.Items)
-            {
-
-                List<System.Guid> artistIds = new();
-                foreach (NameGuidPair artist in songItem.AlbumArtists)
-                {
-                    artistIds.Add((System.Guid)artist.Id);
-                }
-
-                Song newSong = Song.Builder(songItem, _sdkClientSettings.ServerUrl);
-
-                songList.Add(newSong);
-            }
-            newPlaylist.songs = songList.ToArray();
-
-            return newPlaylist;
+            return toReturn;
         }
         public async Task<bool> MovePlaylistItem(System.Guid playlistId, string itemServerId, int newIndex)
         {
@@ -1308,54 +1353,7 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalSongRecordCount;
         }
-        public async Task<Song[]> GetAllSongsAsync(int? limit = 50, int? startFromIndex = 0, bool? favourites = false, CancellationToken? cancellationToken = null)
-        {
-            if (_jellyfinApiClient == null || userDto == null)
-            {
-                throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
-            }
 
-            CancellationToken ctoken = new();
-            if (cancellationToken != null) { ctoken = (CancellationToken)cancellationToken; }
-
-            BaseItemDtoQueryResult? songResult = new BaseItemDtoQueryResult();
-            // Call GetItemsAsync with the specified parameters
-            try
-            {
-                songResult = await _jellyfinApiClient.Items.GetAsync(c =>
-                {
-                    c.QueryParameters.UserId = userDto.Id;
-                    c.QueryParameters.SortBy = [ItemSortBy.Name];
-                    c.QueryParameters.IsFavorite = favourites;
-                    c.QueryParameters.IncludeItemTypes = [BaseItemKind.Audio];
-                    c.QueryParameters.Limit = limit;
-                    c.QueryParameters.StartIndex = startFromIndex;
-                    c.QueryParameters.EnableImages = true;
-                    c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
-                    c.QueryParameters.EnableTotalRecordCount = true;
-                }, cancellationToken: ctoken);
-                TotalSongRecordCount = (int)songResult.TotalRecordCount;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-
-            // Catch blocks
-            if (songResult == null || ctoken.IsCancellationRequested) { return new Song[0]; }
-            if (songResult.Items == null || ctoken.IsCancellationRequested) { return new Song[0]; }
-
-            List<Song> songs = new List<Song>();
-            foreach (var item in songResult.Items)
-            {
-                Song toAdd = Song.Builder(item, _sdkClientSettings.ServerUrl);
-                toAdd.image = MusicItemImageBuilder(item);
-                songs.Add(toAdd);
-            }
-
-            return songs.ToArray();
-        }
         public async Task<int> GetTotalGenreCount()
         {
             if (TotalGenreRecordCount == -1)

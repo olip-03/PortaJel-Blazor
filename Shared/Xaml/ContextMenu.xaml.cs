@@ -35,9 +35,6 @@ public partial class ContextMenu : ContentView
     {
         if (baseMusicItem != null && ViewModel.ContextMenuItems != null)
         {
-            ViewModel.ContextMenuMainText = baseMusicItem.name ?? string.Empty;
-            fullImgUrl = baseMusicItem.image.source ?? string.Empty;
-
             ViewModel.ContextMenuItems.Clear();
 
             /// #####################################################
@@ -46,13 +43,14 @@ public partial class ContextMenu : ContentView
             if (baseMusicItem is Album)
             {
                 Album album = (Album)baseMusicItem;
-                album.image.soureResolution = 500;
+                ViewModel.ContextMenuMainText = album.Name;
+                fullImgUrl = album.ImgSource;
 
                 if (album.IsFavourite)
                 {
                     ViewModel.ContextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
                     {
-                        album.IsFavourite = false;
+                        album.SetIsFavourite(false);
                         await MauiProgram.api.SetFavourite(album.Id, album.ServerAddress, false);
                     })));
                 }
@@ -60,7 +58,7 @@ public partial class ContextMenu : ContentView
                 {
                     ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
                     {
-                        album.IsFavourite = true;
+                        album.SetIsFavourite(true);
                         await MauiProgram.api.SetFavourite(album.Id, album.ServerAddress, true);
                     })));
                 }
@@ -72,7 +70,8 @@ public partial class ContextMenu : ContentView
             else if (baseMusicItem is Song)
             {
                 Song song = (Song)baseMusicItem;
-                song.image.soureResolution = 500;
+                ViewModel.ContextMenuMainText = song.Name;
+                fullImgUrl = song.ImgSource;
 
                 if (song.IsFavourite)
                 {
@@ -105,15 +104,16 @@ public partial class ContextMenu : ContentView
             else if (baseMusicItem is Artist)
             {
                 Artist artist = (Artist)baseMusicItem;
-                artist.image.soureResolution = 500;
+                ViewModel.ContextMenuMainText = artist.Name;
+                fullImgUrl = artist.ImgSource;
 
                 isCircle = true;
-                if (artist.isFavourite)
+                if (artist.IsFavourite)
                 {
                     ViewModel.ContextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
                     {
-                        artist.isFavourite = false;
-                        await MauiProgram.api.SetFavourite(artist.id, artist.serverAddress, false);
+                        artist.SetIsFavourite(false);
+                        await MauiProgram.api.SetFavourite(artist.Id, artist.ServerAddress, false);
                         await MauiProgram.MainPage.MainContextMenu.Close();
                     })));
                 }
@@ -121,8 +121,8 @@ public partial class ContextMenu : ContentView
                 {
                     ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
                     {
-                        artist.isFavourite = true;
-                        await MauiProgram.api.SetFavourite(artist.id, artist.serverAddress, true);
+                        artist.SetIsFavourite(true);
+                        await MauiProgram.api.SetFavourite(artist.Id, artist.ServerAddress, true);
                         await MauiProgram.MainPage.MainContextMenu.Close();
                     })));
                 }

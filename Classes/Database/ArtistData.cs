@@ -20,9 +20,10 @@ namespace PortaJel_Blazor.Classes.Database
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
         public string AlbumIdsJson { get; set;} = string.Empty;
-        public Guid[]? GetAlbumIds()
+        public Guid[] GetAlbumIds()
         {
-            return JsonSerializer.Deserialize<Guid[]>(AlbumIdsJson);
+            Guid[]? guids = JsonSerializer.Deserialize<Guid[]>(AlbumIdsJson);
+            return guids == null ? [] : guids;
         }
         public static ArtistData Builder(BaseItemDto baseItem, string server)
         {

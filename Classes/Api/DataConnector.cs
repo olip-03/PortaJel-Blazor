@@ -217,7 +217,7 @@ namespace PortaJel_Blazor.Classes
         {
             List<Playlist> playlistsReturn = new List<Playlist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                playlistsReturn.AddRange(await server.Value.GetPlaylistsAsync(limit: limit, startFromIndex: startIndex));
+                playlistsReturn.AddRange(await server.Value.GetAllPlaylistsAsync(limit: limit, startFromIndex: startIndex));
             });
 
             return playlistsReturn.ToArray();

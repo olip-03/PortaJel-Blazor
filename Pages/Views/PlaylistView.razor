@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            foreach (var song in playlist.songs)
+            foreach (var song in playlist.Songs)
             {
                 <hr />
                 <div class="songItem">
@@ -94,11 +94,11 @@
         MauiProgram.WebView.showHeader = false;
 
         Guid parseId = Guid.Parse(playlistId);
-        playlist = await MauiProgram.servers[0].FetchPlaylistByIDAsync(parseId);
+        playlist = await MauiProgram.servers[0].GetPlaylistAsync(parseId);
 
         if (playlist != null)
         {
-            foreach (Song albumSongs in playlist.songs)
+            foreach (Song albumSongs in playlist.Songs)
             {
                 Artist[]? songArtists = await albumSongs.GetArtistAsync();
                 if (songArtists != null)

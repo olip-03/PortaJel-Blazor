@@ -30,11 +30,15 @@ namespace PortaJel_Blazor.Classes.Database
         {
             if (baseItem.UserData == null)
             {
-                throw new ArgumentException("Cannot create Song without Album UserData! Please fix server call flags!");
+                throw new ArgumentException("Cannot create Album without Album UserData! Please fix server call flags!");
             }
             if (baseItem.Id == null)
             {
-                throw new ArgumentException("Cannot create Song without ID! Please fix server call flags!");
+                throw new ArgumentException("Cannot create Album without ID! Please fix server call flags!");
+            }
+            if(baseItem.ArtistItems == null)
+            {
+                throw new ArgumentException("Cannot create Album without ArtistItems! Please fix server call flags!");
             }
 
             MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
