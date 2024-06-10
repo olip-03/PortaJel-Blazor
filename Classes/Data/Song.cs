@@ -57,7 +57,7 @@ namespace PortaJel_Blazor.Data
         {
             IsPartial = true;
         }
-        public Song(SongData songData, AlbumData? albumData, ArtistData[]? artistData)
+        public Song(SongData songData, AlbumData? albumData = null, ArtistData[]? artistData = null)
         {
             _songData = songData;
             _albumData = albumData == null ? new() : albumData;

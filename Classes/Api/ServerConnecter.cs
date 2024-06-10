@@ -1238,22 +1238,22 @@ namespace PortaJel_Blazor.Classes
                     switch (item.Type)
                     {
                         case BaseItemDto_Type.Audio:
-                            searchResults.Add(Song.Builder(item, _sdkClientSettings.ServerUrl));
+                            searchResults.Add(new Song(SongData.Builder(item, _sdkClientSettings.ServerUrl)));
                             break;
                         case BaseItemDto_Type.MusicAlbum:
-                            searchResults.Add(AlbumBuilder(item));
+                            searchResults.Add(new Album(AlbumData.Builder(item, _sdkClientSettings.ServerUrl)));
                             break;
                         case BaseItemDto_Type.MusicArtist:
-                            searchResults.Add(ArtistBuilder(item));
+                            searchResults.Add(new Artist(ArtistData.Builder(item, _sdkClientSettings.ServerUrl)));
                             break;
                         //case BaseItemKind.MusicGenre:
                         //    searchResults.Add(GenreBuilder(item));
                         //    break;
                         case BaseItemDto_Type.Playlist:
-                            searchResults.Add(PlaylistBuilder(item));
+                            searchResults.Add(new Playlist(PlaylistData.Builder(item, _sdkClientSettings.ServerUrl)));
                             break;
                         default:
-                            searchResults.Add(AlbumBuilder(item));
+                            searchResults.Add(new Album(AlbumData.Builder(item, _sdkClientSettings.ServerUrl)));
                             break;
                     }
                 }
@@ -1400,7 +1400,8 @@ namespace PortaJel_Blazor.Classes
             List<Genre> genres = new List<Genre>();
             foreach (var item in songResult.Items)
             {
-                Genre itemToAdd = await GenreBuilder(item);
+                // TODO: Add genres again lolll
+                //Genre itemToAdd = await GenreBuilder(item);
                 genres.Add(itemToAdd);
             }
 
@@ -1474,32 +1475,32 @@ namespace PortaJel_Blazor.Classes
         {
             return _sdkClientSettings.ServerUrl;
         }
-        private Task<Genre> GenreBuilder(BaseItemDto baseItem)
-        {
-            // TODO: This is just a rehash of the AlbumBuilder to get the page I needed
-            // working really quick. Ideally this'd be redone. 
-            return Task.Run(() =>
-            {
-                Genre newGenre = new();
-                newGenre.name = baseItem.Name;
-                newGenre.id = (System.Guid)baseItem.Id;
-                newGenre.image = MusicItemImageBuilder(baseItem);
-                newGenre.serverAddress = _sdkClientSettings.ServerUrl;
-                newGenre.songs = null; // TODO: Implement songs
+        //private Task<Genre> GenreBuilder(BaseItemDto baseItem)
+        //{
+        //    // TODO: This is just a rehash of the AlbumBuilder to get the page I needed
+        //    // working really quick. Ideally this'd be redone. 
+        //    return Task.Run(() =>
+        //    {
+        //        Genre newGenre = new();
+        //        newGenre.name = baseItem.Name;
+        //        newGenre.id = (System.Guid)baseItem.Id;
+        //        newGenre.image = MusicItemImageBuilder(baseItem);
+        //        newGenre.serverAddress = _sdkClientSettings.ServerUrl;
+        //        newGenre.songs = null; // TODO: Implement songs
 
-                if (baseItem.Type != BaseItemDto_Type.MusicAlbum)
-                {
-                    if (baseItem.AlbumId != null)
-                    {
-                        newGenre.id = (System.Guid)baseItem.AlbumId;
-                    }
-                }
+        //        if (baseItem.Type != BaseItemDto_Type.MusicAlbum)
+        //        {
+        //            if (baseItem.AlbumId != null)
+        //            {
+        //                newGenre.id = (System.Guid)baseItem.AlbumId;
+        //            }
+        //        }
 
-                // TODO: Implement getting album images for each genre 
-                return newGenre;
-            });
+        //        // TODO: Implement getting album images for each genre 
+        //        return newGenre;
+        //    });
 
-        }
+        //}
         //private Playlist PlaylistBuilder(BaseItemDto baseItem)
         //{
         //    return PlaylistBuilder(baseItem, false).Result;
