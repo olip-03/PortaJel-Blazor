@@ -158,11 +158,11 @@ else
         {
             MauiProgram.UpdateDebugMessage("Starting request for Home page data.");
 
-            Task<Song[]> runGetRecent = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: [ItemSortBy.DatePlayed], sortOrder: [SortOrder.Descending]);
+            Task<Song[]> runGetRecent = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.DatePlayed, sortOrder: [SortOrder.Descending]);
             Task<Album[]> runGetFavourites = MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, isFavourite: true);
-            Task<Album[]> runGetRecentlyAdded = MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, sortTypes: [ItemSortBy.DateCreated], sortOrder: SortOrder.Descending);
-            Task<Song[]> runGetMostPlayed = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: [ItemSortBy.PlayCount], sortOrder: [SortOrder.Descending]);
-            Task<Song[]> runGetRandom = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: [ItemSortBy.Random], sortOrder: [SortOrder.Descending]);
+            Task<Album[]> runGetRecentlyAdded = MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.DateCreated, sortOrder: SortOrder.Descending);
+            Task<Song[]> runGetMostPlayed = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.PlayCount, sortOrder: [SortOrder.Descending]);
+            Task<Song[]> runGetRandom = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.Random, sortOrder: [SortOrder.Descending]);
             await Task.WhenAll(
                 runGetRecent,
                 runGetFavourites,
@@ -245,6 +245,7 @@ else
             {
                 Application.Current.Dispatcher.Dispatch(() =>
                 {
+                    System.Diagnostics.Trace.WriteLine(ex.ToString());
                     Application.Current.MainPage.DisplayAlert("Error?", $"{ex.Message}", "Continue");
                     errorMessage = ex.ToString();
                 });

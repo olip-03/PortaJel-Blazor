@@ -10,14 +10,14 @@
 
 @if (loaded)
 {
-    <ViewHeader backgroundImgUrl="@album.image.source" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album />
+    <ViewHeader backgroundImgUrl="@album.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album />
 
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
         <img src="data:image/png;base64, @backgroundBlurHash" class="background-blur" alt="backgound" style="top: @backgroundBlurHeight" />
 
         <div class="image-container" style="top: @headerHeight">
             <img src="data:image/png;base64, @base64BlurHash" class="placeholder" alt="Placeholder Image">
-            <img src="@album.image.source" id="@album.Id" class="album-cover-img" onerror="this.src='/images/emptyAlbum.png'" alt="@album.Name album cover">
+            <img src="@album.ImgSource" id="@album.Id" class="album-cover-img" onerror="this.src='/images/emptyAlbum.png'" alt="@album.Name album cover">
         </div>
         @if (album != null)
         {
@@ -25,8 +25,8 @@
                 <div class="title-text">
                     <h2 class="PrimaryTextColor" style="margin: 0px">@album.Name</h2>
                     <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(
-                        album.Artists.FirstOrDefault().id)">
-                        @album.GetArtistName()
+                        album.Artists.FirstOrDefault().Id)">
+                        @album.ArtistNames
                     </h5>
                 </div>
             </div>
@@ -70,12 +70,13 @@
             </div>
 
             // Add Songs
-            for (int i = 0; i < album.songs.Length; i++)
+            for (int i = 0; i < album.Songs.Length; i++)
             {
-                album.songs[i].AlbumId = album; // TODO: this should already be set figure out why it isnt
-                                              // either that or complete the re-do of the data structure 
-                                              // again lollllll
-                <AlbumSongItem song="@album.songs[i]" location="@i" base64BlurHash="@base64BlurHash" />
+                album.Songs[i].AlbumId = album.Id; // TODO: this should already be set figure out why it isnt
+                                                   // either that or complete the re-do of the data structure 
+                                                   // again lollllll
+                Song song = new Song(album.Songs[i]);
+                <AlbumSongItem song="@song" location="@i" base64BlurHash="@base64BlurHash" />
             }
 
             // Add Artists
@@ -85,9 +86,9 @@
                 int forcount = 0;
                 foreach (var artist in album.Artists)
                 {
-                    <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.id)">
-                        <img src="@artist.image.SourceAtResolution(40)" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
-                        <p class="artistInfoText">@artist.name</p>
+                    <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.Id)">
+                        <img src="@artist.ImgSource" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
+                        <p class="artistInfoText">@artist.Name</p>
                     </div>
                     forcount++;
                 }
@@ -214,8 +215,8 @@
                 }
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
-                base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
-                backgroundBlurHash = await album.image.BlurhashToBase64Async(20, 20, 0.3f);
+                base64BlurHash = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 20, 20);
+                backgroundBlurHash = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 20, 20, 0.3f);
                 Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarAlbums);
                 similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }
@@ -265,12 +266,12 @@
         bool resetState = album.IsFavourite;
         try
         {
-            album.IsFavourite = !album.IsFavourite;
+            album.SetIsFavourite(!album.IsFavourite);
             await MauiProgram.api.SetFavourite(album.Id, album.ServerAddress, album.IsFavourite);
         }
         catch (Exception ex)
         {
-            album.IsFavourite = resetState;
+            album.SetIsFavourite(resetState);
             await App.Current.MainPage.DisplayAlert("Error?", $"{ex}", "Continue");
         }
         StateHasChanged();
@@ -280,12 +281,12 @@
     private async void FavouriteSong(Guid songId)
     {
         Song foundItem = null;
-        foreach (var song in album.songs)
+        foreach (var song in album.Songs)
         {
             if(song.Id == songId)
             {
                 song.IsFavourite = !song.IsFavourite;
-                foundItem = song;
+                foundItem = new Song(song);
                 break;
             }
         }
@@ -299,6 +300,7 @@
 
     private void PlayAlbum(bool shuffle = false)
     {
+        if (MauiProgram.MediaService == null) return;
         // Move all items in the current queue to the Next Up Queue, to ensure that
         // this item is prioritised, without losing the current queue 
         if (MauiProgram.currentAlbumGuid == album.Id)
@@ -343,7 +345,8 @@
         {
             try
             {
-                toReturn[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
+                toReturn[i] = base64 == null ? string.Empty : base64;
             }
             catch (Exception)
             {

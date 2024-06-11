@@ -22,7 +22,7 @@ public partial class MiniPlayer : ContentView
 
     public MiniPlayer()
 	{
-		InitializeComponent();
+		InitializeComponent(); 
         this.BindingContext = ViewModel;
     }
 
@@ -195,13 +195,13 @@ public partial class MiniPlayer : ContentView
         if (MauiProgram.MediaService == null) return false;
         MemoryStream? imageDecodeStream = null;
         Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
-        if (currentSong.image.Blurhash == currentBlurhash) return false; // dont run if hash is the same
-        currentBlurhash = currentSong.image.Blurhash;
+        if (currentSong.ImgBlurhash == currentBlurhash) return false; // dont run if hash is the same
+        currentBlurhash = currentSong.ImgBlurhash;
         await Task.WhenAll(Task.Run(async () =>
         {
             // Fuck yeah get the image to move based on gyro
             //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
-            string? base64 = await currentSong.image.BlurhashToBase64Async(100, 100, 0.3f).ConfigureAwait(false);
+            string? base64 = await MusicItemImage.BlurhashToBase64Async(currentSong.ImgBlurhash, 100, 100, 0.3f).ConfigureAwait(false);
             if (base64 != null)
             {
                 var imageBytes = Convert.FromBase64String(base64);
@@ -343,7 +343,7 @@ public partial class MiniPlayer : ContentView
         Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
         bool state = !song.IsFavourite;
 
-        MauiProgram.MediaService.GetCurrentlyPlaying().IsFavourite = state;
+        MauiProgram.MediaService.GetCurrentlyPlaying().SetIsFavourite(state);
         UpdateFavouriteButton();
         MauiProgram.MainPage.MainMediaController.UpdateFavouriteButton();
 

@@ -45,14 +45,14 @@
                                         Margin="4, 0, 4, 0"  
                                         StrokeShape="RoundRectangle 5,5,5,5"
                                         VerticalOptions="Center">
-                                    <Image Aspect="Fill" Source="{Binding image.sourceAtResolution}" WidthRequest="50" HeightRequest="50">
+                                    <Image Aspect="Fill" Source="{Binding ImgSource}" WidthRequest="50" HeightRequest="50">
 
                                     </Image>
                                 </Border>
                                 <!-- Song and Artist Text-->
                                 <VerticalStackLayout VerticalOptions="Center">
-                                    <Label VerticalOptions="Start" Grid.Row="0" Text="{Binding name}" MaxLines="1" FontSize="15" TextColor="{StaticResource PrimaryTextColor}"/>
-                                    <Label VerticalOptions="End" Grid.Row="1" Text="{Binding artistCongregate}" MaxLines="1" FontSize="12" TextColor="{StaticResource SecondaryTextColor}"/>
+                                    <Label VerticalOptions="Start" Grid.Row="0" Text="{Binding Name}" MaxLines="1" FontSize="15" TextColor="{StaticResource PrimaryTextColor}"/>
+                                    <Label VerticalOptions="End" Grid.Row="1" Text="{Binding ArtistNames}" MaxLines="1" FontSize="12" TextColor="{StaticResource SecondaryTextColor}"/>
                                 </VerticalStackLayout>
                             </HorizontalStackLayout>
                         </DataTemplate>

@@ -20,7 +20,7 @@
         <div class="imageContainer">
             @if (playlist != null)
             {
-                <img src="@playlist.image.source" class="albumImage" />
+                <img src="@playlist.ImgSource" class="albumImage" />
             }
             else
             {
@@ -32,13 +32,13 @@
         {
             <div class="item-title">
                 <div class="title-text">
-                    <h2>@playlist.name</h2>
+                    <h2>@playlist.Name</h2>
                 </div>
             </div>
 
             <div class="playback-controls">
                 <div @onclick=FavouriteItem>
-                    @if (playlist.isFavourite)
+                    @if (playlist.IsFavourite)
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                             <svg class="playback-controls-btn-img favbtn" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
@@ -67,11 +67,11 @@
             {
                 <hr />
                 <div class="songItem">
-                    <img src="@song.image.source" class="songItemImg" />
+                    <img src="@song.ImgSource" class="songItemImg" />
                     <div class="songItemTxt">
                         <p class="songTitle">@song.Name</p>
                         <p class="songArtistTitle">
-                            @song.artistCongregate
+                            @song.ArtistNames
                         </p>
                     </div>
                 </div>
@@ -95,18 +95,6 @@
 
         Guid parseId = Guid.Parse(playlistId);
         playlist = await MauiProgram.servers[0].GetPlaylistAsync(parseId);
-
-        if (playlist != null)
-        {
-            foreach (Song albumSongs in playlist.Songs)
-            {
-                Artist[]? songArtists = await albumSongs.GetArtistAsync();
-                if (songArtists != null)
-                {
-                    albumSongs.artists = songArtists;
-                }
-            }
-        }
 
         loaded = true;
         MauiProgram.WebView.isLoading = false;
@@ -140,9 +128,9 @@
     {
         if (playlist != null)
         {
-            playlist.isFavourite = !playlist.isFavourite;
+            playlist.SetIsFavourite(!playlist.IsFavourite);
             StateHasChanged();
-            await MauiProgram.api.SetFavourite(playlist.id, playlist.serverAddress, playlist.isFavourite);
+            await MauiProgram.api.SetFavourite(playlist.Id, playlist.ServerAddress, playlist.IsFavourite);
         }
     }
     private void PlayAlbum()

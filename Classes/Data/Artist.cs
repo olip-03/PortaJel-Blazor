@@ -6,7 +6,7 @@ namespace PortaJel_Blazor.Data
 {
     public class Artist : BaseMusicItem
     {
-        public Guid? Id => _artistData.Id;
+        public Guid Id => _artistData.Id;
         public string Name => _artistData.Name;
         public bool IsFavourite => _artistData.IsFavourite;
         public string Description => _artistData.Description;

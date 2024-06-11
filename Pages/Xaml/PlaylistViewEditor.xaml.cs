@@ -30,7 +30,7 @@ public partial class PlaylistViewEditor : ContentPage
     }
     public PlaylistViewEditor(Playlist setPlaylist)
     {
-        playlistId = setPlaylist.id;
+        playlistId = setPlaylist.Id;
         playlist = setPlaylist;
 
         InitializeComponent();
@@ -53,10 +53,10 @@ public partial class PlaylistViewEditor : ContentPage
             }
         }
 
-        songList = playlist.Songs.ToList();
-        unorderedList = playlist.Songs.ToList();
-        img_main.Source = playlist.image.source;
-        txt_playlistName.Text = playlist.name;
+        songList = playlist.Songs.Select(song => new Song(song)).ToList();
+        unorderedList = playlist.Songs.Select(song => new Song(song)).ToList();
+        img_main.Source = playlist.ImgSource;
+        txt_playlistName.Text = playlist.Name;
 
         Playlist_List.ItemsSource = songList;
         save_btn.IsVisible = true;
@@ -96,7 +96,7 @@ public partial class PlaylistViewEditor : ContentPage
                 if (!songList.Contains(song))
                 { // This song has been removed
                     removedSongs.Add(new Tuple<int, Song>(index, song));
-                    await MauiProgram.servers[0].RemovePlaylistItem(playlist.id, song.PlaylistId);
+                    await MauiProgram.servers[0].RemovePlaylistItem(playlist.Id, song.PlaylistId);
                     unorderedList.Remove(song);
                 }
                 index++;
@@ -122,7 +122,7 @@ public partial class PlaylistViewEditor : ContentPage
                         unorderedList.RemoveAt(i);
                         unorderedList.Insert(newIndex, item);
 
-                        bool passed = await MauiProgram.servers[0].MovePlaylistItem(playlist.id, item.PlaylistId, newIndex);
+                        bool passed = await MauiProgram.servers[0].MovePlaylistItem(playlist.Id, item.PlaylistId, newIndex);
                         if (!passed)
                         {
                             // wah wah

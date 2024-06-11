@@ -119,12 +119,19 @@ public partial class MediaController : ContentView
             }
         }
 
-        BaseMusicItem? playingCollection = MauiProgram.MediaService.GetCurrentlyPlaying().AlbumData;
+        BaseMusicItem? playingCollection = new Album(MauiProgram.MediaService.GetCurrentlyPlaying().Album);
         if (playingCollection != null)
         {
             string type = playingCollection.GetType().Name;
             ViewModel.PlayingFromCollectionTitle = "Playing from " + type;
-            ViewModel.PlayingFromTitle = playingCollection.name;
+            if(type == "Album")
+            {
+                ViewModel.PlayingFromTitle = playingCollection.ToAlbum().Name;
+            }
+            if (type == "Playlist")
+            {
+                ViewModel.PlayingFromTitle = playingCollection.ToPlaylist().Name;
+            }
         }
 
         // Update Elements
@@ -281,13 +288,13 @@ public partial class MediaController : ContentView
         if (MauiProgram.MediaService == null) return false;
         MemoryStream? imageDecodeStream = null;
         Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
-        if (currentSong.image.Blurhash == currentBlurhash) return false; // dont run if hash is the same
-        currentBlurhash = currentSong.image.Blurhash;
+        if (currentSong.ImgBlurhash == currentBlurhash) return false; // dont run if hash is the same
+        currentBlurhash = currentSong.ImgBlurhash;
         await Task.WhenAll(Task.Run(async () =>
         {
             // Fuck yeah get the image to move based on gyro
             //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
-            string? base64 = await currentSong.image.BlurhashToBase64Async(100, 100, 0.3f).ConfigureAwait(false);
+            string? base64 = await MusicItemImage.BlurhashToBase64Async(currentSong.ImgBlurhash, 100, 100, 0.3f).ConfigureAwait(false);
             if (base64 != null)
             {
                 var imageBytes = Convert.FromBase64String(base64);
@@ -358,7 +365,7 @@ public partial class MediaController : ContentView
 
         Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
 
-        var base64Result = await song.image.BlurhashToBase64Async(200, 200);
+        var base64Result = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 200, 200);
         string base64 = base64Result == null ? string.Empty : base64Result;
 
         MauiProgram.MainPage.OpenContextMenu(song, 250, base64);
@@ -529,7 +536,7 @@ public partial class MediaController : ContentView
         Song song = ViewModel.Queue[queueIndex];
         bool state = !song.IsFavourite;
 
-        ViewModel.Queue[queueIndex].IsFavourite = state;
+        ViewModel.Queue[queueIndex].SetIsFavourite(state);
 
         UpdateFavouriteButton();
         MauiProgram.MainPage.MainMiniPlayer.UpdateFavouriteButton(syncToServer: true);
@@ -606,7 +613,7 @@ public partial class MediaController : ContentView
     {
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MainPage.ShowLoadingScreen(true);
-        Album? album = MauiProgram.MediaService.GetCurrentlyPlaying().AlbumData;
+        Album? album = new Album(MauiProgram.MediaService.GetCurrentlyPlaying().Album);
         if (album != null)
         {
             Guid? itemId = album.Id;
@@ -628,10 +635,10 @@ public partial class MediaController : ContentView
     {
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MainPage.ShowLoadingScreen(true);
-        Artist? artist = MauiProgram.MediaService.GetCurrentlyPlaying().artists.FirstOrDefault();
+        Artist? artist = new Artist(MauiProgram.MediaService.GetCurrentlyPlaying().Artists.FirstOrDefault());
         if (artist != null)
         {
-            Guid? itemId = artist.id;
+            Guid? itemId = artist.Id;
             if (itemId != null)
             {
                 MauiProgram.WebView.NavigateArtist((Guid)itemId);

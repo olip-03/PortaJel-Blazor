@@ -10,12 +10,13 @@ namespace PortaJel_Blazor.Data
 {
     public class Playlist: BaseMusicItem
     {
-        public Guid? Id => _playlistData.Id;
+        public Guid Id => _playlistData.Id;
         public string Name => _playlistData.Name;
         public bool IsFavourite => _playlistData.IsFavourite;
         public string ImgSource => _playlistData.ImgSource;
         public string ImgBlurhash => _playlistData.ImgBlurhash;
         public string Path => _playlistData.Path;
+        public string ServerAddress => _playlistData.ServerAddress;
         public bool IsPartial { get; set; } = true;
 
         public Guid[] SongIds => _playlistData.GetSongIds();
@@ -40,6 +41,10 @@ namespace PortaJel_Blazor.Data
             _playlistData = playlistData;
             _songData = songData;
             IsPartial = false;
+        }
+        public void SetIsFavourite(bool state)
+        {
+            _playlistData.IsFavourite = state;
         }
 
         //public List<ContextMenuItem> GetContextMenuItems()

@@ -4,7 +4,7 @@
 <li class="music-item PageSecondaryColor" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
     <div class="image-container" style="display: grid;">
         <img class="album-image album-cover-img opacityTransition"
-             src="@musicItem.image.SourceAtResolution(100)"
+             src="@imgSrc"
              loading="lazy"
              onerror="this.src='/images/emptyAlbum.png'" />
         <img class="album-image-placeholder"
@@ -24,23 +24,55 @@
 @code {
     [Parameter] public BaseMusicItem musicItem { get; set; } = new Album();
     [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
+    private string imgSrc = string.Empty;
+    private Guid musicItemId; 
+
+    protected override void OnInitialized()
+    {
+        if(musicItem is Album)
+        {
+            Album album = (Album)musicItem;
+            imgSrc = album.ImgSource;
+            musicItemId = album.Id;
+        }
+        else if (musicItem is Song)
+        {
+            Song song = (Song)musicItem;
+            imgSrc = song.ImgSource;
+            musicItemId = song.Id;
+        }
+        else if (musicItem is Artist)
+        {
+            Artist artist = (Artist)musicItem;
+            imgSrc = artist.ImgSource;
+            musicItemId = artist.Id;
+        }
+        else if (musicItem is Playlist)
+        {
+            Playlist playlist = (Playlist)musicItem;
+            imgSrc = playlist.ImgSource;
+            musicItemId = playlist.Id;
+        }
+    }
 
     private void NavigateToAlbum()
     {
         if (musicItem != null)
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
-            MauiProgram.WebView.NavigateAlbum(musicItem.id);
+            MauiProgram.WebView.NavigateAlbum(musicItemId);
         }
     }
+
     private void NavigateToArtist()
     {
         if (musicItem != null)
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
-            MauiProgram.WebView.NavigateArtist(musicItem.id);
+            MauiProgram.WebView.NavigateArtist(musicItemId);
         }
     }
+
     private async void OpenContextMenu()
     {
         MauiProgram.MainPage.OpenContextMenu(musicItem, 250, placeholderBase64);

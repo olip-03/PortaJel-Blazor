@@ -308,7 +308,9 @@
                 {
                     try
                     {
-                        placeholderImages[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+                        // string img = MusicImageItem.
+                        string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
+                        placeholderImages[i] = base64 == null ? string.Empty : base64;
                     }
                     catch (Exception)
                     {
@@ -363,7 +365,8 @@
             {
                 try
                 {
-                    placeholderImages[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+                    string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
+                    placeholderImages[i] = base64 == null ? string.Empty : base64;
                 }
                 catch (Exception)
                 {

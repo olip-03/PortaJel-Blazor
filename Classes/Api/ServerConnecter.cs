@@ -11,8 +11,7 @@ using System.Text;
 using PortaJel_Blazor.Classes.Database;
 using SQLite;
 using System.Security.Cryptography;
-using System.Linq;
-using CoreVideo;
+using System.Diagnostics;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -331,6 +330,11 @@ namespace PortaJel_Blazor.Classes
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
+            if(setId == Guid.Empty)
+            {
+                return Album.Empty;
+            }
+
             async void ReturnFromCache()
             {
                 // Filter the cache based on the provided parameters
@@ -370,7 +374,7 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicAlbum];
                         c.QueryParameters.Recursive = true;
                         c.QueryParameters.EnableImages = true;
-                    }, cancellationToken: token);
+                    });
                     Task<BaseItemDtoQueryResult?> songQueryResult = _jellyfinApiClient.Items.GetAsync(c =>
                     {
                         c.QueryParameters.UserId = userDto.Id;
@@ -381,7 +385,7 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.ParentId = setId;
                         c.QueryParameters.Recursive = true;
                         c.QueryParameters.EnableImages = true;
-                    }, cancellationToken: token);
+                    });
                     Task<BaseItemDtoQueryResult?> artistQueryResults = _jellyfinApiClient.Items.GetAsync(c =>
                     {
                         c.QueryParameters.UserId = userDto.Id;
@@ -391,9 +395,35 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.ParentId = setId;
                         c.QueryParameters.Recursive = true;
                         c.QueryParameters.EnableImages = true;
-                    }, cancellationToken: token);
+                    });
 
-                    await Task.WhenAll(albumQueryResult, songQueryResult, artistQueryResults);
+                    try
+                    {
+                        await albumQueryResult;
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex.Message);
+                    }
+
+                    try
+                    {
+                        await songQueryResult;
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex.Message);
+                    }
+
+                    try
+                    {
+                        await artistQueryResults;
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex.Message);
+                    }
+                    //await Task.WhenAll(, , );
 
                     if (albumQueryResult.Result == null || albumQueryResult.Result.Items == null) return Album.Empty;
                     if (songQueryResult.Result == null || songQueryResult.Result.Items == null) return Album.Empty;
@@ -563,7 +593,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         for (int i = 0; i < serverResults.Items.Count(); i++)
                         {
-                            Song newSong = Song.Builder(serverResults.Items[i], _sdkClientSettings.ServerUrl);
+                            Song newSong = new Song(SongData.Builder(serverResults.Items[i], _sdkClientSettings.ServerUrl));
                             toReturn.Add(newSong);
                         }
                     }
@@ -1401,8 +1431,8 @@ namespace PortaJel_Blazor.Classes
             foreach (var item in songResult.Items)
             {
                 // TODO: Add genres again lolll
-                //Genre itemToAdd = await GenreBuilder(item);
-                genres.Add(itemToAdd);
+                // Genre itemToAdd = await GenreBuilder(item);
+                // genres.Add(itemToAdd);
             }
 
             return genres.ToArray();

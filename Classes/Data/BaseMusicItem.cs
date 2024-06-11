@@ -17,5 +17,21 @@ namespace PortaJel_Blazor.Data
         //public string serverAddress { get; set; } = String.Empty;
         //public MusicItemImage image { get; set; } = MusicItemImage.Empty;
         //public List<ContextMenuItem> contextMenuItems { get; set; } = new();
+        public Album ToAlbum()
+        {
+            return (Album)this;
+        }
+        public Artist ToArtist()
+        {
+            return (Artist)this;
+        }
+        public Playlist ToPlaylist()
+        {
+            return (Playlist)this;
+        }
+        public Song ToSong()
+        {
+            return (Song)this;
+        }
     }
 }

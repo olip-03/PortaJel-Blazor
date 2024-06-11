@@ -32,14 +32,14 @@
                         <!-- Placeholders dont really work for logos :( -->
                     </div>
                 }
-                <h1 class="artistName PrimaryTextColor">@artist.name</h1>
+                <h1 class="artistName PrimaryTextColor">@artist.Name</h1>
             </div>
 
         </div>
 
         <div class="playback-controls">
             <div @onclick=FavouriteItem id="playback-controls-fav">
-                @if (artist.isFavourite)
+                @if (artist.IsFavourite)
                 {
                     <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                         <HeartIcon Filled=true ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
@@ -163,7 +163,7 @@
 }
 
 @code {
-    [Parameter] public string artistId { get; set; }
+    [Parameter] public string artistId { get; set; } = string.Empty;
     private Artist artist { get; set; } = Artist.Empty;
 
     private string backgroundImgUrl = string.Empty;
@@ -204,9 +204,8 @@
     }
     sortMethod sort = sortMethod.byDate;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-
         MauiProgram.WebView.pageTitle = "Artist View";
         MauiProgram.WebView.currentUri = $"/ArtistView/{artistId}";
         MauiProgram.WebView.showHeader = false;
@@ -252,24 +251,24 @@
 
                 MauiProgram.UpdateDebugMessage("Setting Image resolution.");
                 int screenWidth = (int)window.Width;
-                backgroundImgUrl = artist.backgroundImage.SourceAtResolution(screenWidth);
+                backgroundImgUrl = artist.BackgroundImgSource;
 
                 int imgScale = (int)(window.Width * 0.4);
-                imgUrl = artist.image.SourceAtResolution(imgScale);
+                imgUrl = artist.ImgSource;
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
-                artistAlbums = artist.Albums;
+                artistAlbums = artist.Albums.Select(album => new Album(album)).ToArray();
                 placeholderImages = await GenerateBlurHash(artistAlbums);
 
-                string? artistBlurhash = await artist.image.BlurhashToBase64Async(20, 20);
-                string? backgrounBlurhash = await artist.backgroundImage.BlurhashToBase64Async(20, 20);
+                string? artistBlurhash = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 20, 20);
+                string? backgrounBlurhash = await MusicItemImage.BlurhashToBase64Async(artist.BackgroundImgBlurhash, 20, 20);
                 imgUrlPlaceholder = artistBlurhash == null ? string.Empty : artistBlurhash;
                 backgroundImgUrlPlaceholder = backgrounBlurhash == null ? string.Empty : backgrounBlurhash;
 
-                logoUrl = artist.logoImage.source;
+                logoUrl = artist.LogoImgSource;
                 if (!String.IsNullOrWhiteSpace(logoUrl))
                 {
-                    string? getLogoblurhash = await artist.logoImage.BlurhashToBase64Async(20, 20);
+                    string? getLogoblurhash = await MusicItemImage.BlurhashToBase64Async(artist.LogoImgSource, 20, 20);
                     logoUrlPlaceholder = getLogoblurhash == null ? string.Empty : getLogoblurhash;
                     hasLogo = true;
                 }
@@ -326,12 +325,15 @@
     }
     private async void FavouriteItem()
     {
-        artist.isFavourite = !artist.isFavourite;
+        artist.SetIsFavourite(!artist.IsFavourite);
         StateHasChanged();
-        await MauiProgram.api.SetFavourite(artist.id, artist.serverAddress, artist.isFavourite);
+        await MauiProgram.api.SetFavourite(artist.Id, artist.ServerAddress, artist.IsFavourite);
     }
     private async void GoBack()
     {
+        if (App.Current == null) return; 
+        if (App.Current.MainPage == null) return;
+
         MauiProgram.WebView.isLoading = true;
         try
         {
@@ -350,7 +352,8 @@
         {
             try
             {
-                toReturn[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
+                toReturn[i] = base64 == null ? string.Empty : base64;
             }
             catch (Exception)
             {

@@ -12,6 +12,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string? PlaylistId { get; set; }
         public Guid AlbumId { get; set; }
         public string ArtistIdsJson { get; set; } = string.Empty;
+        public string ArtistNames { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;
         public long DurationMs { get; set; } = 0;
@@ -69,6 +70,17 @@ namespace PortaJel_Blazor.Classes.Database
             song.StreamUrl = server + "/Audio/" + baseItem.Id + "/stream?static=true&audioCodec=adts&enableAutoStreamCopy=true&allowAudioStreamCopy=true&enableMpegtsM2TsMode=true&context=Static";
             song.ImgSource = musicItemImage.source;
             song.ImgBlurhash = musicItemImage.Blurhash;
+
+            string artistNames = string.Empty;
+            for (int i = 0; i < baseItem.ArtistItems.Count; i++)
+            {
+                artistNames += baseItem.ArtistItems[i].Name;
+                if (i < baseItem.ArtistItems.Count - 1)
+                {
+                    artistNames += ", ";
+                }
+            }
+            song.ArtistNames = artistNames;
 
             return song;
         }

@@ -29,7 +29,7 @@
                 }
                 else
                 {
-                    <h3 id="header-text" class="header-text hidden PrimaryTextColor">@baseMusicItem.name</h3>
+                    <h3 id="header-text" class="header-text hidden PrimaryTextColor">@name</h3>
                 }
             }
         </div>
@@ -41,6 +41,7 @@
     [Parameter] public string backgroundImgUrlPlaceholder { get; set; } = string.Empty;
     [Parameter] public string backgroundImgUrl { get; set; } = string.Empty;
     [Parameter] public BaseMusicItem? baseMusicItem { get; set; } = null;
+    private string name = string.Empty;
 
     private string headerHeight = (MauiProgram.SystemHeaderHeight * 2) + "px!important";
     private string contentHeight = (MauiProgram.SystemHeaderHeight) + "px!important";
@@ -67,7 +68,7 @@
             Album item = (Album)baseMusicItem;
             if (item != null && item.Artists.First() != null)
             {
-                MauiProgram.WebView.NavigateArtist(item.Artists.First().id);
+                MauiProgram.WebView.NavigateArtist(item.Artists.First().Id);
             }
         }
     }

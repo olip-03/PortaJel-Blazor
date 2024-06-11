@@ -30,7 +30,7 @@
 
         <button class="songTextContainer" @onclick="() => PlaySong(location)">
             <p class="PrimaryTextColor songTitle">@song.Name</p>
-            <p class="SecondaryTextColor songArtistTitle">@song.artistCongregate</p>
+            <p class="SecondaryTextColor songArtistTitle">@song.ArtistNames</p>
         </button>
         <div class="songitem-options">
             <div @onclick="() => FavouriteSong(song.Id)" class="songitem-optionbtn">
@@ -92,7 +92,7 @@
 
     private async void FavouriteSong(Guid songId)
     {
-        song.IsFavourite = !song.IsFavourite;
+        song.SetIsFavourite(!song.IsFavourite);
         StateHasChanged();
         await Task.Run<bool>(() => MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, song.IsFavourite));
     }
@@ -115,31 +115,26 @@
     { // Play selected song, and queue the rest of the album
         await Task.Delay(300); // await CSS animation to finish
         #if WINDOWS
-    return;
+        return;
         #endif
-        // Confirm that the item itself is fine.
-
-        if (song.AlbumData == null && Application.Current != null && Application.Current.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert("Error?", $"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!", "Continue");
-            return;
-        }
-        if (song.AlbumData == Album.Empty && Application.Current != null && Application.Current.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert("Error?", $"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!", "Continue");
-            return;
-        }
-
         try
         {
+            if (Application.Current == null) return;
+            if (Application.Current.MainPage == null) return;
+            if (song.Album == null)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error?", $"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!", "Continue");
+                return;
+            }
+
             if (MauiProgram.MediaService == null)
             {
                 MauiProgram.MediaService = new MediaService();
                 await MauiProgram.MediaService.Initalize();
             }
-            MauiProgram.MediaService.SetPlayingCollection(song.AlbumData, songIndex);
+            MauiProgram.MediaService.SetPlayingCollection(new Album(song.Album), songIndex);
 
-            MauiProgram.currentAlbumGuid = song.AlbumData.id;
+            MauiProgram.currentAlbumGuid = song.Album.Id;
             // MauiProgram.currentSongGuid = album song at index;
 
             MauiProgram.MainPage.RefreshPlayer();
@@ -204,7 +199,7 @@
         FavouriteSongLock = true;
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
 
-        song.IsFavourite = !song.IsFavourite;
+        song.SetIsFavourite(!song.IsFavourite);
         await Task.Delay(250);
 
         StateHasChanged();

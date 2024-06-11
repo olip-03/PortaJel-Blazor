@@ -148,25 +148,26 @@
                 }
 
                 // Filter exact matches (case-insensitive and exclude special characters)
-                var exactMatches = searchResults
-                    .Where(item => RemoveSpecialCharacters(item.name).Equals(RemoveSpecialCharacters(searchFor), StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                // var exactMatches = searchResults
+                //     .Where(item => RemoveSpecialCharacters(item.Name).Equals(RemoveSpecialCharacters(searchFor), StringComparison.OrdinalIgnoreCase))
+                //     .ToList();
 
-                var sortedItems = searchResults
-                    .Except(exactMatches)
-                    .OrderBy(item => item.name.CompareTo(searchFor))
-                    .ToList();
+                // var sortedItems = searchResults
+                //     .Except(exactMatches)
+                //     .OrderBy(item => item.name.CompareTo(searchFor))
+                //     .ToList();
 
                 // Combine exact matches and sorted items
-                var modifiedResults = exactMatches.Concat(sortedItems).ToArray();
+                // var modifiedResults = exactMatches.Concat(sortedItems).ToArray();
 
-                searchResults = modifiedResults;
+                // searchResults = modifiedResults;
                 placeholderImages = new string[searchResults.Length];
                 for (int i = 0; i < searchResults.Length; i++)
                 {
                     try
                     {
-                        placeholderImages[i] = await searchResults[i].image.BlurhashToBase64Async(20, 20);
+                        string? base64 = await MusicItemImage.BlurhashToBase64Async(searchResults[i], 20, 20);
+                        placeholderImages[i] = base64 == null ? string.Empty : base64;
                     }
                     catch (Exception)
                     {

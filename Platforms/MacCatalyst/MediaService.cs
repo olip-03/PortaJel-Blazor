@@ -10,153 +10,12 @@ namespace PortaJel_Blazor.Classes.Services
 {
     public partial class MediaService : IMediaInterface
     {
-        public void Initalize()
-        {
-
-        }
-        public void Play()
-        {
-
-        }
-        public void Pause()
-        {
-
-        }
-        public void TogglePlay()
-        {
-        }
-        public void ToggleShuffle()
-        {
-
-        }
-        public void ToggleRepeat()
-        {
-
-        }
-        public void NextTrack()
-        {
-
-        }
-        public void PreviousTrack()
-        {
-
-        }
-        public void SeekToPosition(long position)
-        {
-
-        }
-
-        public void SeekToIndex(int index)
-        {
-
-        }
-
-        public void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
-        {
-
-        }
-
         public void AddSong(Song song)
         {
-
+            throw new NotImplementedException();
         }
 
         public void AddSongs(Song[] songs)
-        {
-
-        }
-
-        public void RemoveSong(int index)
-        {
-
-        }
-
-        void IMediaInterface.Initalize()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.Play()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.Pause()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.TogglePlay()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.ToggleShuffle()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.ToggleRepeat()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.NextTrack()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.PreviousTrack()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.SeekToPosition(long position)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.SeekToIndex(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.AddSong(Song song)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.AddSongs(Song[] songs)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IMediaInterface.RemoveSong(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        int IMediaInterface.GetQueueIndex()
-        {
-            throw new NotImplementedException();
-        }
-
-        bool IMediaInterface.GetIsPlaying()
-        {
-            throw new NotImplementedException();
-        }
-
-        bool IMediaInterface.GetIsShuffling()
-        {
-            throw new NotImplementedException();
-        }
-
-        int IMediaInterface.GetRepeatMode()
         {
             throw new NotImplementedException();
         }
@@ -166,7 +25,72 @@ namespace PortaJel_Blazor.Classes.Services
             throw new NotImplementedException();
         }
 
+        public bool GetIsPlaying()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool GetIsShuffling()
+        {
+            throw new NotImplementedException();
+        }
+
         public PlaybackInfo? GetPlaybackTimeInfo()
+        {
+            throw new NotImplementedException();
+        }
+
+        public SongGroupCollection GetQueue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetQueueIndex()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetRepeatMode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> Initalize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NextTrack()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Pause()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Play()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PreviousTrack()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveSong(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SeekToIndex(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SeekToPosition(long position)
         {
             throw new NotImplementedException();
         }
@@ -176,7 +100,22 @@ namespace PortaJel_Blazor.Classes.Services
             throw new NotImplementedException();
         }
 
-        public SongGroupCollection GetQueue()
+        public void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TogglePlay()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ToggleRepeat()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ToggleShuffle()
         {
             throw new NotImplementedException();
         }

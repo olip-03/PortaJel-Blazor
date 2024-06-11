@@ -228,7 +228,17 @@ namespace PortaJel_Blazor.Classes.Services
             if (serviceConnection != null &&
                 serviceConnection.Binder != null)
             {
-                MauiProgram.currentAlbumGuid = baseMusicItem.id;
+                if (baseMusicItem is Album)
+                {
+                    Album tempAlbum = (Album)baseMusicItem;
+                    MauiProgram.currentAlbumGuid = tempAlbum.Id;
+                }
+                if (baseMusicItem is Playlist)
+                {
+                    Playlist tempPlaylist = (Playlist)baseMusicItem;
+                    MauiProgram.currentAlbumGuid = tempPlaylist.Id;
+                }
+
                 serviceConnection.Binder.SetPlayingCollection(baseMusicItem, fromIndex);
             }
         }

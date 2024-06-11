@@ -93,10 +93,7 @@ public partial class ContextMenu : ContentView
                         await MauiProgram.api.SetFavourite((Guid)song.Id, song.ServerAddress, true);
                     })));
                 }
-                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
-
-
-            ViewModel.ContextMenuSubText = "Song • " + song.ArtistNames;
+                ViewModel.ContextMenuSubText = "Song • " + song.ArtistNames;
             }
             /// #####################################################
             /// CREATE CONTEXT MENU ITEMS FOR ARTIST HERE
@@ -131,7 +128,7 @@ public partial class ContextMenu : ContentView
                     MauiProgram.MainPage.ShowLoadingScreen(true);
 
                     await MauiProgram.MainPage.MainContextMenu.Close();
-                    MauiProgram.WebView.NavigateArtist(artist.id);
+                    MauiProgram.WebView.NavigateArtist(artist.Id);
                 })));
                 ViewModel.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
                 {
@@ -146,17 +143,50 @@ public partial class ContextMenu : ContentView
             else if (baseMusicItem is Playlist)
             {
                 Playlist playlist = (Playlist)baseMusicItem;
-                playlist.image.soureResolution = 500;
+                ViewModel.ContextMenuMainText = playlist.Name;
+                fullImgUrl = playlist.ImgSource;
 
-                ViewModel.ContextMenuItems = playlist.GetContextMenuItems().ToObservableCollection<ContextMenuItem>() ?? new();
+                if (playlist.IsFavourite)
+                {
+                    ViewModel.ContextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
+                    {
+                        playlist.SetIsFavourite(false);
+                        await MauiProgram.api.SetFavourite(playlist.Id, playlist.ServerAddress, false);
+                    })));
+                }
+                else
+                {
+                    ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
+                    {
+                        playlist.SetIsFavourite(true);
+                        await MauiProgram.api.SetFavourite(playlist.Id, playlist.ServerAddress, true);
+                    })));
+                }
+                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Edit Playlist", "light_edit.png", new Task(async () =>
+                {
+                    await MauiProgram.MainPage.NavigateToPlaylistEdit(playlist.Id);
+                })));
+                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
+                {
+
+                })));
+                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
+                {
+
+                })));
+                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(() =>
+                {
+
+                })));
+
                 ViewModel.ContextMenuSubText = "Playlist";
             }
 
-            if (baseMusicItem.contextMenuItems.Count <= 0 && ViewModel.ContextMenuItems != null)
+            if (ViewModel.ContextMenuItems.Count <= 0 && ViewModel.ContextMenuItems != null)
             {
-                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
+                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
                 {
-                    this.Close();
+                    await this.Close();
                 })));
             }
 
@@ -287,3 +317,4 @@ public partial class ContextMenu : ContentView
         }
     }
 }
+

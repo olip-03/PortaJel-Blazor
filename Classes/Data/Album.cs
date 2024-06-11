@@ -36,7 +36,7 @@ namespace PortaJel_Blazor.Data
 
             }
         }
-        public SongData[]? songs => _songData;
+        public SongData[]? Songs => _songData;
         public bool IsPartial { get; private set; } = true;
 
         private AlbumData _albumData; 
@@ -128,7 +128,7 @@ namespace PortaJel_Blazor.Data
                     SongData toAdd = new();
                     toAdd.Id = (Guid)song.Id;
                     toAdd.PlaylistId = song.PlaylistItemId;
-                    toAdd.AlbumId = albumData.Id;
+                    toAdd.AlbumId = (Guid)albumData.Id;
                     toAdd.ArtistIdsJson = JsonSerializer.Serialize(song.ArtistItems.Select(idPair => idPair.Id).ToArray());
                     toAdd.Name = song.Name == null ? string.Empty : song.Name;
                     toAdd.IsFavourite = song.UserData.IsFavorite == null ? false : (bool)song.UserData.IsFavorite;
