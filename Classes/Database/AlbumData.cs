@@ -17,6 +17,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
         public string ArtistIdsJson { get; set; } = string.Empty;
+        public string ArtistNames { get; set; } = string.Empty;
         public string SongIdsJson { get; set; } = string.Empty;
         public Guid[]? GetArtistIds()
         {
@@ -52,6 +53,17 @@ namespace PortaJel_Blazor.Classes.Database
             album.ImgSource = musicItemImage.source;
             album.ImgBlurhash = musicItemImage.Blurhash;
             album.ArtistIdsJson = JsonSerializer.Serialize(baseItem.ArtistItems.Select(idPair => idPair.Id).ToArray());
+
+            string artistNames = string.Empty;
+            for (int i = 0; i < baseItem.ArtistItems.Count; i++)
+            {
+                artistNames += baseItem.ArtistItems[i].Name;
+                if (i < baseItem.ArtistItems.Count - 1)
+                {
+                    artistNames += ", ";
+                }
+            }
+            album.ArtistNames = artistNames;
 
             return album;
         }

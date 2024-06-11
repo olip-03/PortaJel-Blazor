@@ -10,6 +10,7 @@ namespace PortaJel_Blazor.Data
     public class Song : BaseMusicItem
     {
         public Guid Id => _songData.Id;
+        public Guid AlbumId => _songData.AlbumId;
         public string Name => _songData.Name;
         public bool IsFavourite => _songData.IsFavourite;
         public int PlayCount => _songData.PlayCount;

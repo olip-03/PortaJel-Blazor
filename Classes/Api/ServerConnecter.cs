@@ -215,7 +215,7 @@ namespace PortaJel_Blazor.Classes
         /// Thrown when the server connector has not been initialized. Ensure that 
         /// AuthenticateUserAsync method has been called.
         /// </exception>
-        public async Task<Data.Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder setSortOrder = SortOrder.Ascending)
+        public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder setSortOrder = SortOrder.Ascending)
         {
             if (_jellyfinApiClient == null || userDto == null || Database == null || _sdkClientSettings.ServerUrl == null)
             {

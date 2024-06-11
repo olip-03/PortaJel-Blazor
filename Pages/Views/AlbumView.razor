@@ -24,8 +24,7 @@
             <div class="item-title">
                 <div class="title-text">
                     <h2 class="PrimaryTextColor" style="margin: 0px">@album.Name</h2>
-                    <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(
-                        album.Artists.FirstOrDefault().Id)">
+                    <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(album.ArtistIds.FirstOrDefault())">
                         @album.ArtistNames
                     </h5>
                 </div>

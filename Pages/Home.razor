@@ -180,22 +180,26 @@ else
             {
                 if (song.Album != null)
                 {
-                    if (!songAlbumIDs.Contains(song.Album.Id))
+                    if (!songAlbumIDs.Contains(song.AlbumId))
                     {
-                        songAlbumIDs.Add(song.Album.Id);
-                        recentPlayAlbumTasks.Add(MauiProgram.api.GetAlbumAsync((Guid)song.Album.Id));
+                        songAlbumIDs.Add(song.AlbumId);
+                        recentPlayAlbumTasks.Add(MauiProgram.api.GetAlbumAsync(song.AlbumId));
                     }
                 }
             }
             await Task.WhenAll(recentPlayAlbumTasks);
             for (int i = 0; i < recentPlayAlbumTasks.Count; i++)
             {
-                getRecentAlbums.Add(recentPlayAlbumTasks[i].Result);
+                Album data = recentPlayAlbumTasks[i].Result;
+                if(data != Album.Empty)
+                {
+                    getRecentAlbums.Add(data);
+                }
             }
 
             // Run blurhashing
             MauiProgram.UpdateDebugMessage("Decoding Blurhash!");
-            Task<string[]> runRecentPlayBlurhash = GenerateBlurHash(runGetRecent.Result);
+            Task<string[]> runRecentPlayBlurhash = GenerateBlurHash(getRecentAlbums.ToArray());
             Task<string[]> runFavouritesBlurhash = GenerateBlurHash(runGetFavourites.Result);
             Task<string[]> runRecentAddedBlurhash = GenerateBlurHash(runGetRecentlyAdded.Result);
             Task<string[]> runMostPlayBlurhash = GenerateBlurHash(runGetMostPlayed.Result);
