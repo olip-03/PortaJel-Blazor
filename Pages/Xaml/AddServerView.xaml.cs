@@ -57,7 +57,6 @@ public partial class AddServerView : ContentPage
         {
             serverConnecter = new(entry_server.Text);
 
-            ServerPassed = await serverConnecter.AuthenticateAddressAsync(entry_server.Text);
             UserPassed = await serverConnecter.AuthenticateServerAsync(entry_username.Text, entry_password.Text);
 
             if (!ServerPassed)

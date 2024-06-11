@@ -18,18 +18,19 @@ namespace PortaJel_Blazor.Classes
     // https://media.olisshittyserver.xyz/api-docs/swagger/index.html
     // {69c72555-b29b-443d-9a17-01d735bd6f9f} UID
     // /Artists to get all artists 
-    // +
+    // 
     // /Users/{userId}/Items/Latest endpoint to fetch MOST RECENT media added to the server
     // https://github.com/crobibero/jellyfin-client-avalonia/blob/master/src/Jellyfin.Mvvm/Services/LibraryService.cs
     public class ServerConnecter : IMediaServerConnector //TODO implement all data return classes into this interface
     {
         private UserDto? userDto = null;
 
-        private readonly JellyfinSdkSettings _sdkClientSettings = new();
-        private readonly JellyfinApiClient? _jellyfinApiClient = null;
+        private JellyfinSdkSettings _sdkClientSettings = new();
+        private JellyfinApiClient? _jellyfinApiClient = null;
 
-        private string Username = String.Empty;
-        private string StoredPassword = String.Empty;
+        private string ServerAddress = string.Empty;
+        private string Username = string.Empty;
+        private string StoredPassword = string.Empty;
 
         private SQLiteAsyncConnection? Database = null;
         private SQLite.SQLiteOpenFlags DBFlags =
@@ -58,17 +59,12 @@ namespace PortaJel_Blazor.Classes
         // https://stackoverflow.com/questions/26020/what-is-the-best-way-to-connect-and-use-a-sqlite-database-from-c-sharp
         public ServerConnecter(string baseUrl, string? username = null, string? password = null)
         {
-            var serviceProvider = ConfigureServices();
+            bool initResult = Initalize(baseUrl, false, username, password).Result;
+        }
 
-            _jellyfinApiClient = serviceProvider.GetRequiredService<JellyfinApiClient>();
-            _sdkClientSettings = serviceProvider.GetRequiredService<JellyfinSdkSettings>();
-            _sdkClientSettings.SetServerUrl(baseUrl);
-            _sdkClientSettings.Initialize(
-                MauiProgram.applicationName,
-                MauiProgram.applicationClientVersion,
-                Microsoft.Maui.Devices.DeviceInfo.Current.Name,
-                Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
-            token = cancelTokenSource.Token;
+        private async Task<bool> Initalize(string baseUrl, bool authenticate, string? username = null, string? password = null)
+        {
+            bool pass = true;
 
             if (username != null)
             {
@@ -77,6 +73,59 @@ namespace PortaJel_Blazor.Classes
             if (password != null)
             {
                 StoredPassword = password;
+            }
+
+            try
+            {
+                ServiceCollection serviceCollection = new ServiceCollection();
+
+                serviceCollection.AddHttpClient("Default", c =>
+                {
+                    c.DefaultRequestHeaders.UserAgent.Add(
+                        new ProductInfoHeaderValue(
+                            MauiProgram.applicationName,
+                            MauiProgram.applicationClientVersion));
+
+                    c.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json, 1.0));
+                    c.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("*/*", 0.8));
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new SocketsHttpHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.All,
+                    RequestHeaderEncodingSelector = (_, _) => Encoding.UTF8
+                });
+
+                // Add Jellyfin SDK services.
+                serviceCollection.AddSingleton<JellyfinSdkSettings>();
+                serviceCollection.AddSingleton<IAuthenticationProvider, JellyfinAuthenticationProvider>();
+                serviceCollection.AddScoped<IRequestAdapter, JellyfinRequestAdapter>(s => new JellyfinRequestAdapter(
+                    s.GetRequiredService<IAuthenticationProvider>(),
+                    s.GetRequiredService<JellyfinSdkSettings>(),
+                    s.GetRequiredService<IHttpClientFactory>().CreateClient("Default")));
+                serviceCollection.AddScoped<JellyfinApiClient>();
+
+                ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
+
+                _jellyfinApiClient = serviceProvider.GetRequiredService<JellyfinApiClient>();
+                _sdkClientSettings = serviceProvider.GetRequiredService<JellyfinSdkSettings>();
+                _sdkClientSettings.SetServerUrl(baseUrl);
+                _sdkClientSettings.Initialize(
+                    MauiProgram.applicationName,
+                    MauiProgram.applicationClientVersion,
+                    Microsoft.Maui.Devices.DeviceInfo.Current.Name,
+                    Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
+                token = cancelTokenSource.Token;
+
+                if (authenticate)
+                {
+                    await AuthenticateServerAsync(Username, StoredPassword);
+                }
+            }
+            catch (Exception)
+            {
+                pass = false;
             }
 
             System.Guid? result = null;
@@ -88,52 +137,13 @@ namespace PortaJel_Blazor.Classes
 
             string filePath = Path.Combine(FileSystem.AppDataDirectory, $"{result}.db");
             Database = new SQLiteAsyncConnection(filePath, DBFlags);
-            InitDb();
-        }
-
-        private ServiceProvider ConfigureServices()
-        {
-            ServiceCollection serviceCollection = new ServiceCollection();
-
-            // Add Http Client
-            serviceCollection.AddHttpClient("Default", c =>
-            {
-                c.DefaultRequestHeaders.UserAgent.Add(
-                    new ProductInfoHeaderValue(
-                        MauiProgram.applicationName,
-                        MauiProgram.applicationClientVersion));
-
-                c.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json, 1.0));
-                c.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("*/*", 0.8));
-            })
-                .ConfigurePrimaryHttpMessageHandler(_ => new SocketsHttpHandler
-                {
-                    AutomaticDecompression = DecompressionMethods.All,
-                    RequestHeaderEncodingSelector = (_, _) => Encoding.UTF8
-                });
-
-            // Add Jellyfin SDK services.
-            serviceCollection.AddSingleton<JellyfinSdkSettings>();
-            serviceCollection.AddSingleton<IAuthenticationProvider, JellyfinAuthenticationProvider>();
-            serviceCollection.AddScoped<IRequestAdapter, JellyfinRequestAdapter>(s => new JellyfinRequestAdapter(
-                s.GetRequiredService<IAuthenticationProvider>(),
-                s.GetRequiredService<JellyfinSdkSettings>(),
-                s.GetRequiredService<IHttpClientFactory>().CreateClient("Default")));
-            serviceCollection.AddScoped<JellyfinApiClient>();
-
-            // Add sample service
-            return serviceCollection.BuildServiceProvider();
-        }
-
-        private async void InitDb()
-        {
-            if (Database == null) return;
             await Database.CreateTableAsync<AlbumData>();
             await Database.CreateTableAsync<SongData>();
             await Database.CreateTableAsync<ArtistData>();
             await Database.CreateTableAsync<PlaylistData>();
+
+            // Add sample service
+            return pass;
         }
 
         #region Authentication
@@ -191,11 +201,6 @@ namespace PortaJel_Blazor.Classes
             }
             return false;
         }
-
-        public async Task<bool> AuthenticateAddressAsync(string serverUrl)
-        {
-            return true;
-        }
         #endregion
 
         #region Albums
@@ -217,7 +222,7 @@ namespace PortaJel_Blazor.Classes
         /// </exception>
         public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder setSortOrder = SortOrder.Ascending)
         {
-            if (_jellyfinApiClient == null || userDto == null || Database == null || _sdkClientSettings.ServerUrl == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
@@ -279,6 +284,11 @@ namespace PortaJel_Blazor.Classes
             { // Call server
                 try
                 {
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        await Initalize(ServerAddress, true);
+                    }
+
                     // Call server and return items
                     MauiProgram.UpdateDebugMessage("Calling Items Endpoint for All Albums...");
                     BaseItemDtoQueryResult? serverResults = await _jellyfinApiClient.Items.GetAsync(c =>
@@ -1505,60 +1515,5 @@ namespace PortaJel_Blazor.Classes
         {
             return _sdkClientSettings.ServerUrl;
         }
-        //private Task<Genre> GenreBuilder(BaseItemDto baseItem)
-        //{
-        //    // TODO: This is just a rehash of the AlbumBuilder to get the page I needed
-        //    // working really quick. Ideally this'd be redone. 
-        //    return Task.Run(() =>
-        //    {
-        //        Genre newGenre = new();
-        //        newGenre.name = baseItem.Name;
-        //        newGenre.id = (System.Guid)baseItem.Id;
-        //        newGenre.image = MusicItemImageBuilder(baseItem);
-        //        newGenre.serverAddress = _sdkClientSettings.ServerUrl;
-        //        newGenre.songs = null; // TODO: Implement songs
-
-        //        if (baseItem.Type != BaseItemDto_Type.MusicAlbum)
-        //        {
-        //            if (baseItem.AlbumId != null)
-        //            {
-        //                newGenre.id = (System.Guid)baseItem.AlbumId;
-        //            }
-        //        }
-
-        //        // TODO: Implement getting album images for each genre 
-        //        return newGenre;
-        //    });
-
-        //}
-        //private Playlist PlaylistBuilder(BaseItemDto baseItem)
-        //{
-        //    return PlaylistBuilder(baseItem, false).Result;
-        //}
-        //private Task<Playlist> PlaylistBuilder(BaseItemDto baseItem, bool fetchFullArtists)
-        //{
-        //    return Task.Run(() =>
-        //    {
-        //        Playlist newPlaylist = new();
-        //        newPlaylist.name = baseItem.Name;
-        //        newPlaylist.id = (System.Guid)baseItem.Id;
-        //        newPlaylist.isFavourite = (bool)baseItem.UserData.IsFavorite;
-        //        newPlaylist.songs = new Song[0]; // TODO: Implement songs
-        //        newPlaylist.path = baseItem.Path;
-        //        newPlaylist.serverAddress = _sdkClientSettings.ServerUrl;
-
-        //        if (baseItem.Type != BaseItemDto_Type.MusicAlbum)
-        //        {
-        //            if (baseItem.AlbumId != null)
-        //            {
-        //                newPlaylist.id = (System.Guid)baseItem.AlbumId;
-        //            }
-        //        }
-
-        //        newPlaylist.image = MusicItemImageBuilder(baseItem);
-
-        //        return newPlaylist;
-        //    });
-        //}
     }
 }
