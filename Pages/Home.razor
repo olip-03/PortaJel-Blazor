@@ -159,8 +159,8 @@ else
             MauiProgram.UpdateDebugMessage("Starting request for Home page data.");
 
             Task<Song[]> runGetRecent = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.DatePlayed, sortOrder: [SortOrder.Descending]);
-            Task<Album[]> runGetFavourites = MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, isFavourite: true);
-            Task<Album[]> runGetRecentlyAdded = MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.DateCreated, sortOrder: SortOrder.Descending);
+            Task<Album[]> runGetFavourites = MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, isPartial: false, startIndex: 0, isFavourite: true);
+            Task<Album[]> runGetRecentlyAdded = MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, isPartial: false, startIndex: 0, sortTypes: ItemSortBy.DateCreated, sortOrder: SortOrder.Descending);
             Task<Song[]> runGetMostPlayed = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.PlayCount, sortOrder: [SortOrder.Descending]);
             Task<Song[]> runGetRandom = MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.Random, sortOrder: [SortOrder.Descending]);
             await Task.WhenAll(

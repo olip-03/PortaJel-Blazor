@@ -220,7 +220,7 @@ namespace PortaJel_Blazor.Classes
         /// Thrown when the server connector has not been initialized. Ensure that 
         /// AuthenticateUserAsync method has been called.
         /// </exception>
-        public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder setSortOrder = SortOrder.Ascending)
+        public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int setStartIndex = 0, bool setFavourites = false, bool getPartial = true, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder setSortOrder = SortOrder.Ascending)
         {
             if (Database == null)
             {
@@ -288,6 +288,10 @@ namespace PortaJel_Blazor.Classes
                     {
                         await Initalize(ServerAddress, true);
                     }
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        throw new InvalidOperationException("Server Connector faild to initialized!");
+                    }
 
                     // Call server and return items
                     MauiProgram.UpdateDebugMessage("Calling Items Endpoint for All Albums...");
@@ -306,12 +310,27 @@ namespace PortaJel_Blazor.Classes
                     }).ConfigureAwait(false);
                     if (serverResults != null && serverResults.Items != null)
                     {
-                        MauiProgram.UpdateDebugMessage("Retrieved! Updating tables.");
-                        for (int i = 0; i < serverResults.Items.Count(); i++)
+                        if (getPartial)
                         {
-                            // Add to list to be returned 
-                            Album newAlbum = Album.Builder(serverResults.Items[i], _sdkClientSettings.ServerUrl);
-                            toReturn.Add(newAlbum);
+                            for (int i = 0; i < serverResults.Items.Count(); i++)
+                            {
+                                // Add to list to be returned 
+                                Album newAlbum = Album.Builder(serverResults.Items[i], _sdkClientSettings.ServerUrl);
+                                toReturn.Add(newAlbum);
+                            }
+                        }
+                        else
+                        {
+                            // Oh god moment of truth I guess
+                            MauiProgram.UpdateDebugMessage("Retrieved! Fetching songs.");
+                            List<Task<Album>> taskList = new();
+                            foreach (BaseItemDto? albumItem in serverResults.Items)
+                            {
+                                if (albumItem.Id == null || (Guid)albumItem.Id == Guid.Empty) continue;
+                                taskList.Add(GetAlbumAsync((Guid)albumItem.Id));
+                            }
+                            await Task.WhenAll(taskList).ConfigureAwait(false);
+                            toReturn = taskList.Select(task => task.Result).ToList();
                         }
                     }
                 }
@@ -407,33 +426,33 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.EnableImages = true;
                     });
 
-                    try
-                    {
-                        await albumQueryResult;
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine(ex.Message);
-                    }
+                    //try
+                    //{
+                    //    await albumQueryResult;
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    Trace.WriteLine(ex.Message);
+                    //}
 
-                    try
-                    {
-                        await songQueryResult;
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine(ex.Message);
-                    }
+                    //try
+                    //{
+                    //    await songQueryResult;
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    Trace.WriteLine(ex.Message);
+                    //}
 
-                    try
-                    {
-                        await artistQueryResults;
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine(ex.Message);
-                    }
-                    //await Task.WhenAll(, , );
+                    //try
+                    //{
+                    //    await artistQueryResults;
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    Trace.WriteLine(ex.Message);
+                    //}
+                    await Task.WhenAll(albumQueryResult, songQueryResult, artistQueryResults);
 
                     if (albumQueryResult.Result == null || albumQueryResult.Result.Items == null) return Album.Empty;
                     if (songQueryResult.Result == null || songQueryResult.Result.Items == null) return Album.Empty;

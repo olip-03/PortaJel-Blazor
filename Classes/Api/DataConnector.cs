@@ -79,7 +79,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="sortOrder">The sort order for the albums.</param>
         /// <returns>Album[] (Album array) containing all albums as requested from all servers</returns>
-        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder sortOrder = SortOrder.Descending)
+        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool isFavourite = false, bool isPartial = true, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder sortOrder = SortOrder.Descending)
         {
             List<Album> albumsReturn = new List<Album>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
@@ -89,7 +89,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     actualLimit = (int)limit / connecters.Count;
                 }
-                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder));
+                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, getPartial: isPartial, setSortTypes: sortTypes, setSortOrder: sortOrder));
             });
 
             // TODO: ensure we're capping the limit as set in the initali integer
