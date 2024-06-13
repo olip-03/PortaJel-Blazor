@@ -73,7 +73,11 @@ namespace PortaJel_Blazor.Data
             }
             return new Album(album, songs, artists);
         }
-
+        public Song[] GetSongs()
+        {
+            if (_songData == null) return [];
+            return _songData.Select(song => new Song(song, _albumData, _artistData)).ToArray();
+        }
         public void SetIsFavourite(bool state)
         {
             _albumData.IsFavourite = state;

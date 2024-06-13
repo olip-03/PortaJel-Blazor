@@ -4,6 +4,8 @@
 @using PortaJel_Blazor.Shared;
 @using PortaJel_Blazor.Shared.Icons;
 @using Blurhash;
+@using CommunityToolkit.Maui.Core;
+@using CommunityToolkit.Maui.Alerts;
 @inject IJSRuntime JS;
 
 @page "/AlbumView/{albumId}"
@@ -69,13 +71,9 @@
             </div>
 
             // Add Songs
-            for (int i = 0; i < album.Songs.Length; i++)
+            for (int i = 0; i < songs.Length; i++)
             {
-                album.Songs[i].AlbumId = album.Id; // TODO: this should already be set figure out why it isnt
-                                                   // either that or complete the re-do of the data structure 
-                                                   // again lollllll
-                Song song = new Song(album.Songs[i]);
-                <AlbumSongItem song="@song" location="@i" base64BlurHash="@base64BlurHash" />
+                <AlbumSongItem song="@songs[i]" OnPlayCallback="@GetPlaySongAction(i)" OnQueueCallback="@GetQueueSongAction(i)" location="@i" base64BlurHash="@base64BlurHash" />
             }
 
             // Add Artists
@@ -123,6 +121,7 @@
     private Dictionary<Guid, KeyValuePair<string, string>> artistData = new();
 
     private Album album { get; set; } = Album.Empty;
+    private Song[] songs { get; set; } = [];
     private bool loaded = false;
     private int similarAlbumLimit = 30;
     private Album[] similarAlbums = new Album[0];
@@ -140,6 +139,7 @@
         MauiProgram.WebView.pageTitle = "Album";
         MauiProgram.WebView.currentUri = $"/AlbumView/{albumId}";
         MauiProgram.WebView.showHeader = false;
+
         MauiProgram.UpdateDebugMessage("Page Loaded.");
     }
 
@@ -195,6 +195,7 @@
                     Task<Album[]> getSimilarAlbum = MauiProgram.api.GetSimilarAlbumsAsync(parseId, similarAlbumLimit);
                     await Task.WhenAll(getAlbum, getSimilarAlbum);
                     album = getAlbum.Result;
+                    songs = album.GetSongs();
                     similarAlbums = getSimilarAlbum.Result;
                 }
                 else
@@ -297,9 +298,13 @@
         }
     }
 
-    private void PlayAlbum(bool shuffle = false)
+    private async void PlayAlbum(bool shuffle = false, int fromIndex = 0)
     {
-        if (MauiProgram.MediaService == null) return;
+        if (MauiProgram.MediaService == null)
+        {
+            MauiProgram.MediaService = new MediaService();
+            await MauiProgram.MediaService.Initalize();
+        }
         // Move all items in the current queue to the Next Up Queue, to ensure that
         // this item is prioritised, without losing the current queue 
         if (MauiProgram.currentAlbumGuid == album.Id)
@@ -313,7 +318,6 @@
 
             // When a user clicks on an album to listen to the songs go into the next up list
             MauiProgram.MediaService.SetPlayingCollection(album, 0);
-            MauiProgram.MediaService.SetPlayingCollection(album);
 
             MauiProgram.MainPage.RefreshPlayer();
             MauiProgram.MediaService.Play();
@@ -321,6 +325,71 @@
 
         // MauiProgram.MainPage.RefreshPlayer();
         StateHasChanged();
+    }
+
+    private Action GetPlaySongAction(int songIndex)
+    {
+        return async () =>
+                {
+                    try
+                    {
+                        if (Application.Current == null) return;
+                        if (Application.Current.MainPage == null) return;
+
+                        if (MauiProgram.MediaService == null)
+                        {
+                            MauiProgram.MediaService = new MediaService();
+                            await MauiProgram.MediaService.Initalize();
+                        }
+                        MauiProgram.MediaService.SetPlayingCollection(album, songIndex);
+
+                        MauiProgram.currentAlbumGuid = album.Id;
+                        // MauiProgram.currentSongGuid = album song at index;
+
+                        MauiProgram.MainPage.RefreshPlayer();
+                        MauiProgram.MediaService.Play();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (Application.Current != null &&
+                        Application.Current.MainPage != null)
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error?", $"{ex.Message} at {ex.StackTrace}", "Continue");
+                            return;
+                        }
+                    }
+                };
+    }
+
+    private Action GetQueueSongAction(int songIndex)
+    {
+        return async () =>
+        {
+            HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+
+            await Task.Delay(250);
+
+            if (MauiProgram.MediaService == null)
+            {
+                MauiProgram.MediaService = new MediaService();
+                await MauiProgram.MediaService.Initalize();
+            }
+
+            // Adds song to Queue as well as UI
+            MauiProgram.MediaService.AddSong(songs[songIndex]);
+            // MauiProgram.MainPage.RefreshQueue();
+
+            #if !WINDOWS
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+            string text = $"{songs[songIndex].Name} added to queue.";
+            ToastDuration duration = ToastDuration.Short;
+            double fontSize = 14;
+
+            var toast = Toast.Make(text, duration, fontSize);
+            await toast.Show(cancellationTokenSource.Token);
+            #endif
+        };
     }
 
     private async void OpenContextMenu(BaseMusicItem musicItem)

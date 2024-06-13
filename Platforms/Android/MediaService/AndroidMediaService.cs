@@ -156,6 +156,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
  
             UpdateNotification();
+
             StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
             return base.OnStartCommand(startIntent, flags, startId);
         }
@@ -254,6 +255,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         private void UpdateNotification()
         {
             var channel = GetNotificationChannel();
+
+            NotificationManager notificationManager = (NotificationManager)GetSystemService(Context.NotificationService);
+            notificationManager.CreateNotificationChannel(channel);
+
             Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
             Notification.Style? mediaStyle = new Notification.MediaStyle().SetMediaSession(MediaSession.SessionToken);
 
@@ -384,6 +389,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             var channelName = "PortaJel";
             var channelDescription = "Notification Channel for the PortaJel Music Streaming App for Jellyfin";
+
+
             return new NotificationChannel(channedId, channelName, NotificationImportance.Max)
             {
                 Description = channelDescription,

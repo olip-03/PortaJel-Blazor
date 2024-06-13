@@ -111,11 +111,10 @@
             if (musicObject is Song)
             {
                 Song song = (Song)musicObject;
-                Album? album = new Album(song.Album);
-                if(album != null)
+                if (song != null)
                 {
                     MauiProgram.MainPage.ShowLoadingScreen(true);
-                    MauiProgram.WebView.NavigateAlbum(album.Id);
+                    MauiProgram.WebView.NavigateAlbum(song.AlbumId);
                 }
             }
             if(musicObject is Artist)

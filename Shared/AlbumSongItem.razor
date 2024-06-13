@@ -68,6 +68,8 @@
 
 @code {
     [Parameter] public Song song { get; set; } = Song.Empty;
+    [Parameter] public Action? OnPlayCallback { get; set; } = null;
+    [Parameter] public Action? OnQueueCallback { get; set; } = null;
     [Parameter] public int location { get; set; } = -1;
     [Parameter] public bool showImage { get; set; } = false;
     [Parameter] public string base64BlurHash { get; set; } = string.Empty;
@@ -111,82 +113,22 @@
         StateHasChanged();
     }
 
-    private async void PlaySong(int songIndex)
+    private void PlaySong(int songIndex)
     { // Play selected song, and queue the rest of the album
-        await Task.Delay(300); // await CSS animation to finish
-        #if WINDOWS
-        return;
-        #endif
-        try
+        if (OnPlayCallback != null)
         {
-            if (Application.Current == null) return;
-            if (Application.Current.MainPage == null) return;
-            if (song.Album == null)
-            {
-                await Application.Current.MainPage.DisplayAlert("Error?", $"PlaySong({songIndex}) failed because song.album was null! Please fetch this album before running this function!", "Continue");
-                return;
-            }
-
-            if (MauiProgram.MediaService == null)
-            {
-                MauiProgram.MediaService = new MediaService();
-                await MauiProgram.MediaService.Initalize();
-            }
-            MauiProgram.MediaService.SetPlayingCollection(new Album(song.Album), songIndex);
-
-            MauiProgram.currentAlbumGuid = song.Album.Id;
-            // MauiProgram.currentSongGuid = album song at index;
-
-            MauiProgram.MainPage.RefreshPlayer();
-            MauiProgram.MediaService.Play();
-        }
-        catch (Exception ex)
-        {
-            if (Application.Current != null &&
-                Application.Current.MainPage != null)
-            {
-                await Application.Current.MainPage.DisplayAlert("Error?", $"{ex.Message} at {ex.StackTrace}", "Continue");
-                return;
-            }
+            OnPlayCallback.Invoke();
         }
 
-        StateHasChanged();
-        MauiProgram.WebView.UpdateState();
     }
 
     [JSInvokable("QueueSong")]
-    public async void QueueSong()
+    public void QueueSong()
     {
-        if (QueueSongLock)
+        if (OnQueueCallback != null)
         {
-            return;
+            OnQueueCallback.Invoke();
         }
-        QueueSongLock = true;
-        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-
-        await Task.Delay(250);
-
-        if(MauiProgram.MediaService == null)
-        {
-            MauiProgram.MediaService = new MediaService();
-            await MauiProgram.MediaService.Initalize();
-        }
-        
-        // Adds song to Queue as well as UI
-        MauiProgram.MediaService.AddSong(song);
-        // MauiProgram.MainPage.RefreshQueue();
-
-        #if !WINDOWS
-        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-        string text = $"{song.Name} added to queue.";
-        ToastDuration duration = ToastDuration.Short;
-        double fontSize = 14;
-
-        var toast = Toast.Make(text, duration, fontSize);
-        await toast.Show(cancellationTokenSource.Token);
-        #endif
-        QueueSongLock = false;
     }
 
     [JSInvokable("FavouriteSong")]

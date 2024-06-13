@@ -451,7 +451,7 @@ namespace PortaJel_Blazor.Classes
                     storedAlbums.Add(albumData.Id);
                     storedSongs.AddRange(songData.Select(song => song.Id));
                     storedArtists.AddRange(artistData.Select(artist => artist.Id));
-                    toReturn = new Album(albumData, songData, artistData);
+                    return new Album(albumData, songData, artistData);
                 }
                 catch (HttpRequestException)
                 {
@@ -459,8 +459,6 @@ namespace PortaJel_Blazor.Classes
                     return await ReturnFromCache();
                 }
             }
-
-            return toReturn;
         }
 
         /// <summary>
