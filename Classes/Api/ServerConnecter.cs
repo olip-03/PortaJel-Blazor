@@ -12,6 +12,7 @@ using PortaJel_Blazor.Classes.Database;
 using SQLite;
 using System.Security.Cryptography;
 using System.Diagnostics;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -368,7 +369,7 @@ namespace PortaJel_Blazor.Classes
 
                 if (songIds != null && artistIds != null)
                 {
-                    Task<SongData[]> songDbQuery = Database.Table<SongData>().Where(song => songIds.Contains(song.Id)).ToArrayAsync();
+                    Task<SongData[]> songDbQuery = Database.Table<SongData>().Where(song => songIds.Contains(song.Id)).OrderBy(song => song.IndexNumber).ToArrayAsync();
                     Task<ArtistData[]> artistDbQuery = Database.Table<ArtistData>().Where(artist => artistIds.Contains(artist.Id)).ToArrayAsync();
                     
                     Task.WaitAll(songDbQuery, artistDbQuery);
@@ -382,6 +383,7 @@ namespace PortaJel_Blazor.Classes
 
             if (isOffline || storedAlbums.Contains(setId))
             {
+                MauiProgram.UpdateDebugMessage("Retrieving Album from Local Cache...");
                 return await ReturnFromCache();
             }
             else
@@ -390,6 +392,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
                     {
+                        MauiProgram.UpdateDebugMessage("Attempting server connection!");
                         Initalize(ServerAddress);
                         await AuthenticateServerAsync();
                     }
@@ -397,6 +400,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         throw new HttpRequestException("Server Connector faild to initialized!");
                     }
+                    MauiProgram.UpdateDebugMessage("Retrieving Album from Server...");
 
                     Task<BaseItemDtoQueryResult?> albumQueryResult = _jellyfinApiClient.Items.GetAsync(c =>
                     {
@@ -438,11 +442,11 @@ namespace PortaJel_Blazor.Classes
                     BaseItemDto[] songBaseItemArray = songQueryResult.Result.Items.ToArray();
                     BaseItemDto[] artistBaseItemArray = artistQueryResults.Result.Items.ToArray();
 
-                    SongData[] songData = songBaseItemArray.Select(item => SongData.Builder(item, _sdkClientSettings.ServerUrl)).ToArray();
+                    SongData[] songData = songBaseItemArray.Select(item => SongData.Builder(item, _sdkClientSettings.ServerUrl)).OrderBy(song => song.IndexNumber).ToArray();
                     AlbumData albumData = AlbumData.Builder(albumBaseItem, _sdkClientSettings.ServerUrl, songData.Select(song => song.Id).ToArray());
                     ArtistData[] artistData = artistBaseItemArray.Select(item => ArtistData.Builder(item, _sdkClientSettings.ServerUrl)).ToArray();
 
-                    // ChatGPT code, fuck I dunno. If it works it works i guess idk 
+                    // Insert into DB
                     var albumTask = Database.InsertOrReplaceAsync(albumData);
                     var songTasks = songData.Select(item => Database.InsertOrReplaceAsync(item));
                     var artistTasks = artistData.Select(item => Database.InsertOrReplaceAsync(item));
