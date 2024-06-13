@@ -21,7 +21,16 @@ namespace PortaJel_Blazor.Classes.Database
         public string SongIdsJson { get; set; } = string.Empty;
         public Guid[]? GetArtistIds()
         {
-            return JsonSerializer.Deserialize<Guid[]>(ArtistIdsJson);
+            Guid[]? artistIds;
+            try
+            {
+                artistIds = JsonSerializer.Deserialize<Guid[]>(ArtistIdsJson);
+            }
+            catch (Exception)
+            {
+                artistIds = null;
+            }
+            return artistIds;
         }
         public Guid[]? GetSongIds()
         {

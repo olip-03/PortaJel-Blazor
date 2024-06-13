@@ -61,7 +61,6 @@ namespace PortaJel_Blazor.Classes
         {
             Initalize(baseUrl, username, password);
         }
-
         private async void Initalize(string baseUrl, string? username = null, string? password = null)
         {
             if (username != null)
@@ -190,8 +189,9 @@ namespace PortaJel_Blazor.Classes
                     return true;
                 }
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException ex)
             {
+                isOffline = true;
                 throw;
             }
 
@@ -225,7 +225,7 @@ namespace PortaJel_Blazor.Classes
 
             List<Album> toReturn = new();
             // Function to run that returns data from the cache
-            async void ReturnFromCache()
+            async Task<Album[]> ReturnFromCache()
             {
                 // Filter the cache based on the provided parameters
                 if (setLimit == null)
@@ -246,10 +246,11 @@ namespace PortaJel_Blazor.Classes
                             .Take((int)setLimit).ToListAsync());
                         break;
                     case ItemSortBy.Random:
-                        filteredCache = await Database.Table<AlbumData>()
+                        var firstTake = await Database.Table<AlbumData>().ToListAsync();
+                        filteredCache = firstTake
                             .OrderBy(album => Guid.NewGuid())
                             .Take((int)setLimit)
-                            .ToListAsync();
+                            .ToList();
                         break;
                     case ItemSortBy.PlayCount:
                         filteredCache.AddRange(await Database.Table<AlbumData>()
@@ -263,18 +264,12 @@ namespace PortaJel_Blazor.Classes
                         break;
                 }
 
-                foreach (AlbumData dbItem in filteredCache)
-                {
-                    //SongData[] songData = [];
-                    //ArtistData[] artistData = [];
-                    // likely don't need to reconstruct entire thing if we're just chasing partials online
-                    toReturn.Add(new Album(dbItem));
-                }
+                return filteredCache.Select(dbItem => new Album(dbItem)).ToArray();
             }
 
             if (isOffline)
             { // If offline, return all from the cache
-                ReturnFromCache();
+                return await ReturnFromCache();
             }
             else
             { // Call server
@@ -287,7 +282,7 @@ namespace PortaJel_Blazor.Classes
                     }
                     if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
                     {
-                        throw new InvalidOperationException("Server Connector faild to initialized!");
+                        throw new HttpRequestException("Server Connector faild to initialized!");
                     }
 
                     // Call server and return items
@@ -335,7 +330,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     MauiProgram.UpdateDebugMessage("Failed from HTTP Excetion! Returning from Cache.");
                     isOffline = true;
-                    ReturnFromCache();
+                    return await ReturnFromCache();
                 }
             }
 
@@ -351,17 +346,17 @@ namespace PortaJel_Blazor.Classes
         public async Task<Album> GetAlbumAsync(Guid setId)
         {
             Album toReturn = Album.Empty;
-            if (_jellyfinApiClient == null ||  userDto == null || Database == null || _sdkClientSettings.ServerUrl == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
-            if(setId == Guid.Empty)
+            if (setId == Guid.Empty)
             {
                 return Album.Empty;
             }
 
-            async void ReturnFromCache()
+            async Task<Album> ReturnFromCache()
             {
                 // Filter the cache based on the provided parameters
                 AlbumData albumFromDb = await Database.Table<AlbumData>().Where(album => album.Id == setId).FirstOrDefaultAsync();
@@ -382,17 +377,27 @@ namespace PortaJel_Blazor.Classes
                     artistsFromDb = artistDbQuery.Result;
                 }
 
-                toReturn = new Album(albumFromDb, songFromDb, artistsFromDb);
+                return new Album(albumFromDb, songFromDb, artistsFromDb);
             }
 
             if (isOffline || storedAlbums.Contains(setId))
             {
-                ReturnFromCache();
+                return await ReturnFromCache();
             }
             else
             {
                 try
                 {
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        Initalize(ServerAddress);
+                        await AuthenticateServerAsync();
+                    }
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        throw new HttpRequestException("Server Connector faild to initialized!");
+                    }
+
                     Task<BaseItemDtoQueryResult?> albumQueryResult = _jellyfinApiClient.Items.GetAsync(c =>
                     {
                         c.QueryParameters.UserId = userDto.Id;
@@ -451,7 +456,7 @@ namespace PortaJel_Blazor.Classes
                 catch (HttpRequestException)
                 {
                     isOffline = true;
-                    ReturnFromCache();
+                    return await ReturnFromCache();
                 }
             }
 
@@ -466,29 +471,47 @@ namespace PortaJel_Blazor.Classes
         /// <exception cref="InvalidOperationException">Thrown if the server connector has not been initialized.</exception>
         public async Task<Album[]> GetSimilarAlbumsAsync(System.Guid setId, int limit = 30)
         {
-            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
+            List<Album> toReturn = new();
             if (isOffline)
             {
                 return [];
             }
-
-            List<Album> toReturn = new();
-            BaseItemDtoQueryResult? result = await _jellyfinApiClient.Albums[setId].Similar.GetAsync(c =>
+            try
             {
-                c.QueryParameters.UserId = userDto.Id;
-                c.QueryParameters.Limit = limit;
-            });
-            if (result != null && result.Items != null)
-            {
-                foreach (BaseItemDto albumResult in result.Items)
+                if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
                 {
-                    toReturn.Add(new Album(AlbumData.Builder(albumResult, _sdkClientSettings.ServerUrl)));
+                    Initalize(ServerAddress);
+                    await AuthenticateServerAsync();
+                }
+                if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                {
+                    throw new HttpRequestException("Server Connector faild to initialized!");
+                }
+
+                BaseItemDtoQueryResult? result = await _jellyfinApiClient.Albums[setId].Similar.GetAsync(c =>
+                {
+                    c.QueryParameters.UserId = userDto.Id;
+                    c.QueryParameters.Limit = limit;
+                });
+                if (result != null && result.Items != null)
+                {
+                    foreach (BaseItemDto albumResult in result.Items)
+                    {
+                        toReturn.Add(new Album(AlbumData.Builder(albumResult, _sdkClientSettings.ServerUrl)));
+                    }
                 }
             }
+            catch (HttpRequestException)
+            {
+                isOffline = true;
+                toReturn = [];
+            }
+
             return toReturn.ToArray();
         }
         #endregion
@@ -505,20 +528,21 @@ namespace PortaJel_Blazor.Classes
         /// <returns>An array of songs.</returns>
         public async Task<Song[]> GetAllSongsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder[]? setSortOrder = null)
         {
-            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null || Database == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
             List<Song> toReturn = new();
             // Function to run that returns data from the cache
-            async void ReturnFromCache()
+            async Task<Song[]> ReturnFromCache()
             {
                 // Filter the cache based on the provided parameters
                 if (setLimit == null)
                 {
                     setLimit = 50;
                 }
+                List<Song> returnCache = new();
                 List<SongData> filteredCache = new();
                 switch (setSortTypes)
                 {
@@ -533,10 +557,11 @@ namespace PortaJel_Blazor.Classes
                             .Take((int)setLimit).ToListAsync());
                         break;
                     case ItemSortBy.Random:
-                        filteredCache = await Database.Table<SongData>()
+                        var firstTake = await Database.Table<SongData>().ToListAsync();
+                        filteredCache = firstTake
                             .OrderBy(song => Guid.NewGuid())
                             .Take((int)setLimit)
-                            .ToListAsync();
+                            .ToList();
                         break;
                     case ItemSortBy.PlayCount:
                         filteredCache.AddRange(await Database.Table<SongData>()
@@ -565,18 +590,29 @@ namespace PortaJel_Blazor.Classes
                     albumData = albumDbQuery.Result;
                     artistData = artistDbQuery.Result;
 
-                    toReturn.Add(new Song(dbItem, albumData, artistData));
+                    returnCache.Add(new Song(dbItem, albumData, artistData));
                 }
+                return returnCache.ToArray();
             }
 
             if (isOffline)
             { // If offline, return all from the cache
-                ReturnFromCache();
+                return await ReturnFromCache();
             }
             else
             { // Call server
                 try
                 {
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        Initalize(ServerAddress);
+                        await AuthenticateServerAsync();
+                    }
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        throw new HttpRequestException("Server Connector faild to initialized!");
+                    }
+
                     // Make server call
                     BaseItemDtoQueryResult? serverResults = await _jellyfinApiClient.Items.GetAsync(c =>
                     {
@@ -604,7 +640,7 @@ namespace PortaJel_Blazor.Classes
                 catch (HttpRequestException)
                 {
                     isOffline = true;
-                    ReturnFromCache();
+                    return await ReturnFromCache();
                 }
             }
 
@@ -619,12 +655,12 @@ namespace PortaJel_Blazor.Classes
         public async Task<Song> GetSongAsync(System.Guid setId)
         {
             Song toReturn = Song.Empty;
-            if (_jellyfinApiClient == null || userDto == null || Database == null || _sdkClientSettings.ServerUrl == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
-            async void ReturnFromCache()
+            async Task<Song> ReturnFromCache()
             {
                 SongData songDbItem = await Database.Table<SongData>().Where(song => song.Id == setId).FirstOrDefaultAsync();
 
@@ -641,17 +677,27 @@ namespace PortaJel_Blazor.Classes
                 albumData = albumDbQuery.Result;
                 artistData = artistDbQuery.Result;
 
-                toReturn = new Song(songDbItem, albumData, artistData);
+                return new Song(songDbItem, albumData, artistData);
             }
 
             if (isOffline)
             {
-                ReturnFromCache();
+                return await ReturnFromCache();
             }
             else
             {
                 try
                 {
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        Initalize(ServerAddress);
+                        await AuthenticateServerAsync();
+                    }
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        throw new HttpRequestException("Server Connector faild to initialized!");
+                    }
+
                     Task<BaseItemDtoQueryResult?> songQueryResult = _jellyfinApiClient.Items.GetAsync(c =>
                     {
                         c.QueryParameters.UserId = userDto.Id;
@@ -697,7 +743,7 @@ namespace PortaJel_Blazor.Classes
                 catch (Exception)
                 {
                     isOffline = true;
-                    ReturnFromCache();
+                    return await ReturnFromCache();
                 }
             }
 
@@ -709,14 +755,14 @@ namespace PortaJel_Blazor.Classes
         // TODO: Update to include caching la la la
         public async Task<Artist[]> GetAllArtistsAsync(int limit = 50, int? startFromIndex = 0, bool? favourites = false, ItemSortBy setSortTypes = ItemSortBy.Default)
         {
-            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null || Database == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
             List<Artist> toReturn = new List<Artist>();
 
-            async void ReturnFromCache()
+            async Task<Artist[]> ReturnFromCache()
             {
                 List<ArtistData> filteredCache = new();
                 switch (setSortTypes)
@@ -732,10 +778,11 @@ namespace PortaJel_Blazor.Classes
                             .Take((int)limit).ToListAsync());
                         break;
                     case ItemSortBy.Random:
-                        filteredCache = await Database.Table<ArtistData>()
+                        var firstTake = await Database.Table<ArtistData>().ToListAsync();
+                        filteredCache = firstTake
                             .OrderBy(artist => Guid.NewGuid())
                             .Take((int)limit)
-                            .ToListAsync();
+                            .ToList();
                         break;
                     default:
                         filteredCache.AddRange(await Database.Table<ArtistData>()
@@ -743,20 +790,27 @@ namespace PortaJel_Blazor.Classes
                             .Take((int)limit).ToListAsync());
                         break;
                 }
-                foreach (ArtistData dbItem in filteredCache)
-                {
-                    toReturn.Add(new Artist(dbItem));
-                }
+                return filteredCache.Select(artist => new Artist(artist)).ToArray();
             }
 
             if (isOffline)
             {
-                ReturnFromCache();
+                return await ReturnFromCache();
             }
             else
             {
                 try
                 {
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        Initalize(ServerAddress);
+                        await AuthenticateServerAsync();
+                    }
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        throw new HttpRequestException("Server Connector faild to initialized!");
+                    }
+
                     BaseItemDtoQueryResult? artistResult = await _jellyfinApiClient.Items.GetAsync(c =>
                     {
                         c.QueryParameters.UserId = userDto.Id;
@@ -782,7 +836,7 @@ namespace PortaJel_Blazor.Classes
                 catch (HttpRequestException)
                 {
                     isOffline = true;
-                    ReturnFromCache();
+                    return await ReturnFromCache();
                 }
             }
 
@@ -792,31 +846,41 @@ namespace PortaJel_Blazor.Classes
         // TODO: Update to include caching
         public async Task<Artist> GetArtistAsync(System.Guid artistId)
         {
-            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null || Database == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
             Artist returnArtist = new Artist();
 
-            async void ReturnFromCache()
+            async Task<Artist> ReturnFromCache()
             {
                 ArtistData artistDbItem = await Database.Table<ArtistData>().Where(artist => artist.Id == artistId).FirstOrDefaultAsync();
                 
                 Guid[] albumIds = artistDbItem.GetAlbumIds();
                 AlbumData[] albumData = await Database.Table<AlbumData>().Where(album => albumIds.Contains(album.Id)).ToArrayAsync();
 
-                returnArtist = new Artist(artistDbItem, albumData);
+                return new Artist(artistDbItem, albumData);
             }
 
             if (isOffline)
             {
-                ReturnFromCache();
+                return await ReturnFromCache();
             }
             else
             {
                 try
                 {
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        Initalize(ServerAddress);
+                        await AuthenticateServerAsync();
+                    }
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        throw new HttpRequestException("Server Connector faild to initialized!");
+                    }
+
                     BaseItemDtoQueryResult? artistInfo = new BaseItemDtoQueryResult();
                     BaseItemDtoQueryResult? albumResult = new BaseItemDtoQueryResult();
                     Task<BaseItemDtoQueryResult?> runArtistInfo = _jellyfinApiClient.Items.GetAsync(c =>
@@ -863,7 +927,7 @@ namespace PortaJel_Blazor.Classes
                 catch (HttpRequestException)
                 {
                     isOffline = true;
-                    ReturnFromCache();
+                    return await ReturnFromCache();
                 }
                 catch (Exception ex)
                 {
@@ -877,7 +941,7 @@ namespace PortaJel_Blazor.Classes
 
         public async Task<Artist[]> GetSimilarArtistsAsync(System.Guid setId, int limit = 30)
         {
-            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
@@ -886,18 +950,37 @@ namespace PortaJel_Blazor.Classes
                 return [];
             }
             List<Artist> toReturn = new();
-            BaseItemDtoQueryResult? result = await _jellyfinApiClient.Artists[setId.ToString()].Similar.GetAsync(c =>
+            try
             {
-                c.QueryParameters.UserId = userDto.Id;
-                c.QueryParameters.Limit = limit;
-            });
-            if (result != null && result.Items != null)
-            {
-                foreach (BaseItemDto albumResult in result.Items)
+                if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
                 {
-                    toReturn.Add(new Artist(ArtistData.Builder(albumResult, _sdkClientSettings.ServerUrl)));
+                    Initalize(ServerAddress);
+                    await AuthenticateServerAsync();
+                }
+                if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                {
+                    throw new HttpRequestException("Server Connector faild to initialized!");
+                }
+
+                BaseItemDtoQueryResult? result = await _jellyfinApiClient.Artists[setId.ToString()].Similar.GetAsync(c =>
+                {
+                    c.QueryParameters.UserId = userDto.Id;
+                    c.QueryParameters.Limit = limit;
+                });
+                if (result != null && result.Items != null)
+                {
+                    foreach (BaseItemDto albumResult in result.Items)
+                    {
+                        toReturn.Add(new Artist(ArtistData.Builder(albumResult, _sdkClientSettings.ServerUrl)));
+                    }
                 }
             }
+            catch (HttpRequestException)
+            {
+                isOffline = true;
+                toReturn = [];
+            }
+
             return toReturn.ToArray();
         }
         #endregion
@@ -905,33 +988,40 @@ namespace PortaJel_Blazor.Classes
         #region Playlists
         public async Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int? startFromIndex = 0)
         {
-            if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
             List<Playlist> playlists = new List<Playlist>();
 
-            async void ReturnFromCache()
+            async Task<Playlist[]> ReturnFromCache()
             {
                 List<PlaylistData> filteredCache = new();
                 filteredCache.AddRange(await Database.Table<PlaylistData>()
                     .OrderByDescending(playlist => playlist.Name)
                     .Take(limit).ToListAsync());
-                foreach (PlaylistData dbItem in filteredCache)
-                {
-                    playlists.Add(new Playlist(dbItem));
-                }
+                return filteredCache.Select(dbItem => new Playlist(dbItem)).ToArray();
             }
 
             if (isOffline)
             {
-                ReturnFromCache();
+                return await ReturnFromCache();
             }
             else
             {
                 try
                 {
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        Initalize(ServerAddress);
+                        await AuthenticateServerAsync();
+                    }
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        throw new HttpRequestException("Server Connector faild to initialized!");
+                    }
+
                     BaseItemDtoQueryResult? playlistResult = new BaseItemDtoQueryResult();
 
                     playlistResult = await _jellyfinApiClient.Items.GetAsync(c =>
@@ -971,8 +1061,8 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (HttpRequestException)
                 {
-                    ReturnFromCache();
                     isOffline = true;
+                    return await ReturnFromCache();
                 }
                 catch (Exception ex)
                 {
@@ -985,31 +1075,41 @@ namespace PortaJel_Blazor.Classes
         }
         public async Task<Playlist?> GetPlaylistAsync(Guid playlistId)
         {
-            if (_jellyfinApiClient == null || userDto == null || Database == null || _sdkClientSettings.ServerUrl == null)
+            if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
             Playlist toReturn = new Playlist();
 
-            async void ReturnFromCache()
+            async Task<Playlist?> ReturnFromCache()
             {
                 PlaylistData playlistDbItem = await Database.Table<PlaylistData>().Where(artist => artist.Id == playlistId).FirstOrDefaultAsync();
 
                 Guid[] songIds = playlistDbItem.GetSongIds();
                 SongData[] songData = await Database.Table<SongData>().Where(song => songIds.Contains(song.Id)).ToArrayAsync();
 
-                toReturn = new Playlist(playlistDbItem, songData);
+                return new Playlist(playlistDbItem, songData);
             }
 
             if (isOffline)
             {
-                ReturnFromCache();
+                return await ReturnFromCache();
             }
             else
             {
                 try
                 {
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        Initalize(ServerAddress);
+                        await AuthenticateServerAsync();
+                    }
+                    if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
+                    {
+                        throw new HttpRequestException("Server Connector faild to initialized!");
+                    }
+
                     Task<BaseItemDtoQueryResult?> playlistQueryResult = _jellyfinApiClient.Items.GetAsync(c =>
                     {
                         c.QueryParameters.UserId = userDto.Id;
@@ -1037,7 +1137,7 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (HttpRequestException)
                 {
-                    ReturnFromCache();
+                    return await ReturnFromCache();
                     isOffline = true;
                 }
             }

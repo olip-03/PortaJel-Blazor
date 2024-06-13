@@ -216,12 +216,19 @@ public static class MauiProgram
         // Validate connection data and log into servers
         await Parallel.ForEachAsync(api.GetServers(), async (server, ct) => {
             firstLoginComplete = true; // double-check set true if any servers exist 
-            bool UserPassed = await server.AuthenticateServerAsync();
-            if (UserPassed)
+            try
             {
-                MauiProgram.UpdateDebugMessage($"Successfully logged into {server}");
+                bool UserPassed = await server.AuthenticateServerAsync();
+                if (UserPassed)
+                {
+                    MauiProgram.UpdateDebugMessage($"Successfully logged into {server}");
+                }
+                else
+                {
+                    MauiProgram.UpdateDebugMessage($"Login failed for {server}");
+                }
             }
-            else
+            catch (Exception)
             {
                 MauiProgram.UpdateDebugMessage($"Login failed for {server}");
             }
