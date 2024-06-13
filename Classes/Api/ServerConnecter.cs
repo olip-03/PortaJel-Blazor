@@ -59,13 +59,11 @@ namespace PortaJel_Blazor.Classes
         // https://stackoverflow.com/questions/26020/what-is-the-best-way-to-connect-and-use-a-sqlite-database-from-c-sharp
         public ServerConnecter(string baseUrl, string? username = null, string? password = null)
         {
-            bool initResult = Initalize(baseUrl, false, username, password).Result;
+            Initalize(baseUrl, username, password);
         }
 
-        private async Task<bool> Initalize(string baseUrl, bool authenticate, string? username = null, string? password = null)
+        private async void Initalize(string baseUrl, string? username = null, string? password = null)
         {
-            bool pass = true;
-
             if (username != null)
             {
                 Username = username;
@@ -117,15 +115,10 @@ namespace PortaJel_Blazor.Classes
                     Microsoft.Maui.Devices.DeviceInfo.Current.Name,
                     Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
                 token = cancelTokenSource.Token;
-
-                if (authenticate)
-                {
-                    await AuthenticateServerAsync(Username, StoredPassword);
-                }
             }
             catch (Exception)
             {
-                pass = false;
+                throw;
             }
 
             System.Guid? result = null;
@@ -135,15 +128,12 @@ namespace PortaJel_Blazor.Classes
                 result = new System.Guid(hash);
             }
 
-            string filePath = Path.Combine(FileSystem.AppDataDirectory, $"{result}.db");
+            string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{result}.db");
             Database = new SQLiteAsyncConnection(filePath, DBFlags);
             await Database.CreateTableAsync<AlbumData>();
             await Database.CreateTableAsync<SongData>();
             await Database.CreateTableAsync<ArtistData>();
             await Database.CreateTableAsync<PlaylistData>();
-
-            // Add sample service
-            return pass;
         }
 
         #region Authentication
@@ -195,10 +185,11 @@ namespace PortaJel_Blazor.Classes
                     return true;
                 }
             }
-            catch (Exception)
+            catch (HttpRequestException)
             {
-                return false;
+                throw;
             }
+
             return false;
         }
         #endregion
@@ -286,7 +277,8 @@ namespace PortaJel_Blazor.Classes
                 {
                     if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
                     {
-                        await Initalize(ServerAddress, true);
+                        Initalize(ServerAddress);
+                        await AuthenticateServerAsync();
                     }
                     if (_jellyfinApiClient == null || userDto == null || _sdkClientSettings.ServerUrl == null)
                     {

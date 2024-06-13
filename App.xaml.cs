@@ -8,10 +8,9 @@ public partial class App : Application
 {
 	public App()
 	{
-		InitializeComponent(); 
-        MainPage = new MainPage();
-
-        MauiProgram.MainPage = (MainPage)MainPage;
+		InitializeComponent();
+        MauiProgram.MainPage = new MainPage();
+        MainPage = MauiProgram.MainPage;
         MauiProgram.MainPage.Initialize();
 
         Resources.MergedDictionaries.Add(new DarkTheme());

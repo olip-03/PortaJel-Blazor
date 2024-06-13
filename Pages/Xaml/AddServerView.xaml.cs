@@ -16,9 +16,9 @@ public partial class AddServerView : ContentPage
 	{
 		InitializeComponent();
     }
-    public Task AwaitClose(Page page)
+    public Task AwaitClose()
     {
-        while (MauiProgram.MainPage.GetNavigation().ModalStack.Contains(page))
+        while (MauiProgram.MainPage.GetNavigation().ModalStack.Contains(this))
         {
             // sit around and wait a while
         }
@@ -53,32 +53,34 @@ public partial class AddServerView : ContentPage
         entry_username.Opacity = 0.5;
         entry_password.Opacity = 0.5;
 
+        serverConnecter = new(entry_server.Text);
+
         try
         {
-            serverConnecter = new(entry_server.Text);
-
             UserPassed = await serverConnecter.AuthenticateServerAsync(entry_username.Text, entry_password.Text);
-
-            if (!ServerPassed)
+            ServerPassed = true;
+        }
+        catch (HttpRequestException)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    lbl_errormessage.Text = $"Unable to connect to {UserCredentials.ServerAddress}.";
-                });
-            }
-            else if (!UserPassed)
-            {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    lbl_errormessage.Text = $"Username or password was incorrect.";
-                });
-            }
+                lbl_errormessage.Text = $"Unable to connect to {UserCredentials.ServerAddress}.";
+            });
+            ServerPassed = false;
         }
         catch (Exception)
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 lbl_errormessage.Text = $"Generic fault! Please try again.";
+            });
+        }
+
+        if (ServerPassed && !UserPassed)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                lbl_errormessage.Text = $"Username or password was incorrect.";
             });
         }
 

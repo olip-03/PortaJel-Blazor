@@ -66,8 +66,6 @@ public partial class MainPage : ContentPage
         {
             AddServerView addServerView = new();
             await MauiProgram.MainPage.PushModalAsync(addServerView, false);
-            await Task.Run(() => addServerView.AwaitClose(addServerView));
-            MauiProgram.firstLoginComplete = true;
         }
 
         double spacing = (AllContent.Width - 350) / 2;
