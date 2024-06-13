@@ -25,9 +25,18 @@ namespace PortaJel_Blazor.Classes.Database
         }
         public Guid[]? GetSongIds()
         {
-            return JsonSerializer.Deserialize<Guid[]>(SongIdsJson);
+            Guid[]? songIds;
+            try
+            {
+                songIds = JsonSerializer.Deserialize<Guid[]>(SongIdsJson);
+            }
+            catch (Exception)
+            {
+                songIds = null;
+            }
+            return songIds;
         }
-        public static AlbumData Builder(BaseItemDto baseItem, string server)
+        public static AlbumData Builder(BaseItemDto baseItem, string server, Guid[]? songIds = null)
         {
             if (baseItem.UserData == null)
             {
@@ -53,6 +62,10 @@ namespace PortaJel_Blazor.Classes.Database
             album.ImgSource = musicItemImage.source;
             album.ImgBlurhash = musicItemImage.Blurhash;
             album.ArtistIdsJson = JsonSerializer.Serialize(baseItem.ArtistItems.Select(idPair => idPair.Id).ToArray());
+            if(songIds != null)
+            {
+                album.SongIdsJson = JsonSerializer.Serialize(songIds);
+            }
 
             string artistNames = string.Empty;
             for (int i = 0; i < baseItem.ArtistItems.Count; i++)

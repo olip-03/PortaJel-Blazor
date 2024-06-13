@@ -134,6 +134,11 @@ namespace PortaJel_Blazor.Classes
             await Database.CreateTableAsync<SongData>();
             await Database.CreateTableAsync<ArtistData>();
             await Database.CreateTableAsync<PlaylistData>();
+
+            storedAlbums = Database.Table<AlbumData>().ToListAsync().Result.Select(album => album.Id).ToList();
+            storedSongs = Database.Table<SongData>().ToListAsync().Result.Select(song => song.Id).ToList();
+            storedArtists = Database.Table<ArtistData>().ToListAsync().Result.Select(artist => artist.Id).ToList();
+            storedPlaylists = Database.Table<PlaylistData>().ToListAsync().Result.Select(playlist => playlist.Id).ToList();
         }
 
         #region Authentication
@@ -418,32 +423,6 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.EnableImages = true;
                     });
 
-                    //try
-                    //{
-                    //    await albumQueryResult;
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    Trace.WriteLine(ex.Message);
-                    //}
-
-                    //try
-                    //{
-                    //    await songQueryResult;
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    Trace.WriteLine(ex.Message);
-                    //}
-
-                    //try
-                    //{
-                    //    await artistQueryResults;
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    Trace.WriteLine(ex.Message);
-                    //}
                     await Task.WhenAll(albumQueryResult, songQueryResult, artistQueryResults);
 
                     if (albumQueryResult.Result == null || albumQueryResult.Result.Items == null) return Album.Empty;
@@ -454,8 +433,8 @@ namespace PortaJel_Blazor.Classes
                     BaseItemDto[] songBaseItemArray = songQueryResult.Result.Items.ToArray();
                     BaseItemDto[] artistBaseItemArray = artistQueryResults.Result.Items.ToArray();
 
-                    AlbumData albumData = AlbumData.Builder(albumBaseItem, _sdkClientSettings.ServerUrl);
                     SongData[] songData = songBaseItemArray.Select(item => SongData.Builder(item, _sdkClientSettings.ServerUrl)).ToArray();
+                    AlbumData albumData = AlbumData.Builder(albumBaseItem, _sdkClientSettings.ServerUrl, songData.Select(song => song.Id).ToArray());
                     ArtistData[] artistData = artistBaseItemArray.Select(item => ArtistData.Builder(item, _sdkClientSettings.ServerUrl)).ToArray();
 
                     // ChatGPT code, fuck I dunno. If it works it works i guess idk 
@@ -464,6 +443,9 @@ namespace PortaJel_Blazor.Classes
                     var artistTasks = artistData.Select(item => Database.InsertOrReplaceAsync(item));
                     await Task.WhenAll(new[] { albumTask }.Concat(songTasks).Concat(artistTasks));
 
+                    storedAlbums.Add(albumData.Id);
+                    storedSongs.AddRange(songData.Select(song => song.Id));
+                    storedArtists.AddRange(artistData.Select(artist => artist.Id));
                     toReturn = new Album(albumData, songData, artistData);
                 }
                 catch (HttpRequestException)
