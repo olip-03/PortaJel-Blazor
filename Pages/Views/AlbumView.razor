@@ -4,36 +4,37 @@
 @using PortaJel_Blazor.Shared;
 @using PortaJel_Blazor.Shared.Icons;
 @using Blurhash;
+@using CommunityToolkit.Maui.Core;
+@using CommunityToolkit.Maui.Alerts;
 @inject IJSRuntime JS;
 
 @page "/AlbumView/{albumId}"
 
 @if (loaded)
 {
-    <ViewHeader backgroundImgUrl="@album.image.source" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album />
+    <ViewHeader backgroundImgUrl="@album.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album />
 
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
         <img src="data:image/png;base64, @backgroundBlurHash" class="background-blur" alt="backgound" style="top: @backgroundBlurHeight" />
 
         <div class="image-container" style="top: @headerHeight">
             <img src="data:image/png;base64, @base64BlurHash" class="placeholder" alt="Placeholder Image">
-            <img src="@album.image.source" id="@album.id" class="album-cover-img" onerror="this.src='/images/emptyAlbum.png'" alt="@album.name album cover">
+            <img src="@album.ImgSource" id="@album.Id" class="album-cover-img" onerror="this.src='/images/emptyAlbum.png'" alt="@album.Name album cover">
         </div>
         @if (album != null)
         {
             <div class="item-title">
                 <div class="title-text">
-                    <h2 class="PrimaryTextColor" style="margin: 0px">@album.name</h2>
-                    <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(
-                        album.artists.FirstOrDefault().id)">
-                        @album.GetArtistName()
+                    <h2 class="PrimaryTextColor" style="margin: 0px">@album.Name</h2>
+                    <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(album.ArtistIds.FirstOrDefault())">
+                        @album.ArtistNames
                     </h5>
                 </div>
             </div>
 
             <div class="playback-controls">
                 <div @onclick=FavouriteItem>
-                    @if (album.isFavourite)
+                    @if (album.IsFavourite)
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                             <HeartIcon Filled=true ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
@@ -70,24 +71,21 @@
             </div>
 
             // Add Songs
-            for (int i = 0; i < album.songs.Length; i++)
+            for (int i = 0; i < songs.Length; i++)
             {
-                album.songs[i].album = album; // TODO: this should already be set figure out why it isnt
-                                              // either that or complete the re-do of the data structure 
-                                              // again lollllll
-                <AlbumSongItem song="@album.songs[i]" location="@i" base64BlurHash="@base64BlurHash" />
+                <AlbumSongItem song="@songs[i]" OnPlayCallback="@GetPlaySongAction(i)" OnQueueCallback="@GetQueueSongAction(i)" location="@i" base64BlurHash="@base64BlurHash" />
             }
 
             // Add Artists
-            @if(album.artists.Count() > 0)
+            @if(album.Artists.Count() > 0)
             {
                 <br />
                 int forcount = 0;
-                foreach (var artist in album.artists)
+                foreach (var artist in album.Artists)
                 {
-                    <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.id)">
-                        <img src="@artist.image.SourceAtResolution(40)" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
-                        <p class="artistInfoText">@artist.name</p>
+                    <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.Id)">
+                        <img src="@artist.ImgSource" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
+                        <p class="artistInfoText">@artist.Name</p>
                     </div>
                     forcount++;
                 }
@@ -123,6 +121,7 @@
     private Dictionary<Guid, KeyValuePair<string, string>> artistData = new();
 
     private Album album { get; set; } = Album.Empty;
+    private Song[] songs { get; set; } = [];
     private bool loaded = false;
     private int similarAlbumLimit = 30;
     private Album[] similarAlbums = new Album[0];
@@ -140,6 +139,7 @@
         MauiProgram.WebView.pageTitle = "Album";
         MauiProgram.WebView.currentUri = $"/AlbumView/{albumId}";
         MauiProgram.WebView.showHeader = false;
+
         MauiProgram.UpdateDebugMessage("Page Loaded.");
     }
 
@@ -148,7 +148,7 @@
         if(album != null)
         {
             await JS.InvokeAsync<string>("InitAllImages");
-            await JS.InvokeAsync<string>("InitImageLoader", album.id);
+            await JS.InvokeAsync<string>("InitImageLoader", album.Id);
         }
         if (loaded)
         {
@@ -177,7 +177,7 @@
             {
                 currentAlbumGuid = MauiProgram.currentAlbumGuid;
                 currentSongGuid = MauiProgram.currentSongGuid;
-                if (currentAlbumGuid != null && currentAlbumGuid != Guid.Empty && currentAlbumGuid == album.id)
+                if (currentAlbumGuid != null && currentAlbumGuid != Guid.Empty && currentAlbumGuid == album.Id)
                 {
                     isCurrentAlbum = true;
                 }
@@ -190,11 +190,11 @@
                 if (albumId != null)
                 {
                     // album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
-                    MauiProgram.UpdateDebugMessage("Starting request for Album data.");
                     Task<Album> getAlbum = MauiProgram.api.GetAlbumAsync(parseId);
                     Task<Album[]> getSimilarAlbum = MauiProgram.api.GetSimilarAlbumsAsync(parseId, similarAlbumLimit);
                     await Task.WhenAll(getAlbum, getSimilarAlbum);
                     album = getAlbum.Result;
+                    songs = album.GetSongs();
                     similarAlbums = getSimilarAlbum.Result;
                 }
                 else
@@ -214,8 +214,8 @@
                 }
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
-                base64BlurHash = await album.image.BlurhashToBase64Async(20, 20);
-                backgroundBlurHash = await album.image.BlurhashToBase64Async(20, 20, 0.3f);
+                base64BlurHash = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 20, 20);
+                backgroundBlurHash = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 20, 20, 0.3f);
                 Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarAlbums);
                 similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }
@@ -262,15 +262,15 @@
 
     private async void FavouriteItem()
     {
-        bool resetState = album.isFavourite;
+        bool resetState = album.IsFavourite;
         try
         {
-            album.isFavourite = !album.isFavourite;
-            await MauiProgram.api.SetFavourite(album.id, album.serverAddress, album.isFavourite);
+            album.SetIsFavourite(!album.IsFavourite);
+            await MauiProgram.api.SetFavourite(album.Id, album.ServerAddress, album.IsFavourite);
         }
         catch (Exception ex)
         {
-            album.isFavourite = resetState;
+            album.SetIsFavourite(resetState);
             await App.Current.MainPage.DisplayAlert("Error?", $"{ex}", "Continue");
         }
         StateHasChanged();
@@ -280,12 +280,12 @@
     private async void FavouriteSong(Guid songId)
     {
         Song foundItem = null;
-        foreach (var song in album.songs)
+        foreach (var song in album.Songs)
         {
-            if(song.id == songId)
+            if(song.Id == songId)
             {
-                song.isFavourite = !song.isFavourite;
-                foundItem = song;
+                song.IsFavourite = !song.IsFavourite;
+                foundItem = new Song(song);
                 break;
             }
         }
@@ -293,15 +293,20 @@
         if(foundItem != null)
         {
             StateHasChanged();
-            await MauiProgram.api.SetFavourite(foundItem.id, foundItem.serverAddress, foundItem.isFavourite);
+            await MauiProgram.api.SetFavourite(foundItem.Id, foundItem.ServerAddress, foundItem.IsFavourite);
         }
     }
 
-    private void PlayAlbum(bool shuffle = false)
+    private async void PlayAlbum(bool shuffle = false, int fromIndex = 0)
     {
+        if (MauiProgram.MediaService == null)
+        {
+            MauiProgram.MediaService = new MediaService();
+            await MauiProgram.MediaService.Initalize();
+        }
         // Move all items in the current queue to the Next Up Queue, to ensure that
         // this item is prioritised, without losing the current queue 
-        if (MauiProgram.currentAlbumGuid == album.id)
+        if (MauiProgram.currentAlbumGuid == album.Id)
         {
             isCurrentAlbum = true;
             MauiProgram.MediaService.TogglePlay();
@@ -312,7 +317,6 @@
 
             // When a user clicks on an album to listen to the songs go into the next up list
             MauiProgram.MediaService.SetPlayingCollection(album, 0);
-            MauiProgram.MediaService.SetPlayingCollection(album);
 
             MauiProgram.MainPage.RefreshPlayer();
             MauiProgram.MediaService.Play();
@@ -320,6 +324,71 @@
 
         // MauiProgram.MainPage.RefreshPlayer();
         StateHasChanged();
+    }
+
+    private Action GetPlaySongAction(int songIndex)
+    {
+        return async () =>
+                {
+                    try
+                    {
+                        if (Application.Current == null) return;
+                        if (Application.Current.MainPage == null) return;
+
+                        if (MauiProgram.MediaService == null)
+                        {
+                            MauiProgram.MediaService = new MediaService();
+                            await MauiProgram.MediaService.Initalize();
+                        }
+                        MauiProgram.MediaService.SetPlayingCollection(album, songIndex);
+
+                        MauiProgram.currentAlbumGuid = album.Id;
+                        // MauiProgram.currentSongGuid = album song at index;
+
+                        MauiProgram.MainPage.RefreshPlayer();
+                        MauiProgram.MediaService.Play();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (Application.Current != null &&
+                        Application.Current.MainPage != null)
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error?", $"{ex.Message} at {ex.StackTrace}", "Continue");
+                            return;
+                        }
+                    }
+                };
+    }
+
+    private Action GetQueueSongAction(int songIndex)
+    {
+        return async () =>
+        {
+            HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+
+            await Task.Delay(250);
+
+            if (MauiProgram.MediaService == null)
+            {
+                MauiProgram.MediaService = new MediaService();
+                await MauiProgram.MediaService.Initalize();
+            }
+
+            // Adds song to Queue as well as UI
+            MauiProgram.MediaService.AddSong(songs[songIndex]);
+            // MauiProgram.MainPage.RefreshQueue();
+
+            #if !WINDOWS
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+            string text = $"{songs[songIndex].Name} added to queue.";
+            ToastDuration duration = ToastDuration.Short;
+            double fontSize = 14;
+
+            var toast = Toast.Make(text, duration, fontSize);
+            await toast.Show(cancellationTokenSource.Token);
+            #endif
+        };
     }
 
     private async void OpenContextMenu(BaseMusicItem musicItem)
@@ -343,7 +412,8 @@
         {
             try
             {
-                toReturn[i] = await data[i].image.BlurhashToBase64Async(20, 20);
+                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
+                toReturn[i] = base64 == null ? string.Empty : base64;
             }
             catch (Exception)
             {

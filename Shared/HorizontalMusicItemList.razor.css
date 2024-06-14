@@ -6,6 +6,7 @@
     min-height: 13rem;
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+    height: 3rem;
 }
     .horizScroll-scrollmenu::-webkit-scrollbar {
         display: none;
@@ -47,4 +48,10 @@
     flex-shrink: 0;
     position: relative;
     animation: shimmer 1.5s infinite linear;
+}
+
+.horizScroll-loadingIcon {
+    width: 100%;
+    display: flex;
+    align-content:center;
 }

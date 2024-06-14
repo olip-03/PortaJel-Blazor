@@ -39,6 +39,7 @@ public partial class MainPage : ContentPage
     public MediaController MainMediaController { get => this.MediaControl; private set { } }
     public MediaQueue MainMediaQueue { get => this.Queue; private set { } }
     public MiniPlayer MainMiniPlayer { get => this.MiniPlayer; private set { } }
+    public ContextMenu MainContextMenu { get => this.ContextMenu; private set { } }
 
     private bool canSkipCarousel = false;
     private bool hideMidiPlayer = true;
@@ -65,8 +66,6 @@ public partial class MainPage : ContentPage
         {
             AddServerView addServerView = new();
             await MauiProgram.MainPage.PushModalAsync(addServerView, false);
-            await Task.Run(() => addServerView.AwaitClose(addServerView));
-            MauiProgram.firstLoginComplete = true;
         }
 
         double spacing = (AllContent.Width - 350) / 2;
@@ -230,9 +229,9 @@ public partial class MainPage : ContentPage
     }
     public async void ShowLoadingScreen(bool value)
     {
-        LoadingBlockout.IsVisible = value;
         if (value == true)
         { // If we're already visible, do nothin'
+            LoadingBlockout.IsVisible = true;
             LoadingBlockout.InputTransparent = false;
             LoadingBlockout.Opacity = 1; 
         }
@@ -241,6 +240,7 @@ public partial class MainPage : ContentPage
             LoadingBlockout.InputTransparent = true;
             LoadingBlockout.Opacity = 1; // make fully visible
             await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
+            LoadingBlockout.IsVisible = false;
         }
     }
     public async void UpdateKeyboardLocation()
@@ -262,10 +262,6 @@ public partial class MainPage : ContentPage
         ContextMenu.UpdateData(baseMusicItem, blurBase64: setBlurBase64, opacity: 0);
         ContextMenu.Show();
         return true;
-    }
-    public void CloseContextMenu()
-    {
-        ContextMenu.Close();
     }
     #endregion
 

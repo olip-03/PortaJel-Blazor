@@ -50,30 +50,49 @@
     private int resolution = 250;
 
     private string albumImg { get; set; } = String.Empty;
-    private string backImg { get; set; } = String.Empty;
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
         if(musicObject != null)
         {
-            albumImg = musicObject.image.SourceAtResolution(resolution);
-            backImg = musicObject.image.SourceAtResolution(25);
             if (musicObject is Album)
             {
                 Album album = (Album)musicObject;
-                artistName = album.artistCongregate;
-                titleCongregate = musicObject.name + " • " + artistName;
+                artistName = album.ArtistNames;
+                titleCongregate = album.Name + " • " + artistName;
+
+                albumImg = album.ImgSource;
+                if (string.IsNullOrWhiteSpace(placeholderBase64))
+                {
+                    string? base64 = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 5, 5);
+                    placeholderBase64  = base64 == null ? string.Empty : base64;
+                }
             }
             if (musicObject is Song)
             {
                 Song song = (Song)musicObject;
-                artistName = song.artistCongregate;
-                titleCongregate = musicObject.name + " • " + artistName;
+                artistName = song.ArtistNames;
+                titleCongregate = song.Name + " • " + artistName;
+
+                albumImg = song.ImgSource;
+                if (string.IsNullOrWhiteSpace(placeholderBase64))
+                {
+                    string? base64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 5, 5);
+                    placeholderBase64 = base64 == null ? string.Empty : base64;
+                }
             }
             if(musicObject is Artist)
             {
+                Artist artist = (Artist)musicObject;
                 isArtist = true;
-                titleCongregate = musicObject.name;
+                titleCongregate = artist.Name;
+
+                albumImg = artist.ImgSource;
+                if (string.IsNullOrWhiteSpace(placeholderBase64))
+                {
+                    string? base64 = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 5, 5);
+                    placeholderBase64 = base64 == null ? string.Empty : base64;
+                }
             }
             StateHasChanged();
         }
@@ -87,23 +106,23 @@
             {
                 Album album = (Album)musicObject;
                 MauiProgram.MainPage.ShowLoadingScreen(true);
-                MauiProgram.WebView.NavigateAlbum(album.id);
+                MauiProgram.WebView.NavigateAlbum(album.Id);
             }
             if (musicObject is Song)
             {
                 Song song = (Song)musicObject;
-                Album? album = song.album;
-                if(album != null)
+                if (song != null)
                 {
                     MauiProgram.MainPage.ShowLoadingScreen(true);
-                    MauiProgram.WebView.NavigateAlbum(album.id);
+                    MauiProgram.WebView.NavigateAlbum(song.AlbumId);
                 }
             }
             if(musicObject is Artist)
             {
-                if (musicObject.id == Guid.Empty) { return; }
+                Artist artist = (Artist)musicObject;
+                if (artist.Id == Guid.Empty) { return; }
                 MauiProgram.MainPage.ShowLoadingScreen(true);
-                MauiProgram.WebView.NavigateArtist(musicObject.id);
+                MauiProgram.WebView.NavigateArtist(artist.Id);
             }
         }
     }

@@ -17,12 +17,12 @@
             <div class="artist-cover @(isGrid == true ? "gridLayout" : "")">
                 @if (String.IsNullOrWhiteSpace(placeholderBase64))
                 {
-                    <img class="album-cover-img @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@musicObject.image.SourceAtResolution(resolution)" onerror="this.src='/images/emptyAlbum.png'" />
+                    <img class="album-cover-img @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@imgSrc" onerror="this.src='/images/emptyAlbum.png'" />
                 }
                 else
                 { // Do yer placeholder here
-                    <img class="album-cover-img opacityTransition @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" src="@musicObject.image.source" onerror="this.src='/images/emptyAlbum.png'" />
-                    <img class="album-cover-placeholder @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@musicObject.id" onerror="this.style.opacity=0" />
+                    <img class="album-cover-img opacityTransition @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" src="@imgSrc" onerror="this.src='/images/emptyAlbum.png'" />
+                    <img class="album-cover-placeholder @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@elementId" onerror="this.style.opacity=0" />
                 }
             </div>
             <div class="textContainer">
@@ -31,15 +31,15 @@
                     if (musicObject is Album)
                     {
                         Album album = (Album)musicObject;
-                        artistName = album.artistCongregate;
+                        artistName = album.ArtistNames;
                     }
                     if (musicObject is Song)
                     {
                         Song song = (Song)musicObject;
-                        artistName = song.artistCongregate;
+                        artistName = song.ArtistNames;
                     }
                 }
-                <b class="PrimaryTextColor">@musicObject.name</b>
+                <b class="PrimaryTextColor">@name</b>
                 <div class="SecondaryTextColor">@artistName</div>
             </div>
         </div>
@@ -54,7 +54,7 @@
                 }
                 else
                 {
-                    if (musicObject.isFavourite)
+                    if (isFavourite)
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                             <svg class="favorite-button-icon" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
@@ -80,9 +80,53 @@
     [Parameter] public bool isGrid { get; set; } = false;
     [Parameter] public bool cacheAsRecentItem { get; set; } = false;
     [Parameter] public Action? OnViewAction { get; set; } = null;
+    private string name = string.Empty;
+    private string server = string.Empty;
+    private string imgSrc = string.Empty;
+    private bool isFavourite = false;
     private int resolution = 300;
     private string errorMsg = string.Empty;
     Guid elementId = Guid.NewGuid();
+
+    protected override void OnInitialized()
+    {
+        if (musicObject is Album)
+        {
+            Album album = (Album)musicObject;
+            name = album.Name;
+            isFavourite = album.IsFavourite;
+            server = album.ServerAddress;
+            imgSrc = album.ImgSource;
+            elementId = album.Id;
+        }
+        else if (musicObject is Song)
+        {
+            Song song = (Song)musicObject;
+            name = song.Name;
+            isFavourite = song.IsFavourite;
+            server = song.ServerAddress;
+            imgSrc = song.ImgSource;
+            elementId = song.Id;
+        }
+        else if (musicObject is Artist)
+        {
+            Artist artist = (Artist)musicObject;
+            name = artist.Name;
+            isFavourite = artist.IsFavourite;
+            imgSrc = artist.ImgSource;
+            server = artist.ServerAddress;
+            elementId = artist.Id;
+        }
+        else if (musicObject is Playlist)
+        {
+            Playlist playlist = (Playlist)musicObject;
+            name = playlist.Name;
+            isFavourite = playlist.IsFavourite;
+            server = playlist.ServerAddress;
+            imgSrc = playlist.ImgSource;
+            elementId = playlist.Id;
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -103,35 +147,30 @@
             switch (typeHandle)
             {
                 case "Album":
-                    if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.WebView.NavigateAlbum(musicObject.id);
+                    MauiProgram.WebView.NavigateAlbum(elementId);
                     break;
                 case "Artist":
-                    if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.WebView.NavigateArtist(musicObject.id);
+                    MauiProgram.WebView.NavigateArtist(elementId);
                     break;
                 case "Song":
-                    if (musicObject.id == Guid.Empty) { return; }
-                    if (cacheAsRecentItem) { AddToRecentResult(); }
                     Song song = (Song)musicObject;
-                    if (song.album != null)
+                    if (song.Album != null)
                     {
-                        MauiProgram.WebView.NavigateAlbum(song.album.id);
+                        MauiProgram.WebView.NavigateAlbum(song.Album.Id);
                     }
                     else
                     {
-                        MauiProgram.WebView.NavigateAlbum(musicObject.id);
+                        MauiProgram.WebView.NavigateAlbum(elementId);
                     }
                     break;
                 case "Genre":
                     // TODO: Configure genre page
                     break;
                 case "Playlist":
-                    if (musicObject.id == Guid.Empty) { return; }
                     if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.WebView.NavigatePlaylist(musicObject.id);
+                    MauiProgram.WebView.NavigatePlaylist(elementId);
                     break;
                 default:
                     // TODO: Configure error message
@@ -144,8 +183,8 @@
     {
         if (musicObject != null)
         {
-            musicObject.isFavourite = !musicObject.isFavourite;
-            await MauiProgram.api.SetFavourite(musicObject.id, musicObject.serverAddress, musicObject.isFavourite);
+            isFavourite = !isFavourite;
+            await MauiProgram.api.SetFavourite(elementId, server, isFavourite);
         }
         StateHasChanged();
     }
@@ -154,15 +193,15 @@
     {
         if (musicObject != null)
         {
-            if (!MauiProgram.recentSearchResults.ContainsKey(musicObject.id))
+            if (!MauiProgram.recentSearchResults.ContainsKey(elementId))
             {
-                MauiProgram.recentSearchResults.Add(musicObject.id, musicObject);
+                MauiProgram.recentSearchResults.Add(elementId, musicObject);
             }
             else
             {
                 // delete and add :) Put shit back on top 
-                MauiProgram.recentSearchResults.Remove(musicObject.id);
-                MauiProgram.recentSearchResults.Add(musicObject.id, musicObject);
+                MauiProgram.recentSearchResults.Remove(elementId);
+                MauiProgram.recentSearchResults.Add(elementId, musicObject);
             }
         }    
     }

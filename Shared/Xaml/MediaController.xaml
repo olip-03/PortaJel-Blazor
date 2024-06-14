@@ -84,7 +84,7 @@
                                         ZIndex="5"
                                         MaximumWidthRequest="350" MaximumHeightRequest="350">
                                     <Image x:Name="MainPlayer_Img" 
-                                           Source="{Binding image.sourceAtResolution}" 
+                                           Source="{Binding ImgSource}" 
                                            Aspect="Fill" 
                                            WidthRequest="350" 
                                            HeightRequest="350"/>
@@ -96,7 +96,7 @@
                                            TextColor="{StaticResource PrimaryTextColor}" 
                                            HorizontalTextAlignment="Center" 
                                            VerticalTextAlignment="Center"
-                                           Text="{Binding name}" 
+                                           Text="{Binding Name}" 
                                            FontSize="24" 
                                            MaxLines="2"
                                            LineBreakMode="TailTruncation"
@@ -106,7 +106,7 @@
                                     <Label x:Name="ImgCarousel_ArtistTitle" 
                                            TextColor="{StaticResource SecondaryTextColor}" 
                                            HorizontalTextAlignment="Center" 
-                                           Text="{Binding artistCongregate}" 
+                                           Text="{Binding ArtistNames}" 
                                            FontSize="18" 
                                            MaxLines="2"
                                            LineBreakMode="TailTruncation"

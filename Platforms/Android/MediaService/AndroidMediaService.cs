@@ -23,6 +23,7 @@ using PortaJel_Blazor.Data;
 using System.Collections;
 using System.Collections.Generic;
 using static Android.Provider.MediaStore.Audio;
+using static Android.Provider.MediaStore.Audio.Artists;
 using MediaMetadata = Android.Media.MediaMetadata;
 
 #pragma warning disable CS0618, CS0612, CA1422 // Type or member is obsolete
@@ -155,6 +156,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
  
             UpdateNotification();
+
             StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
             return base.OnStartCommand(startIntent, flags, startId);
         }
@@ -207,7 +209,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         if (song == null) return;
                         if (string.IsNullOrWhiteSpace(song.MediaId)) return; // Only Queued Songs have a MediaID 
                         QueueStartIndex = index;
-                        int queueIndex = MainQueue.FindIndex(queueSong => queueSong.playlistId == song.MediaId);
+                        int queueIndex = MainQueue.FindIndex(queueSong => queueSong.PlaylistId == song.MediaId);
                         if (queueIndex >= 0)
                         {
                             MainQueue.RemoveAt(queueIndex);
@@ -253,14 +255,18 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         private void UpdateNotification()
         {
             var channel = GetNotificationChannel();
+
+            NotificationManager notificationManager = (NotificationManager)GetSystemService(Context.NotificationService);
+            notificationManager.CreateNotificationChannel(channel);
+
             Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
             Notification.Style? mediaStyle = new Notification.MediaStyle().SetMediaSession(MediaSession.SessionToken);
 
             Notification.Builder? playerNotificationBuilder = new Notification.Builder(context, channel.Id)
              .SetChannelId(channel.Id)
              .SetSmallIcon(Resource.Drawable.heart)
-             .SetContentTitle(CurrentlyPlaying.name)
-             .SetContentText(CurrentlyPlaying.artistCongregate)
+             .SetContentTitle(CurrentlyPlaying.Name)
+             .SetContentText(CurrentlyPlaying.ArtistNames)
              .SetStyle(mediaStyle)
              .SetOngoing(true)
              .SetAllowSystemGeneratedContextualActions(true);
@@ -302,14 +308,14 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 fullDuration = Player.Duration;
             }
 
-            System.Diagnostics.Trace.WriteLine("Updating metadata for " + CurrentlyPlaying.name);
+            System.Diagnostics.Trace.WriteLine("Updating metadata for " + CurrentlyPlaying.Name);
 
             MediaMetadata.Builder metadataBuilder = new MediaMetadata.Builder(); // mannnn shut up
-            metadataBuilder.PutString(MediaMetadata.MetadataKeyTitle, CurrentlyPlaying.name);
-            metadataBuilder.PutString(MediaMetadata.MetadataKeyArtist, CurrentlyPlaying.artistCongregate);
-            metadataBuilder.PutString(MediaMetadata.MetadataKeyAlbumArtUri, CurrentlyPlaying.image.source);
-            metadataBuilder.PutString(MediaMetadata.MetadataKeyAlbum, CurrentlyPlaying.album.name);
-            metadataBuilder.PutString(MediaMetadata.MetadataKeyAlbumArtUri, CurrentlyPlaying.album.image.sourceAtResolution);
+            metadataBuilder.PutString(MediaMetadata.MetadataKeyTitle, CurrentlyPlaying.Name);
+            metadataBuilder.PutString(MediaMetadata.MetadataKeyArtist, CurrentlyPlaying.ArtistNames);
+            metadataBuilder.PutString(MediaMetadata.MetadataKeyAlbumArtUri, CurrentlyPlaying.ImgSource);
+            metadataBuilder.PutString(MediaMetadata.MetadataKeyAlbum, CurrentlyPlaying.Album.Name);
+            metadataBuilder.PutString(MediaMetadata.MetadataKeyAlbumArtUri, CurrentlyPlaying.Album.ImgSource);
             metadataBuilder.PutLong(MediaMetadata.MetadataKeyDuration, fullDuration);
             MediaSession.SetMetadata(metadataBuilder.Build());
         }
@@ -323,7 +329,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
             // Like action
             PlaybackState.CustomAction.Builder psActionBuilder = new PlaybackState.CustomAction.Builder("CUSTOM_ACTION_FAVOURITE_ADD", "CUSTOM_ACTION_FAVOURITE_ADD", Resource.Drawable.heart);
-            if (CurrentlyPlaying.isFavourite)
+            if (CurrentlyPlaying.IsFavourite)
             {
                 psActionBuilder = new PlaybackState.CustomAction.Builder("CUSTOM_ACTION_FAVOURITE_REMOVE", "CUSTOM_ACTION_FAVOURITE_REMOVE", Resource.Drawable.heart_full);
             }
@@ -383,6 +389,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             var channelName = "PortaJel";
             var channelDescription = "Notification Channel for the PortaJel Music Streaming App for Jellyfin";
+
+
             return new NotificationChannel(channedId, channelName, NotificationImportance.Max)
             {
                 Description = channelDescription,
@@ -566,12 +574,18 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             if (baseMusicItem is Album)
             {
                 Album album = (Album)baseMusicItem;
-                toAdd.AddRange(album.songs);
+                if(album.Songs != null)
+                {
+                    toAdd.AddRange(album.Songs.Select(song => new Song(song)));
+                }
             }
             if (baseMusicItem is Playlist)
             {
                 Playlist playlist = (Playlist)baseMusicItem;
-                toAdd.AddRange(playlist.songs);
+                if (playlist.Songs != null)
+                {
+                    toAdd.AddRange(playlist.Songs.Select(song => new Song(song)));
+                }
             }
 
             if (Player != null)
@@ -590,7 +604,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
                 foreach (Song song in toAdd)
                 {
-                    MediaItem? mediaItem = MediaItem.FromUri(song.streamUrl);
+                    MediaItem? mediaItem = MediaItem.FromUri(song.StreamUrl);
                     if (mediaItem != null)
                     {
                         // TODO: Add checks for if the file is a stream or local file
@@ -599,7 +613,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         IMediaSource? media = mediaFactory.CreateMediaSource(mediaItem);
                         if (media != null)
                         {
-                            mediaItem.MediaId = song.playlistId; 
+                            mediaItem.MediaId = song.PlaylistId; 
                             Player.AddMediaItem(mediaItem);
                         }
                     }
@@ -618,22 +632,30 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             if (playingFrom is Album)
             {
                 Album tempAlbum = (Album)playingFrom;
-                songList.AddRange(tempAlbum.songs);
+                if(tempAlbum.Songs != null)
+                {
+                    songList.AddRange(tempAlbum.Songs.Select(song => new Song(song)));
+                }
             }
             if (playingFrom is Playlist)
             {
                 Playlist tempPlaylist = (Playlist)playingFrom;
-                songList.AddRange(tempPlaylist.songs);
+                songList.AddRange(tempPlaylist.Songs.Select(song => new Song(song)));
             }
 
             CurrentlyPlaying = songList[fromIndex];
 
             foreach (Song song in songList)
             {
-                song.playlistId = Guid.NewGuid().ToString();
+                song.SetPlaylistId(Guid.NewGuid().ToString());
                 MainQueue.Add(song);
             }
             return true;
+        }
+
+        public BaseMusicItem? GetPlayingCollection()
+        {
+            return playingFrom;
         }
 
         public bool AddSong(Song song)
@@ -652,13 +674,13 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     QueueStartIndex = PlayingIndex + 1;
                 }
 
-                song.playlistId = Guid.NewGuid().ToString();
+                song.SetPlaylistId(Guid.NewGuid().ToString());
                 MainQueue.Add(song);
                 int insertIndex = QueueStartIndex + MainQueue.Count();
 
-                if (song.streamUrl != null)
+                if (song.StreamUrl != null)
                 {
-                    MediaItem? mediaItem = MediaItem.FromUri(song.streamUrl);
+                    MediaItem? mediaItem = MediaItem.FromUri(song.StreamUrl);
                     if (mediaItem != null)
                     {
                         // TODO: Add checks for if the file is a stream or local file
@@ -669,7 +691,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         if (media != null)
                         {
                             // MediaID is only added to songs that are in the queue
-                            mediaItem.MediaId = song.playlistId;
+                            mediaItem.MediaId = song.PlaylistId;
                             QueueRepresentation.Insert(insertIndex, song);
                             Player.AddMediaItem(insertIndex, mediaItem);
                         }
@@ -743,7 +765,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             if (playingFrom is Album)
             {
                 Album album = (Album)playingFrom;
-                querySongs.AddRange(album.songs);
+                if(album.Songs != null)
+                {
+                    querySongs.AddRange(album.Songs.Select(song => new Song(song)));
+                }
             }
             querySongs.AddRange(MainQueue);
             songGroupCollection.QueueCount = MainQueue.Count();
@@ -839,7 +864,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     string PlaybackTimeValue = "00:00";
                     string PlaybackMaximumTimeValue = "00:00";
 
-                    TimeSpan fullDuratioinTimeSpan = TimeSpan.FromMilliseconds(currentSong.duration);
+                    TimeSpan fullDuratioinTimeSpan = TimeSpan.FromMilliseconds(currentSong.DurationMs);
 
                     PlaybackTimeValue = "00:00";
                     PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullDuratioinTimeSpan.Minutes, fullDuratioinTimeSpan.Seconds);
@@ -849,7 +874,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         TimeSpan playbackTimeSpan = TimeSpan.FromMilliseconds(Player.CurrentPosition);
                         fullDuratioinTimeSpan = TimeSpan.FromMilliseconds(Player.Duration);
 
-                        currentSong.duration = Player.Duration;
+                        // currentSong.DurationMs = Player.Duration;
 
                         PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTimeSpan.Minutes, playbackTimeSpan.Seconds);
                         PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", fullDuratioinTimeSpan.Minutes, fullDuratioinTimeSpan.Seconds);

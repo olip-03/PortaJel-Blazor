@@ -1,8 +1,7 @@
-﻿using PortaJel_Blazor.Classes;
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
-using Jellyfin.Sdk;
-using Jellyfin.Sdk.Generated.Models;
+﻿using Jellyfin.Sdk.Generated.Models;
+using PortaJel_Blazor.Classes.Database;
+using System.Text.Json;
+
 namespace PortaJel_Blazor.Data
 {
     /// <summary>
@@ -10,239 +9,60 @@ namespace PortaJel_Blazor.Data
     /// </summary>
     public class Song : BaseMusicItem
     {
-        public string playlistId = string.Empty;
-        /// <summary>
-        /// Reference to the artists of this song.
-        /// </summary>
-        public Artist[] artists = new Artist[0];
-        public string artistCongregate
-        {
-            get
-            {
-                string data = string.Empty;
-                for (int i = 0; i < artists.Length; i++)
-                {
-                    data += artists[i].name;
-                    if(i < artists.Length - 1)
-                    {
-                        data += ", ";
-                    }
-                }
-                return data;
-            }
-            private set 
-            { 
+        public Guid Id => _songData.Id;
+        public Guid AlbumId => _songData.AlbumId;
+        public string Name => _songData.Name;
+        public bool IsFavourite => _songData.IsFavourite;
+        public int PlayCount => _songData.PlayCount;
+        public DateTimeOffset? DateAdded => _songData.DateAdded;
+        public string ServerAddress => _songData.ServerAddress;
+        public string? PlaylistId => _songData.PlaylistId;
+        public string ImgSource => _songData.ImgSource;
+        public string ImgBlurhash => _songData.ImgBlurhash;
+        public ArtistData[] Artists => _artistData;
+        public Guid[] ArtistIds => _songData.GetArtistIds();
+        public string ArtistNames => _songData.ArtistNames;
+        public AlbumData Album => _albumData;
+        public int IndexNumber => _songData.IndexNumber;
+        public string StreamUrl => _songData.StreamUrl;
+        public int DiskNumber => _songData.DiskNumber;
+        public long DurationMs => _songData.DurationMs;
+        public string FileLocation => _songData.FileLocation;
+        public bool IsDownloaded => _songData.IsDownloaded;
+        public bool IsPartial { get; private set; } = false;
 
-            }
-        }
-        /// <summary>
-        /// Reference to the album this song belongs to.
-        /// </summary>
-        public Album? album = Album.Empty;
-        public string streamUrl { get; set; } = String.Empty;
-        public int diskNum { get; set; }
-        public long duration { get; set; }
-        public string fileLocation { get; set; } = String.Empty;
-        public bool isDownloaded { get; set; } = false;
+        private SongData _songData = new();
+        private AlbumData _albumData = new();
+        private ArtistData[] _artistData = [];
 
         #region Constructors
-        public static readonly Song Empty = new(setGuid: Guid.Empty, setName: String.Empty);
-        public Song(Guid? setGuid, string? setName, string? setPlaylistId = null, string? setServerId = null, Guid[]? setArtistIds = null, Guid? setAlbumID = null, string? setStreamUrl = null, int? setDiskNum = 0, long? setDuration = 0, bool? setIsFavourite = false, string? setFileLocation = null, bool? setIsDownloaded = false)
+        public static readonly Song Empty = new();
+        public Song()
         {
-            // Required variables
-            if(setGuid != null)
+            IsPartial = true;
+        }
+        public Song(SongData songData, AlbumData? albumData = null, ArtistData[]? artistData = null)
+        {
+            _songData = songData;
+            _albumData = albumData == null ? new() : albumData;
+            _artistData = artistData == null ? [] : artistData;
+
+            if(_albumData == null || _artistData.Length  == 0)
             {
-                id = (Guid)setGuid;
-            }
-            if(setName != null)
-            {
-                name = setName;
-            }
-            if (setArtistIds != null)
-            { //Set Artists
-                List<Artist> newArtistsIDs = new();
-                for (int i = 0; i < setArtistIds.Length; i++)
-                {
-                    Artist toAdd = new();
-                    toAdd.id = setArtistIds[i];
-                    newArtistsIDs.Add(toAdd);
-                }
-                artists = newArtistsIDs.ToArray();
-            }
-            if(setAlbumID != null)
-            { //Set Album
-                Album setAlbum = new Album();
-                setAlbum.id = (Guid)setAlbumID;
-                album = setAlbum;
-            }
-            if(setStreamUrl != null)
-            { //Set Stream Location
-                streamUrl = setStreamUrl;
-            }
-            if(setDiskNum != null)
-            { //Set Disk Number
-                diskNum = (int)setDiskNum;
-            }
-            if(setDuration!= null)
-            {
-                duration = (long)setDuration;
-            }
-            if(setPlaylistId != null)
-            {
-                playlistId = setPlaylistId;
-            }
-            if(setFileLocation != null)
-            { //Set File Location
-                fileLocation = setFileLocation;
-            }
-            if(setIsFavourite != null)
-            {
-                isFavourite = (bool)setIsFavourite;
-            }
-            if(setIsDownloaded != null)
-            {
-                isDownloaded = (bool)setIsDownloaded;
+                IsPartial = true;
             }
         }
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Fetches the Artist based on if the artist has been returned by the API already, also fills in the artist of this object will the full data of that artist. If not fetch from API.
-        /// </summary>
-        /// <returns>Artist array of this object.</returns>
-        public async Task<Artist[]?> GetArtistAsync() 
+        public void SetIsFavourite(bool state)
         {
-            List<Artist> toAdd = new List<Artist>();
-            for (int i = 0; i < artists.Length; i++)
-            {
-                Artist? artist = Artist.Empty;
-                artist = await MauiProgram.api.GetArtistAsync(artists[i].id);
-            }
-            artists = toAdd.ToArray();
-            return artists;
+            _songData.IsFavourite = state;
+
         }
-        public List<ContextMenuItem> GetContextMenuItems()
+        public void SetPlaylistId(string playlistId)
         {
-            contextMenuItems.Clear();
-
-            if (this.isFavourite)
-            {
-                contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
-                {
-                    MauiProgram.MainPage.CloseContextMenu();
-
-                    this.isFavourite = false;
-                    await MauiProgram.api.SetFavourite(this.id, this.serverAddress, false);
-                })));
-            }
-            else
-            {
-                contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
-                {
-                    MauiProgram.MainPage.CloseContextMenu();
-
-                    this.isFavourite = true;
-                    await MauiProgram.api.SetFavourite(this.id, this.serverAddress, true);
-                })));
-            }
-            contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-                // TODO: implement download manager and all
-            })));
-            contextMenuItems.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-                // TODO: implement adding to playlist feature
-            })));
-            contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(async () =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-
-                MauiProgram.MediaService.AddSong(this);
-
-                #if !WINDOWS
-                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-                string text = $"{this.name} added to queue.";
-                ToastDuration duration = ToastDuration.Short;
-                double fontSize = 14;
-
-                var toast = Toast.Make(text, duration, fontSize);
-                await toast.Show(cancellationTokenSource.Token);
-                #endif
-                
-            })));
-            contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(async () =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-
-                await MauiProgram.MainPage.AwaitContextMenuClose();
-                MauiProgram.MainPage.ShowLoadingScreen(true);
-                MauiProgram.WebView.NavigateAlbum(this.id);
-            })));
-            contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async () =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-
-                await MauiProgram.MainPage.AwaitContextMenuClose();
-                MauiProgram.MainPage.ShowLoadingScreen(true);
-                MauiProgram.WebView.NavigateArtist(this.artists.FirstOrDefault().id);
-            })));
-            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-            })));
-
-            return contextMenuItems;
-        }
-        public static Song Builder(BaseItemDto baseItem, string server)
-        {
-            long duration = -1;
-
-            if (baseItem.RunTimeTicks != null)
-            if (baseItem.RunTimeTicks != null)
-            {
-                duration = TimeSpan.FromSeconds((double)TimeSpan.FromTicks((long)baseItem.RunTimeTicks).Seconds).Milliseconds;
-            }
-            if (baseItem.CumulativeRunTimeTicks != null)
-            {
-
-                duration = TimeSpan.FromSeconds((double)TimeSpan.FromTicks((long)baseItem.CumulativeRunTimeTicks).Seconds).Milliseconds;
-            }
-
-            Song newSong = new(
-                    setGuid: baseItem.Id,
-                    setPlaylistId: baseItem.PlaylistItemId,
-                    setName: baseItem.Name,
-                    setAlbumID: baseItem.AlbumId,
-                    setDiskNum: 0, //TODO: Fix disk num
-                    setDuration: duration,
-                    setIsFavourite: baseItem.UserData.IsFavorite) ;
-            newSong.playCount = (int)baseItem.UserData.PlayCount;
-            newSong.image = MusicItemImage.Builder(baseItem, server);
-            // Absolute fucking nonsense of flags. Neccesary to allow fucking seeking with the tunes. Idk, whatever, I'm kind of mad this is the fix. 
-            // TODO: Figure out what the fuck these flags do instead of just adding random ones you like 
-            newSong.streamUrl = server + "/Audio/" + baseItem.Id + "/stream?static=true&audioCodec=adts&enableAutoStreamCopy=true&allowAudioStreamCopy=true&enableMpegtsM2TsMode=true&context=Static";
-            newSong.serverAddress = server;
-            
-            if (baseItem.RunTimeTicks != null)
-            {
-                newSong.duration = (long)baseItem.RunTimeTicks;
-            }
-            else if(baseItem.CumulativeRunTimeTicks != null)
-            {
-                newSong.duration = (long)baseItem.CumulativeRunTimeTicks;
-            }
-
-            List<Artist> artists = new List<Artist>();
-            foreach (var item in baseItem.AlbumArtists)
-            {
-                artists.Add(Artist.Builder(item, server));
-            }
-            newSong.artists = artists.ToArray();
-            return newSong;
+            _songData.PlaylistId = playlistId;
         }
         #endregion
     }

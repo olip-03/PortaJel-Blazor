@@ -4,7 +4,7 @@
 @using BlazorAnimate
 @namespace PortaJel_Blazor.Shared
 
-<div>
+    <div>
     <div class="horizScroll-menuTitleContainer">
         <h3 class="PrimaryTextColor">@Title</h3>
         <div class="PrimaryTextColor" style="display: flex;">
@@ -14,26 +14,22 @@
     </div>
 
     <div class="horizScroll-scrollmenu">
-        @for (int i = 0; i < itemCount; i++)
+        @if(albumData != null && albumData.Length > 0)
         {
-            bool isFirst = false;
-            bool isLast = false;
-            if(i == 0) { isFirst = true; }
-            if (i == itemCount) { isLast = true; }
-            if (albumData != null && albumData.Count() >= itemCount)
+            @for (int i = 0; i < albumData.Count(); i++)
             {
-                BaseMusicItem showRecord = albumData[i];
-                string base64 = albumBlurHashData[i];
-                <AlbumCard musicObject="@showRecord" placeholderBase64="@base64" />
+                <AlbumCard musicObject="@albumData[i]" placeholderBase64="@albumBlurHashData[i]" />
             }
-            else
-            {
-                <AlbumCard musicObject="null" />
-            }
+            <div class="horizScroll-scrollmenu-showall">
+                <p style="margin: 1rem; color: darkgray;">Show All</p>
+            </div>
         }
-        <div class="horizScroll-scrollmenu-showall">
-            <p style="margin: 1rem; color: darkgray;">Show All</p>
-        </div>
+        else if(showLoading)
+        {
+            <div class="horizScroll-loadingIcon">
+                <Spinner Style="width: 3rem; height: 3rem; margin: auto;"></Spinner>
+            </div>
+        }
     </div>
 </div>
 
@@ -43,4 +39,5 @@
     [Parameter] public BaseMusicItem[] albumData { get; set; } = new BaseMusicItem[0];
     [Parameter] public string[] albumBlurHashData { get; set; } = new string[0];
     [Parameter] public int itemCount { get; set; } = 0;
+    [Parameter] public bool showLoading { get; set; } = false;
 }

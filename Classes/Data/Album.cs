@@ -1,44 +1,55 @@
-﻿using Jellyfin.Sdk;
-using PortaJel_Blazor.Classes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
+﻿using PortaJel_Blazor.Classes.Database;
+using Jellyfin.Sdk.Generated.Models;
+using System.Text.Json;
 
 namespace PortaJel_Blazor.Data
 {
-    public class Album : BaseMusicItem, IComparable<Album>
+    public class Album : BaseMusicItem
     {
-        public string imageSrc { get; set; } = "/images/emptyAlbum.png";
-        public Artist[] artists { get; set; } = new Artist[0];
-        public string artistCongregate
-        {
-            get
-            {
-                if(artists == null) { return String.Empty; }
-                string data = string.Empty;
-                for (int i = 0; i < artists.Length; i++)
-                {
-                    data += artists[i].name;
-                    if (i < artists.Length - 1)
-                    {
-                        data += ", ";
-                    }
-                }
-                return data;
-            }
-            private set
-            {
+        public Guid Id => _albumData.Id;
+        public string Name => _albumData.Name;
+        public bool IsFavourite => _albumData.IsFavourite;
+        public int PlayCount => _albumData.PlayCount;
+        public DateTimeOffset? DateAdded => _albumData.DateAdded;
+        public string ServerAddress => _albumData.ServerAddress;
+        public string ImgSource => _albumData.ImgSource;
+        public string ImgBlurhash => _albumData.ImgBlurhash;
+        public ArtistData[]? Artists => _artistData;
+        public string ArtistNames => _albumData.ArtistNames;
+        public Guid[]? ArtistIds => _albumData.GetArtistIds();
+        public SongData[]? Songs => _songData;
+        public bool IsPartial { get; private set; } = true;
 
-            }
+        private AlbumData _albumData; 
+        private SongData[]? _songData;
+        private ArtistData[]? _artistData;
+
+        public Album()
+        {
+            _albumData = new();
+            _songData = [];
+            _artistData = [];
         }
-        public Song[] songs { get; set; } = new Song[0];
+        public Album(AlbumData albumData)
+        {
+            _albumData = albumData;
+            _songData = [];
+            _artistData = [];
+        }
+        public Album(AlbumData albumData, SongData[] songData)
+        {
+            _albumData = albumData;
+            _songData = songData;
+            _artistData = [];
+        }
+        public Album(AlbumData albumData, SongData[] songData, ArtistData[] artistData)
+        {
+            _albumData = albumData;
+            _songData = songData;
+            _artistData = artistData;
+        }
+
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;
-        public string serverAddress { get; set; } = string.Empty;
         public enum AlbumSortMethod
         {
             name,
@@ -46,125 +57,30 @@ namespace PortaJel_Blazor.Data
             id
         }
         public static readonly Album Empty = new();
-        
-        public string GetArtistName()
+
+        public static Album Builder(BaseItemDto albumData, string server, BaseItemDto[]? songData = null, BaseItemDto[]? artistData = null)
         {
-            if(artists == null)
+            AlbumData album = AlbumData.Builder(albumData, server);
+            SongData[] songs = [];
+            ArtistData[] artists = [];
+            if(songData != null)
             {
-                return string.Empty;
+                songs = songData.Select(data => SongData.Builder(data, server)).ToArray();
             }
-            string artistName = string.Join(", ", artists.Select(artist => artist.name));
-            return artistName;
+            if(artistData  != null)
+            {
+                artists = artistData.Select(data => ArtistData.Builder(data, server)).ToArray();
+            }
+            return new Album(album, songs, artists);
         }
-
-        public int CompareTo(Album? other)
+        public Song[] GetSongs()
         {
-            int resolve = -1;
-            switch (sortMethod)
-            {
-                case AlbumSortMethod.name:
-                    if (name == null) { return -1; }
-                    if (other.name == null) { return -1; }
-                    resolve = string.Compare(name.ToString(), other.name.ToString(), StringComparison.OrdinalIgnoreCase);
-                    break;
-                case AlbumSortMethod.artist:
-                    if (GetArtistName() == null) { return -1; }
-                    if (other.GetArtistName() == null) { return -1; }
-                    resolve = string.Compare(GetArtistName().ToString(), other.GetArtistName().ToString(), StringComparison.OrdinalIgnoreCase);
-                    break;
-                case AlbumSortMethod.id:
-                    if (id == Guid.Empty) { return -1; }
-                    if (other.id == Guid.Empty) { return -1; }
-                    resolve = string.Compare(id.ToString(), other.id.ToString(), StringComparison.OrdinalIgnoreCase);
-                    break;
-                default:
-                    if (name == null) { return -1; }
-                    if (other.name == null) { return -1; }
-                    resolve = string.Compare(name.ToString(), other.name.ToString(), StringComparison.OrdinalIgnoreCase);
-                    break;
-            }
-            return resolve;
+            if (_songData == null) return [];
+            return _songData.Select(song => new Song(song, _albumData, _artistData)).ToArray();
         }
-        
-        public string imageAtResolution(int px)
+        public void SetIsFavourite(bool state)
         {
-            string data = imageSrc + $"?fillHeight={px}&fillWidth={px}&quality=96";
-            return data;
-        }
-        
-        public List<ContextMenuItem> GetContextMenuItems()
-        {
-            contextMenuItems.Clear();
-            
-            if (this.isFavourite)
-            {
-                contextMenuItems.Add(new ContextMenuItem("Remove From Favourites", "light_heart.png", new Task(async () =>
-                {
-                    this.isFavourite = false;
-                    await MauiProgram.api.SetFavourite(this.id, this.serverAddress, false);
-                })));
-            }
-            else
-            {
-                contextMenuItems.Add(new ContextMenuItem("Add To Favourites", "light_heart.png", new Task(async () =>
-                {
-                    this.isFavourite = true;
-                    await MauiProgram.api.SetFavourite(this.id, this.serverAddress, true);
-                })));
-            }
-            contextMenuItems.Add(new ContextMenuItem("Download", "light_cloud_download.png", new Task(() =>
-            {
-
-            })));
-            contextMenuItems.Add(new ContextMenuItem("Add To Playlist", "light_playlist.png", new Task(() =>
-            {
-
-            })));
-            contextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(async () =>
-            {
-                Album FullAlbum = await MauiProgram.api.GetAlbumAsync(id);
-                this.songs = FullAlbum.songs;
-
-                MauiProgram.MediaService.AddSongs(FullAlbum.songs.ToArray());
-
-                #if !WINDOWS
-                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-                string text = $"{songs.Count()} songs added to queue.";
-                ToastDuration duration = ToastDuration.Short;
-                double fontSize = 14;
-
-                var toast = Toast.Make(text, duration, fontSize);
-                await toast.Show(cancellationTokenSource.Token);
-                #endif
-            })));
-            contextMenuItems.Add(new ContextMenuItem("View Album", "light_album.png", new Task(async() =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-                await MauiProgram.MainPage.AwaitContextMenuClose();
-                MauiProgram.MainPage.ShowLoadingScreen(true);
-                MauiProgram.WebView.NavigateAlbum(this.id);
-            })));
-            if(this.artists.Count() > 0)
-            {
-                contextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Task(async () =>
-                {
-                    Artist? artist = this.artists.FirstOrDefault();
-                    if(artist != null)
-                    {
-                        MauiProgram.MainPage.CloseContextMenu();
-                        await MauiProgram.MainPage.AwaitContextMenuClose();
-                        MauiProgram.MainPage.ShowLoadingScreen(true);
-                        MauiProgram.WebView.NavigateArtist(artist.id);
-                    }
-                })));
-            }
-            contextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(() =>
-            {
-                MauiProgram.MainPage.CloseContextMenu();
-            })));
-            
-            return contextMenuItems;
+            _albumData.IsFavourite = state;
         }
     }
 }

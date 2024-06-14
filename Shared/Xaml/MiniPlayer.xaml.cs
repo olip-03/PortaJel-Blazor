@@ -22,7 +22,7 @@ public partial class MiniPlayer : ContentView
 
     public MiniPlayer()
 	{
-		InitializeComponent();
+		InitializeComponent(); 
         this.BindingContext = ViewModel;
     }
 
@@ -60,30 +60,30 @@ public partial class MiniPlayer : ContentView
             // Check if current song is accurate
             if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.playingIndex)
             {
-                if (!playbackTime.currentSong.id.Equals(this.currentPlayingId))
+                if (!playbackTime.currentSong.Id.Equals(this.currentPlayingId))
                 {
                     ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.playingIndex], animate: true);
                     await Task.Delay(500);
                     UpdateData(playFromIndex: playbackTime.playingIndex);
-                    this.currentPlayingId = playbackTime.currentSong.id;
+                    this.currentPlayingId = playbackTime.currentSong.Id;
                 }
             }
 
             TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
-            TimeSpan fullTime = TimeSpan.FromMilliseconds(playbackTime.currentSong.duration);
+            TimeSpan fullTime = TimeSpan.FromMilliseconds(playbackTime.currentSong.DurationMs);
 
             float percentage = (float)passedTime.Ticks / (float)fullTime.Ticks;
 
-            if (playbackTime.currentSong.id == lastUpdateTrackId)
+            if (playbackTime.currentSong.Id == lastUpdateTrackId)
             {
-                lastUpdateTrackId = playbackTime.currentSong.id;
+                lastUpdateTrackId = playbackTime.currentSong.Id;
                 Progress.Progress = percentage;
             }
             else
             {
                 Progress.CancelAnimations();
 
-                lastUpdateTrackId = playbackTime.currentSong.id;
+                lastUpdateTrackId = playbackTime.currentSong.Id;
                 Progress.Progress = percentage;
             }
         }
@@ -124,7 +124,7 @@ public partial class MiniPlayer : ContentView
         if(MauiProgram.MediaService == null) return;
 
         Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
-        if (song.isFavourite)
+        if (song.IsFavourite)
         {
             var hasColor = App.Current.Resources.TryGetValue("PrimaryColor", out object primaryColor);
             var hasSource = App.Current.Resources.TryGetValue("HeartIcon", out object imageSource);
@@ -155,7 +155,7 @@ public partial class MiniPlayer : ContentView
 
         if (syncToServer == true)
         {
-            await MauiProgram.api.SetFavourite(song.id, song.serverAddress, song.isFavourite);
+            await MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, song.IsFavourite);
         }
     }
 
@@ -195,13 +195,13 @@ public partial class MiniPlayer : ContentView
         if (MauiProgram.MediaService == null) return false;
         MemoryStream? imageDecodeStream = null;
         Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
-        if (currentSong.image.blurHash == currentBlurhash) return false; // dont run if hash is the same
-        currentBlurhash = currentSong.image.blurHash;
+        if (currentSong.ImgBlurhash == currentBlurhash) return false; // dont run if hash is the same
+        currentBlurhash = currentSong.ImgBlurhash;
         await Task.WhenAll(Task.Run(async () =>
         {
             // Fuck yeah get the image to move based on gyro
             //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
-            string? base64 = await currentSong.image.BlurhashToBase64Async(100, 100, 0.3f).ConfigureAwait(false);
+            string? base64 = await MusicItemImage.BlurhashToBase64Async(currentSong.ImgBlurhash, 100, 100, 0.3f).ConfigureAwait(false);
             if (base64 != null)
             {
                 var imageBytes = Convert.FromBase64String(base64);
@@ -341,13 +341,13 @@ public partial class MiniPlayer : ContentView
         Btn_FavToggle.Scale = btnInSize;
 
         Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
-        bool state = !song.isFavourite;
+        bool state = !song.IsFavourite;
 
-        MauiProgram.MediaService.GetCurrentlyPlaying().isFavourite = state;
+        MauiProgram.MediaService.GetCurrentlyPlaying().SetIsFavourite(state);
         UpdateFavouriteButton();
         MauiProgram.MainPage.MainMediaController.UpdateFavouriteButton();
 
-        await Task.Run(() => MauiProgram.api.SetFavourite(song.id, song.serverAddress, state));
+        await Task.Run(() => MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, state));
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)

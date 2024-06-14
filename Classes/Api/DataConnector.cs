@@ -79,7 +79,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="sortOrder">The sort order for the albums.</param>
         /// <returns>Album[] (Album array) containing all albums as requested from all servers</returns>
-        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, ItemSortBy[]? sortTypes = null, SortOrder sortOrder = SortOrder.Descending)
+        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool isFavourite = false, bool isPartial = true, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder sortOrder = SortOrder.Descending)
         {
             List<Album> albumsReturn = new List<Album>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
@@ -89,7 +89,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     actualLimit = (int)limit / connecters.Count;
                 }
-                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder));
+                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, getPartial: isPartial, setSortTypes: sortTypes, setSortOrder: sortOrder));
             });
 
             // TODO: ensure we're capping the limit as set in the initali integer
@@ -132,7 +132,7 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region ArtistEndoings
-        public async Task<Artist[]> GetAllArtistsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
+        public async Task<Artist[]> GetAllArtistsAsync(int limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
         {
             List<Artist> artistsReturn = new List<Artist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
@@ -180,7 +180,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="sortOrder">The sort order for the retrieved songs. Default is descending.</param>
         /// <returns>An array of songs.</returns>
-        public async Task<Song[]> GetAllSongsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, ItemSortBy[]? sortTypes = null, SortOrder[]? sortOrder = null)
+        public async Task<Song[]> GetAllSongsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder[]? sortOrder = null)
         {
             List<Song> songsReturn = new List<Song>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
@@ -193,7 +193,7 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region GenreEndpoints
-        public async Task<Genre[]> GetAllGenresAsync(int? limit = 50, int? startIndex = 0, CancellationToken? cancellationToken = null)
+        public async Task<Genre[]> GetAllGenresAsync(int limit = 50, int? startIndex = 0, CancellationToken? cancellationToken = null)
         {
             List<Genre> genresReturn = new List<Genre>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
@@ -213,11 +213,11 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region PlaylistsEndpoint
-        public async Task<Playlist[]> GetAllPlaylistsAsync(int? limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
+        public async Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
         {
             List<Playlist> playlistsReturn = new List<Playlist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                playlistsReturn.AddRange(await server.Value.GetPlaylistsAsync(limit: limit, startFromIndex: startIndex));
+                playlistsReturn.AddRange(await server.Value.GetAllPlaylistsAsync(limit: limit, startFromIndex: startIndex));
             });
 
             return playlistsReturn.ToArray();

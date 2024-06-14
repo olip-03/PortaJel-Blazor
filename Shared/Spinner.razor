@@ -1,5 +1,5 @@
-﻿<div class="spinner" style="width: 3rem; height: 3rem"/>
+﻿<div class="spinner" style="@Style"/>
 
 @code {
-
+    [Parameter] public string Style { get; set; } = "width: 3rem; height: 3rem";
 }

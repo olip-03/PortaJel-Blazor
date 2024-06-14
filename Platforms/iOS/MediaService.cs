@@ -10,60 +10,9 @@ namespace PortaJel_Blazor.Classes.Services
 {
     public partial class MediaService : IMediaInterface
     {
-        public void Initalize()
-        {
-
-        }
-        public void Play()
-        {
-
-        }
-        public void Pause()
-        {
-
-        }
-        public void TogglePlay()
-        {
-        }
-        public void ToggleShuffle()
-        {
-
-        }
-        public void ToggleRepeat()
-        {
-
-        }
-        public void NextTrack()
-        {
-
-        }
-        public void PreviousTrack()
-        {
-
-        }
-        public void SeekToPosition(long position)
-        {
-
-        }
-
-        public void SeekToIndex(int index)
-        {
-
-        }
-
-        public void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
-        {
-
-        }
-
         public void AddSong(Song song)
         {
-
-        }
-
-        public void RemoveSong(int index)
-        {
-
+            throw new NotImplementedException();
         }
 
         public void AddSongs(Song[] songs)
@@ -71,12 +20,7 @@ namespace PortaJel_Blazor.Classes.Services
             throw new NotImplementedException();
         }
 
-        public Song[] GetQueue()
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetQueueIndex()
+        public Song GetCurrentlyPlaying()
         {
             throw new NotImplementedException();
         }
@@ -91,127 +35,87 @@ namespace PortaJel_Blazor.Classes.Services
             throw new NotImplementedException();
         }
 
-        public int GetRepeatMode()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Song GetCurrentlyPlaying()
-        {
-            throw new NotImplementedException();
-        }
-
         public PlaybackInfo? GetPlaybackTimeInfo()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.Initalize()
+        public SongGroupCollection GetQueue()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.Play()
+        public int GetQueueIndex()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.SetPlayAddonAction(Action addonAction)
+        public int GetRepeatMode()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.Pause()
+        public Task<bool> Initalize()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.TogglePlay()
+        public void NextTrack()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.ToggleShuffle()
+        public void Pause()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.ToggleRepeat()
+        public void Play()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.NextTrack()
+        public void PreviousTrack()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.PreviousTrack()
+        public void RemoveSong(int index)
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.SeekToPosition(long position)
+        public void SeekToIndex(int index)
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.SeekToIndex(int index)
+        public void SeekToPosition(long position)
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex)
+        public void SetPlayAddonAction(Action addonAction)
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.AddSong(Song song)
+        public void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.AddSongs(Song[] songs)
+        public void TogglePlay()
         {
             throw new NotImplementedException();
         }
 
-        void IMediaInterface.RemoveSong(int index)
+        public void ToggleRepeat()
         {
             throw new NotImplementedException();
         }
 
-        SongGroupCollection IMediaInterface.GetQueue()
-        {
-            throw new NotImplementedException();
-        }
-
-        Song IMediaInterface.GetCurrentlyPlaying()
-        {
-            throw new NotImplementedException();
-        }
-
-        PlaybackInfo? IMediaInterface.GetPlaybackTimeInfo()
-        {
-            throw new NotImplementedException();
-        }
-
-        int IMediaInterface.GetQueueIndex()
-        {
-            throw new NotImplementedException();
-        }
-
-        bool IMediaInterface.GetIsPlaying()
-        {
-            throw new NotImplementedException();
-        }
-
-        bool IMediaInterface.GetIsShuffling()
-        {
-            throw new NotImplementedException();
-        }
-
-        int IMediaInterface.GetRepeatMode()
+        public void ToggleShuffle()
         {
             throw new NotImplementedException();
         }

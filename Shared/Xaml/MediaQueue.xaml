@@ -82,18 +82,18 @@
                                         StrokeThickness="0"
                                         Margin="0, 0, 5, 0">
                                     <Image Grid.RowSpan="2"
-                                           Source="{Binding image.sourceAtResolution}"
+                                           Source="{Binding ImgSource}"
                                            Aspect="AspectFill"/>
                                 </Border>
 
                                 <Label Grid.Column="1"
-                                       Text="{Binding name}"
+                                       Text="{Binding Name}"
                                        TextColor="{StaticResource PrimaryTextColor}" 
                                        FontAttributes="Bold" 
                                        VerticalOptions="End"/>
                                 <Label Grid.Row="1"
                                        Grid.Column="1"
-                                       Text="{Binding artistCongregate}"
+                                       Text="{Binding ArtistNames}"
                                        FontAttributes="Italic"
                                        VerticalOptions="Start"
                                        TextColor="{StaticResource PrimaryTextColor}" />

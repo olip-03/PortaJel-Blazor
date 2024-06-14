@@ -30,7 +30,7 @@ public partial class PlaylistViewEditor : ContentPage
     }
     public PlaylistViewEditor(Playlist setPlaylist)
     {
-        playlistId = setPlaylist.id;
+        playlistId = setPlaylist.Id;
         playlist = setPlaylist;
 
         InitializeComponent();
@@ -46,17 +46,17 @@ public partial class PlaylistViewEditor : ContentPage
             loadingScreen.IsVisible = isLoading;
             // Neccesary to stop the page from lagging when you open it
             await Task.Run(() => { Thread.Sleep(200); });
-            Playlist? getPlaylist = await MauiProgram.servers[0].FetchPlaylistByIDAsync(playlistId);
+            Playlist? getPlaylist = await MauiProgram.servers[0].GetPlaylistAsync(playlistId);
             if(getPlaylist != null)
             {
                 playlist = getPlaylist;
             }
         }
 
-        songList = playlist.songs.ToList();
-        unorderedList = playlist.songs.ToList();
-        img_main.Source = playlist.image.source;
-        txt_playlistName.Text = playlist.name;
+        songList = playlist.Songs.Select(song => new Song(song)).ToList();
+        unorderedList = playlist.Songs.Select(song => new Song(song)).ToList();
+        img_main.Source = playlist.ImgSource;
+        txt_playlistName.Text = playlist.Name;
 
         Playlist_List.ItemsSource = songList;
         save_btn.IsVisible = true;
@@ -96,7 +96,7 @@ public partial class PlaylistViewEditor : ContentPage
                 if (!songList.Contains(song))
                 { // This song has been removed
                     removedSongs.Add(new Tuple<int, Song>(index, song));
-                    await MauiProgram.servers[0].RemovePlaylistItem(playlist.id, song.playlistId);
+                    await MauiProgram.servers[0].RemovePlaylistItem(playlist.Id, song.PlaylistId);
                     unorderedList.Remove(song);
                 }
                 index++;
@@ -113,7 +113,7 @@ public partial class PlaylistViewEditor : ContentPage
                 bool completedLoop = true;
                 for (int i = 0; i < unorderedList.Count; i++)
                 {
-                    if (unorderedList[i].id != songList[i].id)
+                    if (unorderedList[i].Id != songList[i].Id)
                     {
                         int newIndex = songList.IndexOf(unorderedList[i]);
                         Song item = unorderedList[i];
@@ -122,7 +122,7 @@ public partial class PlaylistViewEditor : ContentPage
                         unorderedList.RemoveAt(i);
                         unorderedList.Insert(newIndex, item);
 
-                        bool passed = await MauiProgram.servers[0].MovePlaylistItem(playlist.id, item.playlistId, newIndex);
+                        bool passed = await MauiProgram.servers[0].MovePlaylistItem(playlist.Id, item.PlaylistId, newIndex);
                         if (!passed)
                         {
                             // wah wah
