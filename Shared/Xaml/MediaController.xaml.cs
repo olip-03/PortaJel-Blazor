@@ -32,7 +32,6 @@ public partial class MediaController : ContentView
         InitializeComponent();
         BindingContext = ViewModel;
     }
-
     public async Task<bool> Open(bool? animate = true)
     {
         UpdatePlayButton();
@@ -65,8 +64,6 @@ public partial class MediaController : ContentView
         }
 
         return true;
-
-
     }
 
     public async Task<bool> Close(bool? animate = true)
@@ -119,7 +116,7 @@ public partial class MediaController : ContentView
             }
         }
 
-        BaseMusicItem? playingCollection = new Album(MauiProgram.MediaService.GetCurrentlyPlaying().Album);
+        BaseMusicItem? playingCollection = MauiProgram.MediaService.GetPlayingCollection();
         if (playingCollection != null)
         {
             string type = playingCollection.GetType().Name;
@@ -132,6 +129,11 @@ public partial class MediaController : ContentView
             {
                 ViewModel.PlayingFromTitle = playingCollection.ToPlaylist().Name;
             }
+        }
+        else
+        {
+            ViewModel.PlayingFromCollectionTitle = string.Empty;
+            ViewModel.PlayingFromTitle = string.Empty;
         }
 
         // Update Elements
@@ -613,21 +615,18 @@ public partial class MediaController : ContentView
     {
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MainPage.ShowLoadingScreen(true);
-        Album? album = new Album(MauiProgram.MediaService.GetCurrentlyPlaying().Album);
-        if (album != null)
-        {
-            Guid? itemId = album.Id;
+        Guid? itemId = MauiProgram.MediaService.GetCurrentlyPlaying().AlbumId;
             if (itemId != null)
-            {
-                MauiProgram.WebView.NavigateAlbum((Guid)itemId);
-                await Close();
-            }
-            else
-            {
-                string text = $"Couldn't navigate to album as it was null!";
-                var toast = Toast.Make(text, ToastDuration.Short, 14);
-                await toast.Show();
-            }
+        {
+            MauiProgram.WebView.NavigateAlbum((Guid)itemId);
+            await Close();
+        }
+        else
+        {
+            string text = $"Couldn't navigate to album as it was null!";
+            var toast = Toast.Make(text, ToastDuration.Short, 14);
+            await toast.Show();
+            MauiProgram.WebView.NavigateHome();
         }
     }
 
@@ -635,21 +634,18 @@ public partial class MediaController : ContentView
     {
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MainPage.ShowLoadingScreen(true);
-        Artist? artist = new Artist(MauiProgram.MediaService.GetCurrentlyPlaying().Artists.FirstOrDefault());
-        if (artist != null)
+        Guid? itemId = MauiProgram.MediaService.GetCurrentlyPlaying().ArtistIds.FirstOrDefault();
+        if (itemId != null)
         {
-            Guid? itemId = artist.Id;
-            if (itemId != null)
-            {
-                MauiProgram.WebView.NavigateArtist((Guid)itemId);
-                await Close();
-            }
-            else
-            {
-                string text = $"Couldn't navigate to artist as it was null!";
-                var toast = Toast.Make(text, ToastDuration.Short, 14);
-                await toast.Show();
-            }
+            MauiProgram.WebView.NavigateArtist((Guid)itemId);
+            await Close();
+        }
+        else
+        {
+            string text = $"Couldn't navigate to artist as it was null!";
+            var toast = Toast.Make(text, ToastDuration.Short, 14);
+            await toast.Show();
+            MauiProgram.WebView.NavigateHome();
         }
     }
 }

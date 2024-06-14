@@ -1,4 +1,14 @@
-﻿@page "/connectionsettings"
+﻿@page "/settingsconnections"
+
+<!-- Hide M3U Playlists -->
+<div class="header">
+    <p>Offline Mode</p>
+    <!-- Rounded switch -->
+    <label class="switch">
+        <input type="checkbox">
+        <span class="slider round"></span>
+    </label>
+</div>
 
 <div class="header">
     <div class="title">Connections</div>
@@ -26,10 +36,12 @@
 }
 
 @code {
+    private bool ForceOffline = false;
+
     protected override void OnInitialized()
     {
-        MauiProgram.WebView.pageTitle = "Connection Settings";
-        MauiProgram.WebView.currentUri = "/connectionsettings";
+        MauiProgram.WebView.pageTitle = "Connections";
+        MauiProgram.WebView.currentUri = "/settingsconnections";
         MauiProgram.WebView.showHeader = true;
 
         MauiProgram.WebView.isLoading = false;

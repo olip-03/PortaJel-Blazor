@@ -20,6 +20,7 @@ namespace PortaJel_Blazor.Data
         public string ImgSource => _songData.ImgSource;
         public string ImgBlurhash => _songData.ImgBlurhash;
         public ArtistData[] Artists => _artistData;
+        public Guid[] ArtistIds => _songData.GetArtistIds();
         public string ArtistNames => _songData.ArtistNames;
         public AlbumData Album => _albumData;
         public int IndexNumber => _songData.IndexNumber;

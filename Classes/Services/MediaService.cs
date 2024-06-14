@@ -23,6 +23,7 @@ namespace PortaJel_Blazor.Classes.Services
         void SeekToPosition(long position);
         void SeekToIndex(int index);
         void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0);
+        BaseMusicItem GetPlayingCollection();
         void AddSong(Song song);
         void AddSongs(Song[] songs);
         void RemoveSong(int index);

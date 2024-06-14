@@ -78,6 +78,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             return Service.SetPlayingCollection(baseMusicItem, fromIndex);
         }
+        public BaseMusicItem? GetPlayingCollection()
+        {
+            return Service.GetPlayingCollection();
+        }
         public bool AddSong(Song song)
         {
             return Service.AddSong(song);

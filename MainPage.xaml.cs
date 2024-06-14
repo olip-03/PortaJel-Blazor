@@ -229,9 +229,9 @@ public partial class MainPage : ContentPage
     }
     public async void ShowLoadingScreen(bool value)
     {
-        LoadingBlockout.IsVisible = value;
         if (value == true)
         { // If we're already visible, do nothin'
+            LoadingBlockout.IsVisible = true;
             LoadingBlockout.InputTransparent = false;
             LoadingBlockout.Opacity = 1; 
         }
@@ -240,6 +240,7 @@ public partial class MainPage : ContentPage
             LoadingBlockout.InputTransparent = true;
             LoadingBlockout.Opacity = 1; // make fully visible
             await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
+            LoadingBlockout.IsVisible = false;
         }
     }
     public async void UpdateKeyboardLocation()

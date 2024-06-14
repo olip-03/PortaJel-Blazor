@@ -4,6 +4,7 @@
 @using PortaJel_Blazor.Pages.Xaml;
 @using PortaJel_Blazor.Shared.Icons;
 @using BlazorAnimate;
+@inject NavigationManager NavManager
 @page "/settingshome"
 
 <ul>
@@ -53,6 +54,19 @@
 
     private void NavigateConnections()
     {
-        
+        if (MauiProgram.WebView.currentUri != "/settingsconnections")
+        {
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+
+            MauiProgram.WebView.showHeader = true;
+            MauiProgram.WebView.pageTitle = "Connections";
+            MauiProgram.WebView.currentUri = "/settingsconnections";
+
+            NavManager.NavigateTo(MauiProgram.WebView.currentUri);
+        }
+        else if (MauiProgram.WebView.currentUri == "/settingsconnections")
+        {
+            MauiProgram.MainPage.ShowLoadingScreen(false);
+        }
     }
 }

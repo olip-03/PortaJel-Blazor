@@ -653,6 +653,11 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             return true;
         }
 
+        public BaseMusicItem? GetPlayingCollection()
+        {
+            return playingFrom;
+        }
+
         public bool AddSong(Song song)
         {
             if (Player != null)

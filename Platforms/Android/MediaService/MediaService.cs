@@ -242,7 +242,18 @@ namespace PortaJel_Blazor.Classes.Services
                 serviceConnection.Binder.SetPlayingCollection(baseMusicItem, fromIndex);
             }
         }
-
+        public BaseMusicItem? GetPlayingCollection()
+        {
+            if (serviceConnection != null &&
+                serviceConnection.Binder != null)
+            { 
+                return serviceConnection.Binder.GetPlayingCollection();
+            }
+            else 
+            { 
+                return null; 
+            }
+        }
         public void AddSong(Song song)
         {
             if (serviceConnection != null &&

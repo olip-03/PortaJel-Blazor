@@ -420,28 +420,27 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.ParentId = setId;
                         c.QueryParameters.Recursive = true;
                         c.QueryParameters.EnableImages = true;
-                    });
-                    Task<BaseItemDtoQueryResult?> artistQueryResults = _jellyfinApiClient.Items.GetAsync(c =>
+                    });     
+                    await Task.WhenAll(albumQueryResult, songQueryResult);
+                    
+                    if (albumQueryResult.Result == null || albumQueryResult.Result.Items == null) return Album.Empty;
+                    if (songQueryResult.Result == null || songQueryResult.Result.Items == null) return Album.Empty;
+                    BaseItemDto? albumBaseItem = albumQueryResult.Result.Items.FirstOrDefault();
+                    if (albumBaseItem == null) return Album.Empty;
+                    if (albumBaseItem.ArtistItems == null) return Album.Empty;
+                    BaseItemDtoQueryResult? artistQueryResults = await _jellyfinApiClient.Items.GetAsync(c =>
                     {
                         c.QueryParameters.UserId = userDto.Id;
                         c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicArtist];
                         c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
                         c.QueryParameters.SortOrder = [SortOrder.Ascending];
-                        c.QueryParameters.ParentId = setId;
+                        c.QueryParameters.Ids = albumBaseItem.ArtistItems.Select(artist => artist.Id).ToArray();
                         c.QueryParameters.Recursive = true;
                         c.QueryParameters.EnableImages = true;
                     });
-
-                    await Task.WhenAll(albumQueryResult, songQueryResult, artistQueryResults);
-
-                    if (albumQueryResult.Result == null || albumQueryResult.Result.Items == null) return Album.Empty;
-                    if (songQueryResult.Result == null || songQueryResult.Result.Items == null) return Album.Empty;
-                    if (artistQueryResults.Result == null || artistQueryResults.Result.Items == null) return Album.Empty; // TODO: Check if results are valid on next build
-                    BaseItemDto? albumBaseItem = albumQueryResult.Result.Items.FirstOrDefault();
-                    if (albumBaseItem == null) return Album.Empty;
+                    if (artistQueryResults == null || artistQueryResults.Items == null) return Album.Empty; // TODO: Check if results are valid on next build
                     BaseItemDto[] songBaseItemArray = songQueryResult.Result.Items.ToArray();
-                    BaseItemDto[] artistBaseItemArray = artistQueryResults.Result.Items.ToArray();
-
+                    BaseItemDto[] artistBaseItemArray = artistQueryResults.Items.ToArray();
                     SongData[] songData = songBaseItemArray.Select(item => SongData.Builder(item, _sdkClientSettings.ServerUrl)).OrderBy(song => song.IndexNumber).ToArray();
                     AlbumData albumData = AlbumData.Builder(albumBaseItem, _sdkClientSettings.ServerUrl, songData.Select(song => song.Id).ToArray());
                     ArtistData[] artistData = artistBaseItemArray.Select(item => ArtistData.Builder(item, _sdkClientSettings.ServerUrl)).ToArray();
