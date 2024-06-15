@@ -15,7 +15,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string ArtistNames { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;
-        public long DurationMs { get; set; } = 0;
+        public TimeSpan Duration { get; set; } = new();
         public int PlayCount { get; set; } = 0;
         public DateTimeOffset? DateAdded { get; set; } 
         public int IndexNumber { get; set; } = 0;
@@ -50,6 +50,10 @@ namespace PortaJel_Blazor.Classes.Database
             {
                 throw new ArgumentException("Cannot create Song without Artist Items! Please fix server call flags!");
             }
+            if(baseItem.RunTimeTicks == null)
+            {
+                throw new ArgumentException("Cannot create Song without RunTime Ticks! Please fix server call flags!");
+            }
             MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
 
             SongData song = new();
@@ -59,7 +63,7 @@ namespace PortaJel_Blazor.Classes.Database
             song.ArtistIdsJson = JsonSerializer.Serialize(baseItem.ArtistItems.Select(baseItem => baseItem.Id).ToArray());
             song.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
             song.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
-            song.DurationMs = baseItem.CumulativeRunTimeTicks == null ? 0 : TimeSpan.FromTicks((long)baseItem.CumulativeRunTimeTicks).Milliseconds;
+            song.Duration = TimeSpan.FromTicks((long)baseItem.RunTimeTicks);
             // song.PlayCount = songData.PlayCount; TODO: Implement playcount idk
             song.DateAdded = baseItem.DateCreated;
             song.IndexNumber = baseItem.IndexNumber == null ? 0 : (int)baseItem.IndexNumber;

@@ -4,21 +4,21 @@ namespace PortaJel_Blazor.Classes
 {
     public class PlaybackInfo
     {
-        public long currentDuration = -1;
-        public Song currentSong = Song.Empty;
-        public int playingIndex = -1;
-        public bool isPlaying = false;
-        public string currentDurationText = "00:00";
-        public string fullDurationText = "00:00";
+        public TimeSpan Duration = new();
+        public TimeSpan CurrentDuration = new();
+        public Song CurrentSong = Song.Empty;
+        public int PlayingIndex = -1;
+        public bool IsBuffering = false;
+        public bool IsPlaying = false;
 
-        public PlaybackInfo(long setCurrentTime, Song currentSong, int setPlayingIndex, bool isPlaying, string setCurrentDurationText, string setfFllDurationText)
+        public PlaybackInfo(TimeSpan setDuration, TimeSpan setCurrentDuration, Song currentSong, int setPlayingIndex, bool isBuffering, bool isPlaying)
         {
-            this.currentDuration = setCurrentTime;
-            this.currentSong = currentSong;
-            this.playingIndex = setPlayingIndex;
-            this.isPlaying = isPlaying;
-            this.currentDurationText = setCurrentDurationText;
-            this.fullDurationText = setfFllDurationText;
+            this.Duration = setDuration;
+            this.CurrentDuration = setCurrentDuration;
+            this.CurrentSong = currentSong;
+            this.PlayingIndex = setPlayingIndex;
+            this.IsBuffering = isBuffering;
+            this.IsPlaying = isPlaying;
         }
     }
 }

@@ -25,8 +25,8 @@ namespace PortaJel_Blazor.Data
         public AlbumData Album => _albumData;
         public int IndexNumber => _songData.IndexNumber;
         public string StreamUrl => _songData.StreamUrl;
-        public int DiskNumber => _songData.DiskNumber;
-        public long DurationMs => _songData.DurationMs;
+        public int DiskNumber =>  _songData.DiskNumber;
+        public TimeSpan Duration => _songData.Duration;
         public string FileLocation => _songData.FileLocation;
         public bool IsDownloaded => _songData.IsDownloaded;
         public bool IsPartial { get; private set; } = false;

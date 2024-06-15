@@ -318,39 +318,31 @@ public partial class MediaController : ContentView
         if (playbackTime != null)
         {
             // Check if current song is accurate
-            if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.playingIndex)
+            if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.PlayingIndex)
             {
-                if (!playbackTime.currentSong.Id.Equals(this.currentPlayingId))
+                if (!playbackTime.CurrentSong.Id.Equals(this.currentPlayingId))
                 {
-                    ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.playingIndex], animate: true);
+                    ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.PlayingIndex], animate: true);
                     await Task.Delay(500);
-                    UpdateData(playFromIndex: playbackTime.playingIndex);
-                    this.currentPlayingId = playbackTime.currentSong.Id;
+                    UpdateData(playFromIndex: playbackTime.PlayingIndex);
+                    this.currentPlayingId = playbackTime.CurrentSong.Id;
                 }
             }
 
             // Change playback icon 
-            if (isPlaying != playbackTime.isPlaying)
+            if (isPlaying != playbackTime.IsPlaying)
             {
-                UpdatePlayButton(playbackTime.isPlaying);
-                MauiProgram.MainPage.MainMiniPlayer.UpdatePlayButton(playbackTime.isPlaying);
+                UpdatePlayButton(playbackTime.IsPlaying);
+                MauiProgram.MainPage.MainMiniPlayer.UpdatePlayButton(playbackTime.IsPlaying);
 
-                isPlaying = playbackTime.isPlaying;
+                isPlaying = playbackTime.IsPlaying;
             }
 
-            ViewModel.PlaybackValue = playbackTime.currentDuration;
-            ViewModel.PlaybackMaximum = playbackTime.currentSong.DurationMs;
+            ViewModel.PlaybackValue = playbackTime.CurrentDuration.TotalMilliseconds;
+            ViewModel.PlaybackMaximum = playbackTime.Duration.TotalMilliseconds;
 
-            if (playbackTime.currentSong.DurationMs > 0 &&
-                !pauseTimeUpdate &&
-                ViewModel.PlaybackTimeValue != playbackTime.currentDurationText &&
-                IsOpen)
-            {
-                ViewModel.PlaybackTimeValue = playbackTime.currentDurationText;
-                ViewModel.PlaybackMaximumTimeValue = playbackTime.fullDurationText;
-
-                // Player_DurationSlider_Lbl_DurationTxt.Text = ViewModel.PlaybackMaximumTimeValue;
-            }
+            ViewModel.PlaybackTimeValue = string.Format("{0:D2}:{1:D2}", playbackTime.CurrentDuration.Minutes, playbackTime.CurrentDuration.Seconds);
+            ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", playbackTime.Duration.Minutes, playbackTime.Duration.Seconds);
         }
     }
 
@@ -414,18 +406,7 @@ public partial class MediaController : ContentView
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MediaService.PreviousTrack();
 
-        PlaybackInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
-        MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
-        MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
-
         Song scrollTo = MauiProgram.MediaService.GetCurrentlyPlaying();
-        TimeSpan durationTime = TimeSpan.FromTicks(scrollTo.DurationMs);
-
-        ViewModel.PlaybackValue = 0;
-        ViewModel.PlaybackTimeValue = "00:00";
-        ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", durationTime.Minutes, durationTime.Seconds);
-
-        ImgCarousel.ScrollTo(item: scrollTo, animate: true);
         ImgCarousel.ScrollTo(item: scrollTo, animate: true);
 
         int currentIndex = MauiProgram.MediaService.GetQueueIndex();
@@ -486,17 +467,7 @@ public partial class MediaController : ContentView
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MediaService.NextTrack();
 
-        PlaybackInfo? timeInfo = MauiProgram.MediaService.GetPlaybackTimeInfo();
-        MauiProgram.MainPage.MainMiniPlayer.UpdateTimestamp(timeInfo);
-        MauiProgram.MainPage.MainMediaController.UpdateTimestamp(timeInfo);
-
-        Song scrollTo = MauiProgram.MediaService.GetCurrentlyPlaying();
-        TimeSpan durationTime = TimeSpan.FromTicks(scrollTo.DurationMs);
-
-        ViewModel.PlaybackValue = 0;
-        ViewModel.PlaybackTimeValue = "00:00";
-        ViewModel.PlaybackMaximumTimeValue = string.Format("{0:D2}:{1:D2}", durationTime.Minutes, durationTime.Seconds);
-
+        Song scrollTo = MauiProgram.MediaService.GetCurrentlyPlaying(); 
         ImgCarousel.ScrollTo(item: scrollTo, animate: true);
 
         int currentIndex = MauiProgram.MediaService.GetQueueIndex();

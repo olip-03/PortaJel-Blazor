@@ -203,7 +203,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
         public void OnPlayerStateChanged(bool playWhenReady, int playbackState)
         {
-            
+            if (OnPlayerStateChangedImpl != null)
+            {
+                OnPlayerStateChangedImpl(playWhenReady, playbackState);
+            }
         }
 
         public void OnPlaylistMetadataChanged(MediaMetadata? mediaMetadata)

@@ -360,9 +360,10 @@ namespace PortaJel_Blazor.Classes
             async Task<Album> ReturnFromCache()
             {
                 // Filter the cache based on the provided parameters
-                AlbumData albumFromDb = await Database.Table<AlbumData>().Where(album => album.Id == setId).FirstOrDefaultAsync();
+                AlbumData? albumFromDb = await Database.Table<AlbumData>().Where(album => album.Id == setId).FirstOrDefaultAsync();
                 SongData[] songFromDb = [];
                 ArtistData[] artistsFromDb = [];
+                if(albumFromDb == null) return Album.Empty;
 
                 Guid[]? songIds = albumFromDb.GetSongIds();
                 Guid[]? artistIds = albumFromDb.GetArtistIds();

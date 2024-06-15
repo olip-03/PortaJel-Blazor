@@ -58,32 +58,32 @@ public partial class MiniPlayer : ContentView
         if(playbackTime != null)
         {
             // Check if current song is accurate
-            if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.playingIndex)
+            if (ViewModel.Queue != null && ViewModel.Queue.Count > playbackTime.PlayingIndex)
             {
-                if (!playbackTime.currentSong.Id.Equals(this.currentPlayingId))
+                if (!playbackTime.CurrentSong.Id.Equals(this.currentPlayingId))
                 {
-                    ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.playingIndex], animate: true);
+                    ImgCarousel.ScrollTo(ViewModel.Queue[playbackTime.PlayingIndex], animate: true);
                     await Task.Delay(500);
-                    UpdateData(playFromIndex: playbackTime.playingIndex);
-                    this.currentPlayingId = playbackTime.currentSong.Id;
+                    UpdateData(playFromIndex: playbackTime.PlayingIndex);
+                    this.currentPlayingId = playbackTime.CurrentSong.Id;
                 }
             }
 
-            TimeSpan passedTime = TimeSpan.FromMilliseconds(playbackTime.currentDuration);
-            TimeSpan fullTime = TimeSpan.FromMilliseconds(playbackTime.currentSong.DurationMs);
+            TimeSpan passedTime = playbackTime.CurrentDuration;
+            TimeSpan fullTime = playbackTime.Duration;
 
             float percentage = (float)passedTime.Ticks / (float)fullTime.Ticks;
 
-            if (playbackTime.currentSong.Id == lastUpdateTrackId)
+            if (playbackTime.CurrentSong.Id == lastUpdateTrackId)
             {
-                lastUpdateTrackId = playbackTime.currentSong.Id;
+                lastUpdateTrackId = playbackTime.CurrentSong.Id;
                 Progress.Progress = percentage;
             }
             else
             {
                 Progress.CancelAnimations();
 
-                lastUpdateTrackId = playbackTime.currentSong.Id;
+                lastUpdateTrackId = playbackTime.CurrentSong.Id;
                 Progress.Progress = percentage;
             }
         }

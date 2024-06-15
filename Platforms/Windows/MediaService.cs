@@ -122,5 +122,10 @@ namespace PortaJel_Blazor.Classes.Services
         {
             
         }
+
+        public BaseMusicItem GetPlayingCollection()
+        {
+            return Album.Empty;
+        }
     }
 }
