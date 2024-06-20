@@ -13,6 +13,7 @@ using SQLite;
 using System.Security.Cryptography;
 using System.Diagnostics;
 using Microsoft.Maui.Controls.PlatformConfiguration;
+using CoreVideo;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -72,6 +73,10 @@ namespace PortaJel_Blazor.Classes
             {
                 StoredPassword = password;
             }
+            if (baseUrl != null)
+            {
+                ServerAddress = baseUrl;
+            }
 
             try
             {
@@ -83,7 +88,7 @@ namespace PortaJel_Blazor.Classes
                         new ProductInfoHeaderValue(
                             MauiProgram.applicationName,
                             MauiProgram.applicationClientVersion));
-
+                    c.Timeout = TimeSpan.FromSeconds(1);
                     c.DefaultRequestHeaders.Accept.Add(
                         new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json, 1.0));
                     c.DefaultRequestHeaders.Accept.Add(
@@ -190,12 +195,15 @@ namespace PortaJel_Blazor.Classes
                     return true;
                 }
             }
-            catch (HttpRequestException ex)
+            catch (TaskCanceledException timeout)
+            {
+                Trace.WriteLine(timeout.GetType());
+                isOffline = true;
+            }
+            catch
             {
                 isOffline = true;
-                throw;
             }
-
             return false;
         }
         #endregion
@@ -462,6 +470,11 @@ namespace PortaJel_Blazor.Classes
                     isOffline = true;
                     return await ReturnFromCache();
                 }
+                catch (TaskCanceledException timeout)
+                {
+                    isOffline = true;
+                    return await ReturnFromCache();
+                }
             }
         }
 
@@ -509,6 +522,11 @@ namespace PortaJel_Blazor.Classes
                 }
             }
             catch (HttpRequestException)
+            {
+                isOffline = true;
+                toReturn = [];
+            }
+            catch (TaskCanceledException timeout)
             {
                 isOffline = true;
                 toReturn = [];
@@ -644,6 +662,11 @@ namespace PortaJel_Blazor.Classes
                     isOffline = true;
                     return await ReturnFromCache();
                 }
+                catch (TaskCanceledException timeout)
+                {
+                    isOffline = true;
+                    return await ReturnFromCache();
+                }
             }
 
             return toReturn.ToArray();
@@ -741,6 +764,11 @@ namespace PortaJel_Blazor.Classes
                     ArtistData[]? artistData = artistResults.Result.Items.Select(artist => ArtistData.Builder(artist, _sdkClientSettings.ServerUrl)).ToArray();
 
                     toReturn = new Song(songData, albumData, artistData);
+                }
+                catch (TaskCanceledException timeout)
+                {
+                    isOffline = true;
+                    return await ReturnFromCache();
                 }
                 catch (Exception)
                 {
@@ -840,6 +868,11 @@ namespace PortaJel_Blazor.Classes
                     isOffline = true;
                     return await ReturnFromCache();
                 }
+                catch (TaskCanceledException timeout)
+                {
+                    isOffline = true;
+                    return await ReturnFromCache();
+                }
             }
 
             return toReturn.ToArray();
@@ -931,6 +964,11 @@ namespace PortaJel_Blazor.Classes
                     isOffline = true;
                     return await ReturnFromCache();
                 }
+                catch (TaskCanceledException timeout)
+                {
+                    isOffline = true;
+                    return await ReturnFromCache();
+                }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
@@ -976,6 +1014,11 @@ namespace PortaJel_Blazor.Classes
                         toReturn.Add(new Artist(ArtistData.Builder(albumResult, _sdkClientSettings.ServerUrl)));
                     }
                 }
+            }
+            catch (TaskCanceledException timeout)
+            {
+                isOffline = true;
+                toReturn = [];
             }
             catch (HttpRequestException)
             {
@@ -1066,6 +1109,11 @@ namespace PortaJel_Blazor.Classes
                     isOffline = true;
                     return await ReturnFromCache();
                 }
+                catch (TaskCanceledException timeout)
+                {
+                    isOffline = true;
+                    return await ReturnFromCache();
+                }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
@@ -1137,10 +1185,15 @@ namespace PortaJel_Blazor.Classes
 
                     toReturn = new Playlist(playlistData, songData);
                 }
+                catch (TaskCanceledException timeout)
+                {
+                    isOffline = true;
+                    return await ReturnFromCache();
+                }
                 catch (HttpRequestException)
                 {
-                    return await ReturnFromCache();
                     isOffline = true;
+                    return await ReturnFromCache();
                 }
             }
 

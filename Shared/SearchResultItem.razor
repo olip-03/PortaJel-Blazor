@@ -156,14 +156,7 @@
                     break;
                 case "Song":
                     Song song = (Song)musicObject;
-                    if (song.Album != null)
-                    {
-                        MauiProgram.WebView.NavigateAlbum(song.Album.Id);
-                    }
-                    else
-                    {
-                        MauiProgram.WebView.NavigateAlbum(elementId);
-                    }
+                    MauiProgram.WebView.NavigateAlbum(song.AlbumId);
                     break;
                 case "Genre":
                     // TODO: Configure genre page
