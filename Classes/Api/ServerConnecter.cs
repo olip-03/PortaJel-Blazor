@@ -13,7 +13,6 @@ using SQLite;
 using System.Security.Cryptography;
 using System.Diagnostics;
 using Microsoft.Maui.Controls.PlatformConfiguration;
-using CoreVideo;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -88,7 +87,7 @@ namespace PortaJel_Blazor.Classes
                         new ProductInfoHeaderValue(
                             MauiProgram.applicationName,
                             MauiProgram.applicationClientVersion));
-                    c.Timeout = TimeSpan.FromSeconds(1);
+                    //c.Timeout = TimeSpan.FromSeconds(2);
                     c.DefaultRequestHeaders.Accept.Add(
                         new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json, 1.0));
                     c.DefaultRequestHeaders.Accept.Add(
@@ -225,7 +224,7 @@ namespace PortaJel_Blazor.Classes
         /// Thrown when the server connector has not been initialized. Ensure that 
         /// AuthenticateUserAsync method has been called.
         /// </exception>
-        public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int setStartIndex = 0, bool setFavourites = false, bool getPartial = true, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder setSortOrder = SortOrder.Ascending)
+        public async Task<Album[]> GetAllAlbumsAsync(int? setLimit = null, int setStartIndex = 0, bool setFavourites = false, bool getPartial = true, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder setSortOrder = SortOrder.Ascending, bool getOffline = false, bool getDownloaded = false)
         {
             if (Database == null)
             {
@@ -276,7 +275,8 @@ namespace PortaJel_Blazor.Classes
                 return filteredCache.Select(dbItem => new Album(dbItem)).ToArray();
             }
 
-            if (isOffline)
+            if(isOffline == true) getOffline = true;
+            if (getOffline)
             { // If offline, return all from the cache
                 return await ReturnFromCache();
             }
@@ -352,7 +352,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="setId">The optional ID of the album to retrieve. If null, returns an empty album.</param>
         /// <returns>Returns the retrieved album asynchronously.</returns>
         /// <exception cref="InvalidOperationException">Thrown when the server connector has not been initialized. Ensure that AuthenticateUserAsync has been called.</exception>
-        public async Task<Album> GetAlbumAsync(Guid setId)
+        public async Task<Album> GetAlbumAsync(Guid setId, bool getOffline = false, bool getDownloaded = false)
         {
             Album toReturn = Album.Empty;
             if (Database == null)
@@ -390,7 +390,8 @@ namespace PortaJel_Blazor.Classes
                 return new Album(albumFromDb, songFromDb, artistsFromDb);
             }
 
-            if (isOffline || storedAlbums.Contains(setId))
+            if (isOffline == true) getOffline = true;
+            if (getOffline || storedAlbums.Contains(setId))
             {
                 MauiProgram.UpdateDebugMessage("Retrieving Album from Local Cache...");
                 return await ReturnFromCache();
@@ -484,7 +485,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="setId">The ID of the album set to find similar albums for.</param>
         /// <returns>An array of albums that are similar to the provided album set.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the server connector has not been initialized.</exception>
-        public async Task<Album[]> GetSimilarAlbumsAsync(System.Guid setId, int limit = 30)
+        public async Task<Album[]> GetSimilarAlbumsAsync(System.Guid setId, int limit = 30, bool getOffline = false, bool getDownloaded = false)
         {
             if (Database == null)
             {
@@ -492,7 +493,8 @@ namespace PortaJel_Blazor.Classes
             }
 
             List<Album> toReturn = new();
-            if (isOffline)
+            if (isOffline == true) getOffline = true;
+            if (getOffline)
             {
                 return [];
             }
@@ -546,7 +548,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="setSortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="setSortOrder">Specifies the sort order for the songs.</param>
         /// <returns>An array of songs.</returns>
-        public async Task<Song[]> GetAllSongsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder[]? setSortOrder = null)
+        public async Task<Song[]> GetAllSongsAsync(int? setLimit = null, int? setStartIndex = 0, bool? setFavourites = false, ItemSortBy setSortTypes = ItemSortBy.Default, SortOrder[]? setSortOrder = null, bool getOffline = false, bool getDownloaded = false)
         {
             if (Database == null)
             {
@@ -615,7 +617,8 @@ namespace PortaJel_Blazor.Classes
                 return returnCache.ToArray();
             }
 
-            if (isOffline)
+            if (isOffline == true) getOffline = true;
+            if (getOffline)
             { // If offline, return all from the cache
                 return await ReturnFromCache();
             }
@@ -677,7 +680,7 @@ namespace PortaJel_Blazor.Classes
         /// </summary>
         /// <param name="setId">The ID of the song to retrieve.</param>
         /// <returns>The song corresponding to the provided ID, or an empty song if not found.</returns>
-        public async Task<Song> GetSongAsync(System.Guid setId)
+        public async Task<Song> GetSongAsync(Guid setId, bool getOffline = false, bool getDownloaded = false)
         {
             Song toReturn = Song.Empty;
             if (Database == null)
@@ -705,7 +708,8 @@ namespace PortaJel_Blazor.Classes
                 return new Song(songDbItem, albumData, artistData);
             }
 
-            if (isOffline)
+            if (isOffline == true) getOffline = true;
+            if (getOffline)
             {
                 return await ReturnFromCache();
             }
@@ -783,7 +787,7 @@ namespace PortaJel_Blazor.Classes
 
         #region Artists      
         // TODO: Update to include caching la la la
-        public async Task<Artist[]> GetAllArtistsAsync(int limit = 50, int? startFromIndex = 0, bool? favourites = false, ItemSortBy setSortTypes = ItemSortBy.Default)
+        public async Task<Artist[]> GetAllArtistsAsync(int limit = 50, int? startFromIndex = 0, bool? favourites = false, ItemSortBy setSortTypes = ItemSortBy.Default, bool getOffline = false, bool getDownloaded = false)
         {
             if (Database == null)
             {
@@ -823,7 +827,8 @@ namespace PortaJel_Blazor.Classes
                 return filteredCache.Select(artist => new Artist(artist)).ToArray();
             }
 
-            if (isOffline)
+            if (isOffline == true) getOffline = true;
+            if (getOffline)
             {
                 return await ReturnFromCache();
             }
@@ -879,7 +884,7 @@ namespace PortaJel_Blazor.Classes
         }
 
         // TODO: Update to include caching
-        public async Task<Artist> GetArtistAsync(System.Guid artistId)
+        public async Task<Artist> GetArtistAsync(Guid artistId, bool getOffline = false, bool getDownloaded = false)
         {
             if (Database == null)
             {
@@ -898,7 +903,8 @@ namespace PortaJel_Blazor.Classes
                 return new Artist(artistDbItem, albumData);
             }
 
-            if (isOffline)
+            if (isOffline == true) getOffline = true;
+            if (getOffline)
             {
                 return await ReturnFromCache();
             }
@@ -979,13 +985,14 @@ namespace PortaJel_Blazor.Classes
             return returnArtist;
         }
 
-        public async Task<Artist[]> GetSimilarArtistsAsync(System.Guid setId, int limit = 30)
+        public async Task<Artist[]> GetSimilarArtistsAsync(Guid setId, int limit = 30, bool getOffline = false, bool getDownloaded = false)
         {
             if (Database == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
-            if (isOffline)
+            if (isOffline == true) getOffline = true;
+            if (getOffline)
             {
                 return [];
             }
@@ -1031,7 +1038,7 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region Playlists
-        public async Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int? startFromIndex = 0)
+        public async Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int? startFromIndex = 0, bool getOffline = false, bool getDownloaded = false)
         {
             if (Database == null)
             {
@@ -1049,7 +1056,8 @@ namespace PortaJel_Blazor.Classes
                 return filteredCache.Select(dbItem => new Playlist(dbItem)).ToArray();
             }
 
-            if (isOffline)
+            if (isOffline == true) getOffline = true;
+            if (getOffline)
             {
                 return await ReturnFromCache();
             }
@@ -1123,7 +1131,7 @@ namespace PortaJel_Blazor.Classes
 
             return playlists.ToArray();
         }
-        public async Task<Playlist?> GetPlaylistAsync(Guid playlistId)
+        public async Task<Playlist?> GetPlaylistAsync(Guid playlistId, bool getOffline = false, bool getDownloaded = false)
         {
             if (Database == null)
             {
@@ -1142,7 +1150,8 @@ namespace PortaJel_Blazor.Classes
                 return new Playlist(playlistDbItem, songData);
             }
 
-            if (isOffline)
+            if (isOffline == true) getOffline = true;
+            if (getOffline)
             {
                 return await ReturnFromCache();
             }
