@@ -79,7 +79,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="sortOrder">The sort order for the albums.</param>
         /// <returns>Album[] (Album array) containing all albums as requested from all servers</returns>
-        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool isFavourite = false, bool isPartial = true, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder sortOrder = SortOrder.Descending)
+        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool isFavourite = false, bool isPartial = true, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder sortOrder = SortOrder.Descending, bool offline = false, bool downloaded = false)
         {
             List<Album> albumsReturn = new List<Album>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
@@ -89,7 +89,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     actualLimit = (int)limit / connecters.Count;
                 }
-                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, getPartial: isPartial, setSortTypes: sortTypes, setSortOrder: sortOrder));
+                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, getPartial: isPartial, setSortTypes: sortTypes, setSortOrder: sortOrder, getOffline: offline, getDownloaded: downloaded));
             });
 
             // TODO: ensure we're capping the limit as set in the initali integer
@@ -105,11 +105,11 @@ namespace PortaJel_Blazor.Classes
         /// A task representing the asynchronous operation. The task result is the album 
         /// corresponding to the specified album ID.
         /// </returns>
-        public async Task<Album> GetAlbumAsync(Guid albumId)
+        public async Task<Album> GetAlbumAsync(Guid albumId, bool offline = false, bool downloaded = false)
         {
             Album toReturn = Album.Empty;
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                toReturn = await server.Value.GetAlbumAsync(setId: albumId);
+                toReturn = await server.Value.GetAlbumAsync(setId: albumId, getOffline: offline, getDownloaded: downloaded);
             });
             return toReturn;
         }
@@ -132,11 +132,11 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region ArtistEndoings
-        public async Task<Artist[]> GetAllArtistsAsync(int limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
+        public async Task<Artist[]> GetAllArtistsAsync(int limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null, bool offline = false, bool downloaded = false)
         {
             List<Artist> artistsReturn = new List<Artist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                artistsReturn.AddRange(await server.Value.GetAllArtistsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite));
+                artistsReturn.AddRange(await server.Value.GetAllArtistsAsync(limit: limit, startFromIndex: startIndex, favourites: isFavourite, getOffline: offline, getDownloaded: downloaded));
             });
             // artistsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
 
@@ -150,11 +150,11 @@ namespace PortaJel_Blazor.Classes
             return artistsReturn.ToArray();
         }
 
-        public async Task<Artist> GetArtistAsync(Guid albumId)
+        public async Task<Artist> GetArtistAsync(Guid albumId, bool offline = false, bool downloaded = false)
         {
             Artist toReturn = Artist.Empty;
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                toReturn = await server.Value.GetArtistAsync(albumId);
+                toReturn = await server.Value.GetArtistAsync(albumId, getOffline: offline, getDownloaded: downloaded);
             });
             return toReturn;
         }
@@ -180,11 +180,11 @@ namespace PortaJel_Blazor.Classes
         /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="sortOrder">The sort order for the retrieved songs. Default is descending.</param>
         /// <returns>An array of songs.</returns>
-        public async Task<Song[]> GetAllSongsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder[]? sortOrder = null)
+        public async Task<Song[]> GetAllSongsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder[]? sortOrder = null, bool offline = false, bool downloaded = false)
         {
             List<Song> songsReturn = new List<Song>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                songsReturn.AddRange(await server.Value.GetAllSongsAsync(setLimit: limit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder));
+                songsReturn.AddRange(await server.Value.GetAllSongsAsync(setLimit: limit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder, getOffline: offline, getDownloaded: downloaded));
             });
             //songsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
 

@@ -33,12 +33,13 @@ public partial class ContextMenu : ContentView
         int? opacity = 100,
         bool? isCircle = false)
     {
-        if (baseMusicItem != null && ViewModel.ContextMenuItems != null)
+        if (ViewModel.ContextMenuItems == null) ViewModel.ContextMenuItems = new();
+        if (baseMusicItem != null)
         {
             ViewModel.ContextMenuItems.Clear();
 
             /// #####################################################
-            /// CREATE CONTEXT MENU ITEMS FOR ARTIST HERE
+            /// CREATE CONTEXT MENU ITEMS FOR ALBUM HERE
             /// #####################################################
             if (baseMusicItem is Album)
             {
@@ -130,10 +131,6 @@ public partial class ContextMenu : ContentView
                     await MauiProgram.MainPage.MainContextMenu.Close();
                     MauiProgram.WebView.NavigateArtist(artist.Id);
                 })));
-                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
-                {
-                    await MauiProgram.MainPage.MainContextMenu.Close();
-                })));
 
                 ViewModel.ContextMenuSubText = "Artist";
             }
@@ -182,13 +179,10 @@ public partial class ContextMenu : ContentView
                 ViewModel.ContextMenuSubText = "Playlist";
             }
 
-            if (ViewModel.ContextMenuItems.Count <= 0 && ViewModel.ContextMenuItems != null)
+            ViewModel.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
             {
-                ViewModel.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
-                {
-                    await this.Close();
-                })));
-            }
+                await this.Close();
+            })));
 
             Opacity = opacity ?? 100;
             IsVisible = true;
@@ -225,6 +219,7 @@ public partial class ContextMenu : ContentView
 
         this.InputTransparent = false;
         this.Opacity = 0;
+        this.IsVisible = true;
         Container.InputTransparent = false;
         Container.TranslationY = DeviceDisplay.MainDisplayInfo.Height / 4;
 
@@ -241,12 +236,12 @@ public partial class ContextMenu : ContentView
 
         ImageContainer_Img.Opacity = 0;
 
-        HttpClient webClient = new();
         Task<byte[]> imgTask = Task.Run(async () =>
         {
             byte[] bytes = new byte[0];
             try
             {
+                HttpClient webClient = new();
                 var response = await webClient.GetAsync(fullImgUrl);
                 bytes = await response.Content.ReadAsByteArrayAsync();
                 loadedImages.Add(fullImgUrl);

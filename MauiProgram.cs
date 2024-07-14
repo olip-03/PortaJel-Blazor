@@ -46,8 +46,8 @@ public static class MauiProgram
     public static double SystemHeaderHeight = 44;
     public static double systemWidth = 0;
 
-    // TODO: MediaService should be null, initalize once media playback is required
     public static IMediaInterface? MediaService { get; set; } = null;
+    public static DownloadService DownloadManager { get; set; } = new();
 
     public static Guid currentAlbumGuid = Guid.Empty;
     public static Guid currentSongGuid = Guid.Empty;

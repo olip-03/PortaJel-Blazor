@@ -6,7 +6,7 @@
     min-height: 13rem;
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
-    height: 3rem;
+    height: 3.5rem;
 }
     .horizScroll-scrollmenu::-webkit-scrollbar {
         display: none;

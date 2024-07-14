@@ -62,6 +62,7 @@ namespace PortaJel_Blazor.Classes
         {
             Initalize(baseUrl, username, password);
         }
+
         private async void Initalize(string baseUrl, string? username = null, string? password = null)
         {
             if (username != null)
@@ -205,6 +206,38 @@ namespace PortaJel_Blazor.Classes
             }
             return false;
         }
+
+        public async Task<bool> PingServer(int? timeout = null)
+        {
+            try
+            {
+                if (_jellyfinApiClient == null)
+                {
+                    throw new InvalidOperationException("API Client is Null!");
+                }
+                using (var cts = new CancellationTokenSource())
+                {
+                    if (timeout.HasValue)
+                    {
+                        cts.CancelAfter(TimeSpan.FromMilliseconds(timeout.Value));
+                    }
+                    var pingTask = _jellyfinApiClient.System.Ping.PostAsync(cancellationToken: cts.Token);
+                    await pingTask;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                isOffline = true;
+                return false;
+            }
+            catch (Exception)
+            {
+                isOffline = true;
+                return false;
+            }
+            return true;
+        }
+
         #endregion
 
         #region Albums
@@ -485,7 +518,7 @@ namespace PortaJel_Blazor.Classes
         /// <param name="setId">The ID of the album set to find similar albums for.</param>
         /// <returns>An array of albums that are similar to the provided album set.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the server connector has not been initialized.</exception>
-        public async Task<Album[]> GetSimilarAlbumsAsync(System.Guid setId, int limit = 30, bool getOffline = false, bool getDownloaded = false)
+        public async Task<Album[]> GetSimilarAlbumsAsync(Guid setId, int limit = 30, bool getOffline = false, bool getDownloaded = false)
         {
             if (Database == null)
             {

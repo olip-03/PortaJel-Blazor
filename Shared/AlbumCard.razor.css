@@ -22,6 +22,7 @@ p.albumText {
     -webkit-line-clamp: 2; /* Number of lines to display before ellipsis */
     -webkit-box-orient: vertical;
     text-overflow: ellipsis; /* Add this line to add ellipsis for long text */
+    margin-bottom: 0;
 }
 
 .albumImage {
@@ -49,6 +50,7 @@ p.albumText {
     width: 160px;
     max-width: 160px;
     height: 160px;
+    min-height: 160px;
     border-radius: 0.4rem;
     margin-right: 10px;
     background-color: darkgrey;
