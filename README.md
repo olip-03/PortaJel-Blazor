@@ -16,6 +16,7 @@ Current milestones:
 Working on: 
 - Finalization of media controlls and queue system 
 - Better support for Android API's
-- Downloading of songs, albums, playlists and artists. 
+- Downloading of songs, albums, playlists and artists.
+I'm trying to keep the issues tab more up to date with actual problems, so click over to there for more info on what's still in the works. 
 
 Thank you! 
