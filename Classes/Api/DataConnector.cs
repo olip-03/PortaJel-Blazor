@@ -222,8 +222,18 @@ namespace PortaJel_Blazor.Classes
 
             return playlistsReturn.ToArray();
         }
+
+        public async Task<Playlist> GetPlaylistAsync(Guid playlistId, bool offline = false, bool downloaded = false)
+        {
+            Playlist? toReturn = Playlist.Empty;
+            await Parallel.ForEachAsync(connecters, async (server, ct) =>
+            {
+                toReturn = await server.Value.GetPlaylistAsync(playlistId, getOffline: offline, getDownloaded: downloaded);
+            });
+            return toReturn;
+        }
         #endregion
-    
+
         public async Task<bool> SetFavourite(Guid itemId, string serverAddress, bool favouriteState)
         {
             if (connecters.ContainsKey(serverAddress))

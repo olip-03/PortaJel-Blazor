@@ -50,7 +50,6 @@ namespace PortaJel_Blazor.Classes
         private int TotalArtistRecordCount = -1;
         private int TotalSongRecordCount = -1;
         private int TotalGenreRecordCount = -1;
-
         public bool isOffline { get; private set; } = false;
         public bool aggressiveCacheRefresh { get; private set; } = false;
 
@@ -1208,6 +1207,7 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.Ids = [playlistId];
                         c.QueryParameters.Recursive = true;
                         c.QueryParameters.EnableImages = true;
+                        c.QueryParameters.Fields = [ItemFields.Path];
                     }, cancellationToken: token);
                     Task<BaseItemDtoQueryResult?> playlistSongResult = _jellyfinApiClient.Items.GetAsync(c =>
                     {
