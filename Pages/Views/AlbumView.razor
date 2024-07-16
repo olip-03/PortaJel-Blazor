@@ -73,6 +73,11 @@
             // Add Songs
             for (int i = 0; i < songs.Length; i++)
             {
+                if (songs[i].DiskNumber > 0 && !albumsDisks.Contains(songs[i].DiskNumber))
+                {
+                    albumsDisks.Add(songs[i].DiskNumber);
+                    <h5 class="item-title PrimaryTextColor">Disk @songs[i].DiskNumber</h5>
+                }
                 <AlbumSongItem song="@songs[i]" OnPlayCallback="@GetPlaySongAction(i)" OnQueueCallback="@GetQueueSongAction(i)" location="@i" base64BlurHash="@base64BlurHash" />
             }
 
@@ -133,6 +138,8 @@
 
     private string backgroundBlurHeight = "-" + (MauiProgram.SystemHeaderHeight* 2) + "px!important"; 
     private string headerHeight = "-" + (MauiProgram.SystemHeaderHeight ) + "px!important";
+
+    private List<int> albumsDisks = new();
 
     protected override void OnInitialized()
     {

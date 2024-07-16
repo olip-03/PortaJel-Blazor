@@ -133,6 +133,7 @@ namespace PortaJel_Blazor.Classes
             }
 
             string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{result}.db");
+            MauiProgram.UpdateDebugMessage($"Db initalized at {filePath}");
             Database = new SQLiteAsyncConnection(filePath, DBFlags);
             await Database.CreateTableAsync<AlbumData>();
             await Database.CreateTableAsync<SongData>();
@@ -410,12 +411,12 @@ namespace PortaJel_Blazor.Classes
 
                 if (songIds != null && artistIds != null)
                 {
-                    Task<SongData[]> songDbQuery = Database.Table<SongData>().Where(song => songIds.Contains(song.Id)).OrderBy(song => song.IndexNumber).ToArrayAsync();
+                    Task<SongData[]> songDbQuery = Database.Table<SongData>().Where(song => songIds.Contains(song.Id)).OrderBy(song => song.IndexNumber).ThenBy(song => song.DiskNumber).ToArrayAsync();
                     Task<ArtistData[]> artistDbQuery = Database.Table<ArtistData>().Where(artist => artistIds.Contains(artist.Id)).ToArrayAsync();
                     
                     Task.WaitAll(songDbQuery, artistDbQuery);
                    
-                    songFromDb = songDbQuery.Result;
+                    songFromDb = songDbQuery.Result.OrderBy(s => s.DiskNumber).ToArray();
                     artistsFromDb = artistDbQuery.Result;
                 }
 
@@ -483,7 +484,7 @@ namespace PortaJel_Blazor.Classes
                     if (artistQueryResults == null || artistQueryResults.Items == null) return Album.Empty; // TODO: Check if results are valid on next build
                     BaseItemDto[] songBaseItemArray = songQueryResult.Result.Items.ToArray();
                     BaseItemDto[] artistBaseItemArray = artistQueryResults.Items.ToArray();
-                    SongData[] songData = songBaseItemArray.Select(item => SongData.Builder(item, _sdkClientSettings.ServerUrl)).OrderBy(song => song.IndexNumber).ToArray();
+                    SongData[] songData = songBaseItemArray.Select(item => SongData.Builder(item, _sdkClientSettings.ServerUrl)).OrderBy(song => song.IndexNumber).ThenBy(song => song.DiskNumber).ToArray();
                     AlbumData albumData = AlbumData.Builder(albumBaseItem, _sdkClientSettings.ServerUrl, songData.Select(song => song.Id).ToArray());
                     ArtistData[] artistData = artistBaseItemArray.Select(item => ArtistData.Builder(item, _sdkClientSettings.ServerUrl)).ToArray();
 
@@ -496,6 +497,7 @@ namespace PortaJel_Blazor.Classes
                     storedAlbums.Add(albumData.Id);
                     storedSongs.AddRange(songData.Select(song => song.Id));
                     storedArtists.AddRange(artistData.Select(artist => artist.Id));
+                    songData = songData.OrderBy(s => s.DiskNumber).ToArray();
                     return new Album(albumData, songData, artistData);
                 }
                 catch (HttpRequestException)

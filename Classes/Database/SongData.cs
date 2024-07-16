@@ -67,7 +67,7 @@ namespace PortaJel_Blazor.Classes.Database
             // song.PlayCount = songData.PlayCount; TODO: Implement playcount idk
             song.DateAdded = baseItem.DateCreated;
             song.IndexNumber = baseItem.IndexNumber == null ? 0 : (int)baseItem.IndexNumber;
-            // song.DiskNumber = 
+            song.DiskNumber = baseItem.ParentIndexNumber == null ? 0 : (int)baseItem.ParentIndexNumber;
             song.ServerAddress = server;
             song.IsDownloaded = false; // TODO: Check if file exists idk 
             song.FileLocation = string.Empty; // TODO: Add file location
