@@ -14,8 +14,10 @@ Current milestones:
 - UI/UX, I'm just personally kind of proud of this one, I think it's looking pretty sharp
 
 Working on: 
-- Finalization of media controller (looping and shuffle aren't there yet)
-- Better support for Android API's (Media Notification isn't working yet)
-- Downloading of songs and better caching of data 
+- Finalization of media controlls and queue system 
+- Better support for Android API's
+- Downloading of songs, albums, playlists and artists.
+
+I'm trying to keep the issues tab more up to date with actual problems, so click over to there for more info on what's still in the works. 
 
 Thank you! 
