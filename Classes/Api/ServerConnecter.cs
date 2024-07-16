@@ -424,7 +424,7 @@ namespace PortaJel_Blazor.Classes
             }
 
             if (isOffline == true) getOffline = true;
-            if (getOffline || storedAlbums.Contains(setId))
+            if (getOffline)
             {
                 MauiProgram.UpdateDebugMessage("Retrieving Album from Local Cache...");
                 return await ReturnFromCache();

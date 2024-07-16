@@ -136,7 +136,7 @@
     string? base64BlurHash = String.Empty;
     string? backgroundBlurHash = String.Empty;
 
-    private string backgroundBlurHeight = "-" + (MauiProgram.SystemHeaderHeight* 2) + "px!important"; 
+    private string backgroundBlurHeight = "-" + (MauiProgram.SystemHeaderHeight* 2) + "px!important";
     private string headerHeight = "-" + (MauiProgram.SystemHeaderHeight ) + "px!important";
 
     private List<int> albumsDisks = new();
@@ -178,6 +178,7 @@
     private async void LoadAlbum()
     {
         // Block for getting all the album info
+        Guid parseId = Guid.Parse(albumId);
         try
         {
             if (album != null)
@@ -193,15 +194,21 @@
                     isCurrentAlbum = false;
                 }
 
-                Guid parseId = Guid.Parse(albumId);
                 if (albumId != null)
                 {
-                    // album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
-                    Task<Album> getAlbum = MauiProgram.api.GetAlbumAsync(parseId);
+                    Task<Album> getAlbum = MauiProgram.api.GetAlbumAsync(parseId, offline: true);
                     Task<Album[]> getSimilarAlbum = MauiProgram.api.GetSimilarAlbumsAsync(parseId, similarAlbumLimit);
                     await Task.WhenAll(getAlbum, getSimilarAlbum);
-                    album = getAlbum.Result;
-                    songs = album.GetSongs();
+                    if (getAlbum.Result == Album.Empty)
+                    {
+                        album = await MauiProgram.api.GetAlbumAsync(parseId, offline: false);
+                        songs = album.GetSongs();
+                    }
+                    else
+                    {
+                        album = getAlbum.Result;
+                        songs = album.GetSongs();
+                    }
                     similarAlbums = getSimilarAlbum.Result;
                 }
                 else
@@ -244,6 +251,11 @@
         await Task.Delay(250); // allow album items time to snap into place
         MauiProgram.WebView.isLoading = false;
         MauiProgram.MainPage.ShowLoadingScreen(false);
+
+        // Pull data from online sources just to refresh the local dbs
+        album = await MauiProgram.api.GetAlbumAsync(parseId, offline: false);
+        songs = album.GetSongs();
+        StateHasChanged();
     }
 
     private void SelectArtist(Guid artistId)
@@ -336,35 +348,35 @@
     private Action GetPlaySongAction(int songIndex)
     {
         return async () =>
+        {
+            try
+            {
+                if (Application.Current == null) return;
+                if (Application.Current.MainPage == null) return;
+
+                if (MauiProgram.MediaService == null)
                 {
-                    try
-                    {
-                        if (Application.Current == null) return;
-                        if (Application.Current.MainPage == null) return;
+                    MauiProgram.MediaService = new MediaService();
+                    await MauiProgram.MediaService.Initalize();
+                }
+                MauiProgram.MediaService.SetPlayingCollection(album, songIndex);
 
-                        if (MauiProgram.MediaService == null)
-                        {
-                            MauiProgram.MediaService = new MediaService();
-                            await MauiProgram.MediaService.Initalize();
-                        }
-                        MauiProgram.MediaService.SetPlayingCollection(album, songIndex);
+                MauiProgram.currentAlbumGuid = album.Id;
+                // MauiProgram.currentSongGuid = album song at index;
 
-                        MauiProgram.currentAlbumGuid = album.Id;
-                        // MauiProgram.currentSongGuid = album song at index;
-
-                        MauiProgram.MainPage.RefreshPlayer();
-                        MauiProgram.MediaService.Play();
-                    }
-                    catch (Exception ex)
-                    {
-                        if (Application.Current != null &&
-                        Application.Current.MainPage != null)
-                        {
-                            await Application.Current.MainPage.DisplayAlert("Error?", $"{ex.Message} at {ex.StackTrace}", "Continue");
-                            return;
-                        }
-                    }
-                };
+                MauiProgram.MainPage.RefreshPlayer();
+                MauiProgram.MediaService.Play();
+            }
+            catch (Exception ex)
+            {
+                if (Application.Current != null &&
+                Application.Current.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error?", $"{ex.Message} at {ex.StackTrace}", "Continue");
+                    return;
+                }
+            }
+        };
     }
 
     private Action GetQueueSongAction(int songIndex)
@@ -385,7 +397,7 @@
             MauiProgram.MediaService.AddSong(songs[songIndex]);
             // MauiProgram.MainPage.RefreshQueue();
 
-            #if !WINDOWS
+#if !WINDOWS
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
             string text = $"{songs[songIndex].Name} added to queue.";
@@ -394,7 +406,7 @@
 
             var toast = Toast.Make(text, duration, fontSize);
             await toast.Show(cancellationTokenSource.Token);
-            #endif
+#endif
         };
     }
 
