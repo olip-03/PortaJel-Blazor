@@ -12,7 +12,7 @@
 
 @if (loaded)
 {
-    <ViewHeader backgroundImgUrl="@album.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album />
+    <ViewHeader backgroundImgUrl="@album.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album ShowSelectionTools="@EngageSongCheckmode" SelectionCancelCallback="@GetCancelSelectionAction()"/>
 
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
         <img src="data:image/png;base64, @backgroundBlurHash" class="background-blur" alt="backgound" style="top: @backgroundBlurHeight" />
@@ -78,7 +78,7 @@
                     albumsDisks.Add(songs[i].DiskNumber);
                     <h5 class="item-title PrimaryTextColor">Disk @songs[i].DiskNumber</h5>
                 }
-                <AlbumSongItem song="@songs[i]" OnPlayCallback="@GetPlaySongAction(i)" OnQueueCallback="@GetQueueSongAction(i)" location="@i" base64BlurHash="@base64BlurHash" />
+                <AlbumSongItem song="@songs[i]" OnPlayCallback="@GetPlaySongAction(i)" OnQueueCallback="@GetQueueSongAction(i)" OnSelectCallback="@GetSongSelectAction()" location="@i" base64BlurHash="@base64BlurHash" EngageCheckmode="EngageSongCheckmode" />
             }
 
             // Add Artists
@@ -135,6 +135,8 @@
     private string errormessage = String.Empty;
     string? base64BlurHash = String.Empty;
     string? backgroundBlurHash = String.Empty;
+
+    private bool EngageSongCheckmode = false;
 
     private string backgroundBlurHeight = "-" + (MauiProgram.SystemHeaderHeight* 2) + "px!important";
     private string headerHeight = "-" + (MauiProgram.SystemHeaderHeight ) + "px!important";
@@ -407,6 +409,24 @@
             var toast = Toast.Make(text, duration, fontSize);
             await toast.Show(cancellationTokenSource.Token);
 #endif
+        };
+    }
+
+    private Action GetSongSelectAction()
+    {
+        return async () =>
+        {
+            EngageSongCheckmode = !EngageSongCheckmode;
+            StateHasChanged();
+        };
+    }
+
+    private Action GetCancelSelectionAction()
+    {
+        return async () =>
+        {
+            EngageSongCheckmode = false;
+            StateHasChanged();
         };
     }
 

@@ -9,7 +9,7 @@
 @namespace PortaJel_Blazor.Shared
 @inject IJSRuntime JS;
 
-<div id="@guid.ToString()" @oncontextmenu="() => OpenContextMenu(song)" class="albumSongItem">
+<div id="@guid.ToString()" @oncontextmenu="() => SelectItem()" class="albumSongItem">
     <!-- Queue overscroll -->
     <div id="@(overscrollId = guid.ToString() + "-overscroll")" class="overscroll-25vw PageBackgroundColor">
         <div class="songitem-optionbtn">
@@ -22,9 +22,31 @@
     <div class="infoContainer">
         @if (location >= 0)
         {
-            <div class="numberholder songArtistTitle PrimaryTextColor">
-                @{int displayLocation = location + 1;}
-                @displayLocation
+            <div class="numberholder songArtistTitle PrimaryTextColor" @onclick="() => PlaySong(location)">
+                @if (EngageCheckmode)
+                {
+                    <div class="radioButtonContainer">
+                        @if (CheckEngaged)
+                        {
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <input class="radioButton" type="radio" checked="checked">
+                            </Animate>
+                        }
+                        else
+                        {
+                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                <input class="radioButton" type="radio">
+                            </Animate>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="indexNumber">
+                        @{int displayLocation = location + 1;}
+                        @displayLocation
+                    </p>
+                }
             </div>    
         }
 
@@ -70,11 +92,14 @@
     [Parameter] public Song song { get; set; } = Song.Empty;
     [Parameter] public Action? OnPlayCallback { get; set; } = null;
     [Parameter] public Action? OnQueueCallback { get; set; } = null;
+    [Parameter] public Action? OnSelectCallback { get; set; } = null;
     [Parameter] public int location { get; set; } = -1;
     [Parameter] public bool showImage { get; set; } = false;
     [Parameter] public string base64BlurHash { get; set; } = string.Empty;
+    [Parameter] public bool EngageCheckmode { get; set; } = false;
     private Guid guid = Guid.NewGuid();
     private string? overscrollId;
+    private bool CheckEngaged = false;
     private bool FavouriteSongLock = false;
     private bool QueueSongLock = false;
 
@@ -113,11 +138,31 @@
         StateHasChanged();
     }
 
+    private void SelectItem()
+    {
+        CheckEngaged = !CheckEngaged;
+        if (OnSelectCallback != null)
+        {
+            OnSelectCallback.Invoke();
+        }
+        StateHasChanged();
+        return;
+    }
+
+
     private void PlaySong(int songIndex)
     { // Play selected song, and queue the rest of the album
-        if (OnPlayCallback != null)
+        if (EngageCheckmode)
         {
-            OnPlayCallback.Invoke();
+            CheckEngaged = !CheckEngaged;
+            StateHasChanged();
+        }
+        else
+        {
+            if (OnPlayCallback != null)
+            {
+                OnPlayCallback.Invoke();
+            }
         }
 
     }

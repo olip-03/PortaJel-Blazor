@@ -52,7 +52,7 @@ namespace PortaJel_Blazor.Classes.Database
             }
             if(baseItem.RunTimeTicks == null)
             {
-                throw new ArgumentException("Cannot create Song without RunTime Ticks! Please fix server call flags!");
+                // throw new ArgumentException("Cannot create Song without RunTime Ticks! Please fix server call flags!");
             }
             MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
 

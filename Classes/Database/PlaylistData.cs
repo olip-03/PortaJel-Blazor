@@ -40,12 +40,15 @@ namespace PortaJel_Blazor.Classes.Database
                 throw new ArgumentException("Cannot create Playlist without UserData! Please fix server call flags!");
             }
             PlaylistData newPlaylist = new();
+            MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
             newPlaylist.Name = baseItem.Name;
             newPlaylist.Id = (Guid)baseItem.Id;
             newPlaylist.IsFavourite = (bool)baseItem.UserData.IsFavorite;
             newPlaylist.Path = baseItem.Path;
             newPlaylist.ServerAddress = server;
-            if(songData != null)
+            newPlaylist.ImgSource = musicItemImage.source;
+            newPlaylist.ImgBlurhash = musicItemImage.Blurhash;
+            if (songData != null)
             {
                 newPlaylist.SongIdsJson = JsonSerializer.Serialize(songData.Select(idPair => idPair.Id).ToArray());
             }

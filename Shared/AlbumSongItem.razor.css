@@ -7,15 +7,52 @@
     width: 100vw;
 }
 
+.indexNumber {
+    margin: auto auto auto auto;
+}
+
+.radioButtonContainer {
+    margin: auto auto auto auto;
+}
+.radioButton {
+    appearance: none;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #999; 
+    transition: 0.2s all linear;
+    position: relative;
+}
+    .radioButton:checked {
+        border: 2px solid #999;
+    }
+        .radioButton:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #999;
+            transform: translate(-50%, -50%);
+        }
+
 .numberholder {
     display: flex;
     align-items: center;
-    margin-right: 1rem;
+    margin-right: 0rem;
     font-size: 1.2rem;
-    width: 2rem;
+    width: 3rem;
+    height: 3rem;
+    min-width: 2rem;
     text-anchor: middle;
     align-content: center;
     text-align: center;
+}
+
+.infoContainerImage {
+    padding: 0 1rem 0rem 0rem;
 }
 
 .infoContainer {
@@ -28,7 +65,7 @@
     max-width: 100vw;
     width: 100vw;
     overflow: clip;
-    padding: 0 1rem 0rem 1rem;
+    padding: 0 1rem 0rem 0rem;
 }
 
 .overscroll-25vw {
@@ -52,7 +89,7 @@
     cursor: pointer;
     outline: inherit;
     transition: 0.25s;
-    max-width: 80%;
+    max-width: 60%;
     text-overflow: clip;
     overflow: clip;
 }
@@ -86,3 +123,4 @@
     height: 3rem;
     width: 3rem;
 }
+

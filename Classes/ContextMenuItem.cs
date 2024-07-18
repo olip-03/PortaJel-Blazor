@@ -20,7 +20,6 @@ namespace PortaJel_Blazor.Classes
             set => SetValue(itemIconProperty, value);
         } 
         public Task? action { get; set; }
-
         public ContextMenuItem(string setTaskName, string setTaskIcon, Task? setTask)
         {
             this.itemName = setTaskName;

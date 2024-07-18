@@ -727,7 +727,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                         IMediaSource? media = mediaFactory.CreateMediaSource(mediaItem);
                         if (media != null)
                         {
-                            mediaItem.MediaId = song.PlaylistId; 
+                            // mediaItem.MediaId = song.PlaylistId; 
                             Player.AddMediaItem(mediaItem);
                         }
                     }
@@ -859,12 +859,14 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             SongGroup previous = new("Previous");
             SongGroup current = new("Currently Playing");
             SongGroup queue = new("Queue");
+            SongGroup nextUp = new("Next Up");
 
             if (Player == null)
             {
                 songGroupCollection.Add(previous);
                 songGroupCollection.Add(current);
                 songGroupCollection.Add(queue);
+                songGroupCollection.Add(nextUp);
                 return songGroupCollection;
             }
 
@@ -893,16 +895,19 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             for (int i = 0; i < Player.MediaItemCount; i++)
             {
                 Song? song = QueueRepresentation[i];
-                if (song == null) break;
-
+                MediaItem? mediaItem = Player.GetMediaItemAt(i);
+                if (song == null) continue;
+                if (mediaItem == null) continue;
                 if (i < PlayingIndex) previous.Add(song);
                 if (i == PlayingIndex) current.Add(song);
-                if (i > PlayingIndex) queue.Add(song);
+                if (i >= PlayingIndex && !string.IsNullOrWhiteSpace(mediaItem.MediaId)) queue.Add(song);
+                if (i >= PlayingIndex && string.IsNullOrWhiteSpace(mediaItem.MediaId)) nextUp.Add(song);
             }
 
             songGroupCollection.Add(previous);
             songGroupCollection.Add(current);
             songGroupCollection.Add(queue);
+            songGroupCollection.Add(nextUp);
             return songGroupCollection;
         }
 

@@ -15,6 +15,7 @@ public partial class MediaQueue : ContentView
 	{
 		InitializeComponent();
         BindingContext = ViewModel;
+        ViewModel.HeaderHeightValue = MauiProgram.SystemHeaderHeight;
     }
 
     public async void Open(bool? animate = true)
@@ -22,6 +23,8 @@ public partial class MediaQueue : ContentView
         Opacity = 1;
         TranslationY = MauiProgram.MainPage.ContentHeight;
         IsVisible = true;
+        ViewModel.HeaderHeightValue = MauiProgram.SystemHeaderHeight;
+
 
         if (animate == true)
         {

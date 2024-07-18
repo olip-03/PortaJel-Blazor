@@ -13,7 +13,7 @@
           IsVisible="True" 
           BackgroundColor="{StaticResource PageBackgroundColor}">
         <!-- Header -->
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="1">
             <ImageButton  x:Name="Btn_Close" 
                           Clicked="Btn_Close_Clicked" 
                           Background="Transparent" BorderColor="Transparent"
@@ -42,7 +42,7 @@
         </Grid>
 
         <!-- Main Queue -->
-        <ScrollView InputTransparent="False" Grid.Row="1">
+        <ScrollView InputTransparent="False" Grid.Row="2">
             <VerticalStackLayout>
                 <!-- Actaul queue CollectionView -->
                 <CollectionView Grid.Row="1" 
@@ -105,7 +105,7 @@
         </ScrollView>
 
         <!-- Playback Controls -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Border StrokeThickness="0"
                     StrokeShape="RoundRectangle 2,2,2,2"
                     Margin="10, 0, 10, 0"
@@ -137,9 +137,11 @@
         </Grid>
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="{Binding HeaderHeightValue}"/>
             <RowDefinition Height="70"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="120"/>
+            <RowDefinition Height="{Binding HeaderHeightValue}"/>
         </Grid.RowDefinitions>
     </Grid>
 

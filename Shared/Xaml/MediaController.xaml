@@ -229,6 +229,7 @@
                     <RowDefinition Height="70"/>
                     <RowDefinition Height="2*"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="{Binding HeaderHeightValue}"/>
                 </Grid.RowDefinitions>
             </Grid>
             <!--<Border.Shadow>

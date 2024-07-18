@@ -38,5 +38,12 @@ namespace PortaJel_Blazor.Classes
             get => (string?)GetValue(PlayingFromAlbumProperty);
             set => SetValue(PlayingFromAlbumProperty, value);
         }
+
+        public static readonly BindableProperty HeaderHeightValueProperty = BindableProperty.Create(nameof(HeaderHeightValue), typeof(double), typeof(MediaControllerViewModel), default(double));
+        public double HeaderHeightValue
+        {
+            get => (double)GetValue(HeaderHeightValueProperty);
+            set => SetValue(HeaderHeightValueProperty, value);
+        }
     }
 }

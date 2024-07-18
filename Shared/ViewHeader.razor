@@ -1,5 +1,6 @@
 ﻿@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared.Icons;
+@using PortaJel_Blazor.Classes; 
 @inject IJSRuntime JS
 @namespace PortaJel_Blazor.Shared
 
@@ -8,30 +9,61 @@
         <img src="data:image/png;base64, @backgroundImgUrlPlaceholder" class="header-background" />
     </div>
 
-    <div style="margin-top: auto; display: flex; height: @contentHeight">
-        <div @onclick=GoBack>
-            <BackIcon ExtraStyle="
+    <div style="margin-top: auto; display: flex; width: 100vw; height: @contentHeight">
+        @if (ShowSelectionTools)
+        {
+            <div @onclick=CancelSelectionMode>
+                <CancelIcon ExtraStyle="
                 margin: auto 0 auto 1rem;
                 padding: 0;
                 width: 2rem;
                 height: 2rem;
                 z-index: 200;
                 position: relative;" />
-        </div>
+            </div>
+        }
+        else
+        {
+            <div @onclick=GoBack>
+                <BackIcon ExtraStyle="
+                margin: auto 0 auto 1rem;
+                padding: 0;
+                width: 2rem;
+                height: 2rem;
+                z-index: 200;
+                position: relative;" />
+            </div>
 
-        <div class="header-nameContainer" @onclick=GoToArtist>
-            @if (baseMusicItem != null)
-            {
-                if (baseMusicItem is Album)
+            <div class="header-nameContainer" @onclick=GoToArtist>
+                @if (baseMusicItem != null)
                 {
-                    Album item = (Album)baseMusicItem;
-                    <h3 id ="header-text" class="header-text hidden PrimaryTextColor">@item.Name</h3>
+                    if (baseMusicItem is Album)
+                    {
+                        Album item = (Album)baseMusicItem;
+                        <h3 id="header-text" class="header-text hidden PrimaryTextColor">@item.Name</h3>
+                    }
+                    else if (baseMusicItem is Artist)
+                    {
+                        Artist item = (Artist)baseMusicItem;
+                        <h3 id="header-text" class="header-text hidden PrimaryTextColor">@item.Name</h3>
+                    }
+                    else if (baseMusicItem is Playlist)
+                    {
+                        Playlist item = (Playlist)baseMusicItem;
+                        <h3 id="header-text" class="header-text hidden PrimaryTextColor">@item.Name</h3>
+                    }
                 }
-                else
-                {
-                    <h3 id="header-text" class="header-text hidden PrimaryTextColor">@name</h3>
-                }
-            }
+            </div>
+        }
+
+        <div style="margin-left: auto;">
+            <MoreHorizIcon ExtraStyle="
+                margin: auto 1rem auto auto;
+                padding: 0;
+                width: 2rem;
+                height: 2rem;
+                z-index: 200;
+                position: relative;" />
         </div>
     </div>
 
@@ -41,6 +73,11 @@
     [Parameter] public string backgroundImgUrlPlaceholder { get; set; } = string.Empty;
     [Parameter] public string backgroundImgUrl { get; set; } = string.Empty;
     [Parameter] public BaseMusicItem? baseMusicItem { get; set; } = null;
+
+    [Parameter] public Action? SelectionCancelCallback { get; set; } = null;
+    [Parameter] public bool ShowSelectionTools { get; set; } = false;
+    [Parameter] public ContextMenuItem[] ToolMenuItems { get; set; } = [];
+
     private string name = string.Empty;
 
     private string headerHeight = (MauiProgram.SystemHeaderHeight * 2) + "px!important";
@@ -59,6 +96,16 @@
             bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
             MauiProgram.WebView.NavigateHome();
         }
+    }
+
+    private void CancelSelectionMode()
+    {
+        ShowSelectionTools = false;
+        if(SelectionCancelCallback != null)
+        {
+            SelectionCancelCallback.Invoke();
+        }
+        StateHasChanged();
     }
 
     private void GoToArtist()
