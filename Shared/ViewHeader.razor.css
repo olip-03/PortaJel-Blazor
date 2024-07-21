@@ -9,6 +9,14 @@
     justify-items: end;
 }
 
+.header-infocontainer {
+    margin-top: auto;
+    width: 100vw;
+    display: grid;
+    grid-template-columns: 3rem auto 3rem;
+    height: 3rem;
+}
+
 .header-imgcontainer {
     overflow: hidden;
     position: absolute;
@@ -55,13 +63,14 @@
     transition: opacity 0.5s ease-in-out; /* Smooth transition */
 }
 
-.header-nameContainer{
+.header-nameContainer {
     z-index: 200;
     position: relative;
     height: 100%;
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 1rem;
+    overflow: hidden
 }
 
 h3.header-artisttext {

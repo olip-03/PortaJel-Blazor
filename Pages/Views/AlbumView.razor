@@ -12,7 +12,7 @@
 
 @if (loaded)
 {
-    <ViewHeader backgroundImgUrl="@album.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album ShowSelectionTools="@EngageSongCheckmode" SelectionCancelCallback="@GetCancelSelectionAction()"/>
+    <ViewHeader backgroundImgUrl="@album.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album ShowSelectionTools="@EngageSongCheckmode" SelectionCancelCallback="@GetCancelSelectionAction()" ContextMenuOpenCallback="GetOpenContextMenuAction()"/>
 
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
         <img src="data:image/png;base64, @backgroundBlurHash" class="background-blur" alt="backgound" style="top: @backgroundBlurHeight" />
@@ -78,7 +78,15 @@
                     albumsDisks.Add(songs[i].DiskNumber);
                     <h5 class="item-title PrimaryTextColor">Disk @songs[i].DiskNumber</h5>
                 }
-                <AlbumSongItem song="@songs[i]" OnPlayCallback="@GetPlaySongAction(i)" OnQueueCallback="@GetQueueSongAction(i)" OnSelectCallback="@GetSongSelectAction()" location="@i" base64BlurHash="@base64BlurHash" EngageCheckmode="EngageSongCheckmode" />
+                <AlbumSongItem 
+                    song="@songs[i]" 
+                    OnPlayCallback="@GetPlaySongAction(i)" 
+                    OnQueueCallback="@GetQueueSongAction(i)" 
+                    OnSelectCallback="@GetSongSelectAction(i)" 
+                    location="@i" 
+                    base64BlurHash="@base64BlurHash" 
+                    EngageCheckmode="EngageSongCheckmode"
+                    IsChecked=songCheckState[i] />
             }
 
             // Add Artists
@@ -127,6 +135,7 @@
 
     private Album album { get; set; } = Album.Empty;
     private Song[] songs { get; set; } = [];
+    public bool[] songCheckState = [];
     private bool loaded = false;
     private int similarAlbumLimit = 30;
     private Album[] similarAlbums = new Album[0];
@@ -211,6 +220,7 @@
                         album = getAlbum.Result;
                         songs = album.GetSongs();
                     }
+                    songCheckState = songs.Select(s => false).ToArray();
                     similarAlbums = getSimilarAlbum.Result;
                 }
                 else
@@ -412,11 +422,13 @@
         };
     }
 
-    private Action GetSongSelectAction()
+    private Action GetSongSelectAction(int songIndex)
     {
-        return async () =>
+        return () =>
         {
-            EngageSongCheckmode = !EngageSongCheckmode;
+            MauiProgram.ViewHeaderCloseSelectCallback = GetCancelSelectionAction();
+            songCheckState[songIndex] = !songCheckState[songIndex];
+            EngageSongCheckmode = true;
             StateHasChanged();
         };
     }
@@ -425,8 +437,53 @@
     {
         return async () =>
         {
+            MauiProgram.ViewHeaderCloseSelectCallback = null;
+            songCheckState = songs.Select(s => false).ToArray();
             EngageSongCheckmode = false;
             StateHasChanged();
+        };
+    }
+
+    private Action GetOpenContextMenuAction()
+    {
+        return async () =>
+        {
+            if (EngageSongCheckmode)
+            {
+                List<Song> selected = new();
+                List<string> selectedBase64 = new();
+                for (int i = 0; i < songCheckState.Length; i++)
+                {
+                    if (songCheckState[i])
+                    {
+                        selected.Add(songs[i]);
+                        string? blurhash = await MusicItemImage.BlurhashToBase64Async(songs[i].ImgBlurhash, 20, 20);
+                        if (blurhash != null) selectedBase64.Add(blurhash);
+                    }
+                }
+                if(selected.Count == 1)
+                {
+                    OpenContextMenu(selected[0]);
+                }
+                else
+                {
+                    MauiProgram.MainPage.MainContextMenu.UpdateData(selected.ToArray(), selectedBase64.ToArray(), 100);
+                    MauiProgram.MainPage.MainContextMenu.Show();
+                    await Task.Run(() =>
+                    {
+                        // Literally just waiting for the fucking thing to close before we refresh
+                        while (MauiProgram.MainPage.isContextMenuOpen == true)
+                        {
+
+                        }
+                        InvokeAsync(() => StateHasChanged());
+                    });
+                }
+            }
+            else
+            {
+                OpenContextMenu(album);
+            }
         };
     }
 
@@ -440,8 +497,8 @@
             {
 
             }
+            InvokeAsync(() => StateHasChanged());
         });
-        StateHasChanged();
     }
 
     private async Task<string[]> GenerateBlurHash(BaseMusicItem[] data)

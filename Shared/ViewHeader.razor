@@ -9,7 +9,7 @@
         <img src="data:image/png;base64, @backgroundImgUrlPlaceholder" class="header-background" />
     </div>
 
-    <div style="margin-top: auto; display: flex; width: 100vw; height: @contentHeight">
+    <div style="height: @contentHeight" class="header-infocontainer">
         @if (ShowSelectionTools)
         {
             <div @onclick=CancelSelectionMode>
@@ -56,7 +56,7 @@
             </div>
         }
 
-        <div style="margin-left: auto;">
+        <div style="margin-left: auto; grid-column: 3;" @onclick="OpenContextMenu">
             <MoreHorizIcon ExtraStyle="
                 margin: auto 1rem auto auto;
                 padding: 0;
@@ -75,6 +75,7 @@
     [Parameter] public BaseMusicItem? baseMusicItem { get; set; } = null;
 
     [Parameter] public Action? SelectionCancelCallback { get; set; } = null;
+    [Parameter] public Action? ContextMenuOpenCallback { get; set; } = null;
     [Parameter] public bool ShowSelectionTools { get; set; } = false;
     [Parameter] public ContextMenuItem[] ToolMenuItems { get; set; } = [];
 
@@ -105,6 +106,7 @@
         {
             SelectionCancelCallback.Invoke();
         }
+        MauiProgram.ViewHeaderCloseSelectCallback = null;
         StateHasChanged();
     }
 
@@ -117,6 +119,14 @@
             {
                 MauiProgram.WebView.NavigateArtist(item.Artists.First().Id);
             }
+        }
+    }
+
+    private void OpenContextMenu()
+    {
+        if(ContextMenuOpenCallback != null)
+        {
+            ContextMenuOpenCallback.Invoke();
         }
     }
 

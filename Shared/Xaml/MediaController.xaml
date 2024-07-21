@@ -221,7 +221,7 @@
                 </Grid>
                 
                 <!-- Background Image  -->
-                <Grid Grid.RowSpan="4" ZIndex="-50">
+                <Grid Grid.RowSpan="5" ZIndex="-50">
                     <Image x:Name="BackgroundImage" Source="{Binding BackgroundImageSource}"  Aspect="AspectFit" WidthRequest="1000"></Image>
                 </Grid>
                 <Grid.RowDefinitions>

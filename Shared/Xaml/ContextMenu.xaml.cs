@@ -24,6 +24,8 @@ public partial class ContextMenu : ContentView
 
     public ContextMenu()
     {
+        ViewModel.HeaderHeightValue = MauiProgram.SystemHeaderHeight;
+
         InitializeComponent();
         Container.BindingContext = ViewModel;
     }
@@ -36,6 +38,8 @@ public partial class ContextMenu : ContentView
         if (ViewModel.ContextMenuItems == null) ViewModel.ContextMenuItems = new();
         if (baseMusicItem != null)
         {
+            ViewModel.HeaderHeightValue = MauiProgram.SystemHeaderHeight;
+
             ViewModel.ContextMenuItems.Clear();
 
             /// #####################################################
@@ -211,6 +215,38 @@ public partial class ContextMenu : ContentView
                 };
             }
         }
+    }
+    public void UpdateData(Song[] songs, string[] blurBase64, int? opacity = 100)
+    {
+        if (ViewModel.ContextMenuItems == null) ViewModel.ContextMenuItems = new();
+        ViewModel.HeaderHeightValue = MauiProgram.SystemHeaderHeight;
+        ViewModel.ContextMenuItems.Clear();
+        ViewModel.ContextMenuItems.Add(new ContextMenuItem("Favourite All", "light_heart.png", new Task(async () =>
+        {
+            await this.Close();
+        })));
+        ViewModel.ContextMenuItems.Add(new ContextMenuItem("Unfavourite all", "light_heart.png", new Task(async () =>
+        {
+            await this.Close();
+        })));
+        ViewModel.ContextMenuItems.Add(new ContextMenuItem("Download All", "light_cloud_download.png", new Task(async () =>
+        {
+            await this.Close();
+        })));
+        ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add to Playlist", "light_edit.png", new Task(async () =>
+        {
+            await this.Close();
+        })));
+        ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(async () =>
+        {
+            await this.Close();
+        })));
+        ViewModel.ContextMenuItems.Add(new ContextMenuItem("Close", "light_close.png", new Task(async () =>
+        {
+            await this.Close();
+        })));
+        ViewModel.ContextMenuMainText = $"{songs.Length} songs selected.";
+        ViewModel.ContextMenuSubText = "";
     }
 
     public async void Show()

@@ -900,8 +900,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 if (mediaItem == null) continue;
                 if (i < PlayingIndex) previous.Add(song);
                 if (i == PlayingIndex) current.Add(song);
-                if (i >= PlayingIndex && !string.IsNullOrWhiteSpace(mediaItem.MediaId)) queue.Add(song);
-                if (i >= PlayingIndex && string.IsNullOrWhiteSpace(mediaItem.MediaId)) nextUp.Add(song);
+                if (i > PlayingIndex && !string.IsNullOrWhiteSpace(mediaItem.MediaId)) queue.Add(song);
+                if (i > PlayingIndex && string.IsNullOrWhiteSpace(mediaItem.MediaId)) nextUp.Add(song);
             }
 
             songGroupCollection.Add(previous);

@@ -48,6 +48,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="{Binding HeaderHeightValue}"/>
         </Grid.RowDefinitions>
         <!--Background-->
         <Grid.Background>

@@ -112,6 +112,12 @@ public class MainActivity : MauiAppCompatActivity
                         return false;
                     }
                 }
+                else if(MauiProgram.ViewHeaderCloseSelectCallback != null)
+                {
+                    MauiProgram.ViewHeaderCloseSelectCallback.Invoke();
+                    MauiProgram.ViewHeaderCloseSelectCallback = null;
+                    return false;
+                }
                 else
                 {
                     // Navigate back request

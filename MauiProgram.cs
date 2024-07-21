@@ -45,6 +45,7 @@ public static class MauiProgram
     public static MainPage MainPage = new(initialize: false);
     public static double SystemHeaderHeight = 44;
     public static double systemWidth = 0;
+    public static Action? ViewHeaderCloseSelectCallback = null;
 
     public static IMediaInterface? MediaService { get; set; } = null;
     public static DownloadService DownloadManager { get; set; } = new();

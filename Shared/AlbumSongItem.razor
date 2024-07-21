@@ -26,7 +26,7 @@
                 @if (EngageCheckmode)
                 {
                     <div class="radioButtonContainer">
-                        @if (CheckEngaged)
+                        @if (IsChecked)
                         {
                             <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                                 <input class="radioButton" type="radio" checked="checked">
@@ -64,7 +64,7 @@
                 }
             </div>
            
-            <div @onclick="() => OpenContextMenu(song)" class="songitem-optionbtn">
+            <div @onclick="() => OpenContextMenu()" class="songitem-optionbtn">
                 <MoreHorizIcon ExtraStyle="width: 2rem; height: 2rem;"/>
             </div>
         </div>
@@ -97,9 +97,10 @@
     [Parameter] public bool showImage { get; set; } = false;
     [Parameter] public string base64BlurHash { get; set; } = string.Empty;
     [Parameter] public bool EngageCheckmode { get; set; } = false;
+    [Parameter] public bool IsChecked { get; set; } = false;
+
     private Guid guid = Guid.NewGuid();
     private string? overscrollId;
-    private bool CheckEngaged = false;
     private bool FavouriteSongLock = false;
     private bool QueueSongLock = false;
 
@@ -124,29 +125,32 @@
         await Task.Run<bool>(() => MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, song.IsFavourite));
     }
 
-    private async void OpenContextMenu(BaseMusicItem musicItem)
+    private async void OpenContextMenu()
     {
-        MauiProgram.MainPage.OpenContextMenu(musicItem, 250, base64BlurHash);
+        MauiProgram.MainPage.OpenContextMenu(song, 250, base64BlurHash);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh
-            while (MauiProgram.MainPage.isContextMenuOpen == true)
+            while (MauiProgram.MainPage.MainContextMenu.isOpen == true)
             {
 
             }
+            InvokeAsync(() => StateHasChanged());
         });
-        StateHasChanged();
     }
 
     private void SelectItem()
     {
-        CheckEngaged = !CheckEngaged;
-        if (OnSelectCallback != null)
+        if (EngageCheckmode == false)
         {
-            OnSelectCallback.Invoke();
+            if (OnSelectCallback != null)
+            {
+                OnSelectCallback.Invoke();
+            }
+
+            IsChecked = true;
+            StateHasChanged();
         }
-        StateHasChanged();
-        return;
     }
 
 
@@ -154,7 +158,11 @@
     { // Play selected song, and queue the rest of the album
         if (EngageCheckmode)
         {
-            CheckEngaged = !CheckEngaged;
+            IsChecked = !IsChecked;
+            if (OnSelectCallback != null)
+            {
+                OnSelectCallback.Invoke();
+            }
             StateHasChanged();
         }
         else
