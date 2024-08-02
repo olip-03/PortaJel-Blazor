@@ -66,6 +66,11 @@ namespace PortaJel_Blazor.Classes.Services
             }
         }
 
+        public void Destroy()
+        {
+            serviceConnection.Dispose();
+        }
+
         private void CheckPermissions()
         {
             const int requestLocationId = 0;

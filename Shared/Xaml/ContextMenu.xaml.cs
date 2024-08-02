@@ -1,13 +1,18 @@
+using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Core.Extensions;
 using Microsoft.Maui.Controls.Shapes;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Data;
+using PortaJel_Blazor.Shared.Xaml;
 using System.Diagnostics;
 
 namespace PortaJel_Blazor.Shared;
 public partial class ContextMenu : ContentView
 {
     public bool isOpen { get; private set; } = false;
+
+    private readonly IPopupService popupService;
 
     public ContextMenuViewModel ViewModel { get; set; } = new();
     private string fullImgUrl = string.Empty;
@@ -216,6 +221,13 @@ public partial class ContextMenu : ContentView
             }
         }
     }
+
+    /// <summary>
+    /// Updates the data in the Context Menu with multiple items.
+    /// </summary>
+    /// <param name="songs"></param>
+    /// <param name="blurBase64"></param>
+    /// <param name="opacity"></param>
     public void UpdateData(Song[] songs, string[] blurBase64, int? opacity = 100)
     {
         if (ViewModel.ContextMenuItems == null) ViewModel.ContextMenuItems = new();
@@ -235,6 +247,7 @@ public partial class ContextMenu : ContentView
         })));
         ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add to Playlist", "light_edit.png", new Task(async () =>
         {
+            await Navigation.PushModalAsync(new AddToPlaylistPopup(), animated: false);
             await this.Close();
         })));
         ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Task(async () =>

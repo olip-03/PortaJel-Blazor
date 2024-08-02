@@ -198,11 +198,11 @@ namespace PortaJel_Blazor.Classes
             catch (TaskCanceledException timeout)
             {
                 Trace.WriteLine(timeout.GetType());
-                isOffline = true;
+                SetOfflineStatus(true);
             }
             catch
             {
-                isOffline = true;
+                SetOfflineStatus(true);
             }
             return false;
         }
@@ -227,12 +227,12 @@ namespace PortaJel_Blazor.Classes
             }
             catch (OperationCanceledException)
             {
-                isOffline = true;
+                SetOfflineStatus(true);
                 return false;
             }
             catch (Exception)
             {
-                isOffline = true;
+                SetOfflineStatus(true);
                 return false;
             }
             return true;
@@ -311,6 +311,14 @@ namespace PortaJel_Blazor.Classes
             if(isOffline == true) getOffline = true;
             if (getOffline)
             { // If offline, return all from the cache
+              // Immediately run a discard check to get us back online (if possible)
+                _ = Task.Run(async () => {
+                    bool isOnline = await AuthenticateServerAsync();
+                    if(isOnline)
+                    {
+                        SetOfflineStatus(false);
+                    }
+                });
                 return await ReturnFromCache();
             }
             else
@@ -370,8 +378,9 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (HttpRequestException)
                 {
-                    MauiProgram.UpdateDebugMessage("Failed from HTTP Excetion! Returning from Cache.");
-                    isOffline = true;
+                    MauiProgram.UpdateDebugMessage("Failed from HTTP Exception! Returning from Cache.");
+                    // Push snackbar stating the thing failed to connect or whatever 
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
             }
@@ -502,12 +511,12 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (HttpRequestException)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
                 catch (TaskCanceledException timeout)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
             }
@@ -559,12 +568,12 @@ namespace PortaJel_Blazor.Classes
             }
             catch (HttpRequestException)
             {
-                isOffline = true;
+                SetOfflineStatus(true);
                 toReturn = [];
             }
             catch (TaskCanceledException timeout)
             {
-                isOffline = true;
+                SetOfflineStatus(true);
                 toReturn = [];
             }
 
@@ -696,12 +705,12 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (HttpRequestException)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
                 catch (TaskCanceledException timeout)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
             }
@@ -805,12 +814,12 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (TaskCanceledException timeout)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
                 catch (Exception)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
             }
@@ -904,12 +913,12 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (HttpRequestException)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
                 catch (TaskCanceledException timeout)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
             }
@@ -1001,12 +1010,12 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (HttpRequestException)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
                 catch (TaskCanceledException timeout)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
                 catch (Exception ex)
@@ -1058,12 +1067,12 @@ namespace PortaJel_Blazor.Classes
             }
             catch (TaskCanceledException timeout)
             {
-                isOffline = true;
+                SetOfflineStatus(true);
                 toReturn = [];
             }
             catch (HttpRequestException)
             {
-                isOffline = true;
+                SetOfflineStatus(true);
                 toReturn = [];
             }
 
@@ -1148,12 +1157,12 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (HttpRequestException)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
                 catch (TaskCanceledException timeout)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
                 catch (Exception ex)
@@ -1231,12 +1240,12 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (TaskCanceledException timeout)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
                 catch (HttpRequestException)
                 {
-                    isOffline = true;
+                    SetOfflineStatus(true);
                     return await ReturnFromCache();
                 }
             }
@@ -1396,7 +1405,7 @@ namespace PortaJel_Blazor.Classes
             return false;
         }
         #endregion
-
+         
         public async Task<BaseMusicItem[]> SearchAsync(string _searchTerm, bool? sorted = false, int? searchLimit = 50)
         {
             // TODO: Return from SQLite Cache if offline or null or something idek
@@ -1585,7 +1594,6 @@ namespace PortaJel_Blazor.Classes
             }
             return TotalSongRecordCount;
         }
-
         public async Task<int> GetTotalGenreCount()
         {
             if (TotalGenreRecordCount == -1)
@@ -1677,6 +1685,16 @@ namespace PortaJel_Blazor.Classes
                 TotalPlaylistRecordCount = (int)recordCount.TotalRecordCount;
             }
             return TotalPlaylistRecordCount;
+        }
+        public void SetOfflineStatus(bool setOffline)
+        {
+            if (Application.Current == null) return;
+
+            if(this.isOffline != setOffline)
+            { // Status has changed 
+                Application.Current.Dispatcher.Dispatch(() => MauiProgram.MainPage.ShowStatusIndicator(ServerAddress + " offline = " + setOffline));
+            }
+            this.isOffline = setOffline;
         }
         public void SetBaseAddress(string url)
         {

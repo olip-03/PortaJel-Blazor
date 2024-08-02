@@ -208,6 +208,9 @@
 		<MauiXaml Update="Resources\Themes\LightTheme.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Shared\Xaml\AddToPlaylistPopup.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Shared\Xaml\ContextMenu.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>

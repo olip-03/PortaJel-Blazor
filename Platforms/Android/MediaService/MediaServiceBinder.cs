@@ -20,7 +20,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             Service.Initalize();
         }
-
+        public void Destroy()
+        {
+            Service.Destroy();
+        }
         public bool Play()
         {
             return Service.Play();

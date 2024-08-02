@@ -32,7 +32,6 @@ public partial class MainPage : ContentPage
     public bool isContextMenuOpen => ContextMenu.isOpen;
     private double screenHeight = 0;
     public bool IsMiniPlayerOpen => MiniPlayer.IsOpen;
-
     public double ContentHeight { get => AllContent.Height; private set { } }
     public double ContentWidth { get => AllContent.Width; private set { } }
 
@@ -139,10 +138,18 @@ public partial class MainPage : ContentPage
         await Navigation.PushModalAsync(new PlaylistViewEditor(setPlaylist));
     }
 
-    public void ShowStatusIndicator(StatusIndicator statusIndicator)
+    public async void ShowStatusIndicator(string message)
     {
-        if (statusIndicator == null) return;
+        //if (statusIndicator == null) return;
+#if !WINDOWS
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
+        ToastDuration duration = ToastDuration.Short;
+        double fontSize = 14;
+
+        var toast = Toast.Make(message, duration, fontSize);
+        await toast.Show(cancellationTokenSource.Token);
+#endif
     }
 
     public INavigation GetNavigation()

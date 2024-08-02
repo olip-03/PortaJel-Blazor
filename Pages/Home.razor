@@ -54,7 +54,7 @@ else
                     itemFadeInDelay += 0.1f;
                     if (i < recentPlayData.Count())
                     {
-                        if (recentPlayData[i] != null)
+                        if (recentPlayData[i] != null && recentPlayPlaceholderImages.Length > i)
                         {
                             BaseMusicItem item = recentPlayData[i];
                             string base64 = recentPlayPlaceholderImages[i];

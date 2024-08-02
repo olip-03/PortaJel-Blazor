@@ -147,8 +147,8 @@
 
     private bool EngageSongCheckmode = false;
 
-    private string backgroundBlurHeight = "-" + (MauiProgram.SystemHeaderHeight* 2) + "px!important";
-    private string headerHeight = "-" + (MauiProgram.SystemHeaderHeight ) + "px!important";
+    private string backgroundBlurHeight = "-" + (MauiProgram.SystemHeaderHeight + 64) + "px!important";
+    private string headerHeight = "-" + (MauiProgram.SystemHeaderHeight) + "px!important";
 
     private List<int> albumsDisks = new();
 
@@ -378,6 +378,8 @@
 
                 MauiProgram.MainPage.RefreshPlayer();
                 MauiProgram.MediaService.Play();
+
+                // Call API to update the albums 'last played' status in the local db
             }
             catch (Exception ex)
             {

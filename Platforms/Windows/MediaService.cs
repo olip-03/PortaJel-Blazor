@@ -127,5 +127,10 @@ namespace PortaJel_Blazor.Classes.Services
         {
             return Album.Empty;
         }
+
+        public void Destroy()
+        {
+
+        }
     }
 }

@@ -20,6 +20,11 @@ namespace PortaJel_Blazor.Classes.Services
             throw new NotImplementedException();
         }
 
+        public void Destroy()
+        {
+            throw new NotImplementedException();
+        }
+
         public Song GetCurrentlyPlaying()
         {
             throw new NotImplementedException();
@@ -36,6 +41,11 @@ namespace PortaJel_Blazor.Classes.Services
         }
 
         public PlaybackInfo? GetPlaybackTimeInfo()
+        {
+            throw new NotImplementedException();
+        }
+
+        public BaseMusicItem GetPlayingCollection()
         {
             throw new NotImplementedException();
         }

@@ -77,6 +77,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             {
                 Log.Debug(TAG, $"OnServiceDisconnected {name.ClassName}");
             }
+            if (IsConnected && Binder!=null)
+            {
+                Binder.Destroy();
+            }
             IsConnected = false;
             Binder = null;
             // mainActivity.UpdateUiForUnboundService();

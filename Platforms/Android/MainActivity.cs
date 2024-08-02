@@ -60,6 +60,10 @@ public class MainActivity : MauiAppCompatActivity
         
         base.OnCreate(savedInstanceState);
     }
+    protected override void OnDestroy()
+    {
+        if (MauiProgram.MediaService != null) MauiProgram.MediaService.Destroy();
+    }
     protected override void OnNewIntent(Intent? intent)
     {
         base.OnNewIntent(intent);

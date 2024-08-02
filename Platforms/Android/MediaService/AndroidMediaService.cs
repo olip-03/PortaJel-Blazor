@@ -1,18 +1,13 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Android.Graphics;
-using Android.Hardware.Lights;
-using Android.InputMethodServices;
 using Android.Media;
 using Android.Media.Session;
 using Android.OS;
 using Android.Runtime;
-using Android.Support.V4.Media;
 using Android.Support.V4.Media.Session;
 using Android.Views;
 using AndroidX.Core.Content;
-using AndroidX.Lifecycle;
 using AndroidX.Media.Session;
 using Blurhash;
 using Com.Google.Android.Exoplayer2;
@@ -21,16 +16,9 @@ using Com.Google.Android.Exoplayer2.Extractor.Mp3;
 using Com.Google.Android.Exoplayer2.Source;
 using Com.Google.Android.Exoplayer2.Upstream;
 using Java.Lang;
-using Microsoft.Maui.Controls.PlatformConfiguration;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Services;
 using PortaJel_Blazor.Data;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using static Android.Icu.Text.ListFormatter;
-using static Android.Provider.MediaStore.Audio;
-using static Android.Provider.MediaStore.Audio.Artists;
 using Bitmap = Android.Graphics.Bitmap;
 using Color = Android.Graphics.Color;
 using Math = System.Math;
@@ -51,6 +39,10 @@ using MediaMetadata = Android.Media.MediaMetadata;
 //
 // To bind service with attached data, see explanations:
 // https://stackoverflow.com/questions/45574022/how-to-pass-a-value-when-starting-a-background-service-on-android-using-xamarin
+//
+// TODO: 
+// All of this shit but again, like, all over again. It's been like, a month and a half and I've decided this whole class is an atrocity and needs to fucking go.
+// Like, it works, but fuck nobody else in the world would look at this and say 'yeah yeah we can keep that for the final draft'. Noooo fucking way
 
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
@@ -264,6 +256,29 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
         }
 
+        public override void OnDestroy()
+        {
+            Destroy();
+        }
+        public void Destroy()
+        {
+            this.StopForeground(true);
+            if (Binder!=null)
+            {
+                Binder.UnregisterFromRuntime();
+                Binder.Dispose();
+            }
+            if(MediaSession!=null)
+            {
+                MediaSession.Dispose();
+                MediaSession.Release();
+            }
+            if (Player != null) Player.Dispose();
+            if (playerNotification!=null) playerNotification.Dispose();
+            this.StopSelf();
+            this.Dispose();
+        }
+
         private Notification GetNotification()
         {
             if(MediaSession == null)
@@ -278,7 +293,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
 
             Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
             Notification.Style? mediaStyle = new Notification.MediaStyle().SetMediaSession(MediaSession.SessionToken);
-            // UpdatePlaybackState(); // 
+            
             MediaController controller = MediaSession.Controller;
             MediaMetadata? mediaMetadata = controller.Metadata;
             MediaDescription? description = mediaMetadata.Description; // System.NullReferenceException: 'Object reference not set to an instance of an object.'
@@ -370,7 +385,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 playerNotificationBuilder.AddAction(heartIconResId, "Favourite", pendingIntentLike);
             }
             return playerNotificationBuilder.Build();
-            // StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
+            StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
         }
 
         // https://developer.android.com/training/tv/playback/media-session 
@@ -387,10 +402,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
             PlaybackState.Builder? psBuilder = new PlaybackState.Builder();
             PlaybackStateCode playstateCode = PlaybackStateCode.Playing;
-            psBuilder.SetState(playstateCode, 0, 1f);
             if (Player != null)
             {
-                FullDuration = (long)CurrentlyPlaying.Duration.TotalMilliseconds;
                 if (!Player.IsPlaying)
                 {
                     playstateCode = PlaybackStateCode.Paused;
@@ -468,7 +481,6 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 //MediaSession.Notify();
                 playerNotification = GetNotification();
                 StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, playerNotification);
-
             }
         }
 
@@ -711,6 +723,10 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                 {
                     QueueStartIndex = fromIndex + 1;
                     QueueRepresentation.InsertRange(QueueStartIndex, MainQueue);
+                    foreach (Song queueSong in MainQueue)
+                    {
+                        queueSong.SetPlaylistId(Guid.NewGuid().ToString());
+                    }                    
                     toAdd.InsertRange(QueueStartIndex, MainQueue);
                 }
                 QueueRepresentation = toAdd;

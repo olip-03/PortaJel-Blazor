@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="PortaJel_Blazor.Shared.Xaml.AddToPlaylistPopup"
+             MaximumWidthRequest="560"
+             MinimumWidthRequest="280"
+             MaximumHeightRequest="560"
+             BackgroundColor="#aa000000"
+             Title="AddToPlaylistPopup">
+    <Border
+                MaximumHeightRequest="560"
+                Stroke="{StaticResource PageSecondaryColor}"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 28,28,28,28"
+                Padding="24"
+                Margin="28, 28, 28, 28"
+                Background="#2B2930"
+                IsEnabled="True">
+        <VerticalStackLayout>
+            <Label FontSize="24" Text="Add to playlist" TextColor="#E6E0E9" HorizontalOptions="Center" Margin="0, 0, 24, 0"/>
+            <Line X1="0"
+                  X2="560"
+                  Stroke="#938F99"/>
+        </VerticalStackLayout>
+    </Border>
+</ContentPage>

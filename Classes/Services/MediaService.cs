@@ -12,6 +12,7 @@ namespace PortaJel_Blazor.Classes.Services
         Task<bool> Initalize();
         //void Initalize(BaseMusicItem playingCollection, int fromIndex = 0);
         //void Initalize(Song addToQueue);
+        void Destroy();
         void Play();
         void SetPlayAddonAction(Action addonAction);
         void Pause();
