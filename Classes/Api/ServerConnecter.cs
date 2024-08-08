@@ -1691,7 +1691,7 @@ namespace PortaJel_Blazor.Classes
             if (Application.Current == null) return;
 
             if(this.isOffline != setOffline)
-            { // Status has changed 
+            { // Status has changed  
                 Application.Current.Dispatcher.Dispatch(() => MauiProgram.MainPage.ShowStatusIndicator(ServerAddress + " offline = " + setOffline));
             }
             this.isOffline = setOffline;

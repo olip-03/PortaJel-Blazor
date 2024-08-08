@@ -73,7 +73,7 @@
             // Add Songs
             for (int i = 0; i < songs.Length; i++)
             {
-                <AlbumSongItem song="@songs[i]" OnPlayCallback="@GetPlaySongAction(i)" OnQueueCallback="@GetQueueSongAction(i)" location="@i" base64BlurHash="@base64BlurHash" />
+                <AlbumSongItem song="@songs[i]" OnPlayCallback="@GetPlaySongAction(i)" OnQueueCallback="@GetQueueSongAction(i)" location="@i" base64BlurHash="@base64BlurHash" ShowSongImageMode="true"/>
             }
         }
         @errormessage
@@ -104,7 +104,7 @@
     string? base64BlurHash = String.Empty;
     string? backgroundBlurHash = String.Empty;
 
-    private string backgroundBlurHeight = "-" + (MauiProgram.SystemHeaderHeight * 2) + "px!important";
+    private string backgroundBlurHeight = "-" + (MauiProgram.SystemHeaderHeight + 64) + "px!important";
     private string headerHeight = "-" + (MauiProgram.SystemHeaderHeight) + "px!important";
 
     protected override void OnInitialized()

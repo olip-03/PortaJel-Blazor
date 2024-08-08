@@ -5,6 +5,7 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
     width: 100vw;
+    height: 3.5rem;
 }
 
 .indexNumber {
@@ -51,8 +52,26 @@
     text-align: center;
 }
 
+.imgHolder {
+    width: 3rem;
+    height: 3rem;
+    margin: 0rem 0.5rem 0 1rem;
+}
+
+.imgHolderPrimaryImg {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.25rem;
+}
+
+.imgHolderBackImg {
+    width: 3rem;
+    height: 3rem;
+}
+
 .infoContainerImage {
     padding: 0 1rem 0rem 0rem;
+    height: 3.5rem;
 }
 
 .infoContainer {

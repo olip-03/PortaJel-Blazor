@@ -20,34 +20,44 @@
     </div>
     <!-- Song contents -->
     <div class="infoContainer">
-        @if (location >= 0)
+        @if (ShowSongImageMode)
         {
-            <div class="numberholder songArtistTitle PrimaryTextColor" @onclick="() => PlaySong(location)">
-                @if (EngageCheckmode)
-                {
-                    <div class="radioButtonContainer">
-                        @if (IsChecked)
-                        {
-                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <input class="radioButton" type="radio" checked="checked">
-                            </Animate>
-                        }
-                        else
-                        {
-                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <input class="radioButton" type="radio">
-                            </Animate>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <p class="indexNumber">
-                        @{int displayLocation = location + 1;}
-                        @displayLocation
-                    </p>
-                }
-            </div>    
+            <div class="imgHolder">
+                <img src="@song.ImgSource" class="imgHolderPrimaryImg"/>
+                @*<img class="imgHolderBackImg"/>*@
+            </div>
+        }
+        else
+        {
+            if (location >= 0)
+            {
+                <div class="numberholder songArtistTitle PrimaryTextColor" @onclick="() => PlaySong(location)">
+                    @if (EngageCheckmode)
+                    {
+                        <div class="radioButtonContainer">
+                            @if (IsChecked)
+                            {
+                                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                    <input class="radioButton" type="radio" checked="checked">
+                                </Animate>
+                            }
+                            else
+                            {
+                                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                                    <input class="radioButton" type="radio">
+                                </Animate>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="indexNumber">
+                            @{int displayLocation = location + 1;}
+                            @displayLocation
+                        </p>
+                    }
+                </div>
+            }
         }
 
         <button class="songTextContainer" @onclick="() => PlaySong(location)">
@@ -59,13 +69,13 @@
                 @if (song.IsFavourite)
                 {
                     <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
-                        <HeartIcon Filled="true" ExtraStyle="width: calc(2rem * 0.8); height: calc(2rem * 0.8);"/>
+                        <HeartIcon Filled="true" ExtraStyle="width: calc(2rem * 0.8); height: calc(2rem * 0.8);" />
                     </Animate>
                 }
             </div>
-           
+
             <div @onclick="() => OpenContextMenu()" class="songitem-optionbtn">
-                <MoreHorizIcon ExtraStyle="width: 2rem; height: 2rem;"/>
+                <MoreHorizIcon ExtraStyle="width: 2rem; height: 2rem;" />
             </div>
         </div>
     </div>
@@ -96,6 +106,7 @@
     [Parameter] public int location { get; set; } = -1;
     [Parameter] public bool showImage { get; set; } = false;
     [Parameter] public string base64BlurHash { get; set; } = string.Empty;
+    [Parameter] public bool ShowSongImageMode { get; set; } = false;
     [Parameter] public bool EngageCheckmode { get; set; } = false;
     [Parameter] public bool IsChecked { get; set; } = false;
 
