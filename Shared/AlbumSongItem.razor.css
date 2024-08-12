@@ -5,7 +5,7 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
     width: 100vw;
-    height: 3.5rem;
+    height: 3.75rem;
 }
 
 .indexNumber {
@@ -63,11 +63,14 @@
     height: 3rem;
     border-radius: 0.25rem;
 }
+    .imgHolderPrimaryImgSelected {
+        opacity: 25%;
+    }
 
-.imgHolderBackImg {
-    width: 3rem;
-    height: 3rem;
-}
+    .imgHolderBackImg {
+        width: 3rem;
+        height: 3rem;
+    }
 
 .infoContainerImage {
     padding: 0 1rem 0rem 0rem;
@@ -143,3 +146,70 @@
     width: 3rem;
 }
 
+@-webkit-keyframes fadeInFromNone {
+    0% {
+        display: none;
+        opacity: 0;
+    }
+
+    1% {
+        display: block;
+        opacity: 0;
+    }
+
+    100% {
+        display: block;
+        opacity: 1;
+    }
+}
+
+@-moz-keyframes fadeInFromNone {
+    0% {
+        display: none;
+        opacity: 0;
+    }
+
+    1% {
+        display: block;
+        opacity: 0;
+    }
+
+    100% {
+        display: block;
+        opacity: 1;
+    }
+}
+
+@-o-keyframes fadeInFromNone {
+    0% {
+        display: none;
+        opacity: 0;
+    }
+
+    1% {
+        display: block;
+        opacity: 0;
+    }
+
+    100% {
+        display: block;
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInFromNone {
+    0% {
+        display: none;
+        opacity: 0;
+    }
+
+    1% {
+        display: block;
+        opacity: 0;
+    }
+
+    100% {
+        display: block;
+        opacity: 1;
+    }
+}

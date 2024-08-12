@@ -186,8 +186,8 @@ public partial class MainPage : ContentPage
         canSkipCarousel = false;
         RefreshQueue();
 
-        // Update the song that is currently playing
-        if (MauiProgram.MediaService.GetQueue().AllSongs.Count() > 0)
+        // Update the song that is currently 
+        if (MauiProgram.MainPage.MainMiniPlayer.SongCount > 0)
         {
             if (!MiniPlayer.IsOpen)
             {
@@ -197,11 +197,6 @@ public partial class MainPage : ContentPage
         else
         { // Hides the player 
             MiniPlayer.Hide();
-        }
-
-        if (!hideMidiPlayer)
-        {
-            // MiniPlayer.IsEnabled = !hideMidiPlayer;
         }
     }
     public void RefreshQueue()

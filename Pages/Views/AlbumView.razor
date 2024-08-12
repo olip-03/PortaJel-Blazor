@@ -78,20 +78,19 @@
                     albumsDisks.Add(songs[i].DiskNumber);
                     <h5 class="item-title PrimaryTextColor">Disk @songs[i].DiskNumber</h5>
                 }
-                <AlbumSongItem 
-                    song="@songs[i]" 
-                    OnPlayCallback="@GetPlaySongAction(i)" 
-                    OnQueueCallback="@GetQueueSongAction(i)" 
-                    OnSelectCallback="@GetSongSelectAction(i)" 
-                    location="@i" 
-                    base64BlurHash="@base64BlurHash" 
-                    EngageCheckmode="EngageSongCheckmode"
-                    ShowSongImageMode="true"
-                    IsChecked=songCheckState[i] />
+                <AlbumSongItem song="@songs[i]"
+                               OnPlayCallback="@GetPlaySongAction(i)"
+                               OnQueueCallback="@GetQueueSongAction(i)"
+                               OnSelectCallback="@GetSongSelectAction(i)"
+                               location="@i"
+                               base64BlurHash="@base64BlurHash"
+                               EngageCheckmode="EngageSongCheckmode"
+                               ShowSongImageMode="true"
+                               IsChecked=songCheckState[i] />
             }
 
             // Add Artists
-            @if(album.Artists.Count() > 0)
+            @if (album.Artists.Count() > 0)
             {
                 <br />
                 int forcount = 0;
@@ -104,15 +103,14 @@
                     forcount++;
                 }
             }
-
+            <br />
             // Add Similar
             @if (similarAlbumsBase64BlurHash.Count() > 0)
-            { // but only after the blurhash is done lol
-                <br />
+            { 
                 <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="@similarAlbums" albumBlurHashData="@similarAlbumsBase64BlurHash" />
             }
-            else if(similarAlbums.Count() > 0)
-            { // and again only if we actually HAVE reccomedation
+            else if (similarAlbums.Count() > 0) // but only after the blurhash is done lol
+            {
                 <br />
                 <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="null" albumBlurHashData="null" />
             }

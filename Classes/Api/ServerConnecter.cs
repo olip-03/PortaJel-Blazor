@@ -281,6 +281,11 @@ namespace PortaJel_Blazor.Classes
                             .OrderByDescending(album => album.DateAdded)
                             .Take((int)setLimit).ToListAsync());
                         break;
+                    case ItemSortBy.DatePlayed:
+                        filteredCache.AddRange(await Database.Table<AlbumData>()
+                            .OrderByDescending(album => album.DatePlayed)
+                            .Take((int)setLimit).ToListAsync());
+                        break;
                     case ItemSortBy.Name:
                         filteredCache.AddRange(await Database.Table<AlbumData>()
                             .OrderByDescending(album => album.Name)
@@ -467,7 +472,7 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.UserId = userDto.Id;
                         c.QueryParameters.IncludeItemTypes = [BaseItemKind.Audio];
                         c.QueryParameters.SortBy = [ItemSortBy.Album, ItemSortBy.SortName];
-                        c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
+                        c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks, ItemFields.DateCreated];
                         c.QueryParameters.SortOrder = [SortOrder.Ascending];
                         c.QueryParameters.ParentId = setId;
                         c.QueryParameters.Recursive = true;
@@ -494,7 +499,7 @@ namespace PortaJel_Blazor.Classes
                     BaseItemDto[] songBaseItemArray = songQueryResult.Result.Items.ToArray();
                     BaseItemDto[] artistBaseItemArray = artistQueryResults.Items.ToArray();
                     SongData[] songData = songBaseItemArray.Select(item => SongData.Builder(item, _sdkClientSettings.ServerUrl)).OrderBy(song => song.IndexNumber).ThenBy(song => song.DiskNumber).ToArray();
-                    AlbumData albumData = AlbumData.Builder(albumBaseItem, _sdkClientSettings.ServerUrl, songData.Select(song => song.Id).ToArray());
+                    AlbumData albumData = AlbumData.Builder(albumBaseItem, _sdkClientSettings.ServerUrl, songDataItems: songData);
                     ArtistData[] artistData = artistBaseItemArray.Select(item => ArtistData.Builder(item, _sdkClientSettings.ServerUrl)).ToArray();
 
                     // Insert into DB
@@ -700,6 +705,14 @@ namespace PortaJel_Blazor.Classes
                         {
                             Song newSong = new Song(SongData.Builder(serverResults.Items[i], _sdkClientSettings.ServerUrl));
                             toReturn.Add(newSong);
+
+                            //AlbumData? albumItem = await Database.Table<AlbumData>().FirstOrDefaultAsync(a => a.Id == newSong.Id);
+                            //if(albumItem != null && newSong.DatePlayed != null)
+                            //{
+                            //    albumItem.DatePlayed = newSong.DatePlayed;
+                            //    await Database.UpdateAsync(albumItem);
+                            //}
+                            //await Database.InsertOrReplaceAsync(newSong);
                         }
                     }
                 }

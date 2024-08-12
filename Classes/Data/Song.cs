@@ -15,6 +15,7 @@ namespace PortaJel_Blazor.Data
         public bool IsFavourite => _songData.IsFavourite;
         public int PlayCount => _songData.PlayCount;
         public DateTimeOffset? DateAdded => _songData.DateAdded;
+        public DateTimeOffset? DatePlayed => _albumData.DatePlayed;
         public string ServerAddress => _songData.ServerAddress;
         public string? PlaylistId => _songData.PlaylistId;
         public string ImgSource => _songData.ImgSource;

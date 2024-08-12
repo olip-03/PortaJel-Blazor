@@ -4,17 +4,19 @@
 @using BlazorAnimate
 @namespace PortaJel_Blazor.Shared
 
-    <div>
-    <div class="horizScroll-menuTitleContainer">
+<div>
+    <h3 class="PrimaryTextColor TitleText">@Title</h3>
+
+    @*<div class="horizScroll-menuTitleContainer">
         <h3 class="PrimaryTextColor">@Title</h3>
         <div class="PrimaryTextColor" style="display: flex;">
-            View All
-            <img src="/images/showgrid.svg" class="horizScroll-showall-img">
-        </div>
-    </div>
+                View All
+                <img src="/images/showgrid.svg" class="horizScroll-showall-img">
+            </div>
+    </div>*@
 
     <div class="horizScroll-scrollmenu">
-        @if(albumData != null && albumData.Length > 0)
+        @if (albumData != null && albumData.Length > 0)
         {
             @for (int i = 0; i < albumData.Count(); i++)
             {
@@ -24,7 +26,7 @@
                 <p style="margin: 1rem; color: darkgray;">Show All</p>
             </div>
         }
-        else if(showLoading)
+        else if (showLoading)
         {
             <div class="horizScroll-loadingIcon">
                 <Spinner Style="width: 3rem; height: 3rem; margin: auto;"></Spinner>

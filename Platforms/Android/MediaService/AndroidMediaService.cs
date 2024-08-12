@@ -73,6 +73,8 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         private int QueueStartIndex { get; set; } = -1;
         private string channedId = AppInfo.PackageName;
 
+        private DataConnector ServerApi = new();
+
         public AndroidMediaService()
         {
 
