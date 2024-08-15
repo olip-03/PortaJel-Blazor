@@ -18,18 +18,52 @@ namespace PortaJel_Blazor.Classes
         public string itemIcon {
             get => (string)GetValue(itemIconProperty);
             set => SetValue(itemIconProperty, value);
-        } 
-        public Task? action { get; set; }
-        public ContextMenuItem(string setTaskName, string setTaskIcon, Task? setTask)
+        }
+        public static readonly BindableProperty itemSizeProperty = BindableProperty.Create(nameof(itemSize), typeof(double), typeof(ContextMenuItem), 0.0);
+        public double itemSize
+        {
+            get => (double)GetValue(itemSizeProperty);
+            set => SetValue(itemSizeProperty, value);
+        }
+        public static readonly BindableProperty cellSizeProperty = BindableProperty.Create(nameof(cellSize), typeof(double), typeof(ContextMenuItem), 0.0);
+        public double cellSize
+        {
+            get => (double)GetValue(cellSizeProperty);
+            set => SetValue(cellSizeProperty, value);
+        }
+
+        public Action? action { get; set; }
+
+        public ContextMenuItem(string setTaskName, string setTaskIcon, Action? setTask, double setIconSize = 35, double setCellSize = 50)
         {
             this.itemName = setTaskName;
             this.itemIcon = setTaskIcon;
             this.action = setTask;
+            this.itemSize = setIconSize;
+            this.cellSize = setCellSize;
+        }
+        public ContextMenuItem(string setTaskName, string setTaskIcon, Action? setTask)
+        {
+            this.itemName = setTaskName;
+            this.itemIcon = setTaskIcon;
+            this.action = setTask;
+            this.itemSize = 35;
+            this.cellSize = 50;
+        }
+
+        public ContextMenuItem(string setTaskName, MusicItemImage image, Action? setTask)
+        {
+            this.itemName = setTaskName;
+            this.itemIcon = image.source;
+            this.action = setTask;
+            this.itemSize = 35;
+            this.cellSize = 50;
         }
 
         public ContextMenuItem()
         {
-
+            this.itemSize = 35;
+            this.cellSize = 50;
         }
     }
 }

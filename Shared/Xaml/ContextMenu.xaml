@@ -19,29 +19,62 @@
                 </Grid>
             </Border>
             <StackLayout VerticalOptions="Start" Grid.Row="2">
+                
                 <Label x:Name="ImageContainer_MainText" Text="{Binding ContextMenuMainText}" TextColor="{StaticResource PrimaryTextColor}" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>
                 <Label x:Name="ImageContainer_SubText" Text="{Binding ContextMenuSubText}" TextColor="{StaticResource SecondaryTextColor}" FontSize="18" HorizontalTextAlignment="Center" Margin="30,0,30,0" ></Label>
             </StackLayout>
         </VerticalStackLayout>
 
         <!--Item List-->
-        <ListView ItemsSource="{Binding ContextMenuItems}"
-                  x:Name="ItemList" Grid.Row="1"
+        <Grid x:Name="ItemList_Container" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding ScreenWidthValue}"/>
+                <ColumnDefinition Width="{Binding ScreenWidthValue}"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Main item list -->
+            <ListView ItemsSource="{Binding ContextMenuItems}"
+                  Grid.Column="0"
+                  VerticalOptions="End"
+                  x:Name="ItemList" 
                   Margin="20" 
+                  HasUnevenRows="True"
                   ItemSelected="ItemList_ItemSelected" 
                   SelectionMode="Single" 
                   IsVisible="True">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="classes:ContextMenuItem">
-                    <ViewCell>
-                        <FlexLayout AlignItems="Center" HeightRequest="50">
-                            <Image HeightRequest="35" WidthRequest="35" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
-                            <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="{StaticResource PrimaryTextColor}"></Label>
-                        </FlexLayout>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="classes:ContextMenuItem">
+                        <ViewCell>
+                            <FlexLayout AlignItems="Center" HeightRequest="{Binding itemSize}">
+                                <Image HeightRequest="{Binding itemSize}" WidthRequest="{Binding itemSize}" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
+                                <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="{StaticResource PrimaryTextColor}"></Label>
+                            </FlexLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            
+            <!-- Playlist/Secondary item selection -->
+            <ListView ItemsSource="{Binding SecondaryMenuItems}"
+                  Grid.Column="1"
+                  VerticalOptions="EndAndExpand"
+                  x:Name="SecondItemList" 
+                  Margin="20" 
+                  HasUnevenRows="True"
+                  ItemSelected="ItemList_ItemSelected" 
+                  SelectionMode="Single">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="classes:ContextMenuItem">
+                        <ViewCell>
+                            <FlexLayout AlignItems="Center" HeightRequest="{Binding itemSize}">
+                                <Image HeightRequest="{Binding itemSize}" WidthRequest="{Binding itemSize}" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
+                                <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="{StaticResource PrimaryTextColor}"></Label>
+                            </FlexLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
 
         <!--LAYOUT-->
         <!--Row Definitions-->

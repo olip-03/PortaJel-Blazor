@@ -22,7 +22,7 @@
     <div class="infoContainer">
         @if (ShowSongImageMode)
         { // Image Mode is ON 
-            <div class="imgHolder">
+            <div class="imgHolder"  @onclick="() => PlaySong(location)">
                 <img src="@song.ImgSource" class="imgHolderPrimaryImg @(EngageCheckmode && IsChecked == false ? "imgHolderPrimaryImgSelected" : "")" />
                 @*<img class="imgHolderBackImg"/>*@
             </div>
@@ -31,7 +31,7 @@
         { // Image Mode is OFF 
             if (location >= 0)
             {
-                <div class="numberholder songArtistTitle PrimaryTextColor" @onclick="() => PlaySong(location)">
+                <div class="numberholder songArtistTitle PrimaryTextColor"  @onclick="() => PlaySong(location)">
                     @if (EngageCheckmode)
                     {
                         <div class="radioButtonContainer">
