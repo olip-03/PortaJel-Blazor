@@ -60,6 +60,14 @@ namespace PortaJel_Blazor.Classes
             }
         }
         
+        public async Task<bool> AuthenticateAllAsync()
+        {
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+               await server.Value.AuthenticateServerAsync().ConfigureAwait(false);
+            });
+            return true;
+        }
+
         /// <summary>
         /// Gets all the servers we're currently connected to.
         /// </summary>
@@ -234,10 +242,65 @@ namespace PortaJel_Blazor.Classes
         }
         #endregion
 
+        #region SessionReporting
+
+        public async Task<bool> ReportPlayingPing()
+        {
+            return false;
+        }
+
+        public async Task<bool> ReportPlayingProgress(Guid itemId, long positionTicks, string serverAddress)
+        {
+            if (connecters.ContainsKey(serverAddress))
+            {
+                await connecters[serverAddress].ReportPlayingProgress(itemId, positionTicks).ConfigureAwait(false);
+                return true;
+            }
+            else
+            {
+                throw new InvalidOperationException("The specified item does not have a server address in the list of connectors!");
+            }
+        }
+
+        public async Task<bool> ReportPlayingStopped(Guid itemId, long positionTicks, string serverAddress)
+        {
+            if (connecters.ContainsKey(serverAddress))
+            {
+                await connecters[serverAddress].ReportPlayingStopped(itemId, positionTicks).ConfigureAwait(false);
+                return true;
+            }
+            else
+            {
+                throw new InvalidOperationException("The specified item does not have a server address in the list of connectors!");
+            }
+        }
+
+        public async Task<bool> ReportViewing(Guid itemId, string serverAddress)
+        {
+            if (connecters.ContainsKey(serverAddress))
+            {
+                await connecters[serverAddress].ReportViewing(itemId).ConfigureAwait(false);
+                return true;
+            }
+            else
+            {
+                throw new InvalidOperationException("The specified item does not have a server address in the list of connectors!");
+            }
+        }
+
+        public async Task<bool> Logout()
+        {
+            return false;
+        }
+        #endregion
+
         public async Task<bool> SetFavourite(Guid itemId, string serverAddress, bool favouriteState)
         {
             if (connecters.ContainsKey(serverAddress))
             {
+                // This needs to shoot its shot out into the ether, if it isn't able to respond it needs to
+                // - Kill itself 
+                // - Tell the application it's failed to do so, and add it to the 'do when online' queue
                 await connecters[serverAddress].FavouriteItem(itemId, favouriteState);
                 return true;
             }
@@ -245,6 +308,11 @@ namespace PortaJel_Blazor.Classes
             {
                 throw new InvalidOperationException("The specified item does not have a server address in the list of connectors!");
             }
+        }
+        
+        public UserCredentials[] GetAllUserCredentials()
+        {
+            return connecters.Select(s => s.Value.GetUserCredentials()).ToArray();
         }
     }
 }

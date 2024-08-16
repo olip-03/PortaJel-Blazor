@@ -5,6 +5,7 @@ using System.Timers;
 using Android.OS;
 using System.Runtime.CompilerServices;
 using Java.Lang;
+using System.Text.Json;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 
@@ -32,6 +33,7 @@ namespace PortaJel_Blazor.Classes.Services
         {
             serviceConnection = new();
             Intent mediaServiceIntent = new Intent(Platform.AppContext, typeof(AndroidMediaService));
+            mediaServiceIntent.PutExtra("APICredentials", JsonSerializer.Serialize(MauiProgram.api.GetAllUserCredentials()));
             Platform.AppContext.StartForegroundService(mediaServiceIntent);
             Platform.AppContext.BindService(mediaServiceIntent, this.serviceConnection, Bind.AutoCreate);
         }

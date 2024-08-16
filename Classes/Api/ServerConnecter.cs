@@ -25,6 +25,7 @@ namespace PortaJel_Blazor.Classes
     public class ServerConnecter : IMediaServerConnector //TODO implement all data return classes into this interface
     {
         private UserDto? userDto = null;
+        private SessionInfo? sessionInfo = null;
 
         private JellyfinSdkSettings _sdkClientSettings = new();
         private JellyfinApiClient? _jellyfinApiClient = null;
@@ -34,10 +35,10 @@ namespace PortaJel_Blazor.Classes
         private string StoredPassword = string.Empty;
 
         private SQLiteAsyncConnection? Database = null;
-        private SQLite.SQLiteOpenFlags DBFlags =
-        SQLite.SQLiteOpenFlags.ReadWrite |        // open the database in read/write mode       
-        SQLite.SQLiteOpenFlags.Create | // create the database if it doesn't exist
-        SQLite.SQLiteOpenFlags.SharedCache; // enable multi-threaded database access
+        private SQLiteOpenFlags DBFlags =
+        SQLiteOpenFlags.ReadWrite | 
+        SQLiteOpenFlags.Create |
+        SQLiteOpenFlags.SharedCache;
 
         private List<Guid> storedAlbums = new();
         private List<Guid> storedSongs = new();
@@ -62,6 +63,32 @@ namespace PortaJel_Blazor.Classes
             Initalize(baseUrl, username, password);
         }
 
+        /// <summary>
+        /// Initializes the Jellyfin client, HTTP services, and local SQLite database. 
+        /// This method configures the service collection, creates HTTP clients, and sets up the Jellyfin SDK.
+        /// It also initializes the local SQLite database and creates necessary tables for storing media data.
+        /// </summary>
+        /// <param name="baseUrl">
+        /// The base URL of the Jellyfin server. This is used to configure the Jellyfin SDK client settings 
+        /// and is also hashed to generate the database file path.
+        /// </param>
+        /// <param name="username">
+        /// The username for authentication with the Jellyfin server. If provided, it will be stored in the <see cref="Username"/> field.
+        /// </param>
+        /// <param name="password">
+        /// The password for authentication with the Jellyfin server. If provided, it will be stored in the <see cref="StoredPassword"/> field.
+        /// </param>
+        /// <remarks>
+        /// The method first checks if the username, password, and base URL are provided and stores them.
+        /// Then, it sets up the dependency injection container, configures the HTTP client, and initializes 
+        /// the Jellyfin SDK client. If the initialization succeeds, it creates an MD5 hash from the base URL 
+        /// to generate a unique file path for the SQLite database. The database is then initialized, and 
+        /// the tables for albums, songs, artists, and playlists are created asynchronously.
+        /// </remarks>
+        /// <exception cref="Exception">
+        /// An exception is thrown if there is an error during the initialization of the service provider, 
+        /// SDK client, or database.
+        /// </exception>
         private async void Initalize(string baseUrl, string? username = null, string? password = null)
         {
             if (username != null)
@@ -192,6 +219,7 @@ namespace PortaJel_Blazor.Classes
                 {
                     _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
                     userDto = authenticationResult.User;
+                    sessionInfo = authenticationResult.SessionInfo;
                     return true;
                 }
             }
@@ -313,13 +341,13 @@ namespace PortaJel_Blazor.Classes
                 return filteredCache.Select(dbItem => new Album(dbItem)).ToArray();
             }
 
-            if(isOffline == true) getOffline = true;
+            if (isOffline == true) getOffline = true;
             if (getOffline)
             { // If offline, return all from the cache
               // Immediately run a discard check to get us back online (if possible)
                 _ = Task.Run(async () => {
                     bool isOnline = await AuthenticateServerAsync();
-                    if(isOnline)
+                    if (isOnline)
                     {
                         SetOfflineStatus(false);
                     }
@@ -418,7 +446,7 @@ namespace PortaJel_Blazor.Classes
                 AlbumData? albumFromDb = await Database.Table<AlbumData>().Where(album => album.Id == setId).FirstOrDefaultAsync();
                 SongData[] songFromDb = [];
                 ArtistData[] artistsFromDb = [];
-                if(albumFromDb == null) return Album.Empty;
+                if (albumFromDb == null) return Album.Empty;
 
                 Guid[]? songIds = albumFromDb.GetSongIds();
                 Guid[]? artistIds = albumFromDb.GetArtistIds();
@@ -427,9 +455,9 @@ namespace PortaJel_Blazor.Classes
                 {
                     Task<SongData[]> songDbQuery = Database.Table<SongData>().Where(song => songIds.Contains(song.Id)).OrderBy(song => song.IndexNumber).ThenBy(song => song.DiskNumber).ToArrayAsync();
                     Task<ArtistData[]> artistDbQuery = Database.Table<ArtistData>().Where(artist => artistIds.Contains(artist.Id)).ToArrayAsync();
-                    
+
                     Task.WaitAll(songDbQuery, artistDbQuery);
-                   
+
                     songFromDb = songDbQuery.Result.OrderBy(s => s.DiskNumber).ToArray();
                     artistsFromDb = artistDbQuery.Result;
                 }
@@ -477,9 +505,9 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.ParentId = setId;
                         c.QueryParameters.Recursive = true;
                         c.QueryParameters.EnableImages = true;
-                    });     
+                    });
                     await Task.WhenAll(albumQueryResult, songQueryResult);
-                    
+
                     if (albumQueryResult.Result == null || albumQueryResult.Result.Items == null) return Album.Empty;
                     if (songQueryResult.Result == null || songQueryResult.Result.Items == null) return Album.Empty;
                     BaseItemDto? albumBaseItem = albumQueryResult.Result.Items.FirstOrDefault();
@@ -952,7 +980,7 @@ namespace PortaJel_Blazor.Classes
             async Task<Artist> ReturnFromCache()
             {
                 ArtistData artistDbItem = await Database.Table<ArtistData>().Where(artist => artist.Id == artistId).FirstOrDefaultAsync();
-                
+
                 Guid[] albumIds = artistDbItem.GetAlbumIds();
                 AlbumData[] albumData = await Database.Table<AlbumData>().Where(album => albumIds.Contains(album.Id)).ToArrayAsync();
 
@@ -1010,8 +1038,8 @@ namespace PortaJel_Blazor.Classes
                     albumResult = runAlbumInfo.Result;
 
                     // Catch blocks
-                    if (artistInfo == null || artistInfo.Items == null || albumResult == null || albumResult.Items == null || token.IsCancellationRequested)  return Artist.Empty; 
-                    if (artistInfo.Items.Count <= 0 || token.IsCancellationRequested)  return Artist.Empty; 
+                    if (artistInfo == null || artistInfo.Items == null || albumResult == null || albumResult.Items == null || token.IsCancellationRequested) return Artist.Empty;
+                    if (artistInfo.Items.Count <= 0 || token.IsCancellationRequested) return Artist.Empty;
 
                     foreach (BaseItemDto item in artistInfo.Items)
                     {
@@ -1037,7 +1065,7 @@ namespace PortaJel_Blazor.Classes
                     throw;
                 }
             }
-            
+
             return returnArtist;
         }
 
@@ -1301,124 +1329,123 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region PlaybackReporting
-        // POST
-        // ​/Sessions​/Playing
-        // Reports playback has started within a session.
-        public async Task<bool> SessionReportPlaying()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ReportPlayingPing()
         {
-            //if(_playstateClient != null)
-            //{
-            //    PlaybackStartInfo playbackStartInfo = new PlaybackStartInfo();
-            //    await _jellyfinApiClient.
-            //    await _playstateClient.ReportPlaybackStartAsync(body: playbackStartInfo);
-            //    return true;
-            //}
-            if (_jellyfinApiClient != null)
+            if(_jellyfinApiClient != null && userDto != null)
             {
-                //await _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(c =>
-                //{
-                //    c.
-                //})
-                return true;
+                await _jellyfinApiClient.Sessions.Playing.Ping.PostAsync().ConfigureAwait(false);
             }
             return false;
         }
 
-        // POST
-        // ​/Sessions​/Playing​/Ping
-        // Pings a playback session.
-        public async Task<bool> SessionReportPing(string playSessionId)
+        /// <summary>
+        /// Reports playback progress within the current session to the Jellyfin API.
+        /// </summary>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result is <c>true</c> if the operation succeeded; otherwise, <c>false</c>.
+        /// </returns>
+        /// <remarks>
+        /// This method sends playback progress information to the Jellyfin API if the API client and user DTO are not null. 
+        /// It creates a new instance of <see cref="PlaybackStartInfo"/> to provide the required progress details.
+        /// </remarks>
+        public async Task<bool> ReportPlayingProgress(Guid itemId, long positionTicks)
         {
-            if (_jellyfinApiClient != null)
+            if (_jellyfinApiClient != null && sessionInfo != null && !isOffline)
             {
-                await _jellyfinApiClient.Sessions.Playing.Ping.PostAsync(c =>
+                // Ensure the PlaybackStartInfo instance is properly populated
+                var playbackProgressInfo = new PlaybackProgressInfo
                 {
-                    c.QueryParameters.PlaySessionId = playSessionId;
-                });
+                    ItemId = itemId, // Example item ID, replace with actual data
+                    SessionId = sessionInfo.Id, // Example session ID, replace with actual data
+                    PositionTicks = positionTicks // Example position in ticks, replace with actual progress
+                };
+
+                await _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(playbackProgressInfo).ConfigureAwait(false);
                 return true;
             }
             return false;
         }
 
-        // POST
-        // ​/Sessions​/Playing​/Progress
-        // Reports playback progress within a session.
-        public async Task<bool> SessionReportProgress()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ReportPlayingStopped(Guid itemId, long positionTicks)
         {
-            //if (_playstateClient != null)
-            //{
-            //    PlaybackProgressInfo playbackProgressInfo = new();
-            //    await _playstateClient.ReportPlaybackProgressAsync(body: playbackProgressInfo);
-            //    return true;
-            //}
+            if (_jellyfinApiClient != null && sessionInfo != null && !isOffline)
+            {
+                var playbackStopInfo = new PlaybackStopInfo
+                {
+                    Failed = false,  // Set to true if there was a failure
+                    //Item = new BaseItemDto
+                    //{
+                    //    // Populate necessary fields for the Item
+                    //},
+                    ItemId = itemId,  // Replace with actual ItemId
+                    // LiveStreamId = "someLiveStreamId",  // Replace with actual LiveStreamId
+                    // MediaSourceId = "someMediaSourceId",  // Replace with actual MediaSourceId
+                    // NextMediaType = "video",  // Replace with actual NextMediaType
+                    // NowPlayingQueue = new List<QueueItem>
+                    // {
+                    //     // Populate the queue with actual items
+                    // },
+                    //PlaylistItemId = "somePlaylistItemId",  // Replace with actual PlaylistItemId
+                    //PlaySessionId = "somePlaySessionId",  // Replace with actual PlaySessionId
+                    PositionTicks = positionTicks,  // Replace with actual position in ticks
+                    SessionId = sessionInfo.Id  // Replace with actual SessionId
+                };
+
+                await _jellyfinApiClient.Sessions.Playing.Stopped.PostAsync(playbackStopInfo).ConfigureAwait(false);
+                return true; // Return true if the API call succeeds
+            }
+
+            return false; // Return false if any conditions fail
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <returns></returns>
+        public async Task<bool> ReportViewing(Guid itemId)
+        {
+            if (_jellyfinApiClient != null && sessionInfo != null)
+            {
+                // this is fucked I get why people don't like this langauge
+                var requestConfig = new Action<RequestConfiguration<Jellyfin.Sdk.Generated.Sessions.Viewing.ViewingRequestBuilder.ViewingRequestBuilderPostQueryParameters>>(config =>
+                {
+                    config.QueryParameters = new Jellyfin.Sdk.Generated.Sessions.Viewing.ViewingRequestBuilder.ViewingRequestBuilderPostQueryParameters
+                    {
+                        ItemId = itemId.ToString(),
+                        SessionId = sessionInfo.Id
+                    };
+                });
+
+                // Post the request to report viewing
+                await _jellyfinApiClient.Sessions.Viewing.PostAsync(requestConfig).ConfigureAwait(false);
+                return true;
+            }
             return false;
         }
 
-        // POST
-        // ​/Sessions​/Playing​/Stopped
-        // Reports playback has stopped within a session.
-        public async Task<bool> SessionReportStopped()
-        {
-            //if (_playstateClient != null)
-            //{
-            //    PlaybackStopInfo playbackStopInfo = new();
-            //    await _playstateClient.ReportPlaybackStoppedAsync(playbackStopInfo);
-            //    return true;
-            //}
-            return false;
-        }
-
-        // POST
-        // ​/Users​/{userId}​/PlayedItems​/{itemId}
-        // Marks an item as played for user.
-        public async Task<bool> SessionReportUpdatePlayedItem(System.Guid itemId)
-        {
-            //if (_playstateClient != null && userDto != null)
-            //{
-            //    PlaybackStopInfo playbackStopInfo = new();
-            //    await _playstateClient.MarkPlayedItemAsync(userDto.Id, itemId);
-            //    return true;
-            //}
-            return false;
-        }
-
-        // DELETE
-        // ​/Users​/{userId}​/PlayedItems​/{itemId}
-        // Marks an item as unplayed for user.
-
-        // POST
-        // ​/Users​/{userId}​/PlayingItems​/{itemId}
-        // Reports that a user has begun playing an item.
-        public async Task<bool> SessionReportBeginPlayingItem(System.Guid itemId)
-        {
-            //if (_playstateClient != null && userDto != null)
-            //{
-            //    PlaybackStopInfo playbackStopInfo = new();
-            //    await _playstateClient.MarkUnplayedItemAsync(userDto.Id, itemId);
-            //    return true;
-            //}
-            return false;
-        }
-
-        // DELETE
-        // ​/Users​/{userId}​/PlayingItems​/{itemId}
-        // Reports that a user has stopped playing an item.
-
-        // POST
-        // ​/Users​/{userId}​/PlayingItems​/{itemId}​/Progress
-        // Reports a user's playback progress.
-        public async Task<bool> SessionReportPlaybackProgress(System.Guid itemId)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> Logout()
         {
             if (_jellyfinApiClient != null && userDto != null)
             {
-                PlaybackProgressInfo playbackprogressinfo = new();
-                await _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(playbackprogressinfo);
-                return true;
+                await _jellyfinApiClient.Sessions.Logout.PostAsync();
             }
             return false;
         }
         #endregion
-         
+
         public async Task<BaseMusicItem[]> SearchAsync(string _searchTerm, bool? sorted = false, int? searchLimit = 50)
         {
             // TODO: Return from SQLite Cache if offline or null or something idek
@@ -1429,7 +1456,7 @@ namespace PortaJel_Blazor.Classes
 
             if (String.IsNullOrWhiteSpace(_searchTerm))
             {
-                return new BaseMusicItem[0];
+                return Array.Empty<BaseMusicItem>();
             }
 
             List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { };
@@ -1725,6 +1752,10 @@ namespace PortaJel_Blazor.Classes
                 return null;
             }
             return userDto.PrimaryImageTag;
+        }
+        public UserCredentials GetUserCredentials()
+        {
+            return new(_sdkClientSettings.ServerUrl, Username, StoredPassword);
         }
         public string GetUsername()
         {

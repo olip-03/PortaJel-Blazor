@@ -19,6 +19,7 @@ using Java.Lang;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Services;
 using PortaJel_Blazor.Data;
+using System.Text.Json;
 using Bitmap = Android.Graphics.Bitmap;
 using Color = Android.Graphics.Color;
 using Math = System.Math;
@@ -74,6 +75,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         private string channedId = AppInfo.PackageName;
 
         private DataConnector ServerApi = new();
+        IDispatcherTimer? DispatcherTimer = null;
 
         public AndroidMediaService()
         {
@@ -83,6 +85,24 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         [return: GeneratedEnum]
         public override StartCommandResult OnStartCommand(Intent? intent, [GeneratedEnum] StartCommandFlags flags, int startId)
         {
+            string? value = intent.GetStringExtra("APICredentials");
+            if(value != null)
+            {
+                UserCredentials[] userCredentials = JsonSerializer.Deserialize<UserCredentials[]>(value);
+                foreach (UserCredentials user in userCredentials)
+                {
+                    ServerConnecter serverConnector = new ServerConnecter(user.ServerAddress, user.UserName, user.Password);
+                    ServerApi.AddServer(serverConnector);
+                }
+
+                DispatcherTimer = Dispatcher.GetForCurrentThread().CreateTimer();
+
+                DispatcherTimer.Interval = TimeSpan.FromSeconds(0.5);
+                DispatcherTimer.IsRepeating = true;
+                DispatcherTimer.Tick += (s, e) => UpdateAPIProgress();
+                DispatcherTimer.Start();
+            }
+
             var channel = GetNotificationChannel();
             Context context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
  
@@ -99,7 +119,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
             UpdatePlaybackState();
             playerNotification = GetNotification();
-            
+
+            InitServer();
+
             return base.OnStartCommand(startIntent, flags, startId);
         }
 
@@ -258,6 +280,13 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             }
         }
 
+        private async void InitServer()
+        {
+            await Parallel.ForEachAsync(ServerApi.GetServers(), async (server, ct) => {
+                bool UserPassed = await server.AuthenticateServerAsync();
+            });
+        }
+
         public override void OnDestroy()
         {
             Destroy();
@@ -279,6 +308,28 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             if (playerNotification!=null) playerNotification.Dispose();
             this.StopSelf();
             this.Dispose();
+        }
+
+        private bool justPaused = false;
+        private async void UpdateAPIProgress()
+        {
+            if (Player.IsPlaying)
+            {
+                justPaused = false;
+                long plrduration = Player.Duration;
+                long playbackTicks = plrduration * 10000;  // Convert milliseconds to ticks
+                await Task.WhenAll(
+                    ServerApi.ReportPlayingPing(), 
+                    ServerApi.ReportPlayingProgress(CurrentlyPlaying.Id, playbackTicks, CurrentlyPlaying.ServerAddress)
+                );
+            }
+            else if(justPaused == false)
+            {
+                justPaused = true;
+                long plrduration = Player.Duration;                                
+                long playbackTicks = plrduration * 10000;  // Convert milliseconds to ticks
+                await ServerApi.ReportPlayingStopped(CurrentlyPlaying.Id, playbackTicks, CurrentlyPlaying.ServerAddress);
+            }
         }
 
         private Notification GetNotification()
