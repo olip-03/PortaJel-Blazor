@@ -112,7 +112,7 @@ namespace PortaJel_Blazor.Classes.Services
             {
                 serviceConnection.Binder.Play();
                 UpdatePlaystateUi();
-                // DispatcherTimer.Start();
+                // ReportTimer.Start();
                 if(PlayAddonAction != null)
                 {
                     PlayAddonAction();
@@ -136,7 +136,7 @@ namespace PortaJel_Blazor.Classes.Services
                 {
                     PlayAddonAction();
                 }
-                // DispatcherTimer.Stop();
+                // ReportTimer.Stop();
             }
         }
 
@@ -153,7 +153,7 @@ namespace PortaJel_Blazor.Classes.Services
                     {
                         PlayAddonAction();
                     }
-                    // DispatcherTimer.Start();
+                    // ReportTimer.Start();
                 }
                 else
                 { // Is Paused
@@ -162,7 +162,7 @@ namespace PortaJel_Blazor.Classes.Services
                     {
                         PlayAddonAction();
                     }
-                    // DispatcherTimer.Stop();
+                    // ReportTimer.Stop();
                 }
             }
         }

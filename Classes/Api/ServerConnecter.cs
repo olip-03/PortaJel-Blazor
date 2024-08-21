@@ -1755,7 +1755,7 @@ namespace PortaJel_Blazor.Classes
         }
         public UserCredentials GetUserCredentials()
         {
-            return new(_sdkClientSettings.ServerUrl, Username, StoredPassword);
+            return new(_sdkClientSettings.ServerUrl, Username, StoredPassword, sessionInfo.Id, _sdkClientSettings.AccessToken);
         }
         public string GetUsername()
         {
