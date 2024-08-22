@@ -1,4 +1,5 @@
-﻿using PortaJel_Blazor.Data;
+﻿using PortaJel_Blazor.Classes.Interfaces;
+using PortaJel_Blazor.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;

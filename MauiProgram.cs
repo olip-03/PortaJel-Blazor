@@ -13,6 +13,7 @@ using System.Text.Json;
 using PortaJel_Blazor.Pages;
 using System.Threading;
 using System.Diagnostics;
+using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor;
 

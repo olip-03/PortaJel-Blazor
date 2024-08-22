@@ -6,6 +6,7 @@ using Android.OS;
 using System.Runtime.CompilerServices;
 using Java.Lang;
 using System.Text.Json;
+using PortaJel_Blazor.Classes.Interfaces;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 

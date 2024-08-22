@@ -5,13 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PortaJel_Blazor.Classes.Services
+namespace PortaJel_Blazor.Classes.Interfaces
 {
-    public interface IMediaInterface 
+    public interface IMediaInterface
     {
         Task<bool> Initalize();
-        //void Initalize(BaseMusicItem playingCollection, int fromIndex = 0);
-        //void Initalize(Song addToQueue);
         void Destroy();
         void Play();
         void SetPlayAddonAction(Action addonAction);
@@ -30,7 +28,7 @@ namespace PortaJel_Blazor.Classes.Services
         void RemoveSong(int index);
         SongGroupCollection GetQueue();
         Song GetCurrentlyPlaying();
-        public PlaybackInfo? GetPlaybackTimeInfo();
+        public PlaybackInfo GetPlaybackTimeInfo();
         int GetQueueIndex();
         bool GetIsPlaying();
         bool GetIsShuffling();
