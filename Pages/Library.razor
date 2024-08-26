@@ -1,11 +1,13 @@
 ﻿@page "/library/{showFavourites}"
 @using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared;
+@using Microsoft.AspNetCore.Components.Web.Virtualization; 
 @using PortaJel_Blazor;
 @using BlazorAnimate;
 @using Jellyfin.Sdk;
 @using Jellyfin.Sdk.Generated.Models;
 @using PortaJel_Blazor.Shared.Icons;
+@using System.Diagnostics;
 @inject IJSRuntime JS;
 
 <div id="libraryToolbar" class="button-container boxed PageSecondaryColor">
@@ -18,7 +20,6 @@
         <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
     }
     <label class="PrimaryTextColor" for="playlists">Playlists</label>
-
 
     @if (selected == Selectable.albums)
     {
@@ -51,7 +52,7 @@
     }
     <label class="PrimaryTextColor" for="songs">Songs</label>
 
-    @if (!isFavouritesPage)
+    @* @if (!isFavouritesPage)
     {
         if (selected == Selectable.genres)
         {
@@ -62,7 +63,7 @@
             <input type="radio" id="genres" name="skills" value="Genres" @onclick="() => SelectPage(Selectable.genres)">
         }
         <label class="PrimaryTextColor" for="genres">Genres</label>
-    }
+    } *@
 </div>
 
 <div class="quickplay-container">
@@ -125,55 +126,37 @@
 }
 
 <div class="album-list">
-    @if (isLoading)
-    { // Spinner
-        <Spinner />
-    }
-    else
-    {
-        <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-            @if (data.Count() > 0)
-            { // Load information
-                @for (int i = 0; i < data.Count(); i++)
-                {
-                    if (data[i] != null)
-                    {
-                        string base64 = string.Empty;
-                        try { base64 = placeholderImages[i]; }
-                        catch (Exception) { base64 = string.Empty; }
-                        if (i == lastAmount)
-                        {
-                            <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" OnViewAction="LoadMore" />
-                        }
-                        else
-                        {
-                            <SearchResultItem musicObject="@data[i]" isGrid=@showGrid placeholderBase64="@base64" />
-                        }
-                    }
-                }
-            }
-            else
-            { // something went wrong click here to try again
-
-            }
-        </Animate>
-    }
+    <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="100" ItemSize="80">
+        <ItemContent>
+            <SearchResultItem musicObject="musicItem" isGrid=@showGrid />
+        </ItemContent>
+        <Placeholder>
+            <SearchResultItem musicObject="Album.Empty" isGrid=@showGrid />
+        </Placeholder>
+        <EmptyContent>
+            <p>
+                There are no items to display.
+            </p>
+        </EmptyContent>
+    </Virtualize>
 </div>
 
 @code {
     [Parameter] public string showFavourites { get; set; } = "false";
     private bool isFavouritesPage = false;
 
-    private List<BaseMusicItem> data = MauiProgram.libraryCache.data;
-    private string[] placeholderImages = MauiProgram.libraryCache.placeholderImages;
-    private int totalRecordCount = MauiProgram.libraryCache.totalRecordCount;
+    private List<BaseMusicItem> musicData = new();
+    private List<BaseMusicItem> viewData = new();
+    private string[] placeholderImages = [];
+    private int totalRecordCount = 0;
     private bool showGrid = MauiProgram.libraryCache.showGrid;
-    
+
     private int loadLimit = MauiProgram.libraryCache.loadLimit;
     private int startFromIndex = MauiProgram.libraryCache.startFromIndex;
     private int lastAmount = MauiProgram.libraryCache.lastAmount;
 
-    private Task? queuedTask = null;
+    private int scrolledTo = 0;
+
     private bool isLoading = false;
 
     private enum Selectable
@@ -198,8 +181,6 @@
 
     protected override void OnInitialized()
     {
-        isFavouritesPage = Boolean.Parse(showFavourites);
-
         MauiProgram.WebView.cancellationSource = new();
         MauiProgram.WebView.cancellationToken = MauiProgram.WebView.cancellationSource.Token;
 
@@ -215,17 +196,16 @@
         }
 
         MauiProgram.WebView.showHeader = true;
-
         MauiProgram.WebView.isLoading = false;
-        if (MauiProgram.libraryCache.IsEmpty())
-        {
-            SelectPage(selected);
-        }
     }
+
     protected override void OnParametersSet()
     {
-        SelectPage(selected);
-        OnInitialized();
+        viewData = new();
+        placeholderImages = [];
+        isFavouritesPage = Boolean.Parse(showFavourites);
+        isLoading = false;
+        // SelectPage(selected);
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -253,145 +233,103 @@
 
         StateHasChanged();
     }
+
+    // Please implement virtualization
+    // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/virtualization?view=aspnetcore-8.0
     private async void SelectPage(Selectable page)
     {
         MauiProgram.libraryItemView = (int)page;
         selected = page;
 
-        if (isLoading)
-        { // Still waiting for previous iteration to complete
-          // Call cancellation token
-          // Add this bitch to the queue
-            queued = page;
-            return;
-        }
-
         isLoading = true;
-        await InvokeAsync(StateHasChanged);
+
+        viewData.Clear();
+        musicData.Clear();
 
         await Task.Run(async () =>
         {
             bool isCompleted = false;
+
+            int currentStartIndex = 0;
+            int total = 0; //like, everything man; 
+
+            bool firstLoop = true;
+
             while (!isCompleted)
             {
                 BaseMusicItem[] results = new BaseMusicItem[0];
                 switch (page)
                 {
                     case Selectable.none:
-                        data = new();
+                        viewData = new();
                         break;
                     case Selectable.playlists:
-                        results = await MauiProgram.api.GetAllPlaylistsAsync(limit: loadLimit, isFavourite: isFavouritesPage);
+                        Task<Playlist[]> getResults = MauiProgram.api.GetAllPlaylistsAsync(limit: loadLimit, startIndex: currentStartIndex, isFavourite: isFavouritesPage);
+                        Task<int> getTotals = MauiProgram.api.GetTotalPlaylistCount();
+                        await Task.WhenAll(getResults, getTotals);
+                        results = getResults.Result;
+                        total = getTotals.Result;
                         break;
                     case Selectable.albums:
-                        results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit, sortOrder: SortOrder.Ascending, isFavourite: isFavouritesPage);
+                        results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit, startIndex: currentStartIndex, sortOrder: SortOrder.Ascending, isFavourite: isFavouritesPage);
                         break;
                     case Selectable.artists:
-                        results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit, isFavourite: isFavouritesPage);
+                        results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit, startIndex: currentStartIndex, isFavourite: isFavouritesPage);
                         break;
                     case Selectable.songs:
-                        results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit, sortOrder: [SortOrder.Ascending], isFavourite: isFavouritesPage);
+                        results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit, startIndex: currentStartIndex, sortOrder: [SortOrder.Ascending], isFavourite: isFavouritesPage);
                         break;
-                    case Selectable.genres:
-                        results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit);
-                        break;
+                    // case Selectable.genres:
+                    //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex);
+                    //     break;
                     default:
                         results = new BaseMusicItem[0];
                         break;
                 }
-                startFromIndex = data.Count();
-                data = results.ToList();
-                UpdateCache();
 
-                placeholderImages = new string[data.Count()];
-                for (int i = 0; i < data.Count(); i++)
+                if (firstLoop)
                 {
-                    try
-                    {
-                        // string img = MusicImageItem.
-                        string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
-                        placeholderImages[i] = base64 == null ? string.Empty : base64;
-                    }
-                    catch (Exception)
-                    {
-                        placeholderImages[i] = string.Empty;
-                    }
+                    viewData.AddRange(results);
+                    isLoading = false;
+                    await InvokeAsync(StateHasChanged);
                 }
 
-                if (queued != Selectable.none)
+                startFromIndex = results.Count();
+                musicData.AddRange(results);
+                firstLoop = false;
+                // If the total count of items, is less than what we have requested, we can assum
+                // We have reached the end of the count, and have a full list of items
+                if (musicData.Count() < currentStartIndex)
                 {
-                    page = queued;
-                    queued = Selectable.none;
-                    continue;
+                    isCompleted = true;
+                    // only stop once literally everything has been loaded.
                 }
-
-                isCompleted = true;
+                else
+                {
+                    currentStartIndex += loadLimit;
+                }
             }
         });
-
-        isLoading = false;
-        await InvokeAsync(StateHasChanged);
     }
-    private async void LoadMore()
+
+    private void UpdateScrolledToCount(int index)
     {
-        Console.WriteLine("start");
-        await Task.Run(async () =>
+        if (index > scrolledTo)
         {
-            BaseMusicItem[] results = new BaseMusicItem[0];
-            switch (selected)
-            {
-                case Selectable.albums:
-                    results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit, startIndex: startFromIndex);
-                    break;
-                case Selectable.artists:
-                    results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit, startIndex: startFromIndex);
-                    break;
-                case Selectable.songs:
-                    results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit, startIndex: startFromIndex);
-                    break;
-                case Selectable.genres:
-                    results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: startFromIndex);
-                    break;
-                default:
-                    results = new BaseMusicItem[0];
-                    break;
-            }
-            lastAmount = data.Count();
-            data.AddRange(results);
-            UpdateCache();
-
-            placeholderImages = new string[data.Count()];
-            for (int i = 0; i < data.Count(); i++)
-            {
-                try
-                {
-                    string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
-                    placeholderImages[i] = base64 == null ? string.Empty : base64;
-                }
-                catch (Exception)
-                {
-                    placeholderImages[i] = string.Empty;
-                }
-            }
-            MauiProgram.libraryCache.placeholderImages = placeholderImages;
-
-            startFromIndex = data.Count() - 1;
-        });
-        Console.WriteLine("done");
-        StateHasChanged();
+            scrolledTo = index;
+            Trace.WriteLine("Scrolled to " + index);
+        }
     }
-    public void UpdateCache()
+
+    private async ValueTask<ItemsProviderResult<BaseMusicItem>> LoadListItems(ItemsProviderRequest request)
     {
-        // Update each variable in MauiProgram.libraryCache with its corresponding value
-        MauiProgram.libraryCache.data = new List<BaseMusicItem>(data);
-        MauiProgram.libraryCache.placeholderImages = (string[])placeholderImages.Clone();
-        MauiProgram.libraryCache.totalRecordCount = totalRecordCount;
-
-        MauiProgram.libraryCache.showGrid = showGrid;
-
-        MauiProgram.libraryCache.loadLimit = loadLimit;
-        MauiProgram.libraryCache.startFromIndex = startFromIndex;
-        MauiProgram.libraryCache.lastAmount = lastAmount;
+        int totalItems = await MauiProgram.api.GetTotalAlbumCount();
+        int numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+        var musicItems = await MauiProgram.api.GetAllAlbumsAsync(limit: numItems, startIndex: request.StartIndex, sortOrder: SortOrder.Ascending, isFavourite: isFavouritesPage, cancellactionToken: request.CancellationToken);
+        await Parallel.ForEachAsync(musicItems, async (musicItem, ct) =>
+        {
+            musicItem.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(musicItem.ImgBlurhash, 20, 20).ConfigureAwait(false);
+        });
+        return new ItemsProviderResult<BaseMusicItem>(musicItems, totalItems);
     }
-
 }

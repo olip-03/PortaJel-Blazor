@@ -87,7 +87,16 @@ namespace PortaJel_Blazor.Classes
         /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="sortOrder">The sort order for the albums.</param>
         /// <returns>Album[] (Album array) containing all albums as requested from all servers</returns>
-        public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool isFavourite = false, bool isPartial = true, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder sortOrder = SortOrder.Descending, bool offline = false, bool downloaded = false)
+        public async Task<Album[]> GetAllAlbumsAsync(
+            int? limit = null, 
+            int startIndex = 0, 
+            bool isFavourite = false, 
+            bool isPartial = true, 
+            ItemSortBy sortTypes = ItemSortBy.Default, 
+            SortOrder sortOrder = SortOrder.Descending, 
+            bool offline = false, 
+            bool downloaded = false, 
+            CancellationToken cancellactionToken = new())
         {
             List<Album> albumsReturn = new List<Album>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
@@ -97,8 +106,8 @@ namespace PortaJel_Blazor.Classes
                 {
                     actualLimit = (int)limit / connecters.Count;
                 }
-                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, getPartial: isPartial, setSortTypes: sortTypes, setSortOrder: sortOrder, getOffline: offline, getDownloaded: downloaded));
-            });
+                albumsReturn.AddRange(await server.Value.GetAllAlbumsAsync(setLimit: actualLimit, setStartIndex: startIndex, setFavourites: isFavourite, getPartial: isPartial, setSortTypes: sortTypes, setSortOrder: sortOrder, getOffline: offline, getDownloaded: downloaded, cancellactionToken).ConfigureAwait(false));
+            }).ConfigureAwait(false);
 
             // TODO: ensure we're capping the limit as set in the initali integer
 
@@ -136,6 +145,15 @@ namespace PortaJel_Blazor.Classes
                 toReturn.AddRange(toAdd); 
             });
             return toReturn.ToArray();
+        }
+
+        public async Task<int> GetTotalAlbumCount()
+        {
+            int total = 0;
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                total += await server.Value.GetTotalAlbumCount().ConfigureAwait(false);
+            });
+            return total;
         }
         #endregion
 
@@ -176,6 +194,15 @@ namespace PortaJel_Blazor.Classes
             });
             return toReturn.ToArray();
         }
+
+        public async Task<int> GetTotalArtistCount()
+        {
+            int total = 0;
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                total += await server.Value.GetTotalArtistCount().ConfigureAwait(false);
+            });
+            return total;
+        }
         #endregion
 
         #region SongsEndpoints
@@ -198,34 +225,42 @@ namespace PortaJel_Blazor.Classes
 
             return songsReturn.ToArray();
         }
-        #endregion
-
-        #region GenreEndpoints
-        public async Task<Genre[]> GetAllGenresAsync(int limit = 50, int? startIndex = 0, CancellationToken? cancellationToken = null)
+        public async Task<int> GetTotalSongCount()
         {
-            List<Genre> genresReturn = new List<Genre>();
+            int total = 0;
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                genresReturn.AddRange(await server.Value.GetAllGenresAsync(limit: limit, startFromIndex: startIndex, cancellationToken: cancellationToken));
+                total += await server.Value.GetTotalSongCount().ConfigureAwait(false);
             });
-            //genresReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
-
-            // Set return capacity to requested limit 
-            if (genresReturn.Count > limit)
-            {
-                int capacity = (int)limit;
-                genresReturn.RemoveRange(capacity, genresReturn.Count); // Cap the count at the maximum requested.
-            }
-
-            return genresReturn.ToArray();
+            return total;
         }
         #endregion
 
+        #region GenreEndpoints
+        //public async Task<Genre[]> GetAllGenresAsync(int limit = 50, int? startIndex = 0, CancellationToken? cancellationToken = null)
+        //{
+        //    List<Genre> genresReturn = new List<Genre>();
+        //    await Parallel.ForEachAsync(connecters, async (server, ct) => {
+        //        genresReturn.AddRange(await server.Value.GetAllGenresAsync(limit: limit, startFromIndex: startIndex, cancellationToken: cancellationToken));
+        //    });
+        //    //genresReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
+
+        //    // Set return capacity to requested limit 
+        //    if (genresReturn.Count > limit)
+        //    {
+        //        int capacity = (int)limit;
+        //        genresReturn.RemoveRange(capacity, genresReturn.Count); // Cap the count at the maximum requested.
+        //    }
+
+        //    return genresReturn.ToArray();
+        //}
+        #endregion
+
         #region PlaylistsEndpoint
-        public async Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null)
+        public async Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int? startIndex = 0, bool isFavourite = false, CancellationToken? cancellationToken = null)
         {
             List<Playlist> playlistsReturn = new List<Playlist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                playlistsReturn.AddRange(await server.Value.GetAllPlaylistsAsync(limit: limit, startFromIndex: startIndex));
+                playlistsReturn.AddRange(await server.Value.GetAllPlaylistsAsync(limit: limit, startFromIndex: startIndex, getIsFavourite: isFavourite));
             });
 
             return playlistsReturn.ToArray();
@@ -240,57 +275,13 @@ namespace PortaJel_Blazor.Classes
             });
             return toReturn;
         }
-        #endregion
-
-        #region SessionReporting
-
-        public async Task<bool> ReportPlayingPing()
+        public async Task<int> GetTotalPlaylistCount()
         {
-            return false;
-        }
-
-        public async Task<bool> ReportPlayingProgress(Guid itemId, long positionTicks, string serverAddress)
-        {
-            if (connecters.ContainsKey(serverAddress))
-            {
-                await connecters[serverAddress].ReportPlayingProgress(itemId, positionTicks).ConfigureAwait(false);
-                return true;
-            }
-            else
-            {
-                throw new InvalidOperationException("The specified item does not have a server address in the list of connectors!");
-            }
-        }
-
-        public async Task<bool> ReportPlayingStopped(Guid itemId, long positionTicks, string serverAddress)
-        {
-            if (connecters.ContainsKey(serverAddress))
-            {
-                await connecters[serverAddress].ReportPlayingStopped(itemId, positionTicks).ConfigureAwait(false);
-                return true;
-            }
-            else
-            {
-                throw new InvalidOperationException("The specified item does not have a server address in the list of connectors!");
-            }
-        }
-
-        public async Task<bool> ReportViewing(Guid itemId, string serverAddress)
-        {
-            if (connecters.ContainsKey(serverAddress))
-            {
-                await connecters[serverAddress].ReportViewing(itemId).ConfigureAwait(false);
-                return true;
-            }
-            else
-            {
-                throw new InvalidOperationException("The specified item does not have a server address in the list of connectors!");
-            }
-        }
-
-        public async Task<bool> Logout()
-        {
-            return false;
+            int total = 0;
+            await Parallel.ForEachAsync(connecters, async (server, ct) => {
+                total += await server.Value.GetTotalPlaylistCount().ConfigureAwait(false);
+            });
+            return total;
         }
         #endregion
 

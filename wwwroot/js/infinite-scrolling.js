@@ -31,7 +31,7 @@
         // Define your function to be called when the div is visible
         function yourFunction() {
             // Your function logic here
-            console.log('Div is visible!'); 
+            console.log(targetId + ' is visible!'); 
             pDotNetReference.invokeMethodAsync('OnView');
         }
     } else {

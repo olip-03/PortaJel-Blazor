@@ -268,7 +268,7 @@
         songs = album.GetSongs();
         StateHasChanged();
 
-        await MauiProgram.api.ReportViewing(album.Id, album.ServerAddress);
+        // await MauiProgram.api.ReportViewing(album.Id, album.ServerAddress);
     }
 
     private void SelectArtist(Guid artistId)

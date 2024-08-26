@@ -3,6 +3,7 @@
 @using PortaJel_Blazor.Pages;
 @using PortaJel_Blazor.Classes;
 @using BlazorAnimate;
+@using System.Diagnostics;
 @namespace PortaJel_Blazor.Shared
 
 @if(OnViewAction != null)
@@ -40,6 +41,7 @@
                     }
                 }
                 <b class="PrimaryTextColor">@name</b>
+
                 <div class="SecondaryTextColor">@artistName</div>
             </div>
         </div>
@@ -77,6 +79,7 @@
 @code {
     [Parameter] public BaseMusicItem? musicObject { get; set; } = null;
     [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
+    [Parameter] public int indexNumber { get; set; } = -1;
     [Parameter] public bool isGrid { get; set; } = false;
     [Parameter] public bool cacheAsRecentItem { get; set; } = false;
     [Parameter] public Action? OnViewAction { get; set; } = null;
@@ -98,6 +101,7 @@
             server = album.ServerAddress;
             imgSrc = album.ImgSource;
             elementId = album.Id;
+            placeholderBase64 = album.ImgBlurhashBase64;
         }
         else if (musicObject is Song)
         {
@@ -126,6 +130,7 @@
             imgSrc = playlist.ImgSource;
             elementId = playlist.Id;
         }
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -136,6 +141,7 @@
             await JS.InvokeAsync<string>("InfiniteScrollInitObserver", new object[2] { lDotNetReference, elementId });
             // Need to add event listener on this componenet to have it call the LoadMore function
         }
+        await JS.InvokeAsync<string>("InitAllImages");
     }
 
     private void NavigateTo()
@@ -196,7 +202,7 @@
                 MauiProgram.recentSearchResults.Remove(elementId);
                 MauiProgram.recentSearchResults.Add(elementId, musicObject);
             }
-        }    
+        }
     }
 
     private async void OpenContextMenu()
@@ -215,7 +221,7 @@
             StateHasChanged();
         }
     }
-    
+
     [JSInvokable("OnView")]
     public void OnView()
     {
