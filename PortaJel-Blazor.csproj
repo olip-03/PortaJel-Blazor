@@ -162,21 +162,21 @@
 		<PackageReference Include="AngleSharp" Version="1.1.2" />
 		<PackageReference Include="BlazorAnimate" Version="3.0.0" />
 		<PackageReference Include="Blurhash.Core" Version="2.0.0" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.2" />
 		<PackageReference Include="CompiledBindings.MAUI" Version="1.0.18" />
 		<PackageReference Include="Jellyfin.Sdk" Version="2024.5.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.5" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.8" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.40" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.40" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.80" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.80" />
 		<PackageReference Include="SkiaSharp" Version="2.88.8" />
 		<PackageReference Include="sqlite-net" Version="1.6.292" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.8" />
-		<PackageReference Include="System.Drawing.Common" Version="8.0.5" />
+		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.9" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.8" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -235,7 +235,7 @@
 	</ProjectExtensions>
 
 	<ItemGroup>
-	  <PackageReference Update="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.40" />
+	  <PackageReference Update="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.80" />
 	</ItemGroup>
 
 	<ItemGroup>

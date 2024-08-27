@@ -15,6 +15,13 @@ namespace PortaJel_Blazor.Classes
             set => SetValue(ContextMenuItemsProperty, value);
         }
 
+        public static readonly BindableProperty SecondaryMenuItemsProperty = BindableProperty.Create(nameof(SecondaryMenuItems), typeof(ObservableCollection<ContextMenuItem>), typeof(ContextMenuViewModel), default(ObservableCollection<ContextMenuItem>));
+        public ObservableCollection<ContextMenuItem>? SecondaryMenuItems
+        {
+            get => (ObservableCollection<ContextMenuItem>?)GetValue(SecondaryMenuItemsProperty);
+            set => SetValue(SecondaryMenuItemsProperty, value);
+        }
+
         public static readonly BindableProperty ContextMenuBackgroundImageProperty = BindableProperty.Create(nameof(ContextMenuBackgroundImage), typeof(string), typeof(ContextMenuViewModel), string.Empty);
         public string ContextMenuBackgroundImage
         {
@@ -48,6 +55,13 @@ namespace PortaJel_Blazor.Classes
         {
             get => (double)GetValue(HeaderHeightValueProperty);
             set => SetValue(HeaderHeightValueProperty, value);
+        }
+
+        public static readonly BindableProperty ScreenWidthValueProperty = BindableProperty.Create(nameof(ScreenWidthValue), typeof(double), typeof(MediaControllerViewModel), default(double));
+        public double ScreenWidthValue
+        {
+            get => (double)GetValue(ScreenWidthValueProperty);
+            set => SetValue(ScreenWidthValueProperty, value);
         }
     }
 }

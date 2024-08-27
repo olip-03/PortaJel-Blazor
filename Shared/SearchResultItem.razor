@@ -3,6 +3,7 @@
 @using PortaJel_Blazor.Pages;
 @using PortaJel_Blazor.Classes;
 @using BlazorAnimate;
+@using System.Diagnostics;
 @namespace PortaJel_Blazor.Shared
 
 @if(OnViewAction != null)
@@ -39,8 +40,9 @@
                         artistName = song.ArtistNames;
                     }
                 }
-                <b class="PrimaryTextColor">@name</b>
-                <div class="SecondaryTextColor">@artistName</div>
+                <b class="PrimaryTextColor mainText">@name</b>
+
+                <div class="SecondaryTextColor subText">@artistName</div>
             </div>
         </div>
         @if (musicObject is not Genre && !isGrid)
@@ -77,6 +79,7 @@
 @code {
     [Parameter] public BaseMusicItem? musicObject { get; set; } = null;
     [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
+    [Parameter] public int indexNumber { get; set; } = -1;
     [Parameter] public bool isGrid { get; set; } = false;
     [Parameter] public bool cacheAsRecentItem { get; set; } = false;
     [Parameter] public Action? OnViewAction { get; set; } = null;
@@ -98,6 +101,7 @@
             server = album.ServerAddress;
             imgSrc = album.ImgSource;
             elementId = album.Id;
+            placeholderBase64 = album.ImgBlurhashBase64;
         }
         else if (musicObject is Song)
         {
@@ -107,6 +111,7 @@
             server = song.ServerAddress;
             imgSrc = song.ImgSource;
             elementId = song.Id;
+            placeholderBase64 = song.ImgBlurhashBase64;
         }
         else if (musicObject is Artist)
         {
@@ -116,6 +121,7 @@
             imgSrc = artist.ImgSource;
             server = artist.ServerAddress;
             elementId = artist.Id;
+            placeholderBase64 = artist.ImgBlurhashBase64;
         }
         else if (musicObject is Playlist)
         {
@@ -125,6 +131,7 @@
             server = playlist.ServerAddress;
             imgSrc = playlist.ImgSource;
             elementId = playlist.Id;
+            placeholderBase64 = playlist.ImgBlurhashBase64;
         }
     }
 
@@ -196,7 +203,7 @@
                 MauiProgram.recentSearchResults.Remove(elementId);
                 MauiProgram.recentSearchResults.Add(elementId, musicObject);
             }
-        }    
+        }
     }
 
     private async void OpenContextMenu()
@@ -215,7 +222,7 @@
             StateHasChanged();
         }
     }
-    
+
     [JSInvokable("OnView")]
     public void OnView()
     {

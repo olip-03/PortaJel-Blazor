@@ -47,7 +47,7 @@
 else
 { // Home page information here
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-        <div style="margin-bottom: 2rem; margin-top:1rem;">
+        <div style="margin-bottom: 1rem; margin-top:1rem;">
             <ul class="music-list">
                 @for (int i = 0; i < 6; i++)
                 {
@@ -159,13 +159,17 @@ else
             MauiProgram.UpdateDebugMessage("Starting request for Home page data.");
             Task<bool> runGetRecent = Task.Run(async () =>
             {
+                // Get recently listened to songs. 
                 var itemsToAdd = await MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.DatePlayed, sortOrder: [SortOrder.Descending]).ConfigureAwait(false);
-                List<Song> foundIds = itemsToAdd.GroupBy(song => song.AlbumId).Select(song => song.First()).ToList();
+                // Cut them down so you only have one track per Album
+                List<Song> foundIds = itemsToAdd.OrderBy(s => s.DatePlayed).ToList();
+                foundIds = foundIds.GroupBy(song => song.AlbumId).Select(song => song.First()).ToList();
+                // Create list of Albums
                 List<Album> toReturn = new();
                 await Parallel.ForEachAsync(foundIds, async (song, ct) => {
                     toReturn.Add(await MauiProgram.api.GetAlbumAsync(song.AlbumId).ConfigureAwait(false));
                 }).ConfigureAwait(false);
-                recentPlayData = toReturn.ToArray();
+                recentPlayData = toReturn.OrderByDescending(a => a.DatePlayed).ToArray();
                 recentPlayPlaceholderImages =  await GenerateBlurHash(recentPlayData).ConfigureAwait(false);
                 MauiProgram.homeCache.recentPlayData = recentPlayData;
                 MauiProgram.homeCache.recentPlayPlaceholderImages = recentPlayPlaceholderImages;

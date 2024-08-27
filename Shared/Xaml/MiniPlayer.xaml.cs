@@ -11,6 +11,7 @@ public partial class MiniPlayer : ContentView
     public MiniPlayerViewModel ViewModel { get; set; } = new();
     public double PositionX { get => TranslationX; private set { } }
     public double PositionY { get => PositionY; private set { } }
+    public int SongCount { get => ViewModel.Queue.Count; private set { } }
     public bool IsOpen { get; private set; } = false;
     private Guid lastUpdateTrackId = Guid.Empty;
     private Guid currentPlayingId = Guid.Empty;

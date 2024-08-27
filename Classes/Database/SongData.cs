@@ -17,7 +17,8 @@ namespace PortaJel_Blazor.Classes.Database
         public bool IsFavourite { get; set; } = false;
         public TimeSpan Duration { get; set; } = new();
         public int PlayCount { get; set; } = 0;
-        public DateTimeOffset? DateAdded { get; set; } 
+        public DateTimeOffset? DateAdded { get; set; }
+        public DateTimeOffset? DatePlayed { get; set; }
         public int IndexNumber { get; set; } = 0;
         public int DiskNumber { get; set; } = 0;    
         public string ServerAddress { get; set; } = string.Empty;
@@ -66,6 +67,7 @@ namespace PortaJel_Blazor.Classes.Database
             song.Duration = TimeSpan.FromTicks((long)baseItem.RunTimeTicks);
             // song.PlayCount = songData.PlayCount; TODO: Implement playcount idk
             song.DateAdded = baseItem.DateCreated;
+            song.DatePlayed = baseItem.UserData.LastPlayedDate;
             song.IndexNumber = baseItem.IndexNumber == null ? 0 : (int)baseItem.IndexNumber;
             song.DiskNumber = baseItem.ParentIndexNumber == null ? 0 : (int)baseItem.ParentIndexNumber;
             song.ServerAddress = server;

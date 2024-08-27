@@ -55,3 +55,7 @@
     display: flex;
     align-content:center;
 }
+
+.TitleText {
+    margin: 0rem 1rem 0.5rem 1rem;
+}

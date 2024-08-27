@@ -13,6 +13,7 @@ namespace PortaJel_Blazor.Classes.Database
         public bool IsFavourite { get; set; } = false;
         public int PlayCount { get; set; } = 0;
         public DateTimeOffset? DateAdded { get; set; }
+        public DateTimeOffset? DatePlayed { get; set; }
         public string ServerAddress { get; set; } = string.Empty;
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
@@ -45,7 +46,7 @@ namespace PortaJel_Blazor.Classes.Database
             }
             return songIds;
         }
-        public static AlbumData Builder(BaseItemDto baseItem, string server, Guid[]? songIds = null)
+        public static AlbumData Builder(BaseItemDto baseItem, string server, Guid[]? songIds = null, SongData[]? songDataItems = null)
         {
             if (baseItem.UserData == null)
             {
@@ -67,6 +68,7 @@ namespace PortaJel_Blazor.Classes.Database
             album.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
             // album.PlayCount = albumData.PlayCount; TODO: Implement playcount
             album.DateAdded = baseItem.DateCreated;
+            album.DatePlayed = baseItem.UserData.LastPlayedDate;
             album.ServerAddress = server;
             album.ImgSource = musicItemImage.source;
             album.ImgBlurhash = musicItemImage.Blurhash;
@@ -74,6 +76,11 @@ namespace PortaJel_Blazor.Classes.Database
             if(songIds != null)
             {
                 album.SongIdsJson = JsonSerializer.Serialize(songIds);
+            }
+            if(songDataItems != null && songDataItems.Length > 0)
+            {
+                album.SongIdsJson = JsonSerializer.Serialize(songDataItems.Select(s => s.Id).ToArray());
+                album.DatePlayed = songDataItems.OrderBy(s => s.DatePlayed).First().DatePlayed;
             }
 
             string artistNames = string.Empty;

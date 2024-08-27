@@ -5,6 +5,8 @@ using System.Timers;
 using Android.OS;
 using System.Runtime.CompilerServices;
 using Java.Lang;
+using System.Text.Json;
+using PortaJel_Blazor.Classes.Interfaces;
 
 #pragma warning disable CS0612, CS0618 // Type or member is obsolete
 
@@ -32,6 +34,7 @@ namespace PortaJel_Blazor.Classes.Services
         {
             serviceConnection = new();
             Intent mediaServiceIntent = new Intent(Platform.AppContext, typeof(AndroidMediaService));
+            mediaServiceIntent.PutExtra("APICredentials", JsonSerializer.Serialize(MauiProgram.api.GetAllUserCredentials()));
             Platform.AppContext.StartForegroundService(mediaServiceIntent);
             Platform.AppContext.BindService(mediaServiceIntent, this.serviceConnection, Bind.AutoCreate);
         }
@@ -110,7 +113,7 @@ namespace PortaJel_Blazor.Classes.Services
             {
                 serviceConnection.Binder.Play();
                 UpdatePlaystateUi();
-                // DispatcherTimer.Start();
+                // ReportTimer.Start();
                 if(PlayAddonAction != null)
                 {
                     PlayAddonAction();
@@ -134,7 +137,7 @@ namespace PortaJel_Blazor.Classes.Services
                 {
                     PlayAddonAction();
                 }
-                // DispatcherTimer.Stop();
+                // ReportTimer.Stop();
             }
         }
 
@@ -151,7 +154,7 @@ namespace PortaJel_Blazor.Classes.Services
                     {
                         PlayAddonAction();
                     }
-                    // DispatcherTimer.Start();
+                    // ReportTimer.Start();
                 }
                 else
                 { // Is Paused
@@ -160,7 +163,7 @@ namespace PortaJel_Blazor.Classes.Services
                     {
                         PlayAddonAction();
                     }
-                    // DispatcherTimer.Stop();
+                    // ReportTimer.Stop();
                 }
             }
         }

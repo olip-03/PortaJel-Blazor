@@ -354,12 +354,12 @@ public partial class MediaController : ContentView
     private async void Btn_ContextMenu_Clicked(object sender, EventArgs e)
     {
         if (MauiProgram.MediaService == null) return;
-        if (MauiProgram.MediaService == null) return;
+
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
 
-        Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
+        Song song = (Song)ImgCarousel.CurrentItem;
 
-        var base64Result = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 200, 200);
+        var base64Result = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 20, 20);
         string base64 = base64Result == null ? string.Empty : base64Result;
 
         MauiProgram.MainPage.OpenContextMenu(song, 250, base64);

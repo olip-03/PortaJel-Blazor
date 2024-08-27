@@ -15,6 +15,7 @@ namespace PortaJel_Blazor.Data
         public bool IsFavourite => _playlistData.IsFavourite;
         public string ImgSource => _playlistData.ImgSource;
         public string ImgBlurhash => _playlistData.ImgBlurhash;
+        public string ImgBlurhashBase64 { get; set; } = String.Empty;
         public string Path => _playlistData.Path;
         public string ServerAddress => _playlistData.ServerAddress;
         public bool IsPartial { get; set; } = true;

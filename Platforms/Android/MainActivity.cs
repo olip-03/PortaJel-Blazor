@@ -63,6 +63,7 @@ public class MainActivity : MauiAppCompatActivity
     protected override void OnDestroy()
     {
         if (MauiProgram.MediaService != null) MauiProgram.MediaService.Destroy();
+        // Task.Run(async () => await MauiProgram.api.Logout());
     }
     protected override void OnNewIntent(Intent? intent)
     {

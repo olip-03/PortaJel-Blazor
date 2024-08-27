@@ -11,9 +11,11 @@ namespace PortaJel_Blazor.Data
         public bool IsFavourite => _albumData.IsFavourite;
         public int PlayCount => _albumData.PlayCount;
         public DateTimeOffset? DateAdded => _albumData.DateAdded;
+        public DateTimeOffset? DatePlayed => _albumData.DatePlayed;
         public string ServerAddress => _albumData.ServerAddress;
         public string ImgSource => _albumData.ImgSource;
         public string ImgBlurhash => _albumData.ImgBlurhash;
+        public string ImgBlurhashBase64 { get; set; } = String.Empty;
         public ArtistData[]? Artists => _artistData;
         public string ArtistNames => _albumData.ArtistNames;
         public Guid[]? ArtistIds => _albumData.GetArtistIds();

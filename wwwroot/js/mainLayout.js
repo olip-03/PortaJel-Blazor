@@ -1,6 +1,6 @@
 ﻿// Define variables to store previous scroll position
 let wScrollPrev = window.scrollY || document.documentElement.scrollTop;
-let headerHeight = 44;
+let headerHeight = 64;
 function InitMainLayout(setHeaderHeight)
 {
     headerHeight = setHeaderHeight;

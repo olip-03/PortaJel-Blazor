@@ -1,17 +1,35 @@
 ﻿/* Container for the buttons with horizontal scroll */
 .button-container {
-    width: 100%;
+    width: 100vw;
     height: 3rem;
     overflow-x: auto;
     white-space: nowrap;
     scrollbar-width: none;
     position: sticky;
     z-index: 1000;
-    display: flex;
+    /* display: flex; */    
     top: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
 }
+
+.boxed label {
+    display: inline-block;
+    padding: 0;
+    align-content: center;
+    margin-top: auto;
+    border-bottom: solid 3px #202020;
+    transition: all 0.3s;
+    text-align: center;
+    width: 30vw;
+    height: 100%;
+}
+
+.boxed input[type="radio"] {
+    display: none;
+}
+
+    .boxed input[type="radio"]:checked + label {
+        border-bottom: solid 3px #007bff;
+    }
 
 hr{
     height: 0px;
@@ -171,24 +189,3 @@ hr{
     border: none;
 }
 
-.boxed label {
-    display: inline-block;
-    padding: 7px 21px 7px 21px;
-    height: min-content;
-    margin-top: auto;
-    margin-bottom: auto;
-    border-radius: 25px;
-    background-color: #191919;
-    border: solid 1px #101010;
-    transition: all 0.3s;
-    text-align: center;
-    margin-right: 0.75rem;
-}
-
-.boxed input[type="radio"] {
-    display: none;
-}
-
-    .boxed input[type="radio"]:checked + label {
-        border: solid 1px #007bff;
-    }
