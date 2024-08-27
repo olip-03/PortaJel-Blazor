@@ -12,6 +12,7 @@ using PortaJel_Blazor.Classes.Database;
 using SQLite;
 using System.Security.Cryptography;
 using System.Diagnostics;
+using static SQLite.SQLite3;
 
 namespace PortaJel_Blazor.Classes.Api
 {
@@ -19,10 +20,17 @@ namespace PortaJel_Blazor.Classes.Api
     {
         private JellyfinApiClient _jellyfinApiClient;
         private JellyfinSdkSettings _sdkClientSettings = new();
-        private string sessionId; 
+        private string sessionId;
+        private Guid _userId;
         private bool verboseReporting = false;
 
-        public ServerReporter(string baseurl, string sessionid, string accessToken) 
+        private SQLiteAsyncConnection? Database = null;
+        private SQLiteOpenFlags DBFlags =
+        SQLiteOpenFlags.ReadWrite |
+        SQLiteOpenFlags.Create |
+        SQLiteOpenFlags.SharedCache;
+
+        public ServerReporter(string baseurl, string userid, string sessionid, string accessToken) 
         {
             ServiceCollection serviceCollection = new ServiceCollection();
 
@@ -65,6 +73,26 @@ namespace PortaJel_Blazor.Classes.Api
                 Microsoft.Maui.Devices.DeviceInfo.Current.Name,
                 Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
             sessionId = sessionid;
+            _userId = Guid.Parse(userid);
+
+            InitDb(baseurl);
+        }
+
+        private async void InitDb(string baseUrl)
+        {
+            System.Guid? result = null;
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(baseUrl));
+                result = new System.Guid(hash);
+            }
+            string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{result}.db");
+            MauiProgram.UpdateDebugMessage($"Db initalized at {filePath}");
+            Database = new SQLiteAsyncConnection(filePath, DBFlags);
+            await Database.CreateTableAsync<AlbumData>();
+            await Database.CreateTableAsync<SongData>();
+            await Database.CreateTableAsync<ArtistData>();
+            await Database.CreateTableAsync<PlaylistData>();
         }
 
         public void SetVerboseReporting(bool verbose)
@@ -117,7 +145,21 @@ namespace PortaJel_Blazor.Classes.Api
                         PositionTicks = positionTicks // Example position in ticks, replace with actual progress
                     };
 
-                    await _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(playbackProgressInfo).ConfigureAwait(false);
+                    var song = await Database.Table<SongData>().Where(a => a.Id == itemId).FirstOrDefaultAsync();
+                    var album = await Database.Table<AlbumData>().Where(a => a.Id == song.AlbumId).FirstOrDefaultAsync();
+
+                    song.DatePlayed = DateTimeOffset.Now;
+                    album.DatePlayed = DateTimeOffset.Now;
+
+                    await Task.WhenAll(
+                        _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(playbackProgressInfo),
+                        _jellyfinApiClient.UserPlayedItems[itemId].PostAsync(c =>
+                        {
+                            c.QueryParameters.UserId = _userId;
+                            c.QueryParameters.DatePlayed = DateTime.Now;
+                        }),
+                        Database.UpdateAsync(song),
+                        Database.UpdateAsync(album)).ConfigureAwait(false);
                     return true;
                 }
             }

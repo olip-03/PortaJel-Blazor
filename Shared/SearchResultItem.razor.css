@@ -4,7 +4,27 @@
     width: 100%;
     margin-top: 10px;
     margin-bottom: 10px;
+    max-height: 80px;
+    overflow: hidden;
 }
+.mainText {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+
+.subText {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .album-cover {
     width: 80px;
     height: 80px;

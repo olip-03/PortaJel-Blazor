@@ -695,6 +695,11 @@ namespace PortaJel_Blazor.Classes
                             .OrderByDescending(song => song.DateAdded)
                             .Take((int)setLimit).ToListAsync());
                         break;
+                    case ItemSortBy.DatePlayed:
+                        filteredCache.AddRange(await Database.Table<SongData>()
+                            .OrderByDescending(song => song.DatePlayed)
+                            .Take((int)setLimit).ToListAsync());
+                        break;
                     case ItemSortBy.Name:
                         filteredCache.AddRange(await Database.Table<SongData>()
                             .OrderByDescending(song => song.Name)
@@ -1699,7 +1704,7 @@ namespace PortaJel_Blazor.Classes
         }
         public UserCredentials GetUserCredentials()
         {
-            return new(_sdkClientSettings.ServerUrl, Username, StoredPassword, sessionInfo.Id, _sdkClientSettings.AccessToken);
+            return new(_sdkClientSettings.ServerUrl, Username, userDto.Id.ToString(), StoredPassword, sessionInfo.Id, _sdkClientSettings.AccessToken);
         }
         public string GetUsername()
         {

@@ -94,7 +94,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
                     UserCredentials[] userCredentials = JsonSerializer.Deserialize<UserCredentials[]>(value);
                     foreach (UserCredentials user in userCredentials)
                     {
-                        reportingServers.Add(user.ServerAddress, new(user.ServerAddress, user.SessionId, user.SessionToken));
+                        reportingServers.Add(user.ServerAddress, new(user.ServerAddress, user.UserId, user.SessionId, user.SessionToken));
                     }
 
                     ReportTimer = Dispatcher.GetForCurrentThread().CreateTimer();

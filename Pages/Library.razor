@@ -66,11 +66,11 @@
     } *@
 </div>
 
-<div class="quickplay-container">
+@*<div class="quickplay-container">
     <button class="quickplay-button PageSecondaryColor PrimaryTextColor">Play All</button>
     <div style="width:1rem;" />
     <button class="quickplay-button PageSecondaryColor PrimaryTextColor">Shuffle</button>
-</div>
+</div>*@
 
 <div class="tool-container">
     <div @onclick=ToggleSort>
@@ -133,7 +133,7 @@
     }
     else
     {
-        <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="50" ItemSize="80" @ref="virtualizeComponent">
+        <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="20" ItemSize="100" @ref="virtualizeComponent">
             <ItemContent>
                 <SearchResultItem musicObject="musicItem" />
             </ItemContent>
