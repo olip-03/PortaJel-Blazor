@@ -1,6 +1,6 @@
 Ghetto spotify for Jellyfin. Written with .net MAUI and Blazor pages. 
 
-<img src="https://github.com/olip-03/PortaJel-Blazor/assets/7d7b6bf2-a1ec-41a3-b235-a64f1443e5fd" width="auto" height="auto"/>
+<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/83119244/361688775-816b4332-0a12-4fa9-ba29-e9f800cf1a47.png" width="auto" height="auto"/>
 
 Hello to all passers-by. This app is not done, I'm working on it, but it's only realy public so job recruiters can see how pretty my HTML pages look. By the way, if you are a recruiter, hello! Grab a cup of tea and have a seat, it's nice to see you. 
 
