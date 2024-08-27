@@ -75,7 +75,6 @@ public static class MauiProgram
     public static Dictionary<Guid, BaseMusicItem> recentSearchResults = new();
 
     // Stored data for library page
-    public static LibraryCache libraryCache = new();
     public static int librarySortMethod = 0;
     public static int libraryItemView = 0;
     public static bool libraryShowGrid = false;
