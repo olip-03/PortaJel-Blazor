@@ -145,21 +145,33 @@ namespace PortaJel_Blazor.Classes.Api
                         PositionTicks = positionTicks // Example position in ticks, replace with actual progress
                     };
 
-                    var song = await Database.Table<SongData>().Where(a => a.Id == itemId).FirstOrDefaultAsync();
-                    var album = await Database.Table<AlbumData>().Where(a => a.Id == song.AlbumId).FirstOrDefaultAsync();
+                    Task dbReport = new Task(async () =>
+                    {
+                        try
+                        {
+                            var song = await Database.Table<SongData>().Where(a => a.Id == itemId).FirstOrDefaultAsync();
+                            var album = await Database.Table<AlbumData>().Where(a => a.Id == song.AlbumId).FirstOrDefaultAsync();
 
-                    song.DatePlayed = DateTimeOffset.Now;
-                    album.DatePlayed = DateTimeOffset.Now;
+                            song.DatePlayed = DateTimeOffset.Now;
+                            album.DatePlayed = DateTimeOffset.Now;
+
+                            await Database.UpdateAsync(song);
+                            await Database.UpdateAsync(album);
+                        }
+                        catch (Exception ex)
+                        {
+                            Trace.WriteLine($"ERROR: Cannot update Playback Progress in {_sdkClientSettings.ServerUrl} db!: {ex.Message}");
+                        }
+                    });
 
                     await Task.WhenAll(
+                        dbReport,
                         _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(playbackProgressInfo),
                         _jellyfinApiClient.UserPlayedItems[itemId].PostAsync(c =>
                         {
                             c.QueryParameters.UserId = _userId;
                             c.QueryParameters.DatePlayed = DateTime.Now;
-                        }),
-                        Database.UpdateAsync(song),
-                        Database.UpdateAsync(album)).ConfigureAwait(false);
+                        })).ConfigureAwait(false);
                     return true;
                 }
             }

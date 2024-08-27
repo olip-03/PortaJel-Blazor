@@ -37,7 +37,7 @@ image-container {
     user-select: none;
     position: absolute;
     z-index: 0;
-    border-radius: 5px 0px 0px 5px;
+    border-radius: 0.5rem 0px 0px 0.5rem;
 }
 .music-details {
     color: #555;

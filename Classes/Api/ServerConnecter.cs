@@ -544,6 +544,8 @@ namespace PortaJel_Blazor.Classes
                     var artistTasks = artistData.Select(item => Database.InsertOrReplaceAsync(item));
                     await Task.WhenAll(new[] { albumTask }.Concat(songTasks).Concat(artistTasks)).ConfigureAwait(false);
 
+                    albumData.DatePlayed = songData.OrderByDescending(s => s.DatePlayed).FirstOrDefault().DatePlayed;
+
                     storedAlbums.Add(albumData.Id);
                     storedSongs.AddRange(songData.Select(song => song.Id));
                     storedArtists.AddRange(artistData.Select(artist => artist.Id));
