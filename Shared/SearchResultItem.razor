@@ -111,6 +111,7 @@
             server = song.ServerAddress;
             imgSrc = song.ImgSource;
             elementId = song.Id;
+            placeholderBase64 = song.ImgBlurhashBase64;
         }
         else if (musicObject is Artist)
         {
@@ -120,6 +121,7 @@
             imgSrc = artist.ImgSource;
             server = artist.ServerAddress;
             elementId = artist.Id;
+            placeholderBase64 = artist.ImgBlurhashBase64;
         }
         else if (musicObject is Playlist)
         {
@@ -129,8 +131,8 @@
             server = playlist.ServerAddress;
             imgSrc = playlist.ImgSource;
             elementId = playlist.Id;
+            placeholderBase64 = playlist.ImgBlurhashBase64;
         }
-
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -141,7 +143,6 @@
             await JS.InvokeAsync<string>("InfiniteScrollInitObserver", new object[2] { lDotNetReference, elementId });
             // Need to add event listener on this componenet to have it call the LoadMore function
         }
-        await JS.InvokeAsync<string>("InitAllImages");
     }
 
     private void NavigateTo()

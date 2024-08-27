@@ -126,19 +126,27 @@
 }
 
 <div class="album-list">
-    <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="100" ItemSize="80">
-        <ItemContent>
-            <SearchResultItem musicObject="musicItem" isGrid=@showGrid />
-        </ItemContent>
-        <Placeholder>
-            <SearchResultItem musicObject="Album.Empty" isGrid=@showGrid />
-        </Placeholder>
-        <EmptyContent>
-            <p>
-                There are no items to display.
-            </p>
-        </EmptyContent>
-    </Virtualize>
+    @*  Good morning! So far, so good. Shit is working as it's supposed to be :) :) :) :P'*@
+    @if (isLoading)
+    {
+        <Spinner/>
+    }
+    else
+    {
+        <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="50" ItemSize="80" @ref="virtualizeComponent">
+            <ItemContent>
+                <SearchResultItem musicObject="musicItem" />
+            </ItemContent>
+            <Placeholder>
+                <SearchResultItem musicObject="Album.Empty" />
+            </Placeholder>
+            <EmptyContent>
+                <p>
+                    There are no items to display.
+                </p>
+            </EmptyContent>
+        </Virtualize>
+    }
 </div>
 
 @code {
@@ -157,6 +165,7 @@
 
     private int scrolledTo = 0;
 
+    private Virtualize<BaseMusicItem>? virtualizeComponent;
     private bool isLoading = false;
 
     private enum Selectable
@@ -204,8 +213,8 @@
         viewData = new();
         placeholderImages = [];
         isFavouritesPage = Boolean.Parse(showFavourites);
-        isLoading = false;
-        // SelectPage(selected);
+        isLoading = true;
+        SelectPage(selected);
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -242,74 +251,20 @@
         selected = page;
 
         isLoading = true;
+        StateHasChanged();
 
         viewData.Clear();
         musicData.Clear();
 
-        await Task.Run(async () =>
+        if(virtualizeComponent != null)
         {
-            bool isCompleted = false;
+            await virtualizeComponent.RefreshDataAsync();
+            await Task.Delay(50);
 
-            int currentStartIndex = 0;
-            int total = 0; //like, everything man; 
-
-            bool firstLoop = true;
-
-            while (!isCompleted)
-            {
-                BaseMusicItem[] results = new BaseMusicItem[0];
-                switch (page)
-                {
-                    case Selectable.none:
-                        viewData = new();
-                        break;
-                    case Selectable.playlists:
-                        Task<Playlist[]> getResults = MauiProgram.api.GetAllPlaylistsAsync(limit: loadLimit, startIndex: currentStartIndex, isFavourite: isFavouritesPage);
-                        Task<int> getTotals = MauiProgram.api.GetTotalPlaylistCount();
-                        await Task.WhenAll(getResults, getTotals);
-                        results = getResults.Result;
-                        total = getTotals.Result;
-                        break;
-                    case Selectable.albums:
-                        results = await MauiProgram.api.GetAllAlbumsAsync(limit: loadLimit, startIndex: currentStartIndex, sortOrder: SortOrder.Ascending, isFavourite: isFavouritesPage);
-                        break;
-                    case Selectable.artists:
-                        results = await MauiProgram.api.GetAllArtistsAsync(limit: loadLimit, startIndex: currentStartIndex, isFavourite: isFavouritesPage);
-                        break;
-                    case Selectable.songs:
-                        results = await MauiProgram.api.GetAllSongsAsync(limit: loadLimit, startIndex: currentStartIndex, sortOrder: [SortOrder.Ascending], isFavourite: isFavouritesPage);
-                        break;
-                    // case Selectable.genres:
-                    //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex);
-                    //     break;
-                    default:
-                        results = new BaseMusicItem[0];
-                        break;
-                }
-
-                if (firstLoop)
-                {
-                    viewData.AddRange(results);
-                    isLoading = false;
-                    await InvokeAsync(StateHasChanged);
-                }
-
-                startFromIndex = results.Count();
-                musicData.AddRange(results);
-                firstLoop = false;
-                // If the total count of items, is less than what we have requested, we can assum
-                // We have reached the end of the count, and have a full list of items
-                if (musicData.Count() < currentStartIndex)
-                {
-                    isCompleted = true;
-                    // only stop once literally everything has been loaded.
-                }
-                else
-                {
-                    currentStartIndex += loadLimit;
-                }
-            }
-        });
+        }
+        isLoading = false;
+        StateHasChanged();
+        await JS.InvokeAsync<string>("InitAllImages");
     }
 
     private void UpdateScrolledToCount(int index)
@@ -323,13 +278,102 @@
 
     private async ValueTask<ItemsProviderResult<BaseMusicItem>> LoadListItems(ItemsProviderRequest request)
     {
-        int totalItems = await MauiProgram.api.GetTotalAlbumCount();
-        int numItems = Math.Min(request.Count, totalItems - request.StartIndex);
-        var musicItems = await MauiProgram.api.GetAllAlbumsAsync(limit: numItems, startIndex: request.StartIndex, sortOrder: SortOrder.Ascending, isFavourite: isFavouritesPage, cancellactionToken: request.CancellationToken);
+        int totalItems = 0;
+        int numItems = 0;
+        BaseMusicItem[] musicItems = [];
+
+        switch (selected)
+        {
+            case Selectable.none:
+
+                break;
+            case Selectable.playlists:
+                totalItems = await MauiProgram.api.GetTotalPlaylistCount(isFavouritesPage);
+                numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+                musicItems = await MauiProgram.api.GetAllPlaylistsAsync(
+                    limit: numItems,
+                    startIndex: request.StartIndex,
+                    sortOrder: SortOrder.Ascending,
+                    isFavourite: isFavouritesPage,
+                    cancellactionToken: request.CancellationToken);
+                break;
+            case Selectable.albums:
+                totalItems = await MauiProgram.api.GetTotalAlbumCount(isFavouritesPage);
+                numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+                musicItems = await MauiProgram.api.GetAllAlbumsAsync(
+                    limit: numItems,
+                    startIndex: request.StartIndex,
+                    sortOrder: SortOrder.Ascending,
+                    isFavourite: isFavouritesPage,
+                    cancellactionToken: request.CancellationToken);
+                break;
+            case Selectable.artists:
+                totalItems = await MauiProgram.api.GetTotalArtistCount(isFavouritesPage);
+                numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+                musicItems = await MauiProgram.api.GetAllArtistsAsync(
+                    limit: numItems,
+                    startIndex: request.StartIndex,
+                    // sortOrder: SortOrder.Ascending,
+                    isFavourite: isFavouritesPage,
+                    cancellactionToken: request.CancellationToken);
+                break;
+            case Selectable.songs:
+                totalItems = await MauiProgram.api.GetTotalSongCount(isFavouritesPage);
+                numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+                musicItems = await MauiProgram.api.GetAllSongsAsync(
+                    limit: numItems,
+                    startIndex: request.StartIndex,
+                    sortOrder: [SortOrder.Ascending],
+                    isFavourite: isFavouritesPage,
+                    cancellactionToken: request.CancellationToken);
+                break;
+            // case Selectable.genres:
+            //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM 
+            //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex
+            //     break;
+            default:
+
+                break;
+        }
+
         await Parallel.ForEachAsync(musicItems, async (musicItem, ct) =>
         {
-            musicItem.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(musicItem.ImgBlurhash, 20, 20).ConfigureAwait(false);
+            switch (selected)
+            {
+                case Selectable.none:
+
+                    break;
+                case Selectable.playlists:
+                    Playlist playlist = musicItem as Playlist;
+                    playlist.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                    musicItem = playlist;
+                    break;
+                case Selectable.albums:
+                    Album album = musicItem as Album;
+                    album.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                    musicItem = album;
+                    break;
+                case Selectable.artists:
+                    Artist artist = musicItem as Artist;
+                    artist.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                    musicItem = artist;
+                    break;
+                case Selectable.songs:
+                    Song song = musicItem as Song;
+                    song.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                    musicItem = song;
+                    break;
+                // case Selectable.genres:
+                //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM 
+                //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex
+                //     break;
+                default:
+
+                    break;
+            }
         });
+        await JS.InvokeAsync<string>("InitAllImages");
+        StateHasChanged();
         return new ItemsProviderResult<BaseMusicItem>(musicItems, totalItems);
     }
 }

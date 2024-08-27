@@ -147,18 +147,24 @@ namespace PortaJel_Blazor.Classes
             return toReturn.ToArray();
         }
 
-        public async Task<int> GetTotalAlbumCount()
+        public async Task<int> GetTotalAlbumCount(bool isFavourite = false)
         {
             int total = 0;
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                total += await server.Value.GetTotalAlbumCount().ConfigureAwait(false);
+                total += await server.Value.GetTotalAlbumCount(isFavourite).ConfigureAwait(false);
             });
             return total;
         }
         #endregion
 
         #region ArtistEndoings
-        public async Task<Artist[]> GetAllArtistsAsync(int limit = 50, int? startIndex = 0, bool? isFavourite = false, CancellationToken? cancellationToken = null, bool offline = false, bool downloaded = false)
+        public async Task<Artist[]> GetAllArtistsAsync(
+            int limit = 50, 
+            int? startIndex = 0, 
+            bool? isFavourite = false,
+            CancellationToken cancellactionToken = new(), 
+            bool offline = false, 
+            bool downloaded = false)
         {
             List<Artist> artistsReturn = new List<Artist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
@@ -195,11 +201,11 @@ namespace PortaJel_Blazor.Classes
             return toReturn.ToArray();
         }
 
-        public async Task<int> GetTotalArtistCount()
+        public async Task<int> GetTotalArtistCount(bool isFavourite = false)
         {
             int total = 0;
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                total += await server.Value.GetTotalArtistCount().ConfigureAwait(false);
+                total += await server.Value.GetTotalArtistCount(isFavourite).ConfigureAwait(false);
             });
             return total;
         }
@@ -215,21 +221,29 @@ namespace PortaJel_Blazor.Classes
         /// <param name="sortTypes">Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.</param>
         /// <param name="sortOrder">The sort order for the retrieved songs. Default is descending.</param>
         /// <returns>An array of songs.</returns>
-        public async Task<Song[]> GetAllSongsAsync(int? limit = null, int? startIndex = 0, bool? isFavourite = false, ItemSortBy sortTypes = ItemSortBy.Default, SortOrder[]? sortOrder = null, bool offline = false, bool downloaded = false)
+        public async Task<Song[]> GetAllSongsAsync(
+            int? limit = null, 
+            int? startIndex = 0, 
+            bool? isFavourite = false, 
+            ItemSortBy sortTypes = ItemSortBy.Default, 
+            SortOrder[]? sortOrder = null, 
+            bool offline = false, 
+            bool downloaded = false,
+            CancellationToken cancellactionToken = new())
         {
             List<Song> songsReturn = new List<Song>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                songsReturn.AddRange(await server.Value.GetAllSongsAsync(setLimit: limit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder, getOffline: offline, getDownloaded: downloaded));
+                songsReturn.AddRange(await server.Value.GetAllSongsAsync(setLimit: limit, setStartIndex: startIndex, setFavourites: isFavourite, setSortTypes: sortTypes, setSortOrder: sortOrder, getOffline: offline, getDownloaded: downloaded, setCancellactionToken: cancellactionToken));
             });
             //songsReturn.Sort(); // TODO: Ensuere sorting method is actually sorting, you know. 
 
             return songsReturn.ToArray();
         }
-        public async Task<int> GetTotalSongCount()
+        public async Task<int> GetTotalSongCount(bool isFavourite = false)
         {
             int total = 0;
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                total += await server.Value.GetTotalSongCount().ConfigureAwait(false);
+                total += await server.Value.GetTotalSongCount(isFavourite).ConfigureAwait(false);
             });
             return total;
         }
@@ -256,11 +270,23 @@ namespace PortaJel_Blazor.Classes
         #endregion
 
         #region PlaylistsEndpoint
-        public async Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int? startIndex = 0, bool isFavourite = false, CancellationToken? cancellationToken = null)
+        public async Task<Playlist[]> GetAllPlaylistsAsync(
+            int limit = -1,
+            int startIndex = 0,
+            bool isFavourite = false,
+            bool isPartial = true,
+            ItemSortBy sortTypes = ItemSortBy.Default,
+            SortOrder sortOrder = SortOrder.Descending,
+            bool offline = false,
+            bool downloaded = false,
+            CancellationToken cancellactionToken = new())
         {
             List<Playlist> playlistsReturn = new List<Playlist>();
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                playlistsReturn.AddRange(await server.Value.GetAllPlaylistsAsync(limit: limit, startFromIndex: startIndex, getIsFavourite: isFavourite));
+                playlistsReturn.AddRange(await server.Value.GetAllPlaylistsAsync(
+                    limit: limit, 
+                    startIndex: startIndex, 
+                    isFavourite: isFavourite));
             });
 
             return playlistsReturn.ToArray();
@@ -275,11 +301,11 @@ namespace PortaJel_Blazor.Classes
             });
             return toReturn;
         }
-        public async Task<int> GetTotalPlaylistCount()
+        public async Task<int> GetTotalPlaylistCount(bool isFavourite = false)
         {
             int total = 0;
             await Parallel.ForEachAsync(connecters, async (server, ct) => {
-                total += await server.Value.GetTotalPlaylistCount().ConfigureAwait(false);
+                total += await server.Value.GetTotalPlaylistCount(isFavourite).ConfigureAwait(false);
             });
             return total;
         }
