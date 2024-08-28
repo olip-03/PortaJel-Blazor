@@ -286,42 +286,46 @@
             case Selectable.playlists:
                 totalItems = await MauiProgram.api.GetTotalPlaylistCount(isFavouritesPage);
                 numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+                MauiProgram.UpdateDebugMessage($"Grabbing playlist items from {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}.");
                 musicItems = await MauiProgram.api.GetAllPlaylistsAsync(
-                    limit: numItems,
-                    startIndex: request.StartIndex,
-                    sortOrder: SortOrder.Ascending,
-                    isFavourite: isFavouritesPage,
-                    cancellactionToken: request.CancellationToken);
+                limit: numItems,
+                startIndex: request.StartIndex,
+                sortOrder: SortOrder.Ascending,
+                isFavourite: isFavouritesPage,
+                cancellactionToken: request.CancellationToken);
                 break;
             case Selectable.albums:
                 totalItems = await MauiProgram.api.GetTotalAlbumCount(isFavouritesPage);
                 numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+                MauiProgram.UpdateDebugMessage($"Grabbing album items from {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}.");
                 musicItems = await MauiProgram.api.GetAllAlbumsAsync(
-                    limit: numItems,
-                    startIndex: request.StartIndex,
-                    sortOrder: SortOrder.Ascending,
-                    isFavourite: isFavouritesPage,
-                    cancellactionToken: request.CancellationToken);
+                limit: numItems,
+                startIndex: request.StartIndex,
+                sortOrder: SortOrder.Ascending,
+                isFavourite: isFavouritesPage,
+                cancellactionToken: request.CancellationToken);
                 break;
             case Selectable.artists:
                 totalItems = await MauiProgram.api.GetTotalArtistCount(isFavouritesPage);
                 numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+                MauiProgram.UpdateDebugMessage($"Grabbing artist items from {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}.");
                 musicItems = await MauiProgram.api.GetAllArtistsAsync(
-                    limit: numItems,
-                    startIndex: request.StartIndex,
-                    // sortOrder: SortOrder.Ascending,
-                    isFavourite: isFavouritesPage,
-                    cancellactionToken: request.CancellationToken);
+                limit: numItems,
+                startIndex: request.StartIndex,
+                // sortOrder: SortOrder.Ascending,
+                isFavourite: isFavouritesPage,
+                cancellactionToken: request.CancellationToken);
                 break;
             case Selectable.songs:
                 totalItems = await MauiProgram.api.GetTotalSongCount(isFavouritesPage);
                 numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+                MauiProgram.UpdateDebugMessage($"Grabbing song items from {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}.");
                 musicItems = await MauiProgram.api.GetAllSongsAsync(
-                    limit: numItems,
-                    startIndex: request.StartIndex,
-                    sortOrder: [SortOrder.Ascending],
-                    isFavourite: isFavouritesPage,
-                    cancellactionToken: request.CancellationToken);
+                limit: numItems,
+                startIndex: request.StartIndex,
+                sortOrder: [SortOrder.Ascending],
+                isFavourite: isFavouritesPage,
+                cancellactionToken: request.CancellationToken);
                 break;
             // case Selectable.genres:
             //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM 

@@ -18,31 +18,18 @@
             <div class="artist-cover @(isGrid == true ? "gridLayout" : "")">
                 @if (String.IsNullOrWhiteSpace(placeholderBase64))
                 {
-                    <img class="album-cover-img @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@imgSrc" onerror="this.src='/images/emptyAlbum.png'" />
+                    <img class="album-cover-img @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@imgSrc" style="opacity: 0" onerror="this.src='/images/emptyAlbum.png'" />
                 }
                 else
                 { // Do yer placeholder here
-                    <img class="album-cover-img opacityTransition @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" src="@imgSrc" onerror="this.src='/images/emptyAlbum.png'" />
+                    <img class="album-cover-img opacityTransition @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" style="opacity: 0" src="@imgSrc" onerror="this.src='/images/emptyAlbum.png'" />
                     <img class="album-cover-placeholder @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@elementId" onerror="this.style.opacity=0" />
                 }
             </div>
             <div class="textContainer">
-                @{
-                    string artistName = string.Empty;
-                    if (musicObject is Album)
-                    {
-                        Album album = (Album)musicObject;
-                        artistName = album.ArtistNames;
-                    }
-                    if (musicObject is Song)
-                    {
-                        Song song = (Song)musicObject;
-                        artistName = song.ArtistNames;
-                    }
-                }
-                <b class="PrimaryTextColor mainText">@name</b>
 
-                <div class="SecondaryTextColor subText">@artistName</div>
+                <b class="PrimaryTextColor mainText">@mainText</b>
+                <div class="SecondaryTextColor subText">@subText</div>
             </div>
         </div>
         @if (musicObject is not Genre && !isGrid)
@@ -83,7 +70,8 @@
     [Parameter] public bool isGrid { get; set; } = false;
     [Parameter] public bool cacheAsRecentItem { get; set; } = false;
     [Parameter] public Action? OnViewAction { get; set; } = null;
-    private string name = string.Empty;
+    private string mainText = string.Empty;
+    private string subText = string.Empty;
     private string server = string.Empty;
     private string imgSrc = string.Empty;
     private bool isFavourite = false;
@@ -93,10 +81,16 @@
 
     protected override void OnInitialized()
     {
+
+    }
+
+    protected override void OnParametersSet()
+    {
         if (musicObject is Album)
         {
             Album album = (Album)musicObject;
-            name = album.Name;
+            mainText = album.Name;
+            subText = album.ArtistNames;
             isFavourite = album.IsFavourite;
             server = album.ServerAddress;
             imgSrc = album.ImgSource;
@@ -106,7 +100,8 @@
         else if (musicObject is Song)
         {
             Song song = (Song)musicObject;
-            name = song.Name;
+            mainText = song.Name;
+            subText = song.ArtistNames;
             isFavourite = song.IsFavourite;
             server = song.ServerAddress;
             imgSrc = song.ImgSource;
@@ -116,7 +111,7 @@
         else if (musicObject is Artist)
         {
             Artist artist = (Artist)musicObject;
-            name = artist.Name;
+            mainText = artist.Name;
             isFavourite = artist.IsFavourite;
             imgSrc = artist.ImgSource;
             server = artist.ServerAddress;
@@ -126,13 +121,14 @@
         else if (musicObject is Playlist)
         {
             Playlist playlist = (Playlist)musicObject;
-            name = playlist.Name;
+            mainText = playlist.Name;
             isFavourite = playlist.IsFavourite;
             server = playlist.ServerAddress;
             imgSrc = playlist.ImgSource;
             elementId = playlist.Id;
             placeholderBase64 = playlist.ImgBlurhashBase64;
         }
+        base.OnParametersSet();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

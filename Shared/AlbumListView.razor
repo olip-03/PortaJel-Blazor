@@ -3,11 +3,16 @@
 
 <li class="music-item PageSecondaryColor" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
     <div class="image-container" style="display: grid;">
+        @{ 
+            string imageSrc = imgSrc;
+            string placeholder = "data:image/png;base64, " + placeholderBase64;
+        }
         <img class="album-image album-cover-img opacityTransition"
-             src="@imgSrc"
-             onerror="this.src='/images/emptyAlbum.png'" />
+             src="@imageSrc"
+             style="opacity: 0" 
+             onerror="this.src='/images/emptyAlbum.png'"/>
         <img class="album-image-placeholder"
-             src="data:image/png;base64, @placeholderBase64" 
+             src=" @placeholder" 
              onerror="this.style.opacity=0" />
     </div>
     <div class="music-details PrimaryTextColor">
@@ -24,11 +29,16 @@
     [Parameter] public BaseMusicItem musicItem { get; set; } = new Album();
     [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
     private string imgSrc = string.Empty;
-    private Guid musicItemId; 
+    private Guid musicItemId;
 
     protected override void OnInitialized()
     {
-        if(musicItem is Album)
+
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (musicItem is Album)
         {
             Album album = (Album)musicItem;
             imgSrc = album.ImgSource;
@@ -52,6 +62,7 @@
             imgSrc = playlist.ImgSource;
             musicItemId = playlist.Id;
         }
+        base.OnParametersSet();
     }
 
     private void NavigateToAlbum()
