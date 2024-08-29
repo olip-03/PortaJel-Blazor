@@ -4,6 +4,7 @@
     width: 100%;
     margin-top: 10px;
     margin-bottom: 10px;
+    border-radius: 0.5rem;
     max-height: 80px;
     overflow: hidden;
 }
@@ -28,15 +29,19 @@
 .album-cover {
     width: 80px;
     height: 80px;
-    border-radius: 2px;
+    border-radius: 0.5rem;
+    overflow: hidden;
     margin-right: 10px;
     display: flex;
 }
 .album-cover-img {
     width: 80px;
     height: 80px;
+    position: relative;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: flex;
     z-index: 10;
-    opacity: 0; /* Hide the full image initially */
 }
 .opacityTransition {
     transition: opacity 0.5s ease-in-out; /* Smooth transition */
@@ -44,6 +49,8 @@
 .album-cover-placeholder {
     width: 80px;
     height: 80px;
+    border-radius: 0.5rem;
+    overflow: hidden;
     z-index: 5;
     position: absolute;
 }
@@ -52,7 +59,7 @@
     height: 80px;
     border-radius: 2px;
     margin-right: 10px;
-    border-radius: 50%;
+    border-radius: 0.5rem;
     position: relative;
     display: flex;
     align-items: center;
@@ -67,7 +74,7 @@
 
 }
 .album-metadata-container{
-    border-radius: 0.2rem;
+    border-radius: 0.5rem;
     height: 1.5rem;
     width:fit-content;
     background-color: lightgray;
@@ -145,7 +152,7 @@ img.gridLayout {
     width: 100%;
     height: auto;
     aspect-ratio: 1 / 1;
-    border-radius: 0.4rem;
+    border-radius: 0.5rem;
 }
 .grid-artist-cover {
     width: 100%;
@@ -157,7 +164,7 @@ img.gridLayout {
     width: 100%;
     height: auto;
     aspect-ratio: 1 / 1;
-    border-radius: 0.4rem;
+    border-radius: 0.5rem;
     object-fit: cover;
 }
 .grid-artist-img {

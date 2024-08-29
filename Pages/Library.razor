@@ -133,12 +133,19 @@
     }
     else
     {
-        <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="20" ItemSize="100" @ref="virtualizeComponent">
+        <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="@overscan" ItemSize="100" @ref="virtualizeComponent">
             <ItemContent>
                 <SearchResultItem musicObject="musicItem" />
             </ItemContent>
             <Placeholder>
-                <SearchResultItem musicObject="Album.Empty" />
+                @if (selected == Selectable.artists)
+                {
+                    <SearchResultItem musicObject="Artist.Empty" />
+                }
+                else
+                {
+                    <SearchResultItem musicObject="Album.Empty" />
+                }
             </Placeholder>
             <EmptyContent>
                 <p>
@@ -159,7 +166,7 @@
     private int totalRecordCount = 0;
     private bool showGrid = MauiProgram.libraryShowGrid;
 
-    private int scrolledTo = 0;
+    private int overscan = 20;
 
     private Virtualize<BaseMusicItem>? virtualizeComponent;
     private bool isLoading = false;
@@ -263,20 +270,12 @@
         await JS.InvokeAsync<string>("InitAllImages");
     }
 
-    private void UpdateScrolledToCount(int index)
-    {
-        if (index > scrolledTo)
-        {
-            scrolledTo = index;
-            Trace.WriteLine("Scrolled to " + index);
-        }
-    }
-
     private async ValueTask<ItemsProviderResult<BaseMusicItem>> LoadListItems(ItemsProviderRequest request)
     {
         int totalItems = 0;
         int numItems = 0;
         BaseMusicItem[] musicItems = [];
+        overscan = 20;
 
         switch (selected)
         {
@@ -308,7 +307,7 @@
             case Selectable.artists:
                 totalItems = await MauiProgram.api.GetTotalArtistCount(isFavouritesPage);
                 numItems = Math.Min(request.Count, totalItems - request.StartIndex);
-                MauiProgram.UpdateDebugMessage($"Grabbing artist items from {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}.");
+                MauiProgram.UpdateDebugMessage($"Grabbing artist items from {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}");
                 musicItems = await MauiProgram.api.GetAllArtistsAsync(
                 limit: numItems,
                 startIndex: request.StartIndex,
@@ -360,7 +359,10 @@
                     break;
                 case Selectable.songs:
                     Song song = musicItem as Song;
-                    song.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                    if(song != null)
+                    {
+                        song.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                    }
                     musicItem = song;
                     break;
                 // case Selectable.genres:

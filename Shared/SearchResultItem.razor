@@ -11,57 +11,63 @@
     @inject IJSRuntime JS;
 }
 
-@if (musicObject != null)
-{
-    <div id="@elementId" class="album-container @(isGrid == true ? "gridLayout" : "")">
-        <div style="display: flex" @oncontextmenu=OpenContextMenu @onclick=NavigateTo>
-            <div class="artist-cover @(isGrid == true ? "gridLayout" : "")">
-                @if (String.IsNullOrWhiteSpace(placeholderBase64))
-                {
-                    <img class="album-cover-img @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@imgSrc" style="opacity: 0" onerror="this.src='/images/emptyAlbum.png'" />
-                }
-                else
-                { // Do yer placeholder here
-                    <img class="album-cover-img opacityTransition @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" style="opacity: 0" src="@imgSrc" onerror="this.src='/images/emptyAlbum.png'" />
-                    <img class="album-cover-placeholder @(musicObject.GetType().Name == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@elementId" onerror="this.style.opacity=0" />
-                }
-            </div>
-            <div class="textContainer">
-
-                <b class="PrimaryTextColor mainText">@mainText</b>
-                <div class="SecondaryTextColor subText">@subText</div>
-            </div>
+<div id="@elementId" class="album-container @(isGrid == true ? "gridLayout" : "")">
+    <div style="display: flex" @oncontextmenu=OpenContextMenu @onclick=NavigateTo>
+        <div class="artist-cover @(isGrid == true ? "gridLayout" : "")">
+            @if (hasImg)
+            { // Has actual image, and isn't a null object
+                <img class="album-cover-img opacityTransition @(musicObjectType == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@imgSrc" style="opacity: 0" onerror="this.src='/images/emptyAlbum.png'" />
+                <img class="album-cover-placeholder @(musicObjectType == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@elementId" onerror="this.style.opacity=0" />
+            }
+            else
+            { // Do yer placeholder here
+                <img class="album-cover-img @(musicObjectType == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" src="/images/emptyAlbum.png" onerror="this.src='/images/emptyAlbum.png'" />
+            }
         </div>
-        @if (musicObject is not Genre && !isGrid)
-        {
-            <div class="favorite-button">
-                @if (MauiProgram.styleSettings.listItemsContextMenu)
+        <div class="textContainer">
+            @if (!String.IsNullOrWhiteSpace(mainText))
+            {
+                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <b class="PrimaryTextColor mainText">@mainText</b>
+                </Animate>
+            }
+            @if (!String.IsNullOrWhiteSpace(subText))
+            {
+                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <div class="SecondaryTextColor subText">@subText</div>
+                </Animate>
+            }
+        </div>
+    </div>
+    @if (musicObject != null && musicObject is not Genre && !isGrid)
+    {
+        <div class="favorite-button">
+            @if (MauiProgram.styleSettings.listItemsContextMenu)
+            {
+                <div @onclick=OpenContextMenu>
+                    <PortaJel_Blazor.Shared.Icons.MoreHorizIcon ExtraStyle="aspect-ratio: 1/1; height: 2.25rem; width: 2.25rem;" />
+                </div>
+            }
+            else
+            {
+                if (isFavourite)
                 {
-                    <div @onclick=OpenContextMenu>
-                        <PortaJel_Blazor.Shared.Icons.MoreHorizIcon ExtraStyle="aspect-ratio: 1/1; height: 2.25rem; width: 2.25rem;" />
-                    </div>
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <svg class="favorite-button-icon" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 480 -120 L 422 -172 C 354.667 -232.667 299 -285 255 -329 C 211 -373 176 -412.5 150 -447.5 C 124 -482.5 105.833 -514.667 95.5 -544 C 85.167 -573.333 80 -603.333 80 -634 C 80 -696.667 101 -749 143 -791 C 185 -833 237.333 -854 300 -854 C 334.667 -854 367.667 -846.667 399 -832 C 430.333 -817.333 457.333 -796.667 480 -770 C 502.667 -796.667 529.667 -817.333 561 -832 C 592.333 -846.667 625.333 -854 660 -854 C 722.667 -854 775 -833 817 -791 C 859 -749 880 -696.667 880 -634 C 880 -603.333 874.833 -573.333 864.5 -544 C 854.167 -514.667 836 -482.5 810 -447.5 C 784 -412.5 749 -373 705 -329 C 661 -285 605.333 -232.667 538 -172 L 480 -120 Z M 480 -501 Z" fill="currentColor" transform="matrix(1, 0, 0, 1, 7.105427357601002e-15, 1.1368683772161603e-13)" />
+                        </svg>
+                    </Animate>
                 }
                 else
                 {
-                    if (isFavourite)
-                    {
-                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <svg class="favorite-button-icon" viewBox="0 -960 960 960" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M 480 -120 L 422 -172 C 354.667 -232.667 299 -285 255 -329 C 211 -373 176 -412.5 150 -447.5 C 124 -482.5 105.833 -514.667 95.5 -544 C 85.167 -573.333 80 -603.333 80 -634 C 80 -696.667 101 -749 143 -791 C 185 -833 237.333 -854 300 -854 C 334.667 -854 367.667 -846.667 399 -832 C 430.333 -817.333 457.333 -796.667 480 -770 C 502.667 -796.667 529.667 -817.333 561 -832 C 592.333 -846.667 625.333 -854 660 -854 C 722.667 -854 775 -833 817 -791 C 859 -749 880 -696.667 880 -634 C 880 -603.333 874.833 -573.333 864.5 -544 C 854.167 -514.667 836 -482.5 810 -447.5 C 784 -412.5 749 -373 705 -329 C 661 -285 605.333 -232.667 538 -172 L 480 -120 Z M 480 -501 Z" fill="currentColor" transform="matrix(1, 0, 0, 1, 7.105427357601002e-15, 1.1368683772161603e-13)" />
-                            </svg>
-                        </Animate>
-                    }
-                    else
-                    {
-                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <img class="favorite-button-icon" src="/images/heart.svg" />
-                        </Animate>
-                    }
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <img class="favorite-button-icon" src="/images/heart.svg" />
+                    </Animate>
                 }
-            </div>
-        }
-    </div>
-}
+            }
+        </div>
+    }
+</div>
 
 @code {
     [Parameter] public BaseMusicItem? musicObject { get; set; } = null;
@@ -70,10 +76,12 @@
     [Parameter] public bool isGrid { get; set; } = false;
     [Parameter] public bool cacheAsRecentItem { get; set; } = false;
     [Parameter] public Action? OnViewAction { get; set; } = null;
+    private string musicObjectType = string.Empty;
     private string mainText = string.Empty;
     private string subText = string.Empty;
     private string server = string.Empty;
     private string imgSrc = string.Empty;
+    private bool hasImg = false;
     private bool isFavourite = false;
     private int resolution = 300;
     private string errorMsg = string.Empty;
@@ -86,6 +94,7 @@
 
     protected override void OnParametersSet()
     {
+        musicObjectType = musicObject.GetType().Name;
         if (musicObject is Album)
         {
             Album album = (Album)musicObject;
@@ -96,6 +105,7 @@
             imgSrc = album.ImgSource;
             elementId = album.Id;
             placeholderBase64 = album.ImgBlurhashBase64;
+            hasImg = album.ImgSource != string.Empty;
         }
         else if (musicObject is Song)
         {
@@ -107,6 +117,7 @@
             imgSrc = song.ImgSource;
             elementId = song.Id;
             placeholderBase64 = song.ImgBlurhashBase64;
+            hasImg = song.ImgSource != string.Empty;
         }
         else if (musicObject is Artist)
         {
@@ -117,6 +128,7 @@
             server = artist.ServerAddress;
             elementId = artist.Id;
             placeholderBase64 = artist.ImgBlurhashBase64;
+            hasImg = artist.ImgSource != string.Empty;
         }
         else if (musicObject is Playlist)
         {
@@ -127,6 +139,7 @@
             imgSrc = playlist.ImgSource;
             elementId = playlist.Id;
             placeholderBase64 = playlist.ImgBlurhashBase64;
+            hasImg = playlist.ImgSource != string.Empty;
         }
         base.OnParametersSet();
     }

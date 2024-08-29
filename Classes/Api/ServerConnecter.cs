@@ -395,12 +395,7 @@ namespace PortaJel_Blazor.Classes
                     {
                         if (getPartial)
                         {
-                            for (int i = 0; i < serverResults.Items.Count(); i++)
-                            {
-                                // Add to list to be returned 
-                                Album newAlbum = Album.Builder(serverResults.Items[i], _sdkClientSettings.ServerUrl);
-                                toReturn.Add(newAlbum);
-                            }
+                            toReturn.AddRange(serverResults.Items.Select(dto => Album.Builder(dto, _sdkClientSettings.ServerUrl)));
                         }
                         else
                         {
@@ -423,6 +418,10 @@ namespace PortaJel_Blazor.Classes
                     // Push snackbar stating the thing failed to connect or whatever 
                     SetOfflineStatus(true);
                     return await ReturnFromCache().ConfigureAwait(false);
+                }
+                catch (TaskCanceledException timeout)
+                {
+                    return Array.Empty<Album>();
                 }
             }
 
@@ -773,6 +772,7 @@ namespace PortaJel_Blazor.Classes
                         c.QueryParameters.SortBy = [setSortTypes];
                         c.QueryParameters.SortOrder = setSortOrder;
                         c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
+                        c.QueryParameters.ExcludeItemTypes = [BaseItemKind.MusicArtist, BaseItemKind.Playlist, BaseItemKind.MusicAlbum];
                         c.QueryParameters.IncludeItemTypes = [BaseItemKind.Audio];
                         c.QueryParameters.Limit = setLimit;
                         c.QueryParameters.StartIndex = setStartIndex;
@@ -804,8 +804,7 @@ namespace PortaJel_Blazor.Classes
                 }
                 catch (TaskCanceledException timeout)
                 {
-                    SetOfflineStatus(true);
-                    return await ReturnFromCache();
+                    return Array.Empty<Song>();
                 }
             }
 

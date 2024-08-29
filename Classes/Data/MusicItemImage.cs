@@ -40,7 +40,7 @@ namespace PortaJel_Blazor.Data
         }
         public static Task<string?> BlurhashToBase64Async(string? blurhash, int width = 0, int height = 0, float brightness = 1)
         {
-            if(blurhash == null)
+            if(String.IsNullOrWhiteSpace(blurhash))
             {
                 return Task.FromResult<string?>(string.Empty);
             }
@@ -101,7 +101,7 @@ namespace PortaJel_Blazor.Data
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 string? noval = null;
                 return Task.FromResult<string?>(noval);
@@ -137,13 +137,18 @@ namespace PortaJel_Blazor.Data
             }
             return Task.FromResult<string?>(null);
         }
-
         public static MusicItemImage Builder(BaseItemDto baseItem, string server, ImageBuilderImageType? imageType = ImageBuilderImageType.Primary)
         {
             MusicItemImage image = new();
             image.serverAddress = server;
             image.musicItemImageType = MusicItemImageType.url;
             string imgType = "Primary";
+
+            if(baseItem.ImageTags.AdditionalData.Count() == 0)
+            {
+                return MusicItemImage.Empty;
+            }
+
             switch (imageType)
             {
                 case ImageBuilderImageType.Backdrop:
