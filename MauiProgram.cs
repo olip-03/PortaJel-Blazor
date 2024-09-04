@@ -44,7 +44,7 @@ public static class MauiProgram
 
     public static MainLayout WebView = new();
     public static MainPage MainPage = new(initialize: false);
-    public static double SystemHeaderHeight = 44;
+    public static double SystemHeaderHeight = 48;
     public static double systemWidth = 0;
     public static Action? ViewHeaderCloseSelectCallback = null;
 

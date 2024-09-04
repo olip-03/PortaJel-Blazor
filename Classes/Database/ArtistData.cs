@@ -20,6 +20,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
         public string AlbumIdsJson { get; set;} = string.Empty;
+        public bool IsPartial { get; set; } = true;
         public Guid[] GetAlbumIds()
         {
             Guid[]? guids = JsonSerializer.Deserialize<Guid[]>(AlbumIdsJson);

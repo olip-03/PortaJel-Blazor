@@ -75,7 +75,7 @@ main {
     z-index: 20;
     align-items: center; /* Vertically center the images within the toolbar */
     justify-content: space-between; /* Distribute the images evenly along the toolbar */
-
+    box-shadow: 0px 2px 15px black;
     padding: 1rem;
 }
 .toolbar-block {

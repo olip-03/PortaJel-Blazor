@@ -6,6 +6,7 @@ using Microsoft.Maui.Platform;
 using System;
 using Microsoft.Maui.Controls.Shapes;
 using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Extensions;
 using Jellyfin.Sdk;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ using Microsoft.Maui.Layouts;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Maui.Controls.Internals;
 using PortaJel_Blazor.Shared;
+using Microsoft.Maui.Animations;
 
 #if ANDROID
 using Android;
@@ -39,6 +41,8 @@ public partial class MainPage : ContentPage
     public MediaQueue MainMediaQueue { get => this.Queue; private set { } }
     public MiniPlayer MainMiniPlayer { get => this.MiniPlayer; private set { } }
     public ContextMenu MainContextMenu { get => this.ContextMenu; private set { } }
+
+    public double HeaderHeightValue { get => MauiProgram.SystemHeaderHeight; private set { } }
 
     private bool canSkipCarousel = false;
     private bool hideMidiPlayer = true;
@@ -121,7 +125,14 @@ public partial class MainPage : ContentPage
         }
         await Navigation.PushModalAsync(page, false);
     }
-
+    public async void DeselectMenuItems()
+    {
+        await Task.WhenAll(
+            btn_navbar_home_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_library_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_fav_iconframe.BackgroundColorTo(Colors.Transparent)
+        );
+    }
     public async Task NavigateToPlaylistEdit(Guid PlaylistId)
     {
         await Navigation.PushModalAsync(new PlaylistViewEditor(PlaylistId));
@@ -329,54 +340,46 @@ public partial class MainPage : ContentPage
 
     #region Interactions
     private bool homeBtnReleased = true;
-    private void btn_navnar_home_Pressed(object sender, EventArgs e)
-    {
-        btn_navnar_home.Scale = 0.8;
-        btn_navnar_home.Opacity = 0.6;
-        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-    }
-    private async void btn_navnar_home_Released(object sender, EventArgs e)
+    private async void btn_navnar_home_Released(object sender, TappedEventArgs e)
     {
         ShowLoadingScreen(true);
-        await Task.WhenAny<bool>
-        (
-            btn_navnar_home.FadeTo(1, 250),
-            btn_navnar_home.ScaleTo(1, 250)
+        await Task.WhenAll(
+            btn_navbar_home_iconframe.BackgroundColorTo(Colors.Gray),
+            btn_navbar_library_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_fav_iconframe.BackgroundColorTo(Colors.Transparent)
         );
         MauiProgram.WebView.NavigateHome();
     }
-    private void btn_navbar_library_pressed(object sender, EventArgs e)
-    {
-        btn_navnar_library.Scale = 0.8;
-        btn_navnar_library.Opacity = 0.6;
-        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-    }
-    private async void btn_navnar_library_released(object sender, EventArgs e)
+    private async void btn_navnar_library_released(object sender, TappedEventArgs e)
     {
         ShowLoadingScreen(true);
-        await Task.WhenAny<bool>
-        (
-            btn_navnar_library.FadeTo(1, 250),
-            btn_navnar_library.ScaleTo(1, 250)
+        await Task.WhenAll(
+            btn_navbar_home_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_library_iconframe.BackgroundColorTo(Colors.Gray),
+            btn_navbar_fav_iconframe.BackgroundColorTo(Colors.Transparent)
         );
         MauiProgram.WebView.NavigateLibrary();
     }
-    private void btn_navnar_favourite_pressed(object sender, EventArgs e)
-    {
-        btn_navnar_favourites.Scale = 0.8;
-        btn_navnar_favourites.Opacity = 0.6;
-        HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-    }
-    private async void btn_navnar_favourite_released(object sender, EventArgs e)
+    private async void btn_navbar_fav_released(System.Object sender, Microsoft.Maui.Controls.TappedEventArgs e)
     {
         ShowLoadingScreen(true);
-        await Task.WhenAny<bool>
-        (
-            btn_navnar_favourites.FadeTo(1, 250),
-            btn_navnar_favourites.ScaleTo(1, 250)
+        await Task.WhenAll(
+            btn_navbar_home_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_library_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_fav_iconframe.BackgroundColorTo(Colors.Gray)
         );
         MauiProgram.WebView.NavigateFavourites();
     }
+    //private void btn_navnar_favourite_pressed(object sender, EventArgs e)
+    //{
+    //    btn_navnar_favourites.Scale = 0.8;
+    //    btn_navnar_favourites.Opacity = 0.6;
+    //    HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+    //}
+    //private async void btn_navnar_favourite_released(object sender, EventArgs e)
+    //{
+        
+    //}
     private void MediaController_Btn_ContextMenu(object sender, EventArgs args)
     {
         // TODO: Update this to show current item
@@ -485,4 +488,6 @@ public partial class MainPage : ContentPage
     }
 
     #endregion
+
+
 }

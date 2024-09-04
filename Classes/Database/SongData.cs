@@ -27,6 +27,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string StreamUrl { get; set; } = string.Empty;
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
+        public bool IsPartial { get; set; } = true;
         public Guid[] GetArtistIds()
         {
             Guid[]? artistIds = JsonSerializer.Deserialize<Guid[]>(ArtistIdsJson);
@@ -35,6 +36,8 @@ namespace PortaJel_Blazor.Classes.Database
         }
         public static SongData Builder(BaseItemDto baseItem, string server)
         {
+            SongData song = new();
+
             if (baseItem.UserData == null)
             {
                 throw new ArgumentException("Cannot create Song without Album UserData! Please fix server call flags!");
@@ -51,20 +54,18 @@ namespace PortaJel_Blazor.Classes.Database
             {
                 throw new ArgumentException("Cannot create Song without Artist Items! Please fix server call flags!");
             }
-            if(baseItem.RunTimeTicks == null)
-            {
-                // throw new ArgumentException("Cannot create Song without RunTime Ticks! Please fix server call flags!");
+            if(baseItem.RunTimeTicks.HasValue)
+            {   // TODO: Figure out why the fuck not all songs have a duration value..
+                song.Duration = TimeSpan.FromTicks(baseItem.RunTimeTicks.Value);
             }
             MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
 
-            SongData song = new();
             song.Id = (Guid)baseItem.Id;
             song.PlaylistId = baseItem.PlaylistItemId;
             song.AlbumId = (Guid)baseItem.ParentId;
             song.ArtistIdsJson = JsonSerializer.Serialize(baseItem.ArtistItems.Select(baseItem => baseItem.Id).ToArray());
             song.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
             song.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
-            song.Duration = TimeSpan.FromTicks((long)baseItem.RunTimeTicks);
             // song.PlayCount = songData.PlayCount; TODO: Implement playcount idk
             song.DateAdded = baseItem.DateCreated;
             song.DatePlayed = baseItem.UserData.LastPlayedDate;

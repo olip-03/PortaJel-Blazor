@@ -1,6 +1,5 @@
 ﻿using PortaJel_Blazor.Classes.Interfaces;
 using PortaJel_Blazor.Data;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,18 +30,19 @@ namespace PortaJel_Blazor.Classes.Services
         }
         public void TogglePlay()
         {
+            
         }
         public void ToggleShuffle()
         {
-
+            
         }
         public void ToggleRepeat()
         {
-
+            
         }
         public void NextTrack()
         {
-
+            
         }
         public void PreviousTrack()
         {

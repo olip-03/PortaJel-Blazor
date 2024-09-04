@@ -110,8 +110,8 @@
             </Animate>
         }
     </div>
-</div>
-
+</div> 
+      
 @* Custom styling for items when grid mode is selected *@
 @if (showGrid)
 {
@@ -137,6 +137,7 @@
             <ItemContent>
                 <SearchResultItem musicObject="musicItem" />
             </ItemContent>
+
             <Placeholder>
                 @if (selected == Selectable.artists)
                 {
@@ -147,6 +148,7 @@
                     <SearchResultItem musicObject="Album.Empty" />
                 }
             </Placeholder>
+
             <EmptyContent>
                 <p>
                     There are no items to display.
@@ -170,6 +172,8 @@
 
     private Virtualize<BaseMusicItem>? virtualizeComponent;
     private bool isLoading = false;
+
+    private bool hasData = false;
 
     private enum Selectable
     {
@@ -213,17 +217,24 @@
 
     protected override void OnParametersSet()
     {
+        hasData = false;
         viewData = new();
         placeholderImages = [];
         isFavouritesPage = Boolean.Parse(showFavourites);
         isLoading = true;
         SelectPage(selected);
+        StateHasChanged();
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JS.InvokeAsync<string>("InitAllImages");
-        MauiProgram.MainPage.ShowLoadingScreen(false);
+        if (hasData)
+        {
+            MauiProgram.MainPage.ShowLoadingScreen(false);
+        }
     }
+
     private void ToggleSort()
     {
         if (sort >= sortMethod.byActivity)
@@ -236,6 +247,7 @@
         }
         MauiProgram.librarySortMethod = (int)sort;
     }
+
     private void ToggleView()
     {
         // electPage(selectedPage);
@@ -376,6 +388,7 @@
         });
         await JS.InvokeAsync<string>("InitAllImages");
         StateHasChanged();
+        hasData = true;
         return new ItemsProviderResult<BaseMusicItem>(musicItems, totalItems);
     }
 }

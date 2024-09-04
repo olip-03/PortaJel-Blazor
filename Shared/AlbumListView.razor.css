@@ -29,8 +29,8 @@ image-container {
     transition: opacity 0.5s ease-in-out; /* Smooth transition */
 }
 .album-image-placeholder {
-    min-width: 3.6rem;
-    min-height: 3.6rem;
+    min-width: 3.8rem;
+    min-height: 3.8rem;
     max-width: 3.5rem;
     max-height: 3.5rem;
     margin-right: 0.5rem;

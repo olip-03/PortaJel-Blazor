@@ -5,81 +5,108 @@
              xmlns:pages="clr-namespace:PortaJel_Blazor.Pages"
              xmlns:shared="clr-namespace:PortaJel_Blazor.Shared"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:DataType="local:MainPage"
              x:Class="PortaJel_Blazor.MainPage">
     <Grid VerticalOptions="Fill" HorizontalOptions="Fill" x:Name="AllContent" BackgroundColor="Black">
-        <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html" VerticalOptions="FillAndExpand">
-            <BlazorWebView.RootComponents>
-                <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
-            </BlazorWebView.RootComponents>
-        </BlazorWebView>
+                <!-- Navigation Bar, MiniPlayer & Web Content -->
+        <Grid VerticalOptions="Fill" HorizontalOptions="Fill">
+            <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html" VerticalOptions="FillAndExpand" Grid.Row="0">
+                <BlazorWebView.RootComponents>
+                    <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
+                </BlazorWebView.RootComponents>
+            </BlazorWebView>
 
-        <!-- Loading blockout -->
-        <Grid x:Name="LoadingBlockout" BackgroundColor="{StaticResource PageBackgroundColor}" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="True">
-            <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                <ActivityIndicator x:Name="save_activityIndicator" IsRunning="True" Color="{StaticResource PrimaryColor}" IsVisible="True" HeightRequest="80" WidthRequest="80" />
-                <Label x:Name="LoadingBlockout_DebugText" Text="Default debug text." TextColor="{StaticResource PrimaryTextColor}"></Label>
-            </StackLayout>
+            <!-- Loading blockout -->
+            <Grid x:Name="LoadingBlockout" BackgroundColor="{StaticResource PageBackgroundColor}" Grid.Row="0" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="True">
+                <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                    <ActivityIndicator x:Name="save_activityIndicator" IsRunning="True" Color="{StaticResource PrimaryColor}" IsVisible="True" HeightRequest="80" WidthRequest="80" />
+                    <Label x:Name="LoadingBlockout_DebugText" Text="Default debug text." TextColor="{StaticResource PrimaryTextColor}"></Label>
+                </StackLayout>
 
-            <Grid.GestureRecognizers>
-                <TapGestureRecognizer>
-                    <!--Do NOTHING! I just don't want fucking tapps passing this grid RRAHHH-->
-                </TapGestureRecognizer>
-            </Grid.GestureRecognizers>
-        </Grid>
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer>
+                        <!--Do NOTHING! I just don't want fucking tapps passing this grid RRAHHH-->
+                    </TapGestureRecognizer>
+                </Grid.GestureRecognizers>
+            </Grid>
 
-        
-        <!-- Navigation Bar, MiniPlayer & Status Indicator -->
-        <StackLayout Orientation="Vertical" x:Name="Navbar" VerticalOptions="End" HorizontalOptions="Fill" AnchorY="0" InputTransparent="False" IsVisible="True">
-            <VerticalStackLayout x:Name="PlayerContainer">
+            <VerticalStackLayout x:Name="PlayerContainer" Grid.Row="0" Margin="0, 100, 0, 0" VerticalOptions="End" HorizontalOptions="Fill">
                 <shared:MiniPlayer x:Name="MiniPlayer"/>
             </VerticalStackLayout>
-            <!-- Navigation Buttons -->
-            <FlexLayout HeightRequest="100" HorizontalOptions="Fill" VerticalOptions="EndAndExpand" JustifyContent="SpaceEvenly" AlignItems="Start">
-                <StackLayout WidthRequest="80">
-                    <ImageButton x:Name="btn_navnar_home" 
-                             Source="{StaticResource HomeButtonImage}" 
-                             Background="Transparent" BorderColor="Transparent"
+            
+            <StackLayout Orientation="Vertical" x:Name="Navbar" AnchorY="0" InputTransparent="False" IsVisible="True" Grid.Row="1">
+                <!-- Navigation Buttons -->
+                <FlexLayout HeightRequest="80" HorizontalOptions="Fill" VerticalOptions="EndAndExpand" JustifyContent="SpaceEvenly">
+                    <StackLayout WidthRequest="80" HorizontalOptions="Fill" Padding="0, 16, 0, 12">
+                        <Frame x:Name="btn_navbar_home_iconframe"
+                               InputTransparent="True"
+                            BackgroundColor="Gray"
+                            WidthRequest="64"
+                            HeightRequest="32"
+                            CornerRadius="16">
+                            <Image Source="{StaticResource HomeButtonImage}" 
                              HorizontalOptions="Center"
-                             WidthRequest="30" MinimumWidthRequest="30" 
-                             HeightRequest="30" 
-                             Pressed="btn_navnar_home_Pressed" Released="btn_navnar_home_Released"/>
-                    <Label FontSize="12" HorizontalOptions="Center">Discover</Label>
-                </StackLayout>
+                             WidthRequest="24" MinimumWidthRequest="24" 
+                             HeightRequest="24" >
+                            </Image>
+                        </Frame>
+                        <Label FontAttributes="Bold" FontSize="12" HorizontalOptions="Center" Margin="0, 0, 0, 4">Discover</Label>
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="btn_navnar_home_Released"/>
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
 
-                <StackLayout WidthRequest="80">
-                    <ImageButton x:Name="btn_navnar_library" 
-                             Source="{StaticResource LibraryButtonImage}" 
-                             Background="Transparent" BorderColor="Transparent"
+                    <StackLayout WidthRequest="80" HorizontalOptions="Fill" Padding="0, 16, 0, 12">
+                        <Frame x:Name="btn_navbar_library_iconframe"
+                           InputTransparent="True"
+                            BackgroundColor="Transparent"
+                            WidthRequest="64"
+                            HeightRequest="32"
+                            CornerRadius="16">
+                            <Image Source="{StaticResource LibraryButtonImage}" 
                              HorizontalOptions="Center"
-                             WidthRequest="30" MinimumWidthRequest="30" 
-                             HeightRequest="30" 
-                             Pressed="btn_navbar_library_pressed" Released="btn_navnar_library_released"/>
-                    <Label FontSize="12" HorizontalOptions="Center">Catalogue</Label>
-                </StackLayout>
-
-                <StackLayout WidthRequest="80">
-                    <ImageButton x:Name="btn_navnar_favourites" 
-                             Source="{StaticResource FavButtonImage}" 
-                             Background="Transparent" BorderColor="Transparent"
+                             WidthRequest="24" MinimumWidthRequest="24" 
+                             HeightRequest="24" >
+                            </Image>
+                        </Frame>
+                        <Label FontAttributes="Bold" FontSize="12" HorizontalOptions="Center" Margin="0, 0, 0, 4">Catalogue</Label>
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="btn_navnar_library_released"/>
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+                    
+                    <StackLayout WidthRequest="80" HorizontalOptions="Fill" Padding="0, 16, 0, 12">
+                        <Frame x:Name="btn_navbar_fav_iconframe"
+                               InputTransparent="True"
+                            BackgroundColor="Transparent"
+                            WidthRequest="64"
+                            HeightRequest="32"
+                            CornerRadius="16">
+                            <Image Source="{StaticResource FavButtonImage}" 
                              HorizontalOptions="Center"
-                             WidthRequest="30" MinimumWidthRequest="30" 
-                             HeightRequest="30" 
-                             Pressed="btn_navnar_favourite_pressed" Released="btn_navnar_favourite_released"/>
-                    <Label FontSize="12" HorizontalOptions="Center">Favourites</Label>
-                </StackLayout>
+                             WidthRequest="24" MinimumWidthRequest="24" 
+                             HeightRequest="24" >
+                            </Image>
+                        </Frame>
+                        <Label FontAttributes="Bold" FontSize="12" HorizontalOptions="Center" Margin="0, 0, 0, 4">Favourites</Label>
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="btn_navbar_fav_released"/>
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+                </FlexLayout>
+            </StackLayout>
 
-                <FlexLayout.Background>
-                    <LinearGradientBrush EndPoint="0,1">
-                        <GradientStop Color="{StaticResource TransparentColor}" Offset="0.0" />
-                        <GradientStop Color="{StaticResource PageBackgroundColor}" Offset="0.9" />
-                    </LinearGradientBrush>
-                </FlexLayout.Background>
-            </FlexLayout>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="48"/>
+            </Grid.RowDefinitions>
 
-            <!-- LAYOUT -->
-            <!-- Background -->
-
-        </StackLayout>
+            <Grid.Background>
+                <SolidColorBrush Color="{StaticResource PageSecondaryColor}">
+                </SolidColorBrush>
+            </Grid.Background>
+        </Grid>
 
         <shared:MediaController x:Name="MediaControl" IsVisible="False"/>
         <shared:MediaQueue x:Name="Queue" IsVisible="False"/>

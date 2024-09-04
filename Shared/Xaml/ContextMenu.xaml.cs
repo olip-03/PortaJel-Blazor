@@ -1,6 +1,8 @@
+using AngleSharp.Io;
 using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Core.Extensions;
+using Jellyfin.Sdk.Generated.Models;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using PortaJel_Blazor.Classes;
@@ -252,9 +254,9 @@ public partial class ContextMenu : ContentView
         })));
         ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add to Playlist", "light_playlist.png", new Action(async () =>
         {
-            // await Navigation.PushModalAsync(new AddToPlaylistPopup(), animated: false);
-            await ShowSecondarySelection();
-            UpdateSecondaryMenuData();
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+            await this.Close();
+            MauiProgram.WebView.NavigateToPlaylistAdd(songs.Select(s => s.Id).ToArray());
         })));
         ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Action(async () =>
         {
@@ -279,13 +281,15 @@ public partial class ContextMenu : ContentView
             ViewModel.SecondaryMenuItems.Add((new ContextMenuItem(playlist.Name, playlist.ImgSource, new Action(async () =>
             {
                 await this.Close();
-                await this.ShowPrimarySelection(false);
             }), 64, 80)));
         }
         ViewModel.SecondaryMenuItems.Add(new ContextMenuItem("Back", "light_back.png", new Action(async () =>
         {
-            await this.ShowPrimarySelection();
+            ItemList.ItemsSource = ViewModel.ContextMenuItems;
+            ItemList.BeginRefresh();
         })));
+
+        ItemList.ItemsSource = ViewModel.SecondaryMenuItems;
     }
 
     public async void Show()
@@ -354,7 +358,6 @@ public partial class ContextMenu : ContentView
     {
         if (isSecondaryPageOpen)
         {
-            await ShowPrimarySelection(true);
             return false;
         }
         // TODO: Change to animation
@@ -370,19 +373,10 @@ public partial class ContextMenu : ContentView
 
     public async Task<bool> ShowSecondarySelection()
     {
-        isSecondaryPageOpen = true;
-        await ItemList_Container.TranslateTo(MauiProgram.MainPage.ContentWidth * -1, 0, 333, Easing.SinOut);
+
         return true;
     }
 
-    public async Task<bool> ShowPrimarySelection(bool animate = true)
-    {
-        isSecondaryPageOpen = false;
-        uint speed = 250;
-        if (animate == false) speed = 0;
-        await ItemList_Container.TranslateTo(0, 0, speed, Easing.SinOut);
-        return true;
-    }
 
     private void PanGestureRecognizer_PanUpdated(object sender, PanUpdatedEventArgs e)
     {

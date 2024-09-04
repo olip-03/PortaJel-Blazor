@@ -1,6 +1,7 @@
 ﻿@using PortaJel_Blazor.Classes;
 @using PortaJel_Blazor.Shared;
 @using BlazorAnimate;
+@using System.Text.Json;
 @inherits LayoutComponentBase
 @inject NavigationManager NavManager
 @inject IJSRuntime JS
@@ -43,14 +44,7 @@
                 </div>
                 @if (MauiProgram.MainPage.MainMiniPlayer.IsOpen)
                 {
-                    string height = 140 + (MauiProgram.SystemHeaderHeight) + "px";
-                    <div style="height:@height;"></div>
-                }
-                else
-                {
-                    string height = 60 + (MauiProgram.SystemHeaderHeight) + "px";
-
-                    <div style="height:@height;"></div>
+                    <div style="height: calc(1rem + 80px)"></div>
                 }
             </article>
         </Animate>
@@ -126,7 +120,7 @@
     private currentHeaderContent headerContent = currentHeaderContent.none;
 
     protected override async Task OnInitializedAsync()
-    { 
+    {
         MauiProgram.WebView = this;
         await JS.InvokeAsync<string>("InitMainLayout", new object[1] { MauiProgram.SystemHeaderHeight });
     }
@@ -222,6 +216,7 @@
 
     public string NavigateDownloads()
     {
+        MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != "/downloads")
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -241,6 +236,7 @@
 
     public string NavigateSettings()
     {
+        MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != "/settingshome")
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -260,6 +256,7 @@
 
     public string NavigateDebug()
     {
+        MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != "/debughome")
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -279,6 +276,7 @@
 
     public string NavigateAlbum(Guid guid)
     {
+        MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != $"/AlbumView/{guid}")
         {
             showHeader = false;
@@ -296,6 +294,7 @@
 
     public string NavigateArtist(Guid guid)
     {
+        MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != $"/ArtistView/{guid}")
         {
             showHeader = false;
@@ -313,11 +312,23 @@
 
     public string NavigatePlaylist(Guid guid)
     {
+        MauiProgram.MainPage.DeselectMenuItems();
         showHeader = false;
         pageTitle = "Playlist";
         currentUri = $"/PlaylistView/{guid}";
 
         NavManager.NavigateTo($"/PlaylistView/{guid}", forceLoad: true);
+        return currentUri;
+    }
+
+    public string NavigateToPlaylistAdd(Guid[] guids)
+    {
+        MauiProgram.MainPage.DeselectMenuItems();
+        string items = JsonSerializer.Serialize(guids);
+        showHeader = false;
+        pageTitle = "Playlist";
+        currentUri = $"/AddToPlaylistView/{items}";
+        NavManager.NavigateTo($"/AddToPlaylistView/{items}", forceLoad: true);
         return currentUri;
     }
 }

@@ -26,55 +26,28 @@
         </VerticalStackLayout>
 
         <!--Item List-->
-        <Grid x:Name="ItemList_Container" Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{Binding ScreenWidthValue}"/>
-                <ColumnDefinition Width="{Binding ScreenWidthValue}"/>
-            </Grid.ColumnDefinitions>
-            
-            <!-- Main item list -->
-            <ListView ItemsSource="{Binding ContextMenuItems}"
-                  Grid.Column="0"
-                  VerticalOptions="End"
-                  x:Name="ItemList" 
-                  Margin="20" 
-                  HasUnevenRows="True"
-                  ItemSelected="ItemList_ItemSelected" 
-                  SelectionMode="Single" 
-                  IsVisible="True">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="classes:ContextMenuItem">
-                        <ViewCell>
-                            <FlexLayout AlignItems="Center" HeightRequest="{Binding itemSize}">
-                                <Image HeightRequest="{Binding itemSize}" WidthRequest="{Binding itemSize}" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
-                                <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="{StaticResource PrimaryTextColor}"></Label>
-                            </FlexLayout>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            
-            <!-- Playlist/Secondary item selection -->
-            <ListView ItemsSource="{Binding SecondaryMenuItems}"
-                  Grid.Column="1"
-                  VerticalOptions="EndAndExpand"
-                  x:Name="SecondItemList" 
-                  Margin="20" 
-                  HasUnevenRows="True"
-                  ItemSelected="ItemList_ItemSelected" 
-                  SelectionMode="Single">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="classes:ContextMenuItem">
-                        <ViewCell>
-                            <FlexLayout AlignItems="Center" HeightRequest="{Binding itemSize}">
-                                <Image HeightRequest="{Binding itemSize}" WidthRequest="{Binding itemSize}" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
-                                <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="{StaticResource PrimaryTextColor}"></Label>
-                            </FlexLayout>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </Grid>
+        <ListView 
+            x:Name="ItemList" 
+            ItemsSource="{Binding ContextMenuItems}"
+            Grid.Column="0"
+            Grid.Row="1"
+            VerticalOptions="End"
+            Margin="20" 
+            HasUnevenRows="True"
+            ItemSelected="ItemList_ItemSelected" 
+            SelectionMode="Single" 
+            IsVisible="True">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="classes:ContextMenuItem">
+                    <ViewCell>
+                        <FlexLayout AlignItems="Center" HeightRequest="{Binding itemSize}">
+                            <Image HeightRequest="{Binding itemSize}" WidthRequest="{Binding itemSize}" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
+                            <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="{StaticResource PrimaryTextColor}"></Label>
+                        </FlexLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
 
         <!--LAYOUT-->
         <!--Row Definitions-->

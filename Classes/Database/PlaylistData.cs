@@ -15,6 +15,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string SongIdsJson { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
         public string ServerAddress { get; set; } = string.Empty;
+        public bool IsPartial { get; set; } = true;
         public Guid[] GetSongIds()
         {
             Guid[]? artistIds = JsonSerializer.Deserialize<Guid[]>(SongIdsJson);

@@ -20,6 +20,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string ArtistIdsJson { get; set; } = string.Empty;
         public string ArtistNames { get; set; } = string.Empty;
         public string SongIdsJson { get; set; } = string.Empty;
+        public bool IsPartial { get; set; } = true;
         public Guid[]? GetArtistIds()
         {
             Guid[]? artistIds;

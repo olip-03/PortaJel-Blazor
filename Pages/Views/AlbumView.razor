@@ -12,111 +12,112 @@
 
 @if (loaded)
 {
-    <ViewHeader backgroundImgUrl="@album.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album ShowSelectionTools="@EngageSongCheckmode" SelectionCancelCallback="@GetCancelSelectionAction()" ContextMenuOpenCallback="GetOpenContextMenuAction()"/>
+    <ViewHeader backgroundImgUrl="@album.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@album ShowSelectionTools="@EngageSongCheckmode" SelectionCancelCallback="@GetCancelSelectionAction()" ContextMenuOpenCallback="GetOpenContextMenuAction()" />
 
-    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
-        <img src="data:image/png;base64, @backgroundBlurHash" class="background-blur" alt="backgound" style="top: @backgroundBlurHeight" />
+    <img src="data:image/png;base64, @backgroundBlurHash" class="background-blur" alt="backgound" style="top: @backgroundBlurHeight" />
 
+    <div class="album-data">
         <div class="image-container" style="top: @headerHeight">
             <img src="data:image/png;base64, @base64BlurHash" class="placeholder" alt="Placeholder Image">
             <img src="@album.ImgSource" id="@album.Id" class="album-cover-img" onerror="this.src='/images/emptyAlbum.png'" alt="@album.Name album cover">
         </div>
-        @if (album != null)
-        {
-            <div class="item-title">
-                <div class="title-text">
-                    <h2 class="PrimaryTextColor" style="margin: 0px">@album.Name</h2>
-                    <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(album.ArtistIds.FirstOrDefault())">
-                        @album.ArtistNames
-                    </h5>
-                </div>
-            </div>
 
-            <div class="playback-controls">
-                <div @onclick=FavouriteItem>
-                    @if (album.IsFavourite)
+        <div class="item-title">
+            <div class="title-text">
+                <h2 class="PrimaryTextColor" style="margin: 0px">@album.Name</h2>
+                <h5 class="SecondaryTextColor" @onclick="() => SelectArtist(album.ArtistIds.FirstOrDefault())">
+                    @album.ArtistNames
+                </h5>
+            </div>
+        </div>
+
+        <div class="playback-controls">
+            <div @onclick=FavouriteItem>
+                @if (album.IsFavourite)
+                {
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <HeartIcon Filled=true ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
+                    </Animate>
+                }
+                else
+                {
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <HeartIcon Filled=false ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
+                    </Animate>
+                }
+            </div>
+            <div class="playback-controls-container">
+                <div class="playback-controls-btn">
+                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" @onclick="(() => PlayAlbum(true))">
+                        <ShuffleIcon Enabled=false ExtraStyle="height: 2rem; width: 2rem;"></ShuffleIcon>
+                    </Animate>
+                </div>
+                <div class="playback-controls-btn playbtn" @onclick="(() => PlayAlbum(false))">
+                    @if (isCurrentAlbum && MauiProgram.MediaService.GetIsPlaying())
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <HeartIcon Filled=true ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
+                            <img class="playback-controls-btn-img" src="/images/pause.svg">
                         </Animate>
                     }
                     else
                     {
                         <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                            <HeartIcon Filled=false ExtraStyle="height: 2rem; width: 2rem;"></HeartIcon>
+                            <img class="playback-controls-btn-img" src="/images/play.svg">
                         </Animate>
                     }
                 </div>
-                <div class="playback-controls-container">
-                    <div class="playback-controls-btn">
-                        <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" @onclick="(() => PlayAlbum(true))">
-                            <ShuffleIcon Enabled=false ExtraStyle="height: 2rem; width: 2rem;"></ShuffleIcon>
-                        </Animate>
-                    </div>
-                    <div class="playback-controls-btn playbtn" @onclick="(() => PlayAlbum(false))">
-                        @if (isCurrentAlbum && MauiProgram.MediaService.GetIsPlaying())
-                        {
-                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <img class="playback-controls-btn-img" src="/images/pause.svg">
-                            </Animate>
-                        }
-                        else
-                        {
-                            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <img class="playback-controls-btn-img" src="/images/play.svg">
-                            </Animate>
-                        }
-                    </div>
-                </div>
             </div>
+        </div>
+    </div>
 
-            // Add Songs
-            for (int i = 0; i < songs.Length; i++)
+    @if (album != null)
+    {
+        // Add Songs
+        for (int i = 0; i < songs.Length; i++)
+        {
+            if (songs[i].DiskNumber > 0 && !albumsDisks.Contains(songs[i].DiskNumber))
             {
-                if (songs[i].DiskNumber > 0 && !albumsDisks.Contains(songs[i].DiskNumber))
-                {
-                    albumsDisks.Add(songs[i].DiskNumber);
-                    <h5 class="item-title PrimaryTextColor">Disk @songs[i].DiskNumber</h5>
-                }
-                <AlbumSongItem song="@songs[i]"
-                               OnPlayCallback="@GetPlaySongAction(i)"
-                               OnQueueCallback="@GetQueueSongAction(i)"
-                               OnSelectCallback="@GetSongSelectAction(i)"
-                               location="@i"
-                               base64BlurHash="@base64BlurHash"
-                               EngageCheckmode="EngageSongCheckmode"
-                               ShowSongImageMode="false"
-                               IsChecked=songCheckState[i] />
+                albumsDisks.Add(songs[i].DiskNumber);
+                <h5 class="item-title PrimaryTextColor">Disk @songs[i].DiskNumber</h5>
             }
+            <AlbumSongItem song="@songs[i]"
+                           OnPlayCallback="@GetPlaySongAction(i)"
+                           OnQueueCallback="@GetQueueSongAction(i)"
+                           OnSelectCallback="@GetSongSelectAction(i)"
+                           location="@i"
+                           base64BlurHash="@base64BlurHash"
+                           EngageCheckmode="EngageSongCheckmode"
+                           ShowSongImageMode="false"
+                           IsChecked=songCheckState[i] />
+        }
 
-            // Add Artists
-            @if (album.Artists.Count() > 0)
-            {
-                <br />
-                int forcount = 0;
-                foreach (var artist in album.Artists)
-                {
-                    <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.Id)">
-                        <img src="@artist.ImgSource" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
-                        <p class="artistInfoText">@artist.Name</p>
-                    </div>
-                    forcount++;
-                }
-            }
+        // Add Artists
+        @if (album.Artists.Count() > 0)
+        {
             <br />
-            // Add Similar
-            @if (similarAlbumsBase64BlurHash.Count() > 0)
-            { 
-                <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="@similarAlbums" albumBlurHashData="@similarAlbumsBase64BlurHash" />
-            }
-            else if (similarAlbums.Count() > 0) // but only after the blurhash is done lol
+            int forcount = 0;
+            foreach (var artist in album.Artists)
             {
-                <br />
-                <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="null" albumBlurHashData="null" />
+                <div class="PrimaryTextColor artistInfo" @onclick="() => SelectArtist(artist.Id)">
+                    <img src="@artist.ImgSource" class="artistInfoImg" onerror="this.src='/images/emptyAlbum.png'">
+                    <p class="artistInfoText">@artist.Name</p>
+                </div>
+                forcount++;
             }
         }
-        @errormessage
-    </Animate>
+        <br />
+        // Add Similar
+        @if (similarAlbumsBase64BlurHash.Count() > 0)
+        {
+            <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="@similarAlbums" albumBlurHashData="@similarAlbumsBase64BlurHash" />
+        }
+        else if (similarAlbums.Count() > 0) // but only after the blurhash is done lol
+        {
+            <br />
+            <HorizontalMusicItemList Title="More Like This" itemCount="@similarAlbums.Count()" albumData="null" albumBlurHashData="null" />
+        }
+    }
+    @errormessage
 }
 
 @code {
@@ -162,7 +163,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(album != null)
+        if (album != null)
         {
             await JS.InvokeAsync<string>("InitAllImages");
             await JS.InvokeAsync<string>("InitImageLoader", album.Id);
@@ -172,7 +173,7 @@
             MauiProgram.WebView.isLoading = false;
             // await JS.InvokeAsync<string>("InitAllAlbumSongItem");
             await Task.Delay(150); // allow album items time to snap into place
-            MauiProgram.MainPage.ShowLoadingScreen(false);
+            // MauiProgram.MainPage.ShowLoadingScreen(false);
         }
     }
 
@@ -314,7 +315,7 @@
         Song foundItem = null;
         foreach (var song in album.Songs)
         {
-            if(song.Id == songId)
+            if (song.Id == songId)
             {
                 song.IsFavourite = !song.IsFavourite;
                 foundItem = new Song(song);
@@ -322,7 +323,7 @@
             }
         }
 
-        if(foundItem != null)
+        if (foundItem != null)
         {
             StateHasChanged();
             await MauiProgram.api.SetFavourite(foundItem.Id, foundItem.ServerAddress, foundItem.IsFavourite);
@@ -337,7 +338,7 @@
             await MauiProgram.MediaService.Initalize();
         }
         // Move all items in the current queue to the Next Up Queue, to ensure that
-        // this item is prioritised, without losing the current queue 
+        // this item is prioritised, without losing the current queue
         if (MauiProgram.currentAlbumGuid == album.Id)
         {
             isCurrentAlbum = true;
@@ -464,7 +465,7 @@
                         if (blurhash != null) selectedBase64.Add(blurhash);
                     }
                 }
-                if(selected.Count == 1)
+                if (selected.Count == 1)
                 {
                     OpenContextMenu(selected[0]);
                 }
