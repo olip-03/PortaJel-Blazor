@@ -140,6 +140,11 @@
 
     public string NavigateError(Exception ex)
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
         if (currentUri != "/")
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -159,6 +164,11 @@
 
     public string NavigateHome()
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
         if (currentUri != "/")
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -178,6 +188,11 @@
 
     public string NavigateLibrary()
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
         if (currentUri != "/library/false")
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -197,6 +212,11 @@
 
     public string NavigateFavourites()
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
         if (currentUri != "/library/true")
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -216,6 +236,11 @@
 
     public string NavigateDownloads()
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
         MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != "/downloads")
         {
@@ -236,6 +261,12 @@
 
     public string NavigateSettings()
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
+
         MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != "/settingshome")
         {
@@ -256,6 +287,12 @@
 
     public string NavigateDebug()
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
+
         MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != "/debughome")
         {
@@ -276,6 +313,12 @@
 
     public string NavigateAlbum(Guid guid)
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
+
         MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != $"/AlbumView/{guid}")
         {
@@ -294,6 +337,12 @@
 
     public string NavigateArtist(Guid guid)
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
+
         MauiProgram.MainPage.DeselectMenuItems();
         if (currentUri != $"/ArtistView/{guid}")
         {
@@ -312,6 +361,12 @@
 
     public string NavigatePlaylist(Guid guid)
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
+
         MauiProgram.MainPage.DeselectMenuItems();
         showHeader = false;
         pageTitle = "Playlist";
@@ -323,6 +378,12 @@
 
     public string NavigateToPlaylistAdd(Guid[] guids)
     {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
+
         MauiProgram.MainPage.DeselectMenuItems();
         string items = JsonSerializer.Serialize(guids);
         showHeader = false;
