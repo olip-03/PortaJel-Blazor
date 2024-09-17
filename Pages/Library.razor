@@ -168,10 +168,9 @@
     private int totalRecordCount = 0;
     private bool showGrid = MauiProgram.libraryShowGrid;
 
-    private ConcurrentDictionary<int, BaseMusicItem> musicCache = new();
+    private BaseMusicItem[] musicCache = new BaseMusicItem[0];
     private int totalItems = 0;
     private int overscan = 20;
-
     private Virtualize<BaseMusicItem>? virtualizeComponent;
     private bool isLoading = false;
 
@@ -270,18 +269,15 @@
     // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/virtualization?view=aspnetcore-8.0
     private async void SelectPage(Selectable page)
     {
-        LoadAllListItems();
-
         MauiProgram.libraryItemView = (int)page;
         selected = page;
 
         isLoading = true;
+        LoadAllListItems();
         StateHasChanged();
 
         viewData.Clear();
         musicData.Clear();
-
-
 
         if (virtualizeComponent != null)
         {
@@ -289,6 +285,8 @@
             await Task.Delay(50);
 
         }
+
+
         isLoading = false;
         StateHasChanged();
         await JS.InvokeAsync<string>("InitAllImages");
@@ -296,26 +294,44 @@
 
     private async ValueTask<ItemsProviderResult<BaseMusicItem>> LoadListItems(ItemsProviderRequest request)
     {
-        int totalItems = 0;
         int numItems = 0;
-        BaseMusicItem[] musicItems = [];
-        overscan = 20;
-
-        totalItems = musicCache.Count;
-        numItems = Math.Min(request.Count, totalItems - request.StartIndex);
-        MauiProgram.UpdateDebugMessage($"Reading memory {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}.");
-
-        musicItems = musicCache.Values.Skip(request.StartIndex).Take(numItems).ToArray();
-
-        //musicItems = await MauiProgram.api.GetAllAlbumsAsync(
-        //limit: numItems,
-        //startIndex: request.StartIndex,
-        //sortOrder: SortOrder.Ascending,
-        //isFavourite: isFavouritesPage,
-        //cancellactionToken: request.CancellationToken);
-
-        await Parallel.ForEachAsync(musicItems, async (musicItem, ct) =>
+        BaseMusicItem[] musicItems = await Task<BaseMusicItem[]>.Run(async () =>
         {
+            try
+            {
+                if (BaseMusicItem.IsNullOrEmpty(musicCache[request.StartIndex]))
+                {
+                    numItems = Math.Min(request.Count, totalItems - request.StartIndex);
+
+                    System.Diagnostics.Trace.WriteLine($"Reading API {request.StartIndex} to {request.StartIndex + numItems} of total {musicCache.Length}.");
+
+                    return await UpdateBlurhash(await GetSelectedItems(numItems, request.StartIndex, request.CancellationToken).ConfigureAwait(false)).ConfigureAwait(false);
+                }
+                else
+                {
+                    System.Diagnostics.Trace.WriteLine($"Reading memory {request.StartIndex} to {request.StartIndex + request.Count} of total {musicCache.Length}.");
+                    return await UpdateBlurhash(musicCache.Skip(request.StartIndex).Take(request.Count).ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"Memory Read Failed: {ex.Message} at {ex.StackTrace}");
+            }
+            return new BaseMusicItem[request.Count];
+        });
+
+        await JS.InvokeAsync<string>("InitAllImages");
+        await InvokeAsync(() => StateHasChanged());
+
+        hasData = true;
+        return new ItemsProviderResult<BaseMusicItem>(musicItems, musicCache.Length);
+    }
+
+    private async Task<BaseMusicItem[]> UpdateBlurhash(BaseMusicItem[] musicItems)
+    {
+        for (int i = 0; i < musicItems.Length; i++)
+        {
+            BaseMusicItem musicItem = musicItems[i];
             switch (selected)
             {
                 case Selectable.none:
@@ -325,7 +341,7 @@
                     Playlist playlist = musicItem as Playlist;
                     if (playlist != null)
                     {
-                        playlist.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                        playlist.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 10, 10).ConfigureAwait(false);
                         musicItem = playlist;
                     }
                     break;
@@ -333,7 +349,7 @@
                     Album album = musicItem as Album;
                     if (album != null)
                     {
-                        album.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                        album.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 10, 10).ConfigureAwait(false);
                         musicItem = album;
                     }
                     break;
@@ -341,7 +357,7 @@
                     Artist artist = musicItem as Artist;
                     if (artist != null)
                     {
-                        artist.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                        artist.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 10, 10).ConfigureAwait(false);
                         musicItem = artist;
                     }
                     break;
@@ -349,7 +365,7 @@
                     Song song = musicItem as Song;
                     if (song != null)
                     {
-                        song.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 20, 20).ConfigureAwait(false);
+                        song.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 10, 10).ConfigureAwait(false);
                         musicItem = song;
                     }
                     break;
@@ -361,214 +377,155 @@
 
                     break;
             }
-        });
-        await JS.InvokeAsync<string>("InitAllImages");
-        StateHasChanged();
-        hasData = true;
-        return new ItemsProviderResult<BaseMusicItem>(musicItems, totalItems);
+            musicItems[i] = musicItem;
+        }
+        return musicItems;
     }
 
+    private async Task<BaseMusicItem[]> GetSelectedItems(int setLimit, int setStartIndex, CancellationToken cancellationToken)
+    {
+        switch (selected)
+        {
+            case Selectable.none:
+                return Array.Empty<BaseMusicItem>();
+            case Selectable.playlists:
+                return await MauiProgram.api.GetAllPlaylistsAsync(
+                limit: setLimit,
+                startIndex: setStartIndex,
+                sortOrder: SortOrder.Ascending,
+                isFavourite: isFavouritesPage,
+                cancellactionToken: cancellationToken).ConfigureAwait(false);
+            case Selectable.albums:
+                return await MauiProgram.api.GetAllAlbumsAsync(
+                limit: setLimit,
+                startIndex: setStartIndex,
+                sortOrder: SortOrder.Ascending,
+                isFavourite: isFavouritesPage,
+                cancellactionToken: cancellationToken).ConfigureAwait(false);
+            case Selectable.artists:
+                return await MauiProgram.api.GetAllArtistsAsync(
+                limit: setLimit,
+                startIndex: setStartIndex,
+                // sortOrder: SortOrder.Ascending,
+                isFavourite: isFavouritesPage,
+                cancellactionToken: cancellationToken).ConfigureAwait(false);
+            case Selectable.songs:
+                return await MauiProgram.api.GetAllSongsAsync(
+                limit: setLimit,
+                startIndex: setStartIndex,
+                sortOrder: [SortOrder.Ascending],
+                isFavourite: isFavouritesPage,
+                cancellactionToken: cancellationToken).ConfigureAwait(false);
+            // case Selectable.genres:
+            //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM
+            //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex
+            //     break;
+            default:
+                return Array.Empty<BaseMusicItem>();
+        }
+        return Array.Empty<BaseMusicItem>();
+    }
+
+    private async Task<int> GetSelectedTotalItems()
+    {
+        try
+        {
+            switch (selected)
+            {
+                case Selectable.none:
+                    return 0;
+                case Selectable.playlists:
+                    return await MauiProgram.api.GetTotalPlaylistCount(isFavouritesPage);
+                case Selectable.albums:
+                    return await MauiProgram.api.GetTotalAlbumCount(isFavouritesPage);
+                case Selectable.artists:
+                    return await MauiProgram.api.GetTotalArtistCount(isFavouritesPage);
+                case Selectable.songs:
+                    return await MauiProgram.api.GetTotalSongCount(isFavouritesPage);
+                // case Selectable.genres:
+                //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM
+                //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex
+                //     break;
+                default:
+                    return 0;
+            }
+        }
+        catch (Exception)
+        {
+            return 0;
+        }
+    }
+
+    private bool LoadAllListItemsDebug = true;
     private async void LoadAllListItems()
     {
         if (MauiProgram.libraryDataCToken == null)
         {
             MauiProgram.libraryDataCToken = new CancellationTokenSource();
 
-            System.Diagnostics.Trace.WriteLine("Creating Data Loader thread!");
+            if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine("Creating Data Loader thread!");
             CancellationToken token = MauiProgram.libraryDataCToken.Token;
 
             Task task = Task.Run(async delegate
             {
                 Guid threadID = Guid.NewGuid();
-                musicCache.Clear();
 
-                bool complete = false;
-                int count = 20;
-                int loopStartIndex = 0;
-
-                BaseMusicItem[] musicItems = [];
-                switch (selected)
+                try
                 {
-                    case Selectable.none:
 
-                        break;
-                    case Selectable.playlists:
-                        totalItems = await MauiProgram.api.GetTotalPlaylistCount(isFavouritesPage);
-                        while (!complete)
+                    bool complete = false;
+                    int count = 200;
+                    int loopStartIndex = 0;
+
+                    BaseMusicItem[] musicItems = [];
+                    totalItems = await GetSelectedTotalItems();
+                    // Reset musicCache to new zero;
+                    musicCache = new BaseMusicItem[totalItems];
+                    while (!complete)
+                    {
+                        int itemCount = 0;
+                        int iCheck = 0;
+                        try
                         {
-                            try
+                            musicItems = await GetSelectedItems(count, loopStartIndex, MauiProgram.libraryDataCToken.Token);
+
+                            for (int i = loopStartIndex; i < loopStartIndex + count; i++)
                             {
-                                int numItems = Math.Min(count, totalItems - loopStartIndex);
-                                musicItems = await MauiProgram.api.GetAllPlaylistsAsync(
-                                limit: count,
-                                startIndex: loopStartIndex,
-                                sortOrder: SortOrder.Ascending,
-                                isFavourite: isFavouritesPage,
-                                cancellactionToken: token);
-
-                                int addIndex = loopStartIndex;
-                                foreach (var item in musicItems)
+                                iCheck = i;
+                                if (itemCount < musicItems.Length)
                                 {
-                                    musicCache.TryAdd(addIndex, item);
-                                    addIndex++;
-                                }
-
-                                System.Diagnostics.Trace.WriteLine(($"[{threadID}]: Playlists Collected {musicCache.Count}"));
-
-                                loopStartIndex += count;
-                                token.ThrowIfCancellationRequested();
-
-                                if (musicItems.Length < count)
-                                {
-                                    complete = true;
-                                    MauiProgram.libraryDataCToken = null;
+                                    musicCache[i] = musicItems[itemCount];
+                                    itemCount++;
                                 }
                             }
-                            catch (Exception)
+                            if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine(($"[{threadID}]: Playlists Items Between {loopStartIndex} and {loopStartIndex + count} Collected. Total of {musicCache.Length}."));
+
+                            loopStartIndex += count;
+                            token.ThrowIfCancellationRequested();
+
+                            if (musicItems.Length < count)
                             {
-                                System.Diagnostics.Trace.WriteLine($"[{threadID}]: Data load cancelled!");
-                                MauiProgram.libraryDataCToken = null;
                                 complete = true;
+                                MauiProgram.libraryDataCToken = null;
                             }
                         }
-                        System.Diagnostics.Trace.WriteLine($"[{threadID}]: Playlists fully loaded with {musicCache.Count} total!");
-                        MauiProgram.libraryDataCToken = null;
-                        break;
-                    case Selectable.albums:
-                        totalItems = await MauiProgram.api.GetTotalAlbumCount(isFavouritesPage);
-                        while (!complete)
+                        catch (Exception ex)
                         {
-                            try
-                            {
-                                int numItems = Math.Min(count, totalItems - loopStartIndex);
-                                musicItems = await MauiProgram.api.GetAllAlbumsAsync(
-                                limit: count,
-                                startIndex: loopStartIndex,
-                                sortOrder: SortOrder.Ascending,
-                                isFavourite: isFavouritesPage,
-                                cancellactionToken: token);
-
-                                int addIndex = loopStartIndex;
-                                foreach (var item in musicItems)
-                                {
-                                    musicCache.TryAdd(addIndex, item);
-                                    addIndex++;
-                                }
-
-                                System.Diagnostics.Trace.WriteLine(($"[{threadID}]: Albums Collected {musicCache.Count}"));
-
-                                loopStartIndex += count;
-                                token.ThrowIfCancellationRequested();
-
-                                if (musicItems.Length < count)
-                                {
-                                    complete = true;
-                                    MauiProgram.libraryDataCToken = null;
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                System.Diagnostics.Trace.WriteLine($"[{threadID}]: Data load cancelled!");
-                                MauiProgram.libraryDataCToken = null;
-                                complete = true;
-                            }
+                            if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine($"[{threadID}]: Data load cancelled!");
+                            MauiProgram.libraryDataCToken = null;
+                            complete = true;
                         }
-                        System.Diagnostics.Trace.WriteLine($"[{threadID}]: Albums fully loaded with {musicCache.Count} total!");
-                        MauiProgram.libraryDataCToken = null;
-                        break;
-                    case Selectable.artists:
-                        totalItems = await MauiProgram.api.GetTotalArtistCount(isFavouritesPage);
-                        while (!complete)
-                        {
-                            try
-                            {
-                                int numItems = Math.Min(count, totalItems - loopStartIndex);
-                                musicItems = await MauiProgram.api.GetAllArtistsAsync(
-                                limit: count,
-                                startIndex: loopStartIndex,
-                                // sortOrder: SortOrder.Ascending,
-                                isFavourite: isFavouritesPage,
-                                cancellactionToken: token);
-
-                                int addIndex = loopStartIndex;
-                                foreach (var item in musicItems)
-                                {
-                                    musicCache.TryAdd(addIndex, item);
-                                    addIndex++;
-                                }
-
-                                System.Diagnostics.Trace.WriteLine(($"[{threadID}]: Artists Collected {musicCache.Count}"));
-
-                                loopStartIndex += count;
-                                token.ThrowIfCancellationRequested();
-
-                                if (musicItems.Length < count)
-                                {
-                                    complete = true;
-                                    MauiProgram.libraryDataCToken = null;
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                System.Diagnostics.Trace.WriteLine($"[{threadID}]: Data load cancelled!");
-                                MauiProgram.libraryDataCToken = null;
-                                complete = true;
-                            }
-                        }
-                        System.Diagnostics.Trace.WriteLine($"[{threadID}]: Artists fully loaded with {musicCache.Count} total!");
-                        MauiProgram.libraryDataCToken = null;
-                        break;
-                    case Selectable.songs:
-                        totalItems = await MauiProgram.api.GetTotalSongCount(isFavouritesPage);
-                        while (!complete)
-                        {
-                            try
-                            {
-                                int numItems = Math.Min(count, totalItems - loopStartIndex);
-                                musicItems = await MauiProgram.api.GetAllSongsAsync(
-                                limit: count,
-                                startIndex: loopStartIndex,
-                                sortOrder: [SortOrder.Ascending],
-                                isFavourite: isFavouritesPage,
-                                cancellactionToken: token);
-
-                                int addIndex = loopStartIndex;
-                                foreach (var item in musicItems)
-                                {
-                                    musicCache.TryAdd(addIndex, item);
-                                    addIndex++;
-                                }
-
-                                System.Diagnostics.Trace.WriteLine(($"[{threadID}]: Songs Collected {musicCache.Count}"));
-
-                                loopStartIndex += count;
-                                token.ThrowIfCancellationRequested();
-
-                                if (musicItems.Length < count)
-                                {
-                                    complete = true;
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                System.Diagnostics.Trace.WriteLine($"[{threadID}]: Data load cancelled!");
-                                MauiProgram.libraryDataCToken = null;
-                                complete = true;
-                            }
-                        }
-                        System.Diagnostics.Trace.WriteLine($"[{threadID}]: Songs fully loaded with {musicCache.Count} total!");
-                        MauiProgram.libraryDataCToken = null;
-                        break;
-                    // case Selectable.genres:
-                    //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM
-                    //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex
-                    //     break;
-                    default:
-
-                        break;
+                    }
+                    if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine($"[{threadID}]: Playlists fully loaded with {musicCache.Length} total!");
+                    MauiProgram.libraryDataCToken = null;
+                }
+                catch (Exception ex)
+                {
+                    if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine($"[{threadID}]: Data load cancelled: {ex.Message} at {ex.StackTrace}");
+                    MauiProgram.libraryDataCToken = null;
                 }
             }, token);
-            System.Diagnostics.Trace.WriteLine("Data Loader Thread Started in background!");
+            if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine("Data Loader Thread Started in background!");
         }
         else
         {
@@ -577,7 +534,7 @@
                 while (MauiProgram.libraryDataCToken != null)
                 {
                     await MauiProgram.libraryDataCToken.CancelAsync();
-                    System.Diagnostics.Trace.WriteLine("Attempting cancellation!");
+                    if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine("Attempting cancellation!");
                     await Task.Delay(500);
                 }
             });

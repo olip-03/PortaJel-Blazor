@@ -242,6 +242,9 @@ public partial class MainPage : ContentPage
     }
     public async void ShowLoadingScreen(bool value)
     {
+        LoadingBlockout.IsVisible = false;
+        return; // DEBUG. DISABLING THIS FEATURE FOR TESTING
+
         if (value == true)
         { // If we're already visible, do nothin'
             LoadingBlockout.IsVisible = true;

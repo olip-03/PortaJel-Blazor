@@ -41,14 +41,16 @@ namespace PortaJel_Blazor.Classes
         SQLiteOpenFlags.Create |
         SQLiteOpenFlags.SharedCache;
 
+        private int TotalAlbums = -1;
+        private int TotalArtists = -1;
+        private int TotalPlaylists = -1;
+        private int TotalSongs = -1;
+
         private List<Guid> storedAlbums = new();
         private List<Guid> storedSongs = new();
         private List<Guid> storedArtists = new();
         private List<Guid> storedPlaylists = new();
         private List<Guid> storedGenres = new();
-
-        private int TotalArtistRecordCount = -1;
-        private int TotalSongRecordCount = -1;
 
         public bool isOffline { get; private set; } = false;
         public bool aggressiveCacheRefresh { get; private set; } = false;
@@ -126,6 +128,8 @@ namespace PortaJel_Blazor.Classes
                 });
 
                 // Add Jellyfin SDK services.
+                // include support for session.SupportsRemoteControl
+                // See lines 326 for what Jellyfin-Web wants from clients, for remote functionality https://github.com/jellyfin/jellyfin-web/blob/e5df4dd56bc180dfa24a52a99c718459a4074d56/src/controllers/dashboard/dashboard.js#L324 
                 serviceCollection.AddSingleton<JellyfinSdkSettings>();
                 serviceCollection.AddSingleton<IAuthenticationProvider, JellyfinAuthenticationProvider>();
                 serviceCollection.AddScoped<IRequestAdapter, JellyfinRequestAdapter>(s => new JellyfinRequestAdapter(
@@ -377,7 +381,6 @@ namespace PortaJel_Blazor.Classes
                     }
 
                     // Call server and return items
-                    MauiProgram.UpdateDebugMessage("Calling Items Endpoint for All Albums...");
                     BaseItemDtoQueryResult? serverResults = await _jellyfinApiClient.Items.GetAsync(c =>
                     {
                         c.QueryParameters.UserId = userDto.Id;
@@ -393,6 +396,7 @@ namespace PortaJel_Blazor.Classes
                     }, setCancellactionToken).ConfigureAwait(false);
                     if (serverResults != null && serverResults.Items != null)
                     {
+                        TotalAlbums = serverResults.TotalRecordCount.Value;
                         if (getPartial)
                         {
                             toReturn.AddRange(serverResults.Items.Select(dto => Album.Builder(dto, _sdkClientSettings.ServerUrl)));
@@ -627,29 +631,49 @@ namespace PortaJel_Blazor.Classes
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public async Task<int> GetTotalAlbumCount(bool isFavourite = false)
+        public async Task<int> GetTotalAlbumCount(bool isFavourite = false, CancellationToken? cancellatcionToken = null)
         {
             if (_jellyfinApiClient == null || userDto == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
-            int totalAlbumCount = 0;
-
             if (isOffline)
             {
-                totalAlbumCount = await Database.Table<AlbumData>().CountAsync().ConfigureAwait(false);
+                TotalAlbums = await Database.Table<AlbumData>().CountAsync().ConfigureAwait(false);
             }
             else 
             {
-                ItemCounts counts = await _jellyfinApiClient.Items.Counts.GetAsync(c =>
+                try
                 {
-                    c.QueryParameters.UserId = userDto.Id;
-                    c.QueryParameters.IsFavorite = isFavourite;
-                }).ConfigureAwait(false);
-                totalAlbumCount = counts.AlbumCount.Value;
+                    if(TotalAlbums < 0)
+                    {
+                        BaseItemDtoQueryResult? serverResults = await _jellyfinApiClient.Items.GetAsync(c =>
+                        {
+                            c.QueryParameters.UserId = userDto.Id;
+                            c.QueryParameters.IsFavorite = isFavourite;
+                            c.QueryParameters.SortBy = [ItemSortBy.Name];
+                            c.QueryParameters.SortOrder = [SortOrder.Descending];
+                            c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicAlbum];
+                            c.QueryParameters.Limit = 1;
+                            c.QueryParameters.StartIndex = 0;
+                            c.QueryParameters.Recursive = true;
+                            c.QueryParameters.EnableImages = true;
+                            c.QueryParameters.EnableTotalRecordCount = true;
+                        }, cancellatcionToken.Value).ConfigureAwait(false);
+
+                        if(serverResults != null)
+                        {
+                            TotalAlbums = serverResults.TotalRecordCount.Value;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    return TotalAlbums;
+                }
             }
-            return totalAlbumCount;
+            return TotalAlbums;
         }
         #endregion
 
@@ -782,6 +806,7 @@ namespace PortaJel_Blazor.Classes
                     }, setCancellactionToken).ConfigureAwait(false);
                     if (serverResults != null && serverResults.Items != null)
                     {
+                        TotalSongs = serverResults.TotalRecordCount.Value;
                         for (int i = 0; i < serverResults.Items.Count(); i++)
                         {
                             Song newSong = new Song(SongData.Builder(serverResults.Items[i], _sdkClientSettings.ServerUrl));
@@ -925,29 +950,43 @@ namespace PortaJel_Blazor.Classes
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public async Task<int> GetTotalSongCount(bool isFavourite = false)
+        public async Task<int> GetTotalSongCount(bool isFavourite = false, CancellationToken? cancellationToken = null)
         {
             if (_jellyfinApiClient == null || userDto == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
-            int totalSongCount = 0;
-
             if (isOffline)
             {
-                totalSongCount = await Database.Table<SongData>().CountAsync().ConfigureAwait(false);
+                TotalSongs = await Database.Table<SongData>().CountAsync().ConfigureAwait(false);
             }
             else
             {
-                ItemCounts counts = await _jellyfinApiClient.Items.Counts.GetAsync(c =>
+                if(TotalSongs < 0)
                 {
-                    c.QueryParameters.UserId = userDto.Id;
-                    c.QueryParameters.IsFavorite = isFavourite;
-                }).ConfigureAwait(false);
-                totalSongCount = counts.SongCount.Value;
+                    BaseItemDtoQueryResult? serverResults = await _jellyfinApiClient.Items.GetAsync(c =>
+                    {
+                        c.QueryParameters.UserId = userDto.Id;
+                        c.QueryParameters.IsFavorite = isFavourite;
+                        c.QueryParameters.SortBy = [ItemSortBy.Name];
+                        c.QueryParameters.SortOrder = [SortOrder.Ascending];
+                        c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
+                        c.QueryParameters.ExcludeItemTypes = [BaseItemKind.MusicArtist, BaseItemKind.Playlist, BaseItemKind.MusicAlbum];
+                        c.QueryParameters.IncludeItemTypes = [BaseItemKind.Audio];
+                        c.QueryParameters.Limit = 1;
+                        c.QueryParameters.StartIndex = 0;
+                        c.QueryParameters.Recursive = true;
+                        c.QueryParameters.EnableImages = true;
+                        c.QueryParameters.EnableTotalRecordCount = true;
+                    }, cancellationToken.Value).ConfigureAwait(false);
+                    if (serverResults != null && serverResults.Items != null)
+                    {
+                        TotalSongs = serverResults.TotalRecordCount.Value;
+                    }
+                }
             }
-            return totalSongCount;
+            return TotalSongs;
         }
         #endregion
 
@@ -1033,7 +1072,7 @@ namespace PortaJel_Blazor.Classes
                     }, setCancellactionToken);
                     if (artistResult == null || artistResult.Items == null) return [];
                     if (artistResult.TotalRecordCount == null) return [];
-                    TotalArtistRecordCount = (int)artistResult.TotalRecordCount;
+                    TotalArtists = (int)artistResult.TotalRecordCount;
 
                     foreach (var item in artistResult.Items)
                     {
@@ -1208,36 +1247,37 @@ namespace PortaJel_Blazor.Classes
             return toReturn.ToArray();
         }
 
-        public async Task<int> GetTotalArtistCount(bool isFavourite = false)
+        public async Task<int> GetTotalArtistCount(bool isFavourite = false, CancellationToken? cancellationToken = null)
         {
             if (_jellyfinApiClient == null || userDto == null)
             {
                 throw new InvalidOperationException("Server Connector has not been initialized! Have you called AuthenticateUserAsync?");
             }
 
-            int totalArtistCount = 0;
-
             if (isOffline)
             {
-                totalArtistCount = await Database.Table<AlbumData>().CountAsync().ConfigureAwait(false);
+                TotalArtists = await Database.Table<AlbumData>().CountAsync().ConfigureAwait(false);
             }
             else
             {
-                ItemCounts counts = await _jellyfinApiClient.Items.Counts.GetAsync(c =>
+                BaseItemDtoQueryResult? artistResult = await _jellyfinApiClient.Items.GetAsync(c =>
                 {
                     c.QueryParameters.UserId = userDto.Id;
                     c.QueryParameters.IsFavorite = isFavourite;
-                }).ConfigureAwait(false);
-                if(counts.ArtistCount.Value > TotalArtistRecordCount)
+                    c.QueryParameters.SortBy = [ItemSortBy.Name];
+                    c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicArtist];
+                    c.QueryParameters.Limit = 1;
+                    c.QueryParameters.StartIndex = 0;
+                    c.QueryParameters.Recursive = true;
+                    c.QueryParameters.EnableImages = true;
+                    c.QueryParameters.EnableTotalRecordCount = true;
+                }, cancellationToken.Value);
+                if (artistResult.TotalRecordCount.Value > TotalArtists)
                 {
-                    totalArtistCount = counts.ArtistCount.Value;
-                }
-                else
-                {
-                    totalArtistCount = TotalArtistRecordCount;
+                    TotalArtists = artistResult.TotalRecordCount.Value;
                 }
             }
-            return totalArtistCount;
+            return TotalArtists;
         }
         #endregion
 
@@ -1309,6 +1349,7 @@ namespace PortaJel_Blazor.Classes
 
                     if (playlistResult == null || token.IsCancellationRequested) { return new Playlist[0]; }
                     if (playlistResult.Items == null || token.IsCancellationRequested) { return new Playlist[0]; }
+                    TotalPlaylists = playlistResult.TotalRecordCount.Value;
 
                     foreach (BaseItemDto item in playlistResult.Items)
                     {
@@ -1461,31 +1502,32 @@ namespace PortaJel_Blazor.Classes
         }
         public async Task<int> GetTotalPlaylistCount(bool isFavourite = false)
         {
-            int totalPlaylistCount = 0;
-
             if (isOffline)
             {
-                totalPlaylistCount = await Database.Table<PlaylistData>().CountAsync();
+                TotalPlaylists = await Database.Table<PlaylistData>().CountAsync();
             }
             else
             {
-                BaseItemDtoQueryResult? recordCount = await _jellyfinApiClient.Items.GetAsync(c =>
+                if (TotalPlaylists < 0)
                 {
-                    c.QueryParameters.UserId = userDto.Id;
-                    c.QueryParameters.SortBy = [ItemSortBy.Name];
-                    c.QueryParameters.IncludeItemTypes = [BaseItemKind.Playlist];
-                    c.QueryParameters.IsFavorite = isFavourite;
-                    //c.QueryParameters.Limit = limit;
-                    //c.QueryParameters.StartIndex = startFromIndex;
-                    c.QueryParameters.Recursive = true;
-                    c.QueryParameters.EnableImages = true;
-                    c.QueryParameters.EnableTotalRecordCount = true;
-                    c.QueryParameters.Fields = [ItemFields.Path];
-                }, cancellationToken: token).ConfigureAwait(false);
-                if (token.IsCancellationRequested) { cancelTokenSource = new(); return -1; }
-                totalPlaylistCount = (int)recordCount.TotalRecordCount;
+                    BaseItemDtoQueryResult? recordCount = await _jellyfinApiClient.Items.GetAsync(c =>
+                    {
+                        c.QueryParameters.UserId = userDto.Id;
+                        c.QueryParameters.SortBy = [ItemSortBy.Name];
+                        c.QueryParameters.IncludeItemTypes = [BaseItemKind.Playlist];
+                        c.QueryParameters.IsFavorite = isFavourite;
+                        //c.QueryParameters.Limit = limit;
+                        //c.QueryParameters.StartIndex = startFromIndex;
+                        c.QueryParameters.Recursive = true;
+                        c.QueryParameters.EnableImages = true;
+                        c.QueryParameters.EnableTotalRecordCount = true;
+                        c.QueryParameters.Fields = [ItemFields.Path];
+                    }, cancellationToken: token).ConfigureAwait(false);
+                    if (token.IsCancellationRequested) { cancelTokenSource = new(); return -1; }
+                    TotalPlaylists = (int)recordCount.TotalRecordCount;
+                }
             }
-            return totalPlaylistCount;
+            return TotalPlaylists;
         }
         #endregion
 

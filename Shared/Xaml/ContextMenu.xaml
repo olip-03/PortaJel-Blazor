@@ -39,7 +39,7 @@
             IsVisible="True">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="classes:ContextMenuItem">
-                    <ViewCell>
+                    <ViewCell IsEnabled="{Binding isEnabled}">
                         <FlexLayout AlignItems="Center" HeightRequest="{Binding itemSize}">
                             <Image HeightRequest="{Binding itemSize}" WidthRequest="{Binding itemSize}" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
                             <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="{StaticResource PrimaryTextColor}"></Label>

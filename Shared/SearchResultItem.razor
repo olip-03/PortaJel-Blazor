@@ -94,6 +94,10 @@
 
     protected override void OnParametersSet()
     {
+        if(musicObject == null)
+        {
+            return;
+        }
         musicObjectType = musicObject.GetType().Name;
         if (musicObject is Album)
         {

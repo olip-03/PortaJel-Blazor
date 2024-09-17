@@ -31,6 +31,12 @@ namespace PortaJel_Blazor.Classes
             get => (double)GetValue(cellSizeProperty);
             set => SetValue(cellSizeProperty, value);
         }
+        public static readonly BindableProperty isEnabledProperty = BindableProperty.Create(nameof(cellSize), typeof(bool), typeof(ContextMenuItem), false);
+        public bool isEnabled
+        {
+            get => (bool)GetValue(isEnabledProperty);
+            set => SetValue(isEnabledProperty, value);
+        }
 
         public Action? action { get; set; }
 
@@ -41,12 +47,14 @@ namespace PortaJel_Blazor.Classes
             this.action = setTask;
             this.itemSize = setIconSize;
             this.cellSize = setCellSize;
+            this.isEnabled = true;
         }
         public ContextMenuItem(string setTaskName, string setTaskIcon, Action? setTask)
         {
             this.itemName = setTaskName;
             this.itemIcon = setTaskIcon;
             this.action = setTask;
+            this.isEnabled = true;
             this.itemSize = 35;
             this.cellSize = 50;
         }
@@ -58,12 +66,14 @@ namespace PortaJel_Blazor.Classes
             this.action = setTask;
             this.itemSize = 35;
             this.cellSize = 50;
+            this.isEnabled = true;
         }
 
         public ContextMenuItem()
         {
             this.itemSize = 35;
             this.cellSize = 50;
+            this.isEnabled = true;
         }
     }
 }
