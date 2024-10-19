@@ -18,33 +18,40 @@
             </Animate>
         </div>
     </div>
+    
     <!-- Song contents -->
     <div class="infoContainer">
+        @{
+            string primaryColorClass = EngageCheckmode && IsChecked ? "PrimaryColor" : "PrimaryTextColor";
+            string secondaryColorClass = EngageCheckmode && IsChecked ? "PrimaryColor" : "SecondaryTextColor";
+        }
         @if (ShowSongImageMode)
-        { // Image Mode is ON 
-            <div class="imgHolder"  @onclick="() => PlaySong(location)">
-                <img src="@song.ImgSource" class="imgHolderPrimaryImg @(EngageCheckmode && IsChecked == false ? "imgHolderPrimaryImgSelected" : "")" />
+        {
+            // Image Mode is ON 
+            <div class="imgHolder" @onclick="() => PlaySong(location)">
+                <img src="@song.ImgSource" class="imgHolderPrimaryImg @(EngageCheckmode && IsChecked == false ? "imgHolderPrimaryImgSelected" : "")"/>
                 @*<img class="imgHolderBackImg"/>*@
             </div>
         }
         else
-        { // Image Mode is OFF 
+        {
+            // Image Mode is OFF 
             if (location >= 0)
             {
-                <div class="numberholder songArtistTitle PrimaryTextColor"  @onclick="() => PlaySong(location)">
+                <div class="numberholder songArtistTitle PrimaryTextColor" @onclick="() => PlaySong(location)">
                     @if (EngageCheckmode)
                     {
                         <div class="radioButtonContainer">
                             @if (IsChecked)
                             {
                                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                    <input class="radioButton" type="radio" checked="checked">
+                                    <input class="radioButton @primaryColorClass" type="radio" checked="checked">
                                 </Animate>
                             }
                             else
                             {
                                 <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                    <input class="radioButton" type="radio">
+                                    <input class="radioButton @primaryColorClass" type="radio">
                                 </Animate>
                             }
                         </div>
@@ -52,7 +59,7 @@
                     else
                     {
                         <p class="indexNumber">
-                            @{int displayLocation = location + 1;}
+                            @{ int displayLocation = location + 1; }
                             @displayLocation
                         </p>
                     }
@@ -61,24 +68,25 @@
         }
 
         <button class="songTextContainer" @onclick="() => PlaySong(location)">
-            <p class="PrimaryTextColor songTitle">@song.Name</p>
-            <p class="SecondaryTextColor songArtistTitle">@song.ArtistNames</p>
+            <p class="songTitle @primaryColorClass">@song.Name</p>
+            <p class="songArtistTitle @secondaryColorClass">@song.ArtistNames</p>
         </button>
         <div class="songitem-options">
             <div @onclick="() => FavouriteSong(song.Id)" class="songitem-optionbtn">
                 @if (song.IsFavourite)
                 {
                     <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
-                        <HeartIcon Filled="true" ExtraStyle="width: calc(2rem * 0.8); height: calc(2rem * 0.8);" />
+                        <HeartIcon Filled="true" ExtraStyle="width: calc(2rem * 0.8); height: calc(2rem * 0.8);"/>
                     </Animate>
                 }
             </div>
 
             <div @onclick="() => OpenContextMenu()" class="songitem-optionbtn">
-                <MoreHorizIcon ExtraStyle="width: 2rem; height: 2rem;" />
+                <MoreHorizIcon ExtraStyle="width: 2rem; height: 2rem;"/>
             </div>
         </div>
     </div>
+    
     <!-- Like overscroll -->
     <div id="@(overscrollId = guid.ToString() + "-overscrollFav")" class="overscroll-auto PageBackgroundColor">
         <div class="songitem-optionbtn">

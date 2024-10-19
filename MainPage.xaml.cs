@@ -129,8 +129,8 @@ public partial class MainPage : ContentPage
     {
         await Task.WhenAll(
             btn_navbar_home_iconframe.BackgroundColorTo(Colors.Transparent),
-            btn_navbar_library_iconframe.BackgroundColorTo(Colors.Transparent),
-            btn_navbar_fav_iconframe.BackgroundColorTo(Colors.Transparent)
+            btn_navbar_search_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_lib_iconframe.BackgroundColorTo(Colors.Transparent)
         );
     }
     public async Task NavigateToPlaylistEdit(Guid PlaylistId)
@@ -242,10 +242,7 @@ public partial class MainPage : ContentPage
     }
     public async void ShowLoadingScreen(bool value)
     {
-        LoadingBlockout.IsVisible = false;
-        return; // DEBUG. DISABLING THIS FEATURE FOR TESTING
-
-        if (value == true)
+        if (value)
         { // If we're already visible, do nothin'
             LoadingBlockout.IsVisible = true;
             LoadingBlockout.InputTransparent = false;
@@ -255,10 +252,12 @@ public partial class MainPage : ContentPage
         {
             LoadingBlockout.InputTransparent = true;
             LoadingBlockout.Opacity = 1; // make fully visible
+            
             await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
             LoadingBlockout.IsVisible = false;
         }
     }
+    
     public async void UpdateKeyboardLocation()
     {
         var keyboardHeight = AllContent.Height - AllContent.Bounds.Bottom + AllContent.Bounds.Top;
@@ -266,7 +265,9 @@ public partial class MainPage : ContentPage
         var toast = Toast.Make($"Keyboard height {keyboardHeight}", ToastDuration.Long, 14);
         await toast.Show();
     }
+    
     private bool mediaCntrollerSliderDragging = false;
+    
     /// <summary>
     /// Skips to the next song
     /// </summary>
@@ -348,48 +349,34 @@ public partial class MainPage : ContentPage
         ShowLoadingScreen(true);
         await Task.WhenAll(
             btn_navbar_home_iconframe.BackgroundColorTo(Colors.Gray),
-            btn_navbar_library_iconframe.BackgroundColorTo(Colors.Transparent),
-            btn_navbar_fav_iconframe.BackgroundColorTo(Colors.Transparent)
+            btn_navbar_search_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_lib_iconframe.BackgroundColorTo(Colors.Transparent)
         );
         MauiProgram.WebView.NavigateHome();
     }
+    
+    private async void btn_navnar_search_released(object sender, TappedEventArgs e)
+    {
+        ShowLoadingScreen(true);
+        await Task.WhenAll(
+            btn_navbar_home_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_search_iconframe.BackgroundColorTo(Colors.Gray),
+            btn_navbar_lib_iconframe.BackgroundColorTo(Colors.Transparent)
+        );
+        MauiProgram.WebView.NavigateSearch();
+    }
+    
     private async void btn_navnar_library_released(object sender, TappedEventArgs e)
     {
         ShowLoadingScreen(true);
         await Task.WhenAll(
             btn_navbar_home_iconframe.BackgroundColorTo(Colors.Transparent),
-            btn_navbar_library_iconframe.BackgroundColorTo(Colors.Gray),
-            btn_navbar_fav_iconframe.BackgroundColorTo(Colors.Transparent)
+            btn_navbar_search_iconframe.BackgroundColorTo(Colors.Transparent),
+            btn_navbar_lib_iconframe.BackgroundColorTo(Colors.Gray)
         );
         MauiProgram.WebView.NavigateLibrary();
     }
-    private async void btn_navbar_fav_released(System.Object sender, Microsoft.Maui.Controls.TappedEventArgs e)
-    {
-        ShowLoadingScreen(true);
-        await Task.WhenAll(
-            btn_navbar_home_iconframe.BackgroundColorTo(Colors.Transparent),
-            btn_navbar_library_iconframe.BackgroundColorTo(Colors.Transparent),
-            btn_navbar_fav_iconframe.BackgroundColorTo(Colors.Gray)
-        );
-        MauiProgram.WebView.NavigateFavourites();
-    }
-    //private void btn_navnar_favourite_pressed(object sender, EventArgs e)
-    //{
-    //    btn_navnar_favourites.Scale = 0.8;
-    //    btn_navnar_favourites.Opacity = 0.6;
-    //    HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-    //}
-    //private async void btn_navnar_favourite_released(object sender, EventArgs e)
-    //{
-        
-    //}
-    private void MediaController_Btn_ContextMenu(object sender, EventArgs args)
-    {
-        // TODO: Update this to show current item
-        // OpenContextMenu();
-    }
-    private double imgDragDistance = 0;
-
+    
     private async void MiniPlayer_Swiped(object sender, SwipedEventArgs e)
     {
         switch (e.Direction)

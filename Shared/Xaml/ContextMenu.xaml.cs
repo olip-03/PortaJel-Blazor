@@ -88,7 +88,7 @@ public partial class ContextMenu : ContentView
                 {
                     // TODO: Add queue functionality 
                 })));
-                ViewModel.ContextMenuSubText = "Album • " + album.ArtistNames;
+                ViewModel.ContextMenuSubText = "Album ï¿½ " + album.ArtistNames;
             }
             /// #####################################################
             /// CREATE CONTEXT MENU ITEMS FOR SONG HERE
@@ -137,7 +137,7 @@ public partial class ContextMenu : ContentView
                 {
                     // TODO: Add queue functionality 
                 })));
-                ViewModel.ContextMenuSubText = "Song • " + song.ArtistNames;                                                    
+                ViewModel.ContextMenuSubText = "Song ï¿½ " + song.ArtistNames;                                                    
                 ViewModel.ContextMenuItems.Add(new ContextMenuItem("View Artist", "light_artist.png", new Action(async () =>
                 {
                     MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -260,19 +260,19 @@ public partial class ContextMenu : ContentView
             {
                 var imageBytes = Convert.FromBase64String(blurBase64);
                 MemoryStream imageDecodeStream = new(imageBytes);
-                this.ImageContainer_BackgroundImg.Source = ImageSource.FromStream(() => imageDecodeStream);
+                this.ImageContainerBackgroundImg.Source = ImageSource.FromStream(() => imageDecodeStream);
             }
 
             if (isCircle == true)
             {
-                ImageContainer_Border.StrokeShape = new RoundRectangle
+                ImageContainerBorder.StrokeShape = new RoundRectangle
                 {
                     CornerRadius = new CornerRadius(150, 150, 150, 150)
                 };
             }
             else
             {
-                ImageContainer_Border.StrokeShape = new RoundRectangle
+                ImageContainerBorder.StrokeShape = new RoundRectangle
                 {
                     CornerRadius = new CornerRadius(5, 5, 5, 5)
                 };
@@ -357,8 +357,8 @@ public partial class ContextMenu : ContentView
 
         if (loadedImages.Contains(fullImgUrl))
         {
-            ImageContainer_Img.Opacity = 1;
-            ImageContainer_Img.Source = fullImgUrl;
+            ImageContainerImg.Opacity = 1;
+            ImageContainerImg.Source = fullImgUrl;
 
             await Task.WhenAll(
                 Container.TranslateTo(Container.X, 0, 300, Easing.SinOut),
@@ -366,7 +366,7 @@ public partial class ContextMenu : ContentView
             return;
         }
 
-        ImageContainer_Img.Opacity = 0;
+        ImageContainerImg.Opacity = 0;
 
         Task<byte[]> imgTask = Task.Run(async () =>
         {
@@ -397,13 +397,13 @@ public partial class ContextMenu : ContentView
         if(bytes.Length > 0)
         {
             MemoryStream imageDecodeStream = new(imgTask.Result);
-            this.ImageContainer_Img.Source = ImageSource.FromStream(() => imageDecodeStream);
+            this.ImageContainerImg.Source = ImageSource.FromStream(() => imageDecodeStream);
         }
         else
         {
-            this.ImageContainer_Img.Source = "emptyalbum.png";
+            this.ImageContainerImg.Source = "emptyalbum.png";
         }
-        await ImageContainer_Img.FadeTo(1, 750, Easing.SinIn);
+        await ImageContainerImg.FadeTo(1, 750, Easing.SinIn);
     }
 
     public async Task<bool> Close()

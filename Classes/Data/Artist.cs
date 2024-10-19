@@ -21,8 +21,8 @@ namespace PortaJel_Blazor.Data
         public bool IsPartial { get; set; } = false;
         public AlbumData[] Albums => _albumData;
 
-        private ArtistData _artistData;
-        private AlbumData[] _albumData; 
+        private readonly ArtistData _artistData;
+        private readonly AlbumData[] _albumData; 
 
         public static Artist Empty = new Artist();
         public Artist()

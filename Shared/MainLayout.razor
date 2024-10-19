@@ -7,7 +7,7 @@
 @inject IJSRuntime JS
 @namespace PortaJel_Blazor.Shared
 
-<AutoStyle></AutoStyle>
+<AutoStyle/>
 
 <div class="page PageBackgroundColor">
     <main>
@@ -205,6 +205,31 @@
         }
         else if (currentUri == "/library/false")
         {
+            MauiProgram.MainPage.ShowLoadingScreen(false);
+        }
+        return currentUri;
+    }
+    
+    public string NavigateSearch()
+    {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
+        if (currentUri != "/search/false")
+        {
+            MauiProgram.MainPage.ShowLoadingScreen(true);
+
+            showHeader = true;
+            pageTitle = "Search";
+            currentUri = "/search/false";
+
+            NavManager.NavigateTo(currentUri);
+        }
+        else
+        {
+            // Focus the search button
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
         return currentUri;

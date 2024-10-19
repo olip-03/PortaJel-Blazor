@@ -21,6 +21,7 @@
     text-align: center;
     width: 30vw;
     height: 100%;
+    max-width: 200px;
 }
 
 .boxed input[type="radio"] {
@@ -31,7 +32,7 @@
         border-bottom: solid 3px #007bff;
     }
 
-hr{
+hr {
     height: 0px;
     margin: 0.5rem;
 }

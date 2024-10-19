@@ -1603,7 +1603,7 @@ namespace PortaJel_Blazor.Classes
 
             List<BaseItemKind> _albumItemTypes = new List<BaseItemKind> { };
 
-            SearchHintResult? searchResult = await _jellyfinApiClient.Search.Hints.GetAsync(c =>
+            SearchHintResult searchResult = await _jellyfinApiClient.Search.Hints.GetAsync(c =>
             {
                 c.QueryParameters.UserId = userDto.Id;
                 c.QueryParameters.SearchTerm = _searchTerm;
@@ -1613,8 +1613,8 @@ namespace PortaJel_Blazor.Classes
                 c.QueryParameters.IncludeGenres = true;
             }).ConfigureAwait(false);
             if (token.IsCancellationRequested) { cancelTokenSource = new(); return new Data.Album[0]; }
-
-            if (searchResult.SearchHints.Count() == 0)
+            
+            if (searchResult.SearchHints.Any())
             {
                 return new BaseMusicItem[0];
             }

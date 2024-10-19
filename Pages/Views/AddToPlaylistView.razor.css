@@ -122,8 +122,6 @@
     }
 }
 
-
-
 /* CSS Changes after screen width change */
 @media (min-width:1000px){
     .album-data {

@@ -8,47 +8,49 @@
 @using PortaJel_Blazor.Shared;
 @using PortaJel_Blazor.Shared.Icons;
 @using System.Collections.Concurrent;
+@using PortaJel_Blazor.Classes
 @inject IJSRuntime JS;
+@implements IDisposable
 
 <div id="libraryToolbar" class="button-container boxed PageSecondaryColor">
-    @if (selected == Selectable.playlists)
+    @if (_selected == FilterItemTypes.Playlists)
     {
-        <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
+        <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(FilterItemTypes.Playlists)">
     }
     else
     {
-        <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(Selectable.playlists)">
+        <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(FilterItemTypes.Playlists)">
     }
     <label class="PrimaryTextColor" for="playlists">Playlists</label>
 
-    @if (selected == Selectable.albums)
+    @if (_selected == FilterItemTypes.Albums)
     {
-        <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(Selectable.albums)">
+        <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(FilterItemTypes.Albums)">
     }
     else
     {
-        <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(Selectable.albums)">
+        <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(FilterItemTypes.Albums)">
     }
     <label class="PrimaryTextColor" for="albums">Albums</label>
 
-    @if (selected == Selectable.artists)
+    @if (_selected == FilterItemTypes.Artists)
     {
-        <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(Selectable.artists)">
+        <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(FilterItemTypes.Artists)">
     }
     else
     {
-        <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(Selectable.artists)">
+        <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(FilterItemTypes.Artists)">
     }
     <label class="PrimaryTextColor" for="artists">Artists</label>
 
 
-    @if (selected == Selectable.songs)
+    @if (_selected == FilterItemTypes.Songs)
     {
-        <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(Selectable.songs)">
+        <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(FilterItemTypes.Songs)">
     }
     else
     {
-        <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(Selectable.songs)">
+        <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(FilterItemTypes.Songs)">
     }
     <label class="PrimaryTextColor" for="songs">Songs</label>
 
@@ -66,51 +68,14 @@
         } *@
 </div>
 
+<ListSortToolbar/>
+
 @*<div class="quickplay-container">
         <button class="quickplay-button PageSecondaryColor PrimaryTextColor">Play All</button>
         <div style="width:1rem;" />
         <button class="quickplay-button PageSecondaryColor PrimaryTextColor">Shuffle</button>
     </div>*@
 
-<div class="tool-container">
-    <div @onclick=ToggleSort>
-        @switch (sort)
-        {
-            case sortMethod.byActivity:
-                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
-                    <p class="tools-text PrimaryTextColor">Activity</p>
-                </Animate>
-                break;
-            case sortMethod.byArtist:
-                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
-                    <p class="tools-text PrimaryTextColor">Artist</p>
-                </Animate>
-                break;
-            case sortMethod.byName:
-                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <SortTypeIcon ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
-                    <p class="tools-text PrimaryTextColor">Name</p>
-                </Animate>
-                break;
-        }
-    </div>
-    <div @onclick=ToggleView>
-        @if (showGrid)
-        {
-            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                <ListViewIcon IsGrid=@showGrid ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
-            </Animate>
-        }
-        else
-        {
-            <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
-                <ListViewIcon IsGrid=@showGrid ExtraStyle="width: 1.75rem; height: 1.75rem; user-select: none; cursor: pointer;" />
-            </Animate>
-        }
-    </div>
-</div>
 
 @* Custom styling for items when grid mode is selected *@
 @if (showGrid)
@@ -139,7 +104,7 @@
             </ItemContent>
 
             <Placeholder>
-                @if (selected == Selectable.artists)
+                @if (_selected == FilterItemTypes.Artists)
                 {
                     <SearchResultItem musicObject="Artist.Empty" />
                 }
@@ -175,19 +140,8 @@
     private bool isLoading = false;
 
     private bool hasData = false;
-
-    private enum Selectable
-    {
-        playlists,
-        albums,
-        artists,
-        songs,
-        genres,
-        none
-    }
-    Selectable selected = (Selectable)Enum.ToObject(typeof(Selectable), MauiProgram.libraryItemView);
-    Selectable queued = Selectable.none;
-
+    private FilterItemTypes _selected = FilterItemTypes.Playlists;
+    
     private enum sortMethod
     {
         byArtist,
@@ -224,7 +178,7 @@
         placeholderImages = [];
         isFavouritesPage = Boolean.Parse(showFavourites);
         isLoading = true;
-        SelectPage(selected);
+        SelectPage(_selected);
         StateHasChanged();
     }
 
@@ -239,6 +193,14 @@
         if (hasData)
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
+        }
+    }
+
+    public void Dispose()
+    {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
         }
     }
 
@@ -267,10 +229,10 @@
 
     // Please implement virtualization
     // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/virtualization?view=aspnetcore-8.0
-    private async void SelectPage(Selectable page)
+    private async void SelectPage(FilterItemTypes page)
     {
         MauiProgram.libraryItemView = (int)page;
-        selected = page;
+        _selected = page;
 
         isLoading = true;
         LoadAllListItems();
@@ -282,10 +244,7 @@
         if (virtualizeComponent != null)
         {
             await virtualizeComponent.RefreshDataAsync();
-            await Task.Delay(50);
-
         }
-
 
         isLoading = false;
         StateHasChanged();
@@ -332,12 +291,12 @@
         for (int i = 0; i < musicItems.Length; i++)
         {
             BaseMusicItem musicItem = musicItems[i];
-            switch (selected)
+            switch (_selected)
             {
-                case Selectable.none:
+                case FilterItemTypes.None:
 
                     break;
-                case Selectable.playlists:
+                case FilterItemTypes.Playlists:
                     Playlist playlist = musicItem as Playlist;
                     if (playlist != null)
                     {
@@ -345,7 +304,7 @@
                         musicItem = playlist;
                     }
                     break;
-                case Selectable.albums:
+                case FilterItemTypes.Albums:
                     Album album = musicItem as Album;
                     if (album != null)
                     {
@@ -353,7 +312,7 @@
                         musicItem = album;
                     }
                     break;
-                case Selectable.artists:
+                case FilterItemTypes.Artists:
                     Artist artist = musicItem as Artist;
                     if (artist != null)
                     {
@@ -361,7 +320,7 @@
                         musicItem = artist;
                     }
                     break;
-                case Selectable.songs:
+                case FilterItemTypes.Songs:
                     Song song = musicItem as Song;
                     if (song != null)
                     {
@@ -384,32 +343,32 @@
 
     private async Task<BaseMusicItem[]> GetSelectedItems(int setLimit, int setStartIndex, CancellationToken cancellationToken)
     {
-        switch (selected)
+        switch (_selected)
         {
-            case Selectable.none:
+            case FilterItemTypes.None:
                 return Array.Empty<BaseMusicItem>();
-            case Selectable.playlists:
+            case FilterItemTypes.Playlists:
                 return await MauiProgram.api.GetAllPlaylistsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
                 sortOrder: SortOrder.Ascending,
                 isFavourite: isFavouritesPage,
                 cancellactionToken: cancellationToken).ConfigureAwait(false);
-            case Selectable.albums:
+            case FilterItemTypes.Albums:
                 return await MauiProgram.api.GetAllAlbumsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
                 sortOrder: SortOrder.Ascending,
                 isFavourite: isFavouritesPage,
                 cancellactionToken: cancellationToken).ConfigureAwait(false);
-            case Selectable.artists:
+            case FilterItemTypes.Artists:
                 return await MauiProgram.api.GetAllArtistsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
                 // sortOrder: SortOrder.Ascending,
                 isFavourite: isFavouritesPage,
                 cancellactionToken: cancellationToken).ConfigureAwait(false);
-            case Selectable.songs:
+            case FilterItemTypes.Songs:
                 return await MauiProgram.api.GetAllSongsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
@@ -430,17 +389,17 @@
     {
         try
         {
-            switch (selected)
+            switch (_selected)
             {
-                case Selectable.none:
+                case FilterItemTypes.None:
                     return 0;
-                case Selectable.playlists:
+                case FilterItemTypes.Playlists:
                     return await MauiProgram.api.GetTotalPlaylistCount(isFavouritesPage);
-                case Selectable.albums:
+                case FilterItemTypes.Albums:
                     return await MauiProgram.api.GetTotalAlbumCount(isFavouritesPage);
-                case Selectable.artists:
+                case FilterItemTypes.Artists:
                     return await MauiProgram.api.GetTotalArtistCount(isFavouritesPage);
-                case Selectable.songs:
+                case FilterItemTypes.Songs:
                     return await MauiProgram.api.GetTotalSongCount(isFavouritesPage);
                 // case Selectable.genres:
                 //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM

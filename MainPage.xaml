@@ -37,7 +37,7 @@
             <StackLayout Orientation="Vertical" x:Name="Navbar" AnchorY="0" InputTransparent="False" IsVisible="True" Grid.Row="1">
                 <!-- Navigation Buttons -->
                 <FlexLayout HeightRequest="80" HorizontalOptions="Fill" VerticalOptions="EndAndExpand" JustifyContent="SpaceEvenly">
-                    <StackLayout WidthRequest="80" HorizontalOptions="Fill" Padding="0, 16, 0, 12">
+                    <StackLayout WidthRequest="80" HorizontalOptions="Fill" Padding="0, 12, 0, 16">
                         <Frame x:Name="btn_navbar_home_iconframe"
                                InputTransparent="True"
                             BackgroundColor="Gray"
@@ -56,8 +56,8 @@
                         </StackLayout.GestureRecognizers>
                     </StackLayout>
 
-                    <StackLayout WidthRequest="80" HorizontalOptions="Fill" Padding="0, 16, 0, 12">
-                        <Frame x:Name="btn_navbar_library_iconframe"
+                    <StackLayout WidthRequest="80" HorizontalOptions="Fill" Padding="0, 12, 0, 16">
+                        <Frame x:Name="btn_navbar_search_iconframe"
                            InputTransparent="True"
                             BackgroundColor="Transparent"
                             WidthRequest="64"
@@ -69,28 +69,28 @@
                              HeightRequest="24" >
                             </Image>
                         </Frame>
-                        <Label FontAttributes="Bold" FontSize="12" HorizontalOptions="Center" Margin="0, 0, 0, 4">Catalogue</Label>
+                        <Label FontAttributes="Bold" FontSize="12" HorizontalOptions="Center" Margin="0, 0, 0, 4">Search</Label>
                         <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="btn_navnar_library_released"/>
+                            <TapGestureRecognizer Tapped="btn_navnar_search_released" />
                         </StackLayout.GestureRecognizers>
                     </StackLayout>
                     
-                    <StackLayout WidthRequest="80" HorizontalOptions="Fill" Padding="0, 16, 0, 12">
-                        <Frame x:Name="btn_navbar_fav_iconframe"
-                               InputTransparent="True"
-                            BackgroundColor="Transparent"
-                            WidthRequest="64"
-                            HeightRequest="32"
-                            CornerRadius="16">
-                            <Image Source="{StaticResource FavButtonImage}" 
+                    <StackLayout WidthRequest="80" HorizontalOptions="Fill" Padding="0, 12, 0, 16">
+                        <Frame x:Name="btn_navbar_lib_iconframe"
+                                InputTransparent="True"
+                                BackgroundColor="Transparent"
+                                WidthRequest="64"
+                                HeightRequest="32"
+                                CornerRadius="16">
+                            <Image Source="{StaticResource LibraryButtonImage}" 
                              HorizontalOptions="Center"
                              WidthRequest="24" MinimumWidthRequest="24" 
                              HeightRequest="24" >
                             </Image>
                         </Frame>
-                        <Label FontAttributes="Bold" FontSize="12" HorizontalOptions="Center" Margin="0, 0, 0, 4">Favourites</Label>
+                        <Label FontAttributes="Bold" FontSize="12" HorizontalOptions="Center" Margin="0, 0, 0, 4">Library</Label>
                         <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="btn_navbar_fav_released"/>
+                            <TapGestureRecognizer Tapped="btn_navnar_library_released"/>
                         </StackLayout.GestureRecognizers>
                     </StackLayout>
                 </FlexLayout>

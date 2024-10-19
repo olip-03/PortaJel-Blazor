@@ -1,4 +1,7 @@
-﻿.album-container {
+﻿.addPlaylistView {
+    margin: 1rem;
+}
+.album-container {
     display: flex;
     align-items: center;
     width: 100%;
@@ -15,6 +18,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
+    margin: 0.25rem;
 }
 
 .subText {
@@ -24,6 +28,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.subTextImg {
+    height: 1rem; 
+    width: 1rem; 
+    margin: 0.25rem;
 }
 
 .album-cover {

@@ -6,23 +6,26 @@
 @inject IJSRuntime JS;
 @page "/AddToPlaylistView/{songItemIds}"
 
-<h3>
-    @songIds.Count() Items
-</h3>
+<div class="addPlaylistView">
+    <h3>
+        @songIds.Count() Items
+    </h3>
 
-<Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="20" ItemSize="100">
-    <ItemContent>
-        <SearchResultItem musicObject="musicItem" />
-    </ItemContent>
-    <Placeholder>
-        <SearchResultItem musicObject="Album.Empty"/>
-    </Placeholder>
-    <EmptyContent>
-        <p>
-            There are no items to display.
-        </p>
-    </EmptyContent>
-</Virtualize>
+    <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="20" ItemSize="100">
+        <ItemContent>
+            <SearchResultItem musicObject="musicItem" />
+        </ItemContent>
+        <Placeholder>
+            <SearchResultItem musicObject="Album.Empty"/>
+        </Placeholder>
+        <EmptyContent>
+            <p>
+                There are no items to display.
+            </p>
+        </EmptyContent>
+    </Virtualize>
+
+</div>
 
 @code {
     [Parameter] public string songItemIds { get; set; } = string.Empty;

@@ -11,17 +11,17 @@
         
         <!--Image Container -->
         <VerticalStackLayout x:Name="ImageContainer" VerticalOptions="Center">
-            <Border x:Name="ImageContainer_Border" Grid.Row="1" HorizontalOptions="Center" StrokeShape="RoundRectangle 5,5,5,5" StrokeThickness="0" HeightRequest="300" WidthRequest="300">
+            <Border x:Name="ImageContainerBorder" Grid.Row="1" HorizontalOptions="Center" StrokeShape="RoundRectangle 5,5,5,5" StrokeThickness="0" HeightRequest="300" WidthRequest="300">
                 <!-- single cell grid filling its parent. -->
                 <Grid>
-                    <Image x:Name="ImageContainer_BackgroundImg" Source="{Binding ContextMenuBackgroundImage}" HeightRequest="300" WidthRequest="300" Aspect="Fill"></Image>
-                    <Image x:Name="ImageContainer_Img" Source="{Binding ContextMenuImage}" Opacity="0" HeightRequest="300" WidthRequest="300" Aspect="Fill"></Image>
+                    <Image x:Name="ImageContainerBackgroundImg" Source="{Binding ContextMenuBackgroundImage}" HeightRequest="300" WidthRequest="300" Aspect="Fill"></Image>
+                    <Image x:Name="ImageContainerImg" Source="{Binding ContextMenuImage}" Opacity="0" HeightRequest="300" WidthRequest="300" Aspect="Fill"></Image>
                 </Grid>
             </Border>
             <StackLayout VerticalOptions="Start" Grid.Row="2">
                 
-                <Label x:Name="ImageContainer_MainText" Text="{Binding ContextMenuMainText}" TextColor="{StaticResource PrimaryTextColor}" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>
-                <Label x:Name="ImageContainer_SubText" Text="{Binding ContextMenuSubText}" TextColor="{StaticResource SecondaryTextColor}" FontSize="18" HorizontalTextAlignment="Center" Margin="30,0,30,0" ></Label>
+                <Label x:Name="ImageContainerMainText" Text="{Binding ContextMenuMainText}" TextColor="{StaticResource PrimaryTextColor}" FontSize="25" HorizontalTextAlignment="Center" Margin="30,0,30,0"></Label>
+                <Label x:Name="ImageContainerSubText" Text="{Binding ContextMenuSubText}" TextColor="{StaticResource SecondaryTextColor}" FontSize="18" HorizontalTextAlignment="Center" Margin="30,0,30,0" ></Label>
             </StackLayout>
         </VerticalStackLayout>
 
@@ -40,7 +40,7 @@
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="classes:ContextMenuItem">
                     <ViewCell IsEnabled="{Binding isEnabled}">
-                        <FlexLayout AlignItems="Center" HeightRequest="{Binding itemSize}">
+                        <FlexLayout AlignItems="Center" HeightRequest="32">
                             <Image HeightRequest="{Binding itemSize}" WidthRequest="{Binding itemSize}" Source="{Binding itemIcon}" VerticalOptions="Center"></Image>
                             <Label Text="{Binding itemName}" VerticalOptions="Center" Margin="5" FontSize="18" TextColor="{StaticResource PrimaryTextColor}"></Label>
                         </FlexLayout>

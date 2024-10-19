@@ -5,16 +5,17 @@
 
 @page "/search"
 @page "/search/{searchQuery}"
+
 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
     <div>
-        <input type="text" id="SearchPage_SearchInput" name="search" class="searchBox" @oninput="@((e) => TextChange((string)e.Value) )" />
-        <hr />
+        <input type="text" id="SearchPage_SearchInput" name="search" class="searchBox" @oninput="@((e) => TextChange((string)e.Value))"/>
+        <hr/>
         @if (waitingForResult)
         {
             <div class="album-container">
                 <!-- TODO: Restore Spinner Element -->
-                @*<PortaJel_Blazor.Shared.Resources.Spinner />*@            
-</div>
+                @*<PortaJel_Blazor.Shared.Resources.Spinner />*@
+            </div>
         }
         else
         {
@@ -36,10 +37,11 @@
                         }
 
                         <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                            <SearchResultItem musicObject="@musicItem" cacheAsRecentItem=true placeholderBase64="@placeholderImg" />
+                            <SearchResultItem musicObject="@musicItem" cacheAsRecentItem=true placeholderBase64="@placeholderImg"/>
                         </Animate>
-                        
-                        if(i <= 6){
+
+                        if (i <= 6)
+                        {
                             itemFadeInDelay += 0.05f;
                         }
                         else
@@ -59,9 +61,9 @@
                     for (int i = 0; i < MauiProgram.recentSearchResults.Count(); i++)
                     {
                         <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                            <SearchResultItem musicObject="@MauiProgram.recentSearchResults.ToList()[i].Value" cacheAsRecentItem=true />
+                            <SearchResultItem musicObject="@MauiProgram.recentSearchResults.ToList()[i].Value" cacheAsRecentItem="true"/>
                         </Animate>
-
+                        
                         if (i <= 6)
                         {
                             itemFadeInDelay += 0.05f;
@@ -83,7 +85,7 @@
 
     [Parameter] public string searchQuery { get; set; } = String.Empty;
     private string queudQuery = String.Empty;
-    private bool queryQueued = false; 
+    private bool queryQueued = false;
     BaseMusicItem[] searchResults = new BaseMusicItem[0];
     string[] placeholderImages = new string[0];
 
@@ -105,6 +107,7 @@
         isLoading = false;
         // MauiProgram.mainPage.UpdateKeyboardLocation();
     }
+
     private async void TextChange(string searchFor)
     {
         if (searchFor == null)
@@ -131,7 +134,7 @@
         waitingForResult = true;
 
         // If there is a queued result 
-        await Task.Run(async() =>
+        await Task.Run(async () =>
         {
             bool recheck = true;
             while (recheck)
@@ -188,17 +191,21 @@
         waitingForResult = false;
         await InvokeAsync(StateHasChanged);
     }
+
     // Helper method to remove special characters from a string
     private string RemoveSpecialCharacters(string str)
     {
         return new string(str.Where(c => Char.IsLetterOrDigit(c) || Char.IsWhiteSpace(c)).ToArray());
     }
+
     protected override async void OnAfterRender(bool firstRender)
     {
         if (!isLoading)
         {
             await JS.InvokeAsync<string>("SearchPage_FocusOnInput");
         }
+
         await JS.InvokeAsync<string>("InitAllImages");
     }
+
 }

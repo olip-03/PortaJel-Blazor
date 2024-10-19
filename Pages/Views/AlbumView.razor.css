@@ -1,3 +1,7 @@
+.album {
+    position: relative;
+}
+
 .background-blur {
     width: 100vw;
     height: 80vh;
@@ -12,8 +16,8 @@
 .image-container {
     width: 70vw;
     height: auto;
-    max-width: 400px;
-    max-height: 400px;
+    max-width: 300px;
+    max-height: 300px;
     aspect-ratio: 1 / 1;
     position: relative;
     overflow: hidden;
@@ -43,12 +47,21 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
     margin: 0;
 }
 
 .item-title {
-    align-self: start;
+    align-self: center;
     margin: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    h2 {
+        font-size: xx-large;
+        text-align: center;
+    }
 }
 
 .playback-controls {
@@ -56,11 +69,13 @@
     flex-direction: row;
     align-items: center;
     width: calc(100vw - 2rem);
+    margin: 0 1rem;
 }
 
 .playback-controls-btn {
     height: 2rem;
     width: 2rem;
+    margin: auto 0 auto 1rem
 }
 
 .playback-controls-btn-img{
@@ -79,6 +94,10 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .artistInfo {
@@ -122,13 +141,19 @@
     }
 }
 
-
-
 /* CSS Changes after screen width change */
-@media (min-width:1000px){
+@media (min-width:700px){
     .album-data {
         margin: 0 4rem;
         text-align:left;
         flex-direction: row;
+    }
+    
+    .item-title {
+        align-items: start;
+    }
+    
+    h2 {
+        font-size: xxx-large;
     }
 }

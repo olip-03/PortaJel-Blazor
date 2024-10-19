@@ -34,7 +34,17 @@
             @if (!String.IsNullOrWhiteSpace(subText))
             {
                 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <div class="SecondaryTextColor subText">@subText</div>
+                    <div class="SecondaryTextColor subText">
+                        @if (musicObject is Song)
+                        { // Show the little song icon
+                        <img src="/images/song.svg" class="subTextImg"/>
+                        }
+                        else if(musicObject is Album)
+                        {
+                        <img src="/images/album.svg" class="subTextImg"/>
+                        }
+                        @subText
+                    </div>
                 </Animate>
             }
         </div>

@@ -48,7 +48,7 @@ public static class MauiProgram
     public static double systemWidth = 0;
     public static Action? ViewHeaderCloseSelectCallback = null;
 
-    public static IMediaInterface? MediaService { get; set; } = null;
+    public static IMediaInterface MediaService { get; set; } = null;
     public static DownloadService DownloadManager { get; set; } = new();
 
     public static Guid currentAlbumGuid = Guid.Empty;
