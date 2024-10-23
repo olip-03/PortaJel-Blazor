@@ -104,21 +104,22 @@
                 check++;
             }
         }
-
-        <br/>
+        
         // Add Similar
-        @if (_similarAlbumsBase64BlurHash.Any())
-        {
-        <HorizontalMusicItemList Title="More Like This" itemCount="@_similarAlbums.Count()" albumData="@_similarAlbums" albumBlurHashData="@_similarAlbumsBase64BlurHash"/>
-        }
-        else if (_similarAlbums.Any()) // but only after the blurhash is done lol
-        {
-        <br/>
-        <HorizontalMusicItemList Title="More Like This" itemCount="@_similarAlbums.Count()" albumData="null" albumBlurHashData="null"/>
-        }
-        }
+        <div style="margin-top: @($"{(MauiProgram.SystemHeaderHeight)}px")">
+            @if (_similarAlbumsBase64BlurHash.Any())
+            {
+                <HorizontalMusicItemList Title="More Like This" itemCount="@_similarAlbums.Count()" albumData="@_similarAlbums" albumBlurHashData="@_similarAlbumsBase64BlurHash"/>
+            }
+            else if (_similarAlbums.Any()) // but only after the blurhash is done lol
+            {
+                <br/>
+                <HorizontalMusicItemList Title="More Like This" itemCount="@_similarAlbums.Count()" albumData="null" albumBlurHashData="null"/>
+            }
+        </div>
+    }
 
-        @errormessage
+    @errormessage
 </div>
 
 @code {

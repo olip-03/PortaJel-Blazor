@@ -165,6 +165,7 @@
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.2" />
 		<PackageReference Include="CompiledBindings.MAUI" Version="1.0.18" />
 		<PackageReference Include="Jellyfin.Sdk" Version="2024.5.11" />
+		<PackageReference Include="MatBlazor" Version="2.10.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
 		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.8" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />

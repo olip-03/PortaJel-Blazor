@@ -1,0 +1,12 @@
+.chip{
+    height: 32px;
+    width: fit-content;
+    border-radius: 8px;
+    padding-right: 16px;
+    
+    img {
+        width: 18px;
+        height: 18px;
+        
+    }
+}

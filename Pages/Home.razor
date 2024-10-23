@@ -4,85 +4,51 @@
 @using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared;
 @using BlazorAnimate;
-@inject IJSRuntime JS;
+@using PortaJel_Blazor.Pages.Views
+@inject IJSRuntime Js;
 
-<input type="text" class="searchBar PageSecondaryColor PrimaryTextColor" value="" placeholder="Search" @oninput="@((e) => SearchTextChange((string)e.Value) )">
-
-@if (isSearching)
-{ // Search results (if queried)
-    @if (waitingForResult)
-    {
-        <div style="margin-left: auto; margin-right: auto;">
-            <Spinner></Spinner>
-        </div>
-    }
-    else if (searchResults.Count() > 0)
-    {
-        <div class="@(searchDisplayGrid == true ? "music-list" : "search-list")">
-            @for (int i = 0; i < searchResults.Length; i++)
+<Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
+    <div style="margin-bottom: 1rem; margin-top:1rem;">
+        <ul class="music-list">
+            @for (int i = 0; i < 6; i++)
             {
-                BaseMusicItem musicItem = searchResults[i];
-                string placeholderImg = placeholderImages[i];
-
-                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                    <SearchResultItem musicObject="@musicItem" cacheAsRecentItem=true placeholderBase64="@placeholderImg" isGrid="false"/>
-                </Animate>
-
-                if (i <= 6)
+                itemFadeInDelay += 0.1f;
+                if (i >= recentPlayData.Count())
                 {
-                    itemFadeInDelay += 0.05f;
+                    continue;
                 }
-                else
+
+                if (recentPlayData[i] == null || recentPlayPlaceholderImages.Length <= i)
                 {
-                    itemFadeInDelay = 0;
+                    continue;
                 }
+
+                BaseMusicItem item = recentPlayData[i];
+                string base64 = recentPlayPlaceholderImages[i];
+                <AlbumListView musicItem="@item" placeholderBase64="@base64" />
             }
-        </div>
-    }
-    else if (searchResults.Count() <= 0 && !String.IsNullOrWhiteSpace(searchQuery))
-    {
-        <p>Nothing found</p>
-    }
+        </ul>
+    </div>
+
+    <HorizontalMusicItemList Title="Favourites" itemCount="50" albumData="@favouritesPlayData" albumBlurHashData="@favouritesPlaceholderImages" />
+    <br />
+
+    <!-- Horizontal container for Recently added Albums -->
+    <HorizontalMusicItemList Title="Recently Added" itemCount="50" albumData="@recentAddedData" albumBlurHashData="@recentAddedPlaceholderImages" />
+    <br />
+
+    <!-- Horizontal container for Most Played Songs -->
+    <HorizontalMusicItemList Title="Most Played" itemCount="50" albumData="@mostPlayData" albumBlurHashData="@mostPlayPlaceholderImages" />
+    <br />
+
+    <!-- Horizontal container for Most Random Albums -->
+    <HorizontalMusicItemList Title="Random" itemCount="50" albumData="@randomData" albumBlurHashData="@randomPlaceholderImages" showLoading="true"/>
+</Animate>
+
+@if (_errorMessage != null)
+{
+    <ErrorView exception="@_errorMessage"/>
 }
-else
-{ // Home page information here
-    <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-        <div style="margin-bottom: 1rem; margin-top:1rem;">
-            <ul class="music-list">
-                @for (int i = 0; i < 6; i++)
-                {
-                    itemFadeInDelay += 0.1f;
-                    if (i < recentPlayData.Count())
-                    {
-                        if (recentPlayData[i] != null && recentPlayPlaceholderImages.Length > i)
-                        {
-                            BaseMusicItem item = recentPlayData[i];
-                            string base64 = recentPlayPlaceholderImages[i];
-                            <AlbumListView musicItem="@item" placeholderBase64="@base64" />
-                        }
-                    }
-                }
-            </ul>
-        </div>
-
-        <HorizontalMusicItemList Title="Favourites" itemCount="50" albumData="@favouritesPlayData" albumBlurHashData="@favouritesPlaceholderImages" />
-        <br />
-
-        <!-- Horizontal container for Recently added Albums -->
-        <HorizontalMusicItemList Title="Recently Added" itemCount="50" albumData="@recentAddedData" albumBlurHashData="@recentAddedPlaceholderImages" />
-        <br />
-
-        <!-- Horizontal container for Most Played Songs -->
-        <HorizontalMusicItemList Title="Most Played" itemCount="50" albumData="@mostPlayData" albumBlurHashData="@mostPlayPlaceholderImages" />
-        <br />
-
-        <!-- Horizontal container for Most Random Albums -->
-        <HorizontalMusicItemList Title="Random" itemCount="50" albumData="@randomData" albumBlurHashData="@randomPlaceholderImages" showLoading="true"/>
-    </Animate>
-
-}
-
-<p style="margin:1rem" class="PrimaryTextColor">@errorMessage</p>
 
 @code {
     private int itemReturnCount = 50;
@@ -102,7 +68,7 @@ else
     private BaseMusicItem[] randomData = new Album[0];
     private string[] randomPlaceholderImages = new string[0];
 
-    public string errorMessage = string.Empty;
+    private Exception _errorMessage = null;
     private int resultCount = 50;
     private bool isLoading = true;
     private float itemFadeInDelay = 0;
@@ -228,7 +194,7 @@ else
                     System.Diagnostics.Trace.WriteLine(ex.ToString());
                     await Application.Current.MainPage.DisplayAlert("Error?", $"{ex.Message}", "Continue");
                     isLoading = false;
-                    errorMessage = ex.ToString();
+                    _errorMessage = ex;
                     await InvokeAsync(() => StateHasChanged());
                 });
             }
@@ -312,7 +278,7 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeAsync<string>("InitAllImages");
+        await Js.InvokeAsync<string>("InitAllImages");
         if (isLoading == false)
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);

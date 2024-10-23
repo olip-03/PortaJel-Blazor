@@ -1,10 +1,32 @@
-﻿.searchBox {
-    width: 100%; /* Make the search box fill the available width */
-    padding: 10px; /* Add some padding for spacing */
-    border: 2px solid #ccc; /* Add a border for styling */
-    border-radius: 20px; /* Rounded corners */
-    font-size: 16px; /* Set the font size */
-    outline: none; /* Remove the default focus outline */
+﻿.search {
+
+    .input {
+        margin: 1rem 1rem 0 1rem;
+        width: calc(100vw - 2rem);
+        padding-left: 16px;
+        border: 0px solid #555;
+        height: 56px;
+        border-radius: 0.5rem;
+        outline: none;
+        background-size: 1.5rem;
+    }
+    
+    .spinner {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+
+}
+
+.chips {
+    display: flex;
+    flex-direction: row;
+    margin: 1rem;
+}
+
+.searchResponse{
+    margin: 0 1rem;
 }
 
 /* Container for the list of albums */

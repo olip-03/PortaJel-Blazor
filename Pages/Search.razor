@@ -1,4 +1,5 @@
-﻿@using PortaJel_Blazor.Data;
+﻿@using System.Diagnostics
+@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared;
 @using BlazorAnimate;
 @inject IJSRuntime JS
@@ -7,71 +8,69 @@
 @page "/search/{searchQuery}"
 
 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-    <div>
-        <input type="text" id="SearchPage_SearchInput" name="search" class="searchBox" @oninput="@((e) => TextChange((string)e.Value))"/>
-        <hr/>
+    <div class="search">
+        <input type="text" id="SearchPage_SearchInput" name="search" class="input PageSecondaryBackgroundColor PrimaryTextColor" @oninput="@((e) => TextChange((string)e.Value))"/>
+
+        <MatChipSet Style="padding: 8px 1rem;" Choice="true" @bind-SelectedChip="selectedChip">
+            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Playlist" LeadingIcon="favorite"> </MatChip>
+            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Album" LeadingIcon="favorite"></MatChip>
+            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Artist" LeadingIcon="favorite"></MatChip>
+            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Song" LeadingIcon="favorite"></MatChip>
+        </MatChipSet>
+
         @if (waitingForResult)
         {
-            <div class="album-container">
-                <!-- TODO: Restore Spinner Element -->
-                @*<PortaJel_Blazor.Shared.Resources.Spinner />*@
+            <div class="spinner">
+                <Spinner/>
             </div>
         }
         else
         {
             <div class="searchResponse">
-                @if (searchResults.Count() > 0)
+                @switch (searchResults.Count())
                 {
-                    for (int i = 0; i < searchResults.Length; i++)
+                    case > 0:
                     {
-                        BaseMusicItem musicItem = null;
-                        string placeholderImg = string.Empty;
-                        try
+                        foreach (Playlist playlist in _playlistResult)
                         {
-                            musicItem = searchResults[i];
-                            placeholderImg = placeholderImages[i];
+                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                                <SearchResultItem musicObject="@playlist" cacheAsRecentItem=true placeholderBase64="@playlist.ImgBlurhashBase64"/>
+                            </Animate>
                         }
-                        catch (Exception ex)
+                        foreach (Artist artist in _artistResult)
                         {
-                            <p>@ex.ToString()</p>
+                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                                <SearchResultItem musicObject="@artist" cacheAsRecentItem=true placeholderBase64="@artist.ImgBlurhashBase64"/>
+                            </Animate>
                         }
-
-                        <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                            <SearchResultItem musicObject="@musicItem" cacheAsRecentItem=true placeholderBase64="@placeholderImg"/>
-                        </Animate>
-
-                        if (i <= 6)
+                        foreach (Album album in _albumResult)
                         {
-                            itemFadeInDelay += 0.05f;
+                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                                <SearchResultItem musicObject="@album" cacheAsRecentItem=true placeholderBase64="@album.ImgBlurhashBase64"/>
+                            </Animate>
                         }
-                        else
+                        foreach (Song song in _songResult)
                         {
-                            itemFadeInDelay = 0;
+                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                                <SearchResultItem musicObject="@song" cacheAsRecentItem=true placeholderBase64="@song.ImgBlurhashBase64"/>
+                            </Animate>
                         }
+                        break;
                     }
-                }
-                else if (searchResults.Count() <= 0 && !String.IsNullOrWhiteSpace(searchQuery))
-                {
-                    <p>Nothing found</p>
-                }
-                else if (String.IsNullOrWhiteSpace(searchQuery))
-                {
-                    itemFadeInDelay = 0;
-                    <p>Recent searches</p>
-                    for (int i = 0; i < MauiProgram.recentSearchResults.Count(); i++)
+                    case <= 0 when !String.IsNullOrWhiteSpace(searchQuery):
                     {
-                        <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
-                            <SearchResultItem musicObject="@MauiProgram.recentSearchResults.ToList()[i].Value" cacheAsRecentItem="true"/>
-                        </Animate>
-                        
-                        if (i <= 6)
-                        {
-                            itemFadeInDelay += 0.05f;
-                        }
-                        else
+                        <h5 class="SecondaryTextColor">Nothing found</h5>
+                        break;
+                    }
+                    default:
+                    {
+                        if (String.IsNullOrWhiteSpace(searchQuery))
                         {
                             itemFadeInDelay = 0;
+                            <h5 class="SecondaryTextColor">Recent searches</h5>
                         }
+
+                        break;
                     }
                 }
             </div>
@@ -87,7 +86,15 @@
     private string queudQuery = String.Empty;
     private bool queryQueued = false;
     BaseMusicItem[] searchResults = new BaseMusicItem[0];
+
+    private Playlist[] _playlistResult = [];
+    private Artist[] _artistResult = [];
+    private Album[] _albumResult = [];
+    private Song[] _songResult = [];
+    
     string[] placeholderImages = new string[0];
+    
+    MatChip selectedChip = null;
 
     private bool waitingForResult = false;
     private float itemFadeInDelay = 0;
@@ -103,7 +110,7 @@
         MauiProgram.WebView.cancellationToken = MauiProgram.WebView.cancellationSource.Token;
 
         MauiProgram.WebView.isLoading = false;
-        MauiProgram.MainPage.ShowLoadingScreen(false);
+        //
         isLoading = false;
         // MauiProgram.mainPage.UpdateKeyboardLocation();
     }
@@ -142,7 +149,7 @@
                 recheck = false; // automatically do not reiterate
 
                 searchResults = await MauiProgram.servers[0].SearchAsync(searchFor, sorted: true, searchLimit: 50);
-
+                
                 if (searchResults == null)
                 {
                     waitingForResult = false;
@@ -150,33 +157,15 @@
                     return;
                 }
 
-                // Filter exact matches (case-insensitive and exclude special characters)
-                // var exactMatches = searchResults
-                //     .Where(item => RemoveSpecialCharacters(item.Name).Equals(RemoveSpecialCharacters(searchFor), StringComparison.OrdinalIgnoreCase))
-                //     .ToList();
+                _playlistResult = searchResults.OfType<Playlist>().ToArray();
+                _artistResult = searchResults.OfType<Artist>().ToArray();
+                _albumResult = searchResults.OfType<Album>().ToArray();
+                _songResult = searchResults.OfType<Song>().ToArray();
 
-                // var sortedItems = searchResults
-                //     .Except(exactMatches)
-                //     .OrderBy(item => item.name.CompareTo(searchFor))
-                //     .ToList();
-
-                // Combine exact matches and sorted items
-                // var modifiedResults = exactMatches.Concat(sortedItems).ToArray();
-
-                // searchResults = modifiedResults;
-                placeholderImages = new string[searchResults.Length];
-                for (int i = 0; i < searchResults.Length; i++)
-                {
-                    try
-                    {
-                        string? base64 = await MusicItemImage.BlurhashToBase64Async(searchResults[i], 20, 20);
-                        placeholderImages[i] = base64 == null ? string.Empty : base64;
-                    }
-                    catch (Exception)
-                    {
-                        placeholderImages[i] = string.Empty;
-                    }
-                }
+                await Task.WhenAll(_playlistResult.Select(async p => await MusicItemImage.BlurhashToBase64Async(p.ImgBlurhash)));
+                await Task.WhenAll(_artistResult.Select(async ar => await MusicItemImage.BlurhashToBase64Async(ar.ImgBlurhash)));
+                await Task.WhenAll(_albumResult.Select(async al => await MusicItemImage.BlurhashToBase64Async(al.ImgBlurhash)));
+                await Task.WhenAll(_songResult.Select(async so => await MusicItemImage.BlurhashToBase64Async(so.ImgBlurhash)));
 
                 if (queryQueued)
                 {
@@ -206,6 +195,7 @@
         }
 
         await JS.InvokeAsync<string>("InitAllImages");
+        MauiProgram.MainPage.ShowLoadingScreen(false);
     }
 
 }

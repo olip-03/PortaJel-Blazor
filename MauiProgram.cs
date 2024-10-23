@@ -13,6 +13,7 @@ using System.Text.Json;
 using PortaJel_Blazor.Pages;
 using System.Threading;
 using System.Diagnostics;
+using MatBlazor;
 using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor;
@@ -108,6 +109,7 @@ public static class MauiProgram
         // Check connection to server
         isConnected = false;
 
+        builder.Services.AddMatBlazor();
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddSingleton<JsInteropClasses2, JsInteropClasses2>();
 #if DEBUG

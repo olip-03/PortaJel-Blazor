@@ -1613,17 +1613,13 @@ namespace PortaJel_Blazor.Classes
                 c.QueryParameters.IncludeGenres = true;
             }).ConfigureAwait(false);
             if (token.IsCancellationRequested) { cancelTokenSource = new(); return new Data.Album[0]; }
-            
-            if (searchResult.SearchHints.Any())
-            {
-                return new BaseMusicItem[0];
-            }
 
-            List<System.Guid?> searchedIds = new List<System.Guid?>();
-            foreach (var item in searchResult.SearchHints)
-            {
-                searchedIds.Add(item.Id);
-            }
+            if (searchResult == null) { return []; }
+            if (searchResult.TotalRecordCount == 0) {return []; }
+            if (searchResult.SearchHints == null) { return []; }
+
+            // List<SearchHint> hints = searchResult.SearchHints.Order().ToList();
+            List<System.Guid?> searchedIds =  searchResult.SearchHints.Select(h => h.Id).ToList();
 
             BaseItemDtoQueryResult? itemsResult;
             try
