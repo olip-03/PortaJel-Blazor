@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Services;
-using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Shared;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -15,6 +14,9 @@ using System.Threading;
 using System.Diagnostics;
 using MatBlazor;
 using PortaJel_Blazor.Classes.Interfaces;
+using PortaJel_Blazor.Classes.Connectors;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Classes.Connectors.Database;
 
 namespace PortaJel_Blazor;
 
@@ -24,13 +26,13 @@ namespace PortaJel_Blazor;
 
 public static class MauiProgram
 {
-    public static string applicationName { get; private set; } = "PortaJel";
-    public static string applicationClientVersion { get; private set; } = "0.0.1";
+    public static string ApplicationName { get; private set; } = "PortaJel";
+    public static string ApplicationClientVersion { get; private set; } = "0.0.1";
 
-    private static string mainDir = FileSystem.Current.AppDataDirectory;
-    private static string fileName = "usrdata.bin";
-    private static string filePath = System.IO.Path.Combine(mainDir, fileName);
-    public static bool dataLoadFinished = false;
+    private static readonly string MainDir = FileSystem.Current.AppDataDirectory;
+    private const string FileName = "usrdata.bin";
+    private static readonly string FilePath = System.IO.Path.Combine(MainDir, FileName);
+    public static bool DataLoadFinished = false;
 
     public static StyleSettings styleSettings = new();
 
@@ -49,6 +51,8 @@ public static class MauiProgram
     public static double systemWidth = 0;
     public static Action? ViewHeaderCloseSelectCallback = null;
 
+    public static ServerConnector Server { get; private set; } = new();
+    public static DatabaseConnector Database { get; private set; } = new();
     public static IMediaInterface MediaService { get; set; } = null;
     public static DownloadService DownloadManager { get; set; } = new();
 
@@ -63,9 +67,9 @@ public static class MauiProgram
     public static bool MusicPlayerIsQueueOpen = false;
 
     // Data for connections 
-    public static List<ServerConnecter> servers = new List<ServerConnecter>();
+    public static List<NotAServerConnecter> servers = new List<NotAServerConnecter>();
     public static DataConnector api = new();
-
+    
     // Direct access to the media element
     // public static BlazorWebView webView = null;
 
@@ -90,7 +94,7 @@ public static class MauiProgram
     public static List<Album> favouriteAlbums = new();
     public static List<Artist> favouriteArtist = new();
     public static List<Song> favouriteSongs = new();
-
+    
     public static MauiApp CreateMauiApp()
 	{
         Console.WriteLine("CreateMauiApp(): Beginning load data");
@@ -135,30 +139,30 @@ public static class MauiProgram
     }
 
 	/// <summary>
-	/// Adds a server to the list of avaliable servers, and saves it to the device.
+	/// Adds a notAServer to the list of avaliable servers, and saves it to the device.
 	/// </summary>
-	/// <param name="server"></param>
-	public static async void AddServer(ServerConnecter server)
+	/// <param name="notAServer"></param>
+	public static async void AddServer(NotAServerConnecter notAServer)
 	{
-        // Saves the server to file
-        servers.Add(server); // TODO: depreciate
-        api.AddServer(server);
+        // Saves the notAServer to file
+        servers.Add(notAServer); // TODO: depreciate
+        api.AddServer(notAServer);
 
         await SaveData();
     }
-    public static async void RemoveServer(ServerConnecter server)
+    public static async void RemoveServer(NotAServerConnecter notAServer)
     {
-        // Saves the server to file
-        servers.Remove(server); // TODO: depreciate
-        api.RemoveServer(server);
+        // Saves the notAServer to file
+        servers.Remove(notAServer); // TODO: depreciate
+        api.RemoveServer(notAServer);
 
         await SaveData();
     }
     public static async void RemoveServer(string server)
     {
-        ServerConnecter[] enumerate = servers.ToArray();
+        NotAServerConnecter[] enumerate = servers.ToArray();
         // Saves the server to file
-        foreach (ServerConnecter srv in enumerate)
+        foreach (NotAServerConnecter srv in enumerate)
         {
             if(srv.GetBaseAddress() == server)
             {
@@ -175,14 +179,14 @@ public static class MauiProgram
     {
         MauiProgram.UpdateDebugMessage("Starting data load");
 
-        servers = new List<ServerConnecter>();
+        servers = new List<NotAServerConnecter>();
         api = new DataConnector();
 
-        if (File.Exists(filePath))
+        if (File.Exists(FilePath))
         {
             try
             {
-                using (BinaryReader binReader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+                using (BinaryReader binReader = new BinaryReader(File.Open(FilePath, FileMode.Open)))
                 {
                     while (binReader.BaseStream.Position < binReader.BaseStream.Length)
                     {
@@ -199,10 +203,10 @@ public static class MauiProgram
 
                             MauiProgram.UpdateDebugMessage($"Loaded info for {url}");
 
-                            ServerConnecter serverConnector = new ServerConnecter(url, user, pass);
+                            NotAServerConnecter notAServerConnector = new NotAServerConnecter(url, user, pass);
 
-                            servers.Add(serverConnector);
-                            api.AddServer(serverConnector);
+                            servers.Add(notAServerConnector);
+                            api.AddServer(notAServerConnector);
                             firstLoginComplete = true;
                         }
 
@@ -213,7 +217,7 @@ public static class MauiProgram
             }
             catch (Exception)
             {
-                File.Delete(filePath);
+                File.Delete(FilePath);
             }
         }
 
@@ -239,19 +243,19 @@ public static class MauiProgram
         }).ConfigureAwait(false);
 
         MauiProgram.UpdateDebugMessage($"Completed data load");
-        dataLoadFinished = true;
+        DataLoadFinished = true;
         return true;
     }
     public static Task<bool> SaveData()
     {
         // TODO: Change to json file type
-        using (BinaryWriter binWriter = new BinaryWriter(File.Open(filePath, FileMode.Create)))
+        using (BinaryWriter binWriter = new BinaryWriter(File.Open(FilePath, FileMode.Create)))
         {
             // SAVE SERVER COUNT
             binWriter.Write(api.GetServers().Count());
 
             // SAVE CONNECTIONS
-            foreach (ServerConnecter srv in api.GetServers())
+            foreach (NotAServerConnecter srv in api.GetServers())
             {
                 // Write string
                 binWriter.Write(srv.GetBaseAddress());

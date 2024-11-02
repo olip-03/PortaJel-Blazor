@@ -5,6 +5,7 @@
              xmlns:pages="clr-namespace:PortaJel_Blazor.Pages"
              xmlns:shared="clr-namespace:PortaJel_Blazor.Shared"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:xaml="clr-namespace:PortaJel_Blazor.Shared.Xaml"
              x:DataType="local:MainPage"
              x:Class="PortaJel_Blazor.MainPage">
     <Grid VerticalOptions="Fill" HorizontalOptions="Fill" x:Name="AllContent" BackgroundColor="Black">
@@ -31,7 +32,7 @@
             </Grid>
 
             <VerticalStackLayout x:Name="PlayerContainer" Grid.Row="0" Margin="0, 100, 0, 0" VerticalOptions="End" HorizontalOptions="Fill">
-                <shared:MiniPlayer x:Name="MiniPlayer"/>
+                <xaml:MiniPlayer x:Name="MiniPlayer"/>
             </VerticalStackLayout>
             
             <StackLayout Orientation="Vertical" x:Name="Navbar" AnchorY="0" InputTransparent="False" IsVisible="True" Grid.Row="1">
@@ -108,8 +109,8 @@
             </Grid.Background>
         </Grid>
 
-        <shared:MediaController x:Name="MediaControl" IsVisible="False"/>
-        <shared:MediaQueue x:Name="Queue" IsVisible="False"/>
-        <shared:ContextMenu x:Name="ContextMenu" Opacity="0" IsVisible="False"/>
+        <xaml:MediaController x:Name="MediaControl" IsVisible="False"/>
+        <xaml:MediaQueue x:Name="Queue" IsVisible="False"/>
+        <xaml:ContextMenu x:Name="ContextMenu" Opacity="0" IsVisible="False"/>
     </Grid>
 </ContentPage>

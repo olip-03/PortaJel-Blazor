@@ -1,6 +1,5 @@
 ﻿using Android.Content;
 using PortaJel_Blazor.Platforms.Android.MediaService;
-using PortaJel_Blazor.Data;
 using System.Timers;
 using Android.OS;
 using System.Runtime.CompilerServices;

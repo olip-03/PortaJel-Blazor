@@ -1,12 +1,6 @@
-﻿using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Classes.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PortaJel_Blazor.Classes.Database;
 
-namespace PortaJel_Blazor.Data
+namespace PortaJel_Blazor.Classes.Data
 {
     public class Playlist: BaseMusicItem
     {

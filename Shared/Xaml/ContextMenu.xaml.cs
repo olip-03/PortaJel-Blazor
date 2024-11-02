@@ -1,16 +1,11 @@
-using AngleSharp.Io;
-using CommunityToolkit.Maui;
+using System.Diagnostics;
 using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Core.Extensions;
-using Jellyfin.Sdk.Generated.Models;
-using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Data;
-using PortaJel_Blazor.Shared.Xaml;
-using System.Diagnostics;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Classes.ViewModels;
 
-namespace PortaJel_Blazor.Shared;
+namespace PortaJel_Blazor.Shared.Xaml;
 public partial class ContextMenu : ContentView
 {
     public bool isOpen { get; private set; } = false;

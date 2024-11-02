@@ -1,16 +1,16 @@
 ﻿@page "/"
 @using Jellyfin.Sdk;
 @using Jellyfin.Sdk.Generated.Models;
-@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared;
 @using BlazorAnimate;
+@using PortaJel_Blazor.Classes.Data
 @using PortaJel_Blazor.Pages.Views
 @inject IJSRuntime Js;
 
 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
     <div style="margin-bottom: 1rem; margin-top:1rem;">
         <ul class="music-list">
-            @for (int i = 0; i < 6; i++)
+            @for (int i = 0; i < 8; i++)
             {
                 itemFadeInDelay += 0.1f;
                 if (i >= recentPlayData.Count())
@@ -101,7 +101,7 @@
 
         await Task.Run(async () => 
         { 
-            while (MauiProgram.dataLoadFinished == false)
+            while (MauiProgram.DataLoadFinished == false)
             {
                 // twiddle our thumbs
             }

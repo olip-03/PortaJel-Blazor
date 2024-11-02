@@ -2,7 +2,7 @@
 using Jellyfin.Sdk.Generated.Models;
 using SkiaSharp;
 
-namespace PortaJel_Blazor.Data
+namespace PortaJel_Blazor.Classes.Data
 {
     public class MusicItemImage
     {

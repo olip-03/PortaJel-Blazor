@@ -1,5 +1,4 @@
-﻿using PortaJel_Blazor.Data;
-using PortaJel_Blazor.Classes;
+﻿using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Services;
 using Android.OS;
 

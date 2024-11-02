@@ -1,7 +1,6 @@
 ﻿using Android.Content;
 using Android.Util;
 using Android.OS;
-using PortaJel_Blazor.Data;
 using System.Diagnostics;
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {

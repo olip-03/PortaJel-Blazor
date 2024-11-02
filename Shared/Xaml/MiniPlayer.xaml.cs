@@ -1,10 +1,10 @@
+using System.Diagnostics;
 using CommunityToolkit.Maui.Core.Extensions;
 using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Data;
-using System.Diagnostics;
-using System.Security.Cryptography;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Classes.ViewModels;
 
-namespace PortaJel_Blazor.Shared;
+namespace PortaJel_Blazor.Shared.Xaml;
 
 public partial class MiniPlayer : ContentView
 {

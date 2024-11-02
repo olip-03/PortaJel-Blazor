@@ -4,7 +4,6 @@ using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.UI;
 using Java.Interop;
 using Java.Lang;
-using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {

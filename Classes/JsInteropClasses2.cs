@@ -1,5 +1,7 @@
 ﻿using Microsoft.JSInterop;
 
+namespace PortaJel_Blazor.Classes;
+
 public class JsInteropClasses2 : IDisposable
 {
     private readonly IJSRuntime js;

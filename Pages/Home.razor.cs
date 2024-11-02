@@ -1,4 +1,5 @@
-﻿using PortaJel_Blazor.Data;
+﻿using PortaJel_Blazor.Classes.Data;
+
 namespace PortaJel_Blazor.Pages
 {
     public class HomeCache

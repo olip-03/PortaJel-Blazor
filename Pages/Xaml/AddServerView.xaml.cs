@@ -1,13 +1,13 @@
-using PortaJel_Blazor.Data;
 using Jellyfin.Sdk;
 using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
+using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Pages.Xaml;
 
 public partial class AddServerView : ContentPage
 {
-    public ServerConnecter? serverConnecter { get; private set; } = null;
+    public NotAServerConnecter? serverConnecter { get; private set; } = null;
 
 	public UserCredentials UserCredentials { get; set; } = UserCredentials.Empty;
     public bool ServerPassed = false;

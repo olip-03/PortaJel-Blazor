@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Maui.Core.Extensions;
 using Microsoft.Maui.Controls.Shapes;
 using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Data;
 using System.Collections.ObjectModel;
+using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Classes
 {

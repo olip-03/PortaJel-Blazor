@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             x:Class="PortaJel_Blazor.Shared.StatusIndicator">
+             x:Class="PortaJel_Blazor.Shared.Xaml.StatusIndicator">
     <Border x:Name="Player_Status"
                 Stroke="LightGray"
                 StrokeThickness="0"

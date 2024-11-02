@@ -1,6 +1,5 @@
 ﻿using PortaJel_Blazor.Classes;
 using System.Windows.Input;
-using PortaJel_Blazor.Data;
 using PortaJel_Blazor.Pages.Xaml;
 using Microsoft.Maui.Platform;
 using System;
@@ -21,6 +20,8 @@ using CommunityToolkit.Maui.Core;
 using Microsoft.Maui.Controls.Internals;
 using PortaJel_Blazor.Shared;
 using Microsoft.Maui.Animations;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Shared.Xaml;
 
 #if ANDROID
 using Android;

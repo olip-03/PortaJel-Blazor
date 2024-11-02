@@ -1,5 +1,5 @@
 using Microsoft.Maui.Controls.Platform;
-using PortaJel_Blazor.Data;
+using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Pages.Xaml;
 

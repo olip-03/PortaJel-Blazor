@@ -1,12 +1,14 @@
 ﻿using Jellyfin.Sdk.Generated.Models;
-using PortaJel_Blazor.Data;
 using SQLite;
 using System.Text.Json;
+using PortaJel_Blazor.Classes.Data;
+
 namespace PortaJel_Blazor.Classes.Database
 {
     public class PlaylistData
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey, NotNull, AutoIncrement]
+        public int LocalId { get; set; }
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;

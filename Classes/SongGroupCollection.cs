@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Core.Extensions;
-using PortaJel_Blazor.Data;
 using System.Collections.ObjectModel;
+using PortaJel_Blazor.Classes.Data;
+
 namespace PortaJel_Blazor.Classes
 {
     public class SongGroupCollection : ObservableCollection<SongGroup>

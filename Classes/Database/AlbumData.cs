@@ -1,13 +1,14 @@
 ﻿using Jellyfin.Sdk.Generated.Models;
-using PortaJel_Blazor.Data;
 using SQLite;
 using System.Text.Json;
+using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Classes.Database
 {
     public class AlbumData
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey, NotNull, AutoIncrement]
+        public int LocalId { get; set; }
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;
@@ -20,10 +21,11 @@ namespace PortaJel_Blazor.Classes.Database
         public string ArtistIdsJson { get; set; } = string.Empty;
         public string ArtistNames { get; set; } = string.Empty;
         public string SongIdsJson { get; set; } = string.Empty;
+        public string GetSimilarJson { get; set; } = string.Empty;
         public bool IsPartial { get; set; } = true;
-        public Guid[]? GetArtistIds()
+        public Guid[] GetArtistIds()
         {
-            Guid[]? artistIds;
+            Guid[] artistIds;
             try
             {
                 artistIds = JsonSerializer.Deserialize<Guid[]>(ArtistIdsJson);
@@ -34,9 +36,9 @@ namespace PortaJel_Blazor.Classes.Database
             }
             return artistIds;
         }
-        public Guid[]? GetSongIds()
+        public Guid[] GetSongIds()
         {
-            Guid[]? songIds;
+            Guid[] songIds;
             try
             {
                 songIds = JsonSerializer.Deserialize<Guid[]>(SongIdsJson);
@@ -46,6 +48,19 @@ namespace PortaJel_Blazor.Classes.Database
                 songIds = null;
             }
             return songIds;
+        }
+        public Guid[] GetSimilarIds()
+        {
+            Guid[] similarIds;
+            try
+            {
+                similarIds = JsonSerializer.Deserialize<Guid[]>(GetSimilarJson);
+            }
+            catch (Exception)
+            {
+                similarIds = [];
+            }
+            return similarIds;
         }
         public static AlbumData Builder(BaseItemDto baseItem, string server, Guid[]? songIds = null, SongData[]? songDataItems = null)
         {

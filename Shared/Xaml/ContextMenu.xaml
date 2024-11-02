@@ -2,8 +2,9 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:classes="clr-namespace:PortaJel_Blazor.Classes"
-             x:Class="PortaJel_Blazor.Shared.ContextMenu"
-             x:DataType="classes:ContextMenuViewModel">
+             xmlns:viewModels="clr-namespace:PortaJel_Blazor.Classes.ViewModels"
+             x:Class="PortaJel_Blazor.Shared.Xaml.ContextMenu"
+             x:DataType="viewModels:ContextMenuViewModel">
     <Grid x:Name="Container" 
           VerticalOptions="FillAndExpand" 
           HorizontalOptions="FillAndExpand" 

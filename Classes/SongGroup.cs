@@ -1,5 +1,5 @@
 ﻿using AngleSharp.Common;
-using PortaJel_Blazor.Data;
+using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Classes
 {

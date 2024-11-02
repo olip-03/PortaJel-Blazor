@@ -1,11 +1,11 @@
+using System.Diagnostics;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Data;
-using SkiaSharp;
-using System.Diagnostics;
-using System.Threading;
-namespace PortaJel_Blazor.Shared;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Classes.ViewModels;
+
+namespace PortaJel_Blazor.Shared.Xaml;
 
 public partial class MediaController : ContentView
 {

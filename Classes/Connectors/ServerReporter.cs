@@ -1,34 +1,27 @@
-﻿using Jellyfin.Sdk;
-using Jellyfin.Sdk.Generated.Models;
-using Microsoft.Kiota.Abstractions.Authentication;
-using Microsoft.Kiota.Abstractions;
-using PortaJel_Blazor.Data;
-using PortaJel_Blazor.Classes.Interfaces;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Security.Cryptography;
 using System.Text;
+using Jellyfin.Sdk;
+using Jellyfin.Sdk.Generated.Models;
+using Microsoft.Kiota.Abstractions;
+using Microsoft.Kiota.Abstractions.Authentication;
 using PortaJel_Blazor.Classes.Database;
 using SQLite;
-using System.Security.Cryptography;
-using System.Diagnostics;
-using static SQLite.SQLite3;
 
-namespace PortaJel_Blazor.Classes.Api
+namespace PortaJel_Blazor.Classes.Connectors
 {
     public class ServerReporter
     {
-        private JellyfinApiClient _jellyfinApiClient;
-        private JellyfinSdkSettings _sdkClientSettings = new();
-        private string sessionId;
-        private Guid _userId;
-        private bool verboseReporting = false;
+        private readonly JellyfinApiClient _jellyfinApiClient;
+        private readonly JellyfinSdkSettings _sdkClientSettings = new();
+        private readonly string sessionId;
+        private readonly Guid _userId;
 
-        private SQLiteAsyncConnection? Database = null;
-        private SQLiteOpenFlags DBFlags =
-        SQLiteOpenFlags.ReadWrite |
-        SQLiteOpenFlags.Create |
-        SQLiteOpenFlags.SharedCache;
+        private SQLiteAsyncConnection _database = null;
+        private const SQLiteOpenFlags DbFlags = SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache;
 
         public ServerReporter(string baseurl, string userid, string sessionid, string accessToken) 
         {
@@ -38,8 +31,8 @@ namespace PortaJel_Blazor.Classes.Api
             {
                 c.DefaultRequestHeaders.UserAgent.Add(
                     new ProductInfoHeaderValue(
-                        MauiProgram.applicationName,
-                        MauiProgram.applicationClientVersion));
+                        MauiProgram.ApplicationName,
+                        MauiProgram.ApplicationClientVersion));
                 //c.Timeout = TimeSpan.FromSeconds(2);
                 c.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json, 1.0));
@@ -68,8 +61,8 @@ namespace PortaJel_Blazor.Classes.Api
             _sdkClientSettings.SetServerUrl(baseurl);
             _sdkClientSettings.SetAccessToken(accessToken);
             _sdkClientSettings.Initialize(
-                MauiProgram.applicationName,
-                MauiProgram.applicationClientVersion,
+                MauiProgram.ApplicationName,
+                MauiProgram.ApplicationClientVersion,
                 Microsoft.Maui.Devices.DeviceInfo.Current.Name,
                 Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
             sessionId = sessionid;
@@ -88,11 +81,11 @@ namespace PortaJel_Blazor.Classes.Api
             }
             string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{result}.db");
             MauiProgram.UpdateDebugMessage($"Db initalized at {filePath}");
-            Database = new SQLiteAsyncConnection(filePath, DBFlags);
-            await Database.CreateTableAsync<AlbumData>();
-            await Database.CreateTableAsync<SongData>();
-            await Database.CreateTableAsync<ArtistData>();
-            await Database.CreateTableAsync<PlaylistData>();
+            _database = new SQLiteAsyncConnection(filePath, DbFlags);
+            await _database.CreateTableAsync<AlbumData>();
+            await _database.CreateTableAsync<SongData>();
+            await _database.CreateTableAsync<ArtistData>();
+            await _database.CreateTableAsync<PlaylistData>();
         }
 
         public void SetVerboseReporting(bool verbose)
@@ -149,14 +142,14 @@ namespace PortaJel_Blazor.Classes.Api
                     {
                         try
                         {
-                            var song = await Database.Table<SongData>().Where(a => a.Id == itemId).FirstOrDefaultAsync();
-                            var album = await Database.Table<AlbumData>().Where(a => a.Id == song.AlbumId).FirstOrDefaultAsync();
+                            var song = await _database.Table<SongData>().Where(a => a.Id == itemId).FirstOrDefaultAsync();
+                            var album = await _database.Table<AlbumData>().Where(a => a.Id == song.AlbumId).FirstOrDefaultAsync();
 
                             song.DatePlayed = DateTimeOffset.Now;
                             album.DatePlayed = DateTimeOffset.Now;
 
-                            await Database.UpdateAsync(song);
-                            await Database.UpdateAsync(album);
+                            await _database.UpdateAsync(song);
+                            await _database.UpdateAsync(album);
                         }
                         catch (Exception ex)
                         {
@@ -239,9 +232,9 @@ namespace PortaJel_Blazor.Classes.Api
                 if (_jellyfinApiClient != null)
                 {
                     // this is fucked I get why people don't like this langauge
-                    var requestConfig = new Action<RequestConfiguration<Jellyfin.Sdk.Generated.Sessions.Viewing.ViewingRequestBuilder.ViewingRequestBuilderPostQueryParameters>>(config =>
+                    var requestConfig = new Action<RequestConfiguration<global::Jellyfin.Sdk.Generated.Sessions.Viewing.ViewingRequestBuilder.ViewingRequestBuilderPostQueryParameters>>(config =>
                     {
-                        config.QueryParameters = new Jellyfin.Sdk.Generated.Sessions.Viewing.ViewingRequestBuilder.ViewingRequestBuilderPostQueryParameters
+                        config.QueryParameters = new global::Jellyfin.Sdk.Generated.Sessions.Viewing.ViewingRequestBuilder.ViewingRequestBuilderPostQueryParameters
                         {
                             ItemId = itemId.ToString(),
                             SessionId = sessionId

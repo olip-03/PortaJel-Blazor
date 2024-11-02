@@ -1,8 +1,6 @@
-﻿using Jellyfin.Sdk.Generated.Models;
-using PortaJel_Blazor.Classes.Database;
-using System.Text.Json;
+﻿using PortaJel_Blazor.Classes.Database;
 
-namespace PortaJel_Blazor.Data
+namespace PortaJel_Blazor.Classes.Data
 {
     /// <summary>
     /// Represents 'songs' and all relevent information to display, and play them 

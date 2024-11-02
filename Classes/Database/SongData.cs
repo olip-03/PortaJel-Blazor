@@ -1,13 +1,14 @@
 ﻿using Jellyfin.Sdk.Generated.Models;
-using PortaJel_Blazor.Data;
 using SQLite;
 using System.Text.Json;
+using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Classes.Database
 {
     public class SongData
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey, NotNull, AutoIncrement]
+        public int LocalId { get; set; }
         public Guid Id { get; set; }
         public string? PlaylistId { get; set; }
         public Guid AlbumId { get; set; }

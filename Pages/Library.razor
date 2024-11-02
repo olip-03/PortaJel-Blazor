@@ -1,7 +1,6 @@
 ﻿@page "/library/{showFavourites}"
-@using PortaJel_Blazor.Data;
 @using Microsoft.AspNetCore.Components.Web.Virtualization;
-@using PortaJel_Blazor;
+@using PortaJel_Blazor.Classes.Enum;
 @using BlazorAnimate;
 @using Jellyfin.Sdk;
 @using Jellyfin.Sdk.Generated.Models;
@@ -9,48 +8,49 @@
 @using PortaJel_Blazor.Shared.Icons;
 @using System.Collections.Concurrent;
 @using PortaJel_Blazor.Classes
+@using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime JS;
 @implements IDisposable
 
 <div id="libraryToolbar" class="button-container boxed PageSecondaryColor">
-    @if (_selected == FilterItemTypes.Playlists)
+    @if (_selected == ConnectorDtoTypes.Playlist)
     {
-        <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(FilterItemTypes.Playlists)">
+        <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(ConnectorDtoTypes.Playlist)">
     }
     else
     {
-        <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(FilterItemTypes.Playlists)">
+        <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(ConnectorDtoTypes.Playlist)">
     }
     <label class="PrimaryTextColor" for="playlists">Playlists</label>
 
-    @if (_selected == FilterItemTypes.Albums)
+    @if (_selected == ConnectorDtoTypes.Album)
     {
-        <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(FilterItemTypes.Albums)">
+        <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(ConnectorDtoTypes.Album)">
     }
     else
     {
-        <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(FilterItemTypes.Albums)">
+        <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(ConnectorDtoTypes.Album)">
     }
     <label class="PrimaryTextColor" for="albums">Albums</label>
 
-    @if (_selected == FilterItemTypes.Artists)
+    @if (_selected == ConnectorDtoTypes.Artist)
     {
-        <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(FilterItemTypes.Artists)">
+        <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(ConnectorDtoTypes.Artist)">
     }
     else
     {
-        <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(FilterItemTypes.Artists)">
+        <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(ConnectorDtoTypes.Artist)">
     }
     <label class="PrimaryTextColor" for="artists">Artists</label>
 
 
-    @if (_selected == FilterItemTypes.Songs)
+    @if (_selected == ConnectorDtoTypes.Song)
     {
-        <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(FilterItemTypes.Songs)">
+        <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(ConnectorDtoTypes.Song)">
     }
     else
     {
-        <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(FilterItemTypes.Songs)">
+        <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(ConnectorDtoTypes.Song)">
     }
     <label class="PrimaryTextColor" for="songs">Songs</label>
 
@@ -104,7 +104,7 @@
             </ItemContent>
 
             <Placeholder>
-                @if (_selected == FilterItemTypes.Artists)
+                @if (_selected == ConnectorDtoTypes.Artist)
                 {
                     <SearchResultItem musicObject="Artist.Empty" />
                 }
@@ -140,7 +140,7 @@
     private bool isLoading = false;
 
     private bool hasData = false;
-    private FilterItemTypes _selected = FilterItemTypes.Playlists;
+    private ConnectorDtoTypes _selected = ConnectorDtoTypes.Playlist;
     
     private enum sortMethod
     {
@@ -229,7 +229,7 @@
 
     // Please implement virtualization
     // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/virtualization?view=aspnetcore-8.0
-    private async void SelectPage(FilterItemTypes page)
+    private async void SelectPage(ConnectorDtoTypes page)
     {
         MauiProgram.libraryItemView = (int)page;
         _selected = page;
@@ -293,10 +293,7 @@
             BaseMusicItem musicItem = musicItems[i];
             switch (_selected)
             {
-                case FilterItemTypes.None:
-
-                    break;
-                case FilterItemTypes.Playlists:
+                case ConnectorDtoTypes.Playlist:
                     Playlist playlist = musicItem as Playlist;
                     if (playlist != null)
                     {
@@ -304,7 +301,7 @@
                         musicItem = playlist;
                     }
                     break;
-                case FilterItemTypes.Albums:
+                case ConnectorDtoTypes.Album:
                     Album album = musicItem as Album;
                     if (album != null)
                     {
@@ -312,7 +309,7 @@
                         musicItem = album;
                     }
                     break;
-                case FilterItemTypes.Artists:
+                case ConnectorDtoTypes.Artist:
                     Artist artist = musicItem as Artist;
                     if (artist != null)
                     {
@@ -320,7 +317,7 @@
                         musicItem = artist;
                     }
                     break;
-                case FilterItemTypes.Songs:
+                case ConnectorDtoTypes.Song:
                     Song song = musicItem as Song;
                     if (song != null)
                     {
@@ -345,30 +342,28 @@
     {
         switch (_selected)
         {
-            case FilterItemTypes.None:
-                return Array.Empty<BaseMusicItem>();
-            case FilterItemTypes.Playlists:
+            case ConnectorDtoTypes.Playlist:
                 return await MauiProgram.api.GetAllPlaylistsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
                 sortOrder: SortOrder.Ascending,
                 isFavourite: isFavouritesPage,
                 cancellactionToken: cancellationToken).ConfigureAwait(false);
-            case FilterItemTypes.Albums:
+            case ConnectorDtoTypes.Album:
                 return await MauiProgram.api.GetAllAlbumsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
                 sortOrder: SortOrder.Ascending,
                 isFavourite: isFavouritesPage,
                 cancellactionToken: cancellationToken).ConfigureAwait(false);
-            case FilterItemTypes.Artists:
+            case ConnectorDtoTypes.Artist:
                 return await MauiProgram.api.GetAllArtistsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
                 // sortOrder: SortOrder.Ascending,
                 isFavourite: isFavouritesPage,
                 cancellactionToken: cancellationToken).ConfigureAwait(false);
-            case FilterItemTypes.Songs:
+            case ConnectorDtoTypes.Song:
                 return await MauiProgram.api.GetAllSongsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
@@ -391,15 +386,13 @@
         {
             switch (_selected)
             {
-                case FilterItemTypes.None:
-                    return 0;
-                case FilterItemTypes.Playlists:
+                case ConnectorDtoTypes.Playlist:
                     return await MauiProgram.api.GetTotalPlaylistCount(isFavouritesPage);
-                case FilterItemTypes.Albums:
+                case ConnectorDtoTypes.Album:
                     return await MauiProgram.api.GetTotalAlbumCount(isFavouritesPage);
-                case FilterItemTypes.Artists:
+                case ConnectorDtoTypes.Artist:
                     return await MauiProgram.api.GetTotalArtistCount(isFavouritesPage);
-                case FilterItemTypes.Songs:
+                case ConnectorDtoTypes.Song:
                     return await MauiProgram.api.GetTotalSongCount(isFavouritesPage);
                 // case Selectable.genres:
                 //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 
-namespace PortaJel_Blazor.Classes
+namespace PortaJel_Blazor.Classes.ViewModels
 {
     public class QueueViewModel : BindableObject
     {
