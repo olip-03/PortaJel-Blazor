@@ -177,6 +177,7 @@ public class ServerConnector : IMediaServerConnector
         return failed > 0;
     }
 
+    [Obsolete("This method will throw an Error! Please call GetUsername(string server)!")]
     public string GetUsername()
     {
         throw new NotImplementedException("Unable to get username from main server connector. Please call this method specifying the server!");
@@ -187,6 +188,7 @@ public class ServerConnector : IMediaServerConnector
         return _servers.FirstOrDefault(s => s.GetAddress() == server)?.GetUsername();
     }
 
+    [Obsolete("This method will throw an Error! Please call GetUsername(string server)!")]
     public string GetPassword()
     {
         throw new NotImplementedException("Unable to get password from main server connector. Please call this method specifying the server!");
@@ -197,6 +199,7 @@ public class ServerConnector : IMediaServerConnector
         return _servers.FirstOrDefault(s => s.GetAddress() == server)?.GetPassword();
     }
 
+    [Obsolete("This method will throw an Error! Please call GetUsername(string server)!")]
     public string GetAddress()
     {
         throw new NotImplementedException("Unable to get address from main server connector. Please call this method specifying the server!");

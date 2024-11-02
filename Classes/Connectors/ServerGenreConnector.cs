@@ -3,13 +3,8 @@ using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Classes.Connectors;
 
-public class ServerGenreConnector : IMediaServerGenreConnector
+public class ServerGenreConnector(List<IMediaServerConnector> servers) : IMediaServerGenreConnector
 {
-    public ServerGenreConnector (List<IMediaServerConnector> servers)
-    {
-    
-    }
-    
     public Task<Genre[]> GetAllGenresAsync()
     {
         throw new NotImplementedException();

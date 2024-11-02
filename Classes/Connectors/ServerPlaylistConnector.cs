@@ -5,24 +5,22 @@ using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Classes.Connectors;
 
-public class ServerPlaylistConnector : IMediaServerPlaylistConnector
+public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMediaServerPlaylistConnector
 {
-    public ServerPlaylistConnector(List<IMediaServerConnector> servers)
-    {
-    
-    } 
-
-    public Task<Playlist[]> GetAllPlaylistsAsync()
+    public Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Playlist> GetPlaylistAsync(int playlistId)
+    public Task<Playlist> GetPlaylistAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<int> GetTotalPlaylistCountAsync()
+    public Task<int> GetTotalPlaylistCountAsync(bool getFavourite = false, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

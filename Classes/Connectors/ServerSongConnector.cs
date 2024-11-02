@@ -2,7 +2,7 @@ using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Interfaces;
 
-namespace PortaJel_Blazor.Classes.Connectors.Spotify;
+namespace PortaJel_Blazor.Classes.Connectors;
 
 public class ServerSongConnector : IMediaServerSongConnector
 {

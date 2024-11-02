@@ -112,7 +112,7 @@ public static class MauiProgram
 
         // Check connection to server
         isConnected = false;
-
+        
         builder.Services.AddMatBlazor();
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddSingleton<JsInteropClasses2, JsInteropClasses2>();
