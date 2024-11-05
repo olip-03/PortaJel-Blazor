@@ -118,8 +118,8 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
         Trace.WriteLine($"Album request attempts succeeded: {artist.Count} albums retrieved.");
         return artist.First();
     }
-
-    public async Task<Artist[]> GetSimilarArtistAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    
+    public async Task<Artist[]> GetSimilarArtistAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         var artists = new ConcurrentBag<Artist>();
         int failed = 0;
@@ -129,7 +129,7 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
                 try
                 {
                     // Get album data 
-                    var toAdd = server.Value.Artist.GetSimilarArtistAsync(id, serverUrl, cancellationToken);
+                    var toAdd = server.Value.Artist.GetSimilarArtistAsync(id, setLimit, serverUrl, cancellationToken);
                     toAdd.Wait(cancellationToken);
                     // Add to list 
                     foreach (var artist in toAdd.Result)

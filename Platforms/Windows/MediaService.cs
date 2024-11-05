@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PortaJel_Blazor.Classes.Data;
 
 // IOS Implementation
 namespace PortaJel_Blazor.Classes.Services
@@ -56,6 +57,21 @@ namespace PortaJel_Blazor.Classes.Services
         {
 
         }
+        
+        BaseMusicItem IMediaInterface.GetPlayingCollection()
+        {
+            return GetPlayingCollection();
+        }
+
+        void IMediaInterface.AddSong(Song song)
+        {
+            AddSong(song);
+        }
+
+        void IMediaInterface.AddSongs(Song[] songs)
+        {
+            AddSongs(songs);
+        }
 
         public void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
         {
@@ -80,6 +96,11 @@ namespace PortaJel_Blazor.Classes.Services
         public Song[] GetQueue()
         {
             return Array.Empty<Song>();
+        }
+
+        Song IMediaInterface.GetCurrentlyPlaying()
+        {
+            return GetCurrentlyPlaying();
         }
 
         public int GetQueueIndex()

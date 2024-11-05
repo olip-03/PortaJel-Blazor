@@ -87,12 +87,12 @@ namespace PortaJel_Blazor.Classes.Connectors
             await _database.CreateTableAsync<ArtistData>();
             await _database.CreateTableAsync<PlaylistData>();
         }
-
+		
         public void SetVerboseReporting(bool verbose)
         {
 
         }
-
+		
         /// <summary>
         /// 
         /// </summary>
@@ -113,7 +113,7 @@ namespace PortaJel_Blazor.Classes.Connectors
 
             return false;
         }
-
+		
         /// <summary>
         /// Reports playback progress within the current session to the Jellyfin API.
         /// </summary>

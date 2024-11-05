@@ -1,4 +1,7 @@
 using System.Diagnostics;
+using PortaJel_Blazor.Classes.Connectors.Database;
+using PortaJel_Blazor.Classes.Connectors.FS;
+using PortaJel_Blazor.Classes.Connectors.Jellyfin;
 using PortaJel_Blazor.Classes.Connectors.Spotify;
 using PortaJel_Blazor.Classes.Enum;
 using PortaJel_Blazor.Classes.Interfaces;
@@ -9,7 +12,7 @@ namespace PortaJel_Blazor.Classes.Connectors;
 public class ServerConnector : IMediaServerConnector
 {
     private readonly List<IMediaServerConnector> _servers = [];
-    public IMediaServerAlbumConnector Album { get; set; } 
+    public IMediaServerAlbumConnector Album { get; set; }
     public IMediaServerArtistConnector Artist { get; set; }
     public IMediaServerSongConnector Song { get; set; }
     public IMediaServerPlaylistConnector Playlist { get; set; }
@@ -21,9 +24,8 @@ public class ServerConnector : IMediaServerConnector
             { ConnectorDtoTypes.Artist, true },
             { ConnectorDtoTypes.Song, true },
             { ConnectorDtoTypes.Playlist, true },
-            { ConnectorDtoTypes.Genre, false },
+            { ConnectorDtoTypes.Genre, false }
         };
-
     public Dictionary<string, ConnectorProperty> Properties { get; set; }
     public TaskStatus SyncStatus { get; set; } = TaskStatus.WaitingToRun;
     public ServerConnector()
@@ -34,7 +36,6 @@ public class ServerConnector : IMediaServerConnector
         Playlist = new ServerPlaylistConnector(_servers);
         Genre = new ServerGenreConnector(_servers);
     }
-    
     public async Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
     {
         int failed = 0;
@@ -77,7 +78,6 @@ public class ServerConnector : IMediaServerConnector
         
         return new AuthenticationResponse();
     }
-
     public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
     {
         SyncStatus = TaskStatus.Running;
@@ -131,7 +131,6 @@ public class ServerConnector : IMediaServerConnector
         
         return isUpToDate == 1 ? true : false;
     }
-
     public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
     {
         SyncStatus = TaskStatus.Running;
@@ -176,7 +175,7 @@ public class ServerConnector : IMediaServerConnector
         
         return failed > 0;
     }
-
+    
     [Obsolete("This method will throw an Error! Please call GetUsername(string server)!")]
     public string GetUsername()
     {

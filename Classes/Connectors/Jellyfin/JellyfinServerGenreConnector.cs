@@ -1,10 +1,12 @@
+using Jellyfin.Sdk;
+using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Interfaces;
 using PortaJel_Blazor.Classes.Enum;
 
 namespace PortaJel_Blazor.Classes.Connectors.Jellyfin;
 
-public class JellyfinServerGenreConnector : IMediaServerGenreConnector
+public class JellyfinServerGenreConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user) : IMediaServerGenreConnector
 {
     public async Task<Genre[]> GetAllGenresAsync()
     {

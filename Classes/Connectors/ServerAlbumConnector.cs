@@ -133,7 +133,8 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
         return albums.First();
     }
 
-    public async Task<Album[]> GetSimilarAlbumsAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<Album[]> GetSimilarAlbumsAsync(Guid id, int setLimit, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         var albums = new ConcurrentBag<Album>();
         int failed = 0;
@@ -143,7 +144,7 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
                 try
                 {
                     // Get album data 
-                    var toAdd = server.Value.Album.GetSimilarAlbumsAsync(id, serverUrl, cancellationToken);
+                    var toAdd = server.Value.Album.GetSimilarAlbumsAsync(id, 50, serverUrl, cancellationToken);
                     toAdd.Wait(cancellationToken);
                     // Add to list 
                     foreach (var album in toAdd.Result)

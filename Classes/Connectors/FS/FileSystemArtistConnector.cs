@@ -23,7 +23,7 @@ namespace PortaJel_Blazor.Classes.Connectors.FS
             throw new NotImplementedException();
         }
 
-        public Task<Artist[]> GetSimilarArtistAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        public Task<Artist[]> GetSimilarArtistAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

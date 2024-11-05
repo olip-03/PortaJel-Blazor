@@ -27,6 +27,11 @@ namespace PortaJel_Blazor.Classes.Database
             Guid[]? guids = JsonSerializer.Deserialize<Guid[]>(AlbumIdsJson);
             return guids == null ? [] : guids;
         }
+
+        public Guid[] GetSimilarIds()
+        {
+            return [];
+        }
         public static ArtistData Builder(BaseItemDto baseItem, string server)
         {
             if (baseItem.Id == null)

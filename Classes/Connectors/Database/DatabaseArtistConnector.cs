@@ -9,33 +9,72 @@ namespace PortaJel_Blazor.Classes.Connectors.Database;
 
 public class DatabaseArtistConnector : IMediaServerArtistConnector
 {
-    private SQLiteAsyncConnection _database = null;
-
+    private readonly SQLiteAsyncConnection _database = null;
+    
     public DatabaseArtistConnector(SQLiteAsyncConnection database)
     {
         _database = database;
     }
-
-    public Task<Artist[]> GetAllArtistAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
-        ItemSortBy setSortTypes = ItemSortBy.Artist, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
+    
+    public async Task<Artist[]> GetAllArtistAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Artist, SortOrder setSortOrder = SortOrder.Ascending,
+        string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
+        List<ArtistData> filteredCache = [];
+        switch (setSortTypes)
+        {
+            case ItemSortBy.DateCreated:
+                filteredCache.AddRange(await _database.Table<ArtistData>()
+                    .OrderByDescending(artist => artist.DateAdded)
+                    .Take((int)limit).ToListAsync());
+                break;
+            case ItemSortBy.Name:
+                filteredCache.AddRange(await _database.Table<ArtistData>()
+                    .OrderByDescending(artist => artist.Name)
+                    .Take((int)limit).ToListAsync());
+                break;
+            case ItemSortBy.Random:
+                var firstTake = await _database.Table<ArtistData>().ToListAsync();
+                filteredCache = firstTake
+                    .OrderBy(artist => Guid.NewGuid())
+                    .Take((int)limit)
+                    .ToList();
+                break;
+            default:
+                filteredCache.AddRange(await _database.Table<ArtistData>()
+                    .OrderByDescending(artist => artist.Name)
+                    .Take((int)limit).ToListAsync());
+                break;
+        }
 
-    public Task<Artist> GetArtistAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        return filteredCache.Select(artist => new Artist(artist)).ToArray();
     }
-
-    public Task<Artist[]> GetSimilarArtistAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> GetTotalArtistCount(bool getFavourite = false, string serverUrl = "",
+    
+    public async Task<Artist> GetArtistAsync(Guid id, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArtistData artistDbItem =
+            await _database.Table<ArtistData>().Where(artist => artist.Id == id).FirstOrDefaultAsync();
+        AlbumData[] albumData = await _database.Table<AlbumData>()
+            .Where(album => artistDbItem.GetAlbumIds().Contains(album.Id)).ToArrayAsync();
+        return new Artist(artistDbItem, albumData);
+    }
+    
+    public async Task<Artist[]> GetSimilarArtistAsync(Guid id, int setLimit, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        ArtistData artistFromDb = await _database.Table<ArtistData>().Where(artist => artist.Id == id).FirstOrDefaultAsync()
+            .ConfigureAwait(false);
+        if (artistFromDb == null) return [];
+        var artistsFromDb = await _database.Table<ArtistData>().Where(artist => artistFromDb.GetSimilarIds()
+            .Contains(artist.Id)).ToArrayAsync();
+        return artistsFromDb.Select(a => new Artist(a)).ToArray(); 
+    }
+    
+    public async Task<int> GetTotalArtistCount(bool getFavourite = false, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        return await _database.Table<ArtistData>().Where(artist => getFavourite || artist.IsFavourite).CountAsync();
     }
 }

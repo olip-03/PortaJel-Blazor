@@ -18,7 +18,8 @@ public class FileSystemAlbumConnector : IMediaServerAlbumConnector
         throw new NotImplementedException();
     }
 
-    public Task<Album[]> GetSimilarAlbumsAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    public Task<Album[]> GetSimilarAlbumsAsync(Guid id, int setLimit, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
