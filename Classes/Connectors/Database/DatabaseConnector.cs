@@ -14,6 +14,7 @@ using System.Diagnostics;
 using Microsoft.Maui.Controls.PlatformConfiguration;
 using System.Collections.Generic;
 using PortaJel_Blazor.Classes.Connectors.Database;
+using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Interfaces;
 using PortaJel_Blazor.Classes.Enum;
 
@@ -23,13 +24,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
     {
         private static readonly string MainDir = Path.Combine(FileSystem.Current.AppDataDirectory, "Database.bi");
         private const SQLiteOpenFlags DbFlags = SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache;
-        private static readonly SQLiteAsyncConnection Database = new SQLiteAsyncConnection(MainDir, DbFlags);
-        
-        public IMediaServerAlbumConnector Album { get; set; } = new DatabaseAlbumConnector(Database);
-        public IMediaServerArtistConnector Artist { get; set; } = new DatabaseArtistConnector(Database);
-        public IMediaServerSongConnector Song { get; set; } = new DatabaseSongConnector(Database);
-        public IMediaServerPlaylistConnector Playlist { get; set; } = new DatabasePlaylistConnector(Database);
-        public IMediaServerGenreConnector Genre { get; set; } = new DatabaseGenreConnector(Database);
+        private readonly SQLiteAsyncConnection _database = new SQLiteAsyncConnection(MainDir, DbFlags);
+        public IMediaServerAlbumConnector Album { get; set; } 
+        public IMediaServerArtistConnector Artist { get; set; } 
+        public IMediaServerSongConnector Song { get; set; } 
+        public IMediaServerPlaylistConnector Playlist { get; set; } 
+        public IMediaServerGenreConnector Genre { get; set; }
         
         public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
             new()
@@ -43,13 +43,20 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
         
         public Dictionary<string, ConnectorProperty> Properties { get; set; } = new();
         public TaskStatus SyncStatus { get; set; }  = TaskStatus.WaitingToRun;
-        
+
+        public DatabaseConnector()
+        {
+            Artist = new DatabaseArtistConnector(_database);
+            Song = new DatabaseSongConnector(_database);
+            Playlist = new DatabasePlaylistConnector(_database);
+            Genre = new DatabaseGenreConnector(_database);
+        }
         public async Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
         {
-            await Database.CreateTableAsync<AlbumData>();
-            await Database.CreateTableAsync<SongData>();
-            await Database.CreateTableAsync<ArtistData>();
-            await Database.CreateTableAsync<PlaylistData>();
+            await _database.CreateTableAsync<AlbumData>();
+            await _database.CreateTableAsync<SongData>();
+            await _database.CreateTableAsync<ArtistData>();
+            await _database.CreateTableAsync<PlaylistData>();
             
             return AuthenticationResponse.Unneccesary();
         }
@@ -65,7 +72,17 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             SyncStatus = TaskStatus.Running;
             throw new NotImplementedException();
         }
+
+        public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
+        {
+            throw new NotImplementedException();
+        }
         
+        public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Array.Empty<BaseMusicItem>());
+        }
+
         public string GetUsername()
         {
             throw new NotImplementedException();
@@ -79,6 +96,26 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
         public string GetAddress()
         {
             throw new NotImplementedException();
+        }
+
+        public string GetProfileImageUrl()
+        {
+            throw new NotImplementedException();
+        }
+
+        public UserCredentials GetUserCredentials()
+        {
+            return new UserCredentials(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+        }
+        
+        public MediaServerConnection GetType()
+        {
+            return MediaServerConnection.Database;
+        }
+        
+        public SQLiteAsyncConnection GetDatabaseConnection()
+        {
+            return _database;
         }
     }
 }

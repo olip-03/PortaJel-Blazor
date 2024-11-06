@@ -1,9 +1,12 @@
-﻿using Android.App;
+﻿using System.Drawing;
+using Android.App;
 using Android.Graphics;
 using Com.Google.Android.Exoplayer2;
 using Com.Google.Android.Exoplayer2.UI;
 using Java.Interop;
 using Java.Lang;
+using PortaJel_Blazor.Classes.Data;
+using Bitmap = System.Drawing.Bitmap;
 
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
@@ -76,9 +79,9 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
             throw new NotImplementedException();
         }
 
-        public Bitmap? GetCurrentLargeIcon(IPlayer? player, PlayerNotificationManager.BitmapCallback? callback)
+        public global::Android.Graphics.Bitmap GetCurrentLargeIcon(IPlayer? player, PlayerNotificationManager.BitmapCallback? callback)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void SetJniIdentityHashCode(int value)

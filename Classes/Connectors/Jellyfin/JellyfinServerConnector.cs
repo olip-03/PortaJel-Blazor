@@ -9,6 +9,7 @@ using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
+using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
 {
@@ -157,7 +158,17 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         {
             throw new NotImplementedException();
         }
+
+        public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
+        {
+            throw new NotImplementedException();
+        }
         
+        public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Array.Empty<BaseMusicItem>());
+        }
+
         public string GetUsername()
         {
             return (string)Properties["Username"].Value;
@@ -171,6 +182,21 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         public string GetAddress()
         {
             return (string)Properties["URL"].Value;
+        }
+
+        public string GetProfileImageUrl()
+        {
+            throw new NotImplementedException();
+        }
+
+        public UserCredentials GetUserCredentials()
+        {
+            return new UserCredentials(_sdkClientSettings.ServerUrl,  (string)Properties["Username"].Value, _userDto.Id.ToString(), (string)Properties["Password"].Value, _sessionInfo.Id, _sdkClientSettings.AccessToken);
+        }
+            
+        public MediaServerConnection GetType()
+        {
+            return MediaServerConnection.Jellyfin;
         }
     }
 }

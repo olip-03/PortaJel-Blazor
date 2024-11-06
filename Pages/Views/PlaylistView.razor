@@ -163,7 +163,7 @@
                 if (playlistId != null)
                 {
                     // album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
-                    playlist = await MauiProgram.api.GetPlaylistAsync(parseId);
+                    playlist = await MauiProgram.Server.Playlist.GetPlaylistAsync(parseId);
                     songs = playlist.Songs.Select(song => new Song(song)).ToArray();
                 }
                 else
@@ -189,7 +189,7 @@
                 similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }
 
-            // TODO: Add this as an API in the plugin, not in the app itself
+            // TODO: Add this as an Server.Playlist in the plugin, not in the app itself
             // GnodService reccomendations = new();
             // similarArtists = await reccomendations.QueryGnod(album.artists.FirstOrDefault().name);
         }
@@ -235,7 +235,7 @@
         try
         {
             playlist.SetIsFavourite(!playlist.IsFavourite);
-            await MauiProgram.api.SetFavourite(playlist.Id, playlist.ServerAddress, playlist.IsFavourite);
+            await MauiProgram.Server.SetIsFavourite(playlist.Id, playlist.IsFavourite, playlist.ServerAddress);
         }
         catch (Exception ex)
         {
@@ -243,7 +243,7 @@
             await App.Current.MainPage.DisplayAlert("Error?", $"{ex}", "Continue");
         }
         StateHasChanged();
-        // MauiProgram.api.SetFavourite
+        // MauiProgram.Server.Playlist.SetFavourite
     }
 
     private async void FavouriteSong(Guid songId)
@@ -262,7 +262,7 @@
         if (foundItem != null)
         {
             StateHasChanged();
-            await MauiProgram.api.SetFavourite(foundItem.Id, foundItem.ServerAddress, foundItem.IsFavourite);
+            await MauiProgram.Server.SetIsFavourite(foundItem.Id, foundItem.IsFavourite, foundItem.ServerAddress);
         }
     }
 

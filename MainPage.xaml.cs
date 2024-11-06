@@ -66,7 +66,7 @@ public partial class MainPage : ContentPage
     public async void Initialize()
     {
         await MauiProgram.LoadData();
-        if (MauiProgram.api.GetServers().Count() <= 0)
+        if (MauiProgram.Server.GetServers().Length == 0)
         {
             AddServerView addServerView = new();
             await MauiProgram.MainPage.PushModalAsync(addServerView, false);

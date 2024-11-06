@@ -148,7 +148,7 @@
             {
                 recheck = false; // automatically do not reiterate
 
-                searchResults = await MauiProgram.servers[0].SearchAsync(searchFor, sorted: true, searchLimit: 50);
+                searchResults = await MauiProgram.Server.SearchAsync();
                 
                 if (searchResults == null)
                 {
@@ -167,13 +167,11 @@
                 await Task.WhenAll(_albumResult.Select(async al => await MusicItemImage.BlurhashToBase64Async(al.ImgBlurhash)));
                 await Task.WhenAll(_songResult.Select(async so => await MusicItemImage.BlurhashToBase64Async(so.ImgBlurhash)));
 
-                if (queryQueued)
-                {
-                    recheck = true;
-                    searchFor = queudQuery;
-                    searchQuery = queudQuery;
-                    queryQueued = false;
-                }
+                if (!queryQueued) continue;
+                recheck = true;
+                searchFor = queudQuery;
+                searchQuery = queudQuery;
+                queryQueued = false;
             }
         });
 

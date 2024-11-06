@@ -207,7 +207,7 @@
         if (musicObject != null)
         {
             isFavourite = !isFavourite;
-            await MauiProgram.api.SetFavourite(elementId, server, isFavourite);
+            await MauiProgram.Server.SetIsFavourite(elementId, isFavourite, server);
         }
         StateHasChanged();
     }

@@ -14,7 +14,7 @@ public class DatabasePlaylistConnector : IMediaServerPlaylistConnector
     {
         _database = database;
     }
-    
+
     public async Task<Playlist[]> GetAllPlaylistsAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
         CancellationToken cancellationToken = default)
@@ -26,13 +26,28 @@ public class DatabasePlaylistConnector : IMediaServerPlaylistConnector
         return filteredCache.Select(dbItem => new Playlist(dbItem)).ToArray();
     }
 
-    public Task<Playlist> GetPlaylistAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<Playlist> GetPlaylistAsync(Guid id, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        PlaylistData playlistDbItem =
+            await _database.Table<PlaylistData>().Where(p => p.Id == id).FirstOrDefaultAsync();
+        var songData = await _database.Table<SongData>().Where(song => playlistDbItem.GetSongIds().Contains(song.Id)).ToArrayAsync();
+        return new Playlist(playlistDbItem, songData);
+    }
+
+    public async Task<int> GetTotalPlaylistCountAsync(bool getFavourite = false, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        return await _database.Table<PlaylistData>().CountAsync();
+    }
+    
+    public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId,
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<int> GetTotalPlaylistCountAsync(bool getFavourite = false, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

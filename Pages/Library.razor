@@ -343,33 +343,33 @@
         switch (_selected)
         {
             case ConnectorDtoTypes.Playlist:
-                return await MauiProgram.api.GetAllPlaylistsAsync(
+                return await MauiProgram.Server.Playlist.GetAllPlaylistsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
-                sortOrder: SortOrder.Ascending,
-                isFavourite: isFavouritesPage,
-                cancellactionToken: cancellationToken).ConfigureAwait(false);
+                setSortOrder: SortOrder.Ascending,
+                getFavourite: isFavouritesPage,
+                cancellationToken: cancellationToken).ConfigureAwait(false);
             case ConnectorDtoTypes.Album:
-                return await MauiProgram.api.GetAllAlbumsAsync(
+                return await MauiProgram.Server.Album.GetAllAlbumsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
-                sortOrder: SortOrder.Ascending,
-                isFavourite: isFavouritesPage,
-                cancellactionToken: cancellationToken).ConfigureAwait(false);
+                setSortOrder: SortOrder.Ascending,
+                getFavourite: isFavouritesPage,
+                cancellationToken: cancellationToken).ConfigureAwait(false);
             case ConnectorDtoTypes.Artist:
-                return await MauiProgram.api.GetAllArtistsAsync(
+                return await MauiProgram.Server.Artist.GetAllArtistAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
-                // sortOrder: SortOrder.Ascending,
-                isFavourite: isFavouritesPage,
-                cancellactionToken: cancellationToken).ConfigureAwait(false);
+                // setSortOrder: SortOrder.Ascending,
+                getFavourite: isFavouritesPage,
+                cancellationToken: cancellationToken).ConfigureAwait(false);
             case ConnectorDtoTypes.Song:
-                return await MauiProgram.api.GetAllSongsAsync(
+                return await MauiProgram.Server.Song.GetAllSongsAsync(
                 limit: setLimit,
                 startIndex: setStartIndex,
-                sortOrder: [SortOrder.Ascending],
-                isFavourite: isFavouritesPage,
-                cancellactionToken: cancellationToken).ConfigureAwait(false);
+                setSortOrder: SortOrder.Ascending,
+                getFavourite: isFavouritesPage,
+                cancellationToken: cancellationToken).ConfigureAwait(false);
             // case Selectable.genres:
             //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM
             //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex
@@ -387,13 +387,13 @@
             switch (_selected)
             {
                 case ConnectorDtoTypes.Playlist:
-                    return await MauiProgram.api.GetTotalPlaylistCount(isFavouritesPage);
+                    return await MauiProgram.Server.Playlist.GetTotalPlaylistCountAsync(isFavouritesPage);
                 case ConnectorDtoTypes.Album:
-                    return await MauiProgram.api.GetTotalAlbumCount(isFavouritesPage);
+                    return await MauiProgram.Server.Album.GetTotalAlbumCountAsync(isFavouritesPage);
                 case ConnectorDtoTypes.Artist:
-                    return await MauiProgram.api.GetTotalArtistCount(isFavouritesPage);
+                    return await MauiProgram.Server.Artist.GetTotalArtistCount(isFavouritesPage);
                 case ConnectorDtoTypes.Song:
-                    return await MauiProgram.api.GetTotalSongCount(isFavouritesPage);
+                    return await MauiProgram.Server.Song.GetTotalSongCountAsync(isFavouritesPage);
                 // case Selectable.genres:
                 //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM
                 //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex

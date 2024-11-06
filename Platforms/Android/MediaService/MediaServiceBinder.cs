@@ -1,6 +1,7 @@
 ﻿using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Services;
 using Android.OS;
+using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
@@ -80,7 +81,7 @@ namespace PortaJel_Blazor.Platforms.Android.MediaService
         {
             return Service.SetPlayingCollection(baseMusicItem, fromIndex);
         }
-        public BaseMusicItem? GetPlayingCollection()
+        public BaseMusicItem GetPlayingCollection()
         {
             return Service.GetPlayingCollection();
         }

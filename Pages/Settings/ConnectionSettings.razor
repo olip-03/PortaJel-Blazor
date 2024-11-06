@@ -15,19 +15,19 @@
     <button class="add-button" @onclick=AddConnection>Add</button>
 </div>
 
-@foreach (var serverConnector in MauiProgram.api.GetServers())
+@foreach (var serverConnector in MauiProgram.Server.GetServers())
 {
     <div class="connection-container">
         <div class="connection-details">
             <div class="user-profile">
-                <img class="user-profile-img" src="@serverConnector.GetProfileImage()" onerror="this.src='/images/avatar.png'" />
+                <img class="user-profile-img" src="@serverConnector.GetProfileImageUrl()" onerror="this.src='/images/avatar.png'" />
             </div>
             <div>
                 <div class="user-profile-name">@serverConnector.GetUsername()</div>
-                <div class="user-profile-connection">@serverConnector.GetBaseAddress()</div>
+                <div class="user-profile-connection">@serverConnector.GetAddress()</div>
             </div>
         </div>
-        <button class="remove-button" @onclick="() => DeleteConnection(serverConnector.GetBaseAddress())">Remove</button>
+        <button class="remove-button" @onclick="() => DeleteConnection(serverConnector.GetAddress())">Remove</button>
     </div>
 }
 @if (!MauiProgram.isConnected)

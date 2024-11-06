@@ -3,6 +3,7 @@ using PortaJel_Blazor.Classes.Connectors.Database;
 using PortaJel_Blazor.Classes.Connectors.FS;
 using PortaJel_Blazor.Classes.Connectors.Jellyfin;
 using PortaJel_Blazor.Classes.Connectors.Spotify;
+using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Enum;
 using PortaJel_Blazor.Classes.Interfaces;
 
@@ -176,6 +177,17 @@ public class ServerConnector : IMediaServerConnector
         return failed > 0;
     }
     
+    public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
+    {
+        await Task.Delay(100);
+        return true;
+    }
+    
+    public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(Array.Empty<BaseMusicItem>());
+    }
+    
     [Obsolete("This method will throw an Error! Please call GetUsername(string server)!")]
     public string GetUsername()
     {
@@ -186,7 +198,7 @@ public class ServerConnector : IMediaServerConnector
     {
         return _servers.FirstOrDefault(s => s.GetAddress() == server)?.GetUsername();
     }
-
+    
     [Obsolete("This method will throw an Error! Please call GetUsername(string server)!")]
     public string GetPassword()
     {
@@ -197,11 +209,26 @@ public class ServerConnector : IMediaServerConnector
     {
         return _servers.FirstOrDefault(s => s.GetAddress() == server)?.GetPassword();
     }
-
+    
     [Obsolete("This method will throw an Error! Please call GetUsername(string server)!")]
     public string GetAddress()
     {
         throw new NotImplementedException("Unable to get address from main server connector. Please call this method specifying the server!");
+    }
+
+    public string GetProfileImageUrl()
+    {
+        throw new NotImplementedException();
+    }
+
+    public UserCredentials GetUserCredentials()
+    {
+        return new UserCredentials("", "", "", "", "", "");
+    }
+
+    public MediaServerConnection GetType()
+    {
+        return MediaServerConnection.ServerConnector;
     }
     
     public string GetAddress(string server)
@@ -222,5 +249,18 @@ public class ServerConnector : IMediaServerConnector
     public void RemoveServer(string address)
     {
         _servers.Remove(_servers.First(s => s.GetAddress() == address));
+    }
+
+    public IMediaServerConnector[] GetServers()
+    {
+        return _servers.ToArray();
+    }
+    public ServerConnectorSettings GetSettings()
+    {
+        return new ServerConnectorSettings(this, _servers.ToArray());
+    }
+    public UserCredentials[] GetAllUserCredentials()
+    {
+        return _servers.Select(s => s.GetUserCredentials()).ToArray();
     }
 }

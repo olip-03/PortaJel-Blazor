@@ -68,4 +68,15 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
         // Implementation to get the total count of playlists
         return await Task.FromResult(0);
     }
+    
+    public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

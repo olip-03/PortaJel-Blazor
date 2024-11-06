@@ -1,4 +1,5 @@
-﻿using PortaJel_Blazor.Classes.Interfaces;
+﻿using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Classes.Interfaces;
 using PortaJel_Blazor.Classes.Enum;
 
 namespace PortaJel_Blazor.Classes.Connectors.Spotify
@@ -57,6 +58,16 @@ namespace PortaJel_Blazor.Classes.Connectors.Spotify
             throw new NotImplementedException();
         }
 
+        public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Array.Empty<BaseMusicItem>());
+        }
+        
         public SpotifyServerConnector(string username, string password)
         {
             Properties["Username"].Value = username;
@@ -78,7 +89,22 @@ namespace PortaJel_Blazor.Classes.Connectors.Spotify
         {
             return "";
         }
+
+        public string GetProfileImageUrl()
+        {
+            throw new NotImplementedException();
+        }
+
+        public UserCredentials GetUserCredentials()
+        {
+            return new UserCredentials(Properties["Url"].Value.ToString(), Properties["Username"].Value.ToString(), string.Empty, Properties["Password"].Value.ToString(), string.Empty, string.Empty);
+        }
         
+        public MediaServerConnection GetType()
+        {
+            return MediaServerConnection.Spotify;
+        }
+
         public SpotifyServerConnector() 
         {
             

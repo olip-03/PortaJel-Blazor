@@ -166,7 +166,7 @@
         if (firstRender)
         {
             Guid parseId = Guid.Parse(albumId);
-            _album = await MauiProgram.api.GetAlbumAsync(parseId, offline: true);
+            _album = await MauiProgram.Server.Album.GetAlbumAsync(parseId);
         }
 
         if (_album != null)
@@ -214,12 +214,12 @@
 
                 if (albumId != null)
                 {
-                    Task<Album> getAlbum = MauiProgram.api.GetAlbumAsync(parseId, offline: true);
-                    Task<Album[]> getSimilarAlbum = MauiProgram.api.GetSimilarAlbumsAsync(parseId, SimilarAlbumLimit);
+                    Task<Album> getAlbum = MauiProgram.Server.Album.GetAlbumAsync(parseId);
+                    Task<Album[]> getSimilarAlbum = MauiProgram.Server.Album.GetSimilarAlbumsAsync(parseId, 50);
                     await Task.WhenAll(getAlbum, getSimilarAlbum);
-                    if (getAlbum.Result == Album.Empty)
+                    if (getAlbum.Result != null)
                     {
-                        _album = await MauiProgram.api.GetAlbumAsync(parseId, offline: false);
+                        _album = await MauiProgram.Server.Album.GetAlbumAsync(parseId);
                         if (_album.Artists != null)
                         {
                             _artistHash = await Task.WhenAll(_album.Artists.Select(a => MusicItemImage.BlurhashToBase64Async(a.ImgBlurhash)).ToArray());
@@ -256,7 +256,7 @@
                 _similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }
 
-            // TODO: Add this as an API in the plugin, not in the app itself
+            // TODO: Add this as an Server in the plugin, not in the app itself
             // GnodService reccomendations = new();
             // similarArtists = await reccomendations.QueryGnod(album.artists.FirstOrDefault().name);
         }
@@ -275,11 +275,11 @@
         MauiProgram.MainPage.ShowLoadingScreen(false);
 
         // Pull data from online sources just to refresh the local dbs
-        _album = await MauiProgram.api.GetAlbumAsync(parseId, offline: false);
+        _album = await MauiProgram.Server.Album.GetAlbumAsync(parseId);
         _songs = _album.GetSongs();
         StateHasChanged();
 
-        // await MauiProgram.api.ReportViewing(album.Id, album.ServerAddress);
+        // await MauiProgram.Server.ReportViewing(album.Id, album.ServerAddress);
     }
 
     private void SelectArtist(Guid artistId)
@@ -309,7 +309,7 @@
         try
         {
             _album.SetIsFavourite(!_album.IsFavourite);
-            await MauiProgram.api.SetFavourite(_album.Id, _album.ServerAddress, _album.IsFavourite);
+            await MauiProgram.Server.SetIsFavourite(_album.Id, _album.IsFavourite, _album.ServerAddress);
         }
         catch (Exception ex)
         {
@@ -318,7 +318,7 @@
         }
 
         StateHasChanged();
-        // MauiProgram.api.SetFavourite
+        // MauiProgram.Server.SetFavourite
     }
 
     private async void FavouriteSong(Guid songId)
@@ -337,7 +337,7 @@
         if (foundItem != null)
         {
             StateHasChanged();
-            await MauiProgram.api.SetFavourite(foundItem.Id, foundItem.ServerAddress, foundItem.IsFavourite);
+            await MauiProgram.Server.SetIsFavourite(foundItem.Id, foundItem.IsFavourite, foundItem.ServerAddress);
         }
     }
 
@@ -394,7 +394,7 @@
                 MauiProgram.MainPage.RefreshPlayer();
                 MauiProgram.MediaService.Play();
 
-                // Call API to update the albums 'last played' status in the local db
+                // Call Server to update the albums 'last played' status in the local db
             }
             catch (Exception ex)
             {

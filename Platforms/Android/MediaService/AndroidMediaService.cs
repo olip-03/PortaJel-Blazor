@@ -19,6 +19,8 @@ using Java.Lang;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Services;
 using System.Text.Json;
+using PortaJel_Blazor.Classes.Connectors;
+using PortaJel_Blazor.Classes.Data;
 using Bitmap = Android.Graphics.Bitmap;
 using Color = Android.Graphics.Color;
 using Math = System.Math;

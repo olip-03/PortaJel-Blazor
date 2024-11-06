@@ -4,12 +4,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PortaJel_Blazor.Classes.Data;
 
 // IOS Implementation
 namespace PortaJel_Blazor.Classes.Services
 {
     public partial class MediaService : IMediaInterface
     {
+        BaseMusicItem IMediaInterface.GetPlayingCollection()
+        {
+            return GetPlayingCollection();
+        }
+
+        void IMediaInterface.AddSong(Song song)
+        {
+            AddSong(song);
+        }
+
+        void IMediaInterface.AddSongs(Song[] songs)
+        {
+            AddSongs(songs);
+        }
+
         public void AddSong(Song song)
         {
             throw new NotImplementedException();
@@ -40,6 +56,16 @@ namespace PortaJel_Blazor.Classes.Services
             throw new NotImplementedException();
         }
 
+        public int GetRepeatMode()
+        {
+            return 0;
+        }
+
+        Song IMediaInterface.GetCurrentlyPlaying()
+        {
+            return GetCurrentlyPlaying();
+        }
+
         public PlaybackInfo? GetPlaybackTimeInfo()
         {
             throw new NotImplementedException();
@@ -59,75 +85,71 @@ namespace PortaJel_Blazor.Classes.Services
         {
             throw new NotImplementedException();
         }
-
-        public int GetRepeatMode()
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public Task<bool> Initalize()
         {
-            throw new NotImplementedException();
+            return new Task<bool>(() => true);
         }
 
         public void NextTrack()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void Pause()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void Play()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void PreviousTrack()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void RemoveSong(int index)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void SeekToIndex(int index)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void SeekToPosition(long position)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void SetPlayAddonAction(Action addonAction)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void SetPlayingCollection(BaseMusicItem baseMusicItem, int fromIndex = 0)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void TogglePlay()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void ToggleRepeat()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void ToggleShuffle()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

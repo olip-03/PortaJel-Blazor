@@ -2,11 +2,16 @@ using PortaJel_Blazor.Classes.Interfaces;
 using PortaJel_Blazor.Classes.Enum;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
+using PortaJel_Blazor.Classes.Data;
+using SQLite;
+using FileSystem = Microsoft.VisualBasic.FileSystem;
 
 namespace PortaJel_Blazor.Classes.Connectors.FS;
 
 public class FileSystemConnector  : IMediaServerConnector
 {
+    private SQLiteAsyncConnection _database = null;
+
     public IMediaServerAlbumConnector Album { get; set; }
     public IMediaServerArtistConnector Artist { get; set; }
     public IMediaServerSongConnector Song { get; set; }
@@ -27,9 +32,16 @@ public class FileSystemConnector  : IMediaServerConnector
 
     public TaskStatus SyncStatus { get; set; } = TaskStatus.WaitingToRun;
 
-    public FileSystemConnector(List<string> paths)
+    public FileSystemConnector(SQLiteAsyncConnection database, List<string> paths)
     {
         Properties["Paths"].Value = paths;
+        _database = database;
+        
+        Album = new FileSystemAlbumConnector(_database);
+        Artist = new FileSystemArtistConnector(_database);
+        Song = new FileSystemSongConnector(_database);
+        Playlist = new FileSystemPlaylistConnector(_database);
+        Genre = new FileSystemGenreConnector(_database);
     }
     
     public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
@@ -46,7 +58,17 @@ public class FileSystemConnector  : IMediaServerConnector
     {
         throw new NotImplementedException();
     }
+
+    public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
+    {
+        throw new NotImplementedException();
+    }
     
+    public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(Array.Empty<BaseMusicItem>());
+    }
+
     public string GetUsername()
     {
         throw new NotImplementedException();
@@ -60,5 +82,20 @@ public class FileSystemConnector  : IMediaServerConnector
     public string GetAddress()
     {
         throw new NotImplementedException();
+    }
+
+    public string GetProfileImageUrl()
+    {
+        throw new NotImplementedException();
+    }
+
+    public UserCredentials GetUserCredentials()
+    {
+        return new UserCredentials(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+    }
+
+    public MediaServerConnection GetType()
+    {
+        return MediaServerConnection.Filesystem;
     }
 }

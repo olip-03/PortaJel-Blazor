@@ -1,4 +1,5 @@
 ﻿using PortaJel_Blazor.Classes.Connectors;
+using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Enum;
 
 namespace PortaJel_Blazor.Classes.Interfaces
@@ -16,8 +17,13 @@ namespace PortaJel_Blazor.Classes.Interfaces
         Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default);
         Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default);
         Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default);
+        Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl);
+        public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default);
         string GetUsername();
         string GetPassword();
         string GetAddress();
+        string GetProfileImageUrl();
+        UserCredentials GetUserCredentials();
+        MediaServerConnection GetType();
     }
 }

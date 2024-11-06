@@ -243,8 +243,8 @@
             if (artistId != null)
             {
                 MauiProgram.UpdateDebugMessage("Starting request for Artists data.");
-                Task<Artist> getArtist = MauiProgram.api.GetArtistAsync(parseId);
-                Task<Artist[]> getSimilarArtist = MauiProgram.api.GetSimilarArtistsAsync(parseId, similarArtistLimit);
+                Task<Artist> getArtist = MauiProgram.Server.Artist.GetArtistAsync(parseId);
+                Task<Artist[]> getSimilarArtist = MauiProgram.Server.Artist.GetSimilarArtistAsync(parseId, similarArtistLimit);
                 await Task.WhenAll(getArtist, getSimilarArtist);
                 artist = getArtist.Result;
                 similarArtists = getSimilarArtist.Result;
@@ -327,7 +327,7 @@
     {
         artist.SetIsFavourite(!artist.IsFavourite);
         StateHasChanged();
-        await MauiProgram.api.SetFavourite(artist.Id, artist.ServerAddress, artist.IsFavourite);
+        await MauiProgram.Server.SetIsFavourite(artist.Id, artist.IsFavourite, artist.ServerAddress);
     }
     private async void GoBack()
     {

@@ -29,5 +29,15 @@ namespace PortaJel_Blazor.Classes.Connectors.Spotify
         {
             throw new NotImplementedException();
         }
+
+        public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

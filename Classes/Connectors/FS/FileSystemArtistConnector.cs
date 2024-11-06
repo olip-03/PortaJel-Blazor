@@ -1,11 +1,18 @@
 using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Interfaces;
+using SQLite;
 
 namespace PortaJel_Blazor.Classes.Connectors.FS
 {
     public class FileSystemArtistConnector : IMediaServerArtistConnector
     {
+        private SQLiteAsyncConnection _database = null;
+    
+        public FileSystemArtistConnector(SQLiteAsyncConnection database)
+        {
+            _database = database;
+        }
         public Task<Album[]> GetAllArtistAsync()
         {
             throw new NotImplementedException();

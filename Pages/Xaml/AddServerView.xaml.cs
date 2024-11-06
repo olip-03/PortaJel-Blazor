@@ -2,12 +2,13 @@ using Jellyfin.Sdk;
 using Microsoft.Maui.Controls;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Pages.Xaml;
 
 public partial class AddServerView : ContentPage
 {
-    public NotAServerConnecter? serverConnecter { get; private set; } = null;
+    public IMediaServerConnector? serverConnecter { get; private set; } = null;
 
 	public UserCredentials UserCredentials { get; set; } = UserCredentials.Empty;
     public bool ServerPassed = false;
@@ -53,11 +54,12 @@ public partial class AddServerView : ContentPage
         entry_username.Opacity = 0.5;
         entry_password.Opacity = 0.5;
 
-        serverConnecter = new(entry_server.Text);
+        // serverConnecter = new(entry_server.Text);
 
         try
         {
-            UserPassed = await serverConnecter.AuthenticateServerAsync(entry_username.Text, entry_password.Text);
+            AuthenticationResponse response = await serverConnecter.AuthenticateAsync();
+            UserPassed = response.IsSuccess;
             ServerPassed = true;
         }
         catch (HttpRequestException)
@@ -101,7 +103,7 @@ public partial class AddServerView : ContentPage
                 // Close this page  
                 if (Navigation.ModalStack.Count > 0)
                 {
-                    MauiProgram.AddServer(serverConnecter);
+                    MauiProgram.Server.AddServer(serverConnecter);
                     await Navigation.PopModalAsync();
                 }
             }

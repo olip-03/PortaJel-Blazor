@@ -1,39 +1,88 @@
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Classes.Database;
 using PortaJel_Blazor.Classes.Interfaces;
 using PortaJel_Blazor.Classes.Enum;
 
-namespace PortaJel_Blazor.Classes.Connectors.Jellyfin;
-
-public class JellyfinServerSongConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user)
-    : IMediaServerSongConnector
+namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
 {
-    public async Task<Song[]> GetAllSongsAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
-        string serverUrl = "", CancellationToken cancellationToken = default)
+    public class JellyfinServerSongConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user)
+        : IMediaServerSongConnector
     {
-        // Implementation to fetch all songs
-        return await Task.FromResult(Array.Empty<Song>());
-    }
+        public async Task<Song[]> GetAllSongsAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+            ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
+            string serverUrl = "", CancellationToken cancellationToken = default)
+        {
+            BaseItemDtoQueryResult serverResults = await api.Items.GetAsync(c =>
+            {
+                c.QueryParameters.UserId = user.Id;
+                c.QueryParameters.IsFavorite = getFavourite;
+                c.QueryParameters.SortBy = [setSortTypes];
+                c.QueryParameters.SortOrder = [setSortOrder];
+                c.QueryParameters.IncludeItemTypes = [BaseItemKind.Audio];
+                c.QueryParameters.Limit = limit;
+                c.QueryParameters.StartIndex = startIndex;
+                c.QueryParameters.Recursive = true;
+                c.QueryParameters.EnableImages = true;
+                c.QueryParameters.EnableTotalRecordCount = true;
+            }, cancellationToken).ConfigureAwait(false);
 
-    public async Task<Song> GetSongAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
-    {
-        // Implementation to fetch a specific song by its ID
-        return await Task.FromResult(new Song());
-    }
+            if (serverResults?.Items == null) return Array.Empty<Song>();
 
-    public async Task<Song[]> GetSimilarSongsAsync(Guid id, string serverUrl = "",
-        CancellationToken cancellationToken = default)
-    {
-        // Implementation to fetch similar songs to the specified one
-        return await Task.FromResult(Array.Empty<Song>());
-    }
+            return serverResults.Items.Select(dto => new Song(SongData.Builder(dto, clientSettings.ServerUrl))).ToArray();
+        }
 
-    public async Task<int> GetTotalSongCountAsync(bool getFavourite = false, string serverUrl = "",
-        CancellationToken cancellationToken = default)
-    {
-        // Implementation to get the total count of songs
-        return await Task.FromResult(0);
+        public async Task<Song> GetSongAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        {
+            var songQueryResult = await api.Items.GetAsync(c =>
+            {
+                c.QueryParameters.UserId = user.Id;
+                c.QueryParameters.Ids = [id];
+                c.QueryParameters.IncludeItemTypes = [BaseItemKind.Audio];
+                c.QueryParameters.Recursive = true;
+                c.QueryParameters.EnableImages = true;
+            }, cancellationToken).ConfigureAwait(false);
+
+            if (songQueryResult?.Items == null || !songQueryResult.Items.Any()) return new Song();
+
+            return new Song(SongData.Builder(songQueryResult.Items.First(), clientSettings.ServerUrl));
+        }
+
+        public async Task<Song[]> GetSimilarSongsAsync(Guid id, string serverUrl = "",
+            CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(10, cancellationToken).ConfigureAwait(false);
+            // BaseItemDtoQueryResult result = await api.Songs[id].Similar.GetAsync(c =>
+            // {
+            //     c.QueryParameters.UserId = user.Id;
+            //     c.QueryParameters.Limit = 10; // Example limit, adjust as necessary
+            // }, cancellationToken).ConfigureAwait(false);
+            //
+            // if (result?.Items == null) return Array.Empty<Song>();
+            //
+            // return result.Items.Select(dto => Song.Builder(dto, clientSettings.ServerUrl)).ToArray();
+            return [];
+        }
+
+        public async Task<int> GetTotalSongCountAsync(bool getFavourite = false, string serverUrl = "",
+            CancellationToken cancellationToken = default)
+        {
+            BaseItemDtoQueryResult serverResults = await api.Items.GetAsync(c =>
+            {
+                c.QueryParameters.UserId = user.Id;
+                c.QueryParameters.IsFavorite = getFavourite;
+                c.QueryParameters.SortBy = [ItemSortBy.Name];
+                c.QueryParameters.SortOrder = [SortOrder.Descending];
+                c.QueryParameters.IncludeItemTypes = [BaseItemKind.Audio];
+                c.QueryParameters.Limit = 1;
+                c.QueryParameters.StartIndex = 0;
+                c.QueryParameters.Recursive = true;
+                c.QueryParameters.EnableImages = true;
+                c.QueryParameters.EnableTotalRecordCount = true;
+            }, cancellationToken).ConfigureAwait(false);
+
+            return serverResults?.TotalRecordCount ?? 0;
+        }
     }
 }
