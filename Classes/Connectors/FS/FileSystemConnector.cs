@@ -32,6 +32,11 @@ public class FileSystemConnector  : IMediaServerConnector
 
     public TaskStatus SyncStatus { get; set; } = TaskStatus.WaitingToRun;
 
+    public FileSystemConnector()
+    {
+        
+    }
+    
     public FileSystemConnector(SQLiteAsyncConnection database, List<string> paths)
     {
         Properties["Paths"].Value = paths;

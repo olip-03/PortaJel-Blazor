@@ -14,7 +14,6 @@ using System.Threading;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
-using MatBlazor;
 using PortaJel_Blazor.Classes.Interfaces;
 using PortaJel_Blazor.Classes.Connectors;
 using PortaJel_Blazor.Classes.Data;
@@ -99,12 +98,15 @@ public static class MauiProgram
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("Roboto-Light.ttf", "RobotoLight");
+                fonts.AddFont("Roboto-Medium.ttf", "Roboto");
+                fonts.AddFont("Roboto-Medium.ttf", "RobotoRegular");
+                fonts.AddFont("Roboto-Bold.ttf", "RobotoBold");
             });
 
         // Check connection to server
         isConnected = false;
         
-        builder.Services.AddMatBlazor();
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddSingleton<JsInteropClasses2, JsInteropClasses2>();
 #if DEBUG

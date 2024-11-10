@@ -7,4 +7,5 @@ public enum MediaServerConnection
     Filesystem = 2,
     Jellyfin = 3,
     Spotify = 4,
+    Discogs = 5,
 }

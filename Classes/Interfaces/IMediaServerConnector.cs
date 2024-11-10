@@ -12,7 +12,7 @@ namespace PortaJel_Blazor.Classes.Interfaces
         public IMediaServerPlaylistConnector Playlist { get; set; }
         public IMediaServerGenreConnector Genre { get; set; }
         Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; }
-        Dictionary<string, ConnectorProperty> Properties { get; set; }
+        public Dictionary<string, ConnectorProperty> Properties { get; set; }
         public TaskStatus SyncStatus { get; set; }
         Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default);
         Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default);

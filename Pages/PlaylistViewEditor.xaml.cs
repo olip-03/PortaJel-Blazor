@@ -1,7 +1,6 @@
-using Microsoft.Maui.Controls.Platform;
 using PortaJel_Blazor.Classes.Data;
 
-namespace PortaJel_Blazor.Pages.Xaml;
+namespace PortaJel_Blazor.Pages;
 
 // Access this page by using
 // await Navigation.PushModalAsync(new PlaylistViewEditor());

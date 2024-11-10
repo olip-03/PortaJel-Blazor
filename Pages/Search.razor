@@ -11,12 +11,12 @@
     <div class="search">
         <input type="text" id="SearchPage_SearchInput" name="search" class="input PageSecondaryBackgroundColor PrimaryTextColor" @oninput="@((e) => TextChange((string)e.Value))"/>
 
-        <MatChipSet Style="padding: 8px 1rem;" Choice="true" @bind-SelectedChip="selectedChip">
-            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Playlist" LeadingIcon="favorite"> </MatChip>
-            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Album" LeadingIcon="favorite"></MatChip>
-            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Artist" LeadingIcon="favorite"></MatChip>
-            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Song" LeadingIcon="favorite"></MatChip>
-        </MatChipSet>
+        @* <MatChipSet Style="padding: 8px 1rem;" Choice="true" @bind-SelectedChip="selectedChip"> *@
+        @*     <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Playlist" LeadingIcon="favorite"> </MatChip> *@
+        @*     <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Album" LeadingIcon="favorite"></MatChip> *@
+        @*     <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Artist" LeadingIcon="favorite"></MatChip> *@
+        @*     <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Song" LeadingIcon="favorite"></MatChip> *@
+        @* </MatChipSet> *@
 
         @if (waitingForResult)
         {
@@ -94,8 +94,6 @@
     
     string[] placeholderImages = new string[0];
     
-    MatChip selectedChip = null;
-
     private bool waitingForResult = false;
     private float itemFadeInDelay = 0;
     private bool isLoading = true;

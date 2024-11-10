@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:PortaJel_Blazor.Classes.ViewModels"
+             xmlns:classes="clr-namespace:PortaJel_Blazor.Classes"
+             xmlns:connection="clr-namespace:PortaJel_Blazor.Pages.Connection"
+             x:Class="PortaJel_Blazor.Pages.Connection.AddServerView"
+             x:DataType="viewModels:AddServerViewModel"
+             Title="AddServerView">
+    <VerticalStackLayout VerticalOptions="CenterAndExpand" Margin="16" MaximumWidthRequest="600" Spacing="10">
+        <Label FontFamily="RobotoMedium"
+               HorizontalOptions="Center"
+               FontSize="40"
+               TextColor="{StaticResource PrimaryTextColor}">
+            PortaJel
+        </Label>
+        <Label FontFamily="Roboto"
+               HorizontalOptions="Center"
+               FontSize="16"
+               TextColor="{StaticResource SecondaryTextColor}"
+               Text="Tap any option to get started" />
+
+        <CarouselView x:Name="CarouselView"
+                      ItemsSource="{Binding ConnectionListing}"
+                      IsSwipeEnabled="False">
+            <CarouselView.ItemTemplate>
+                <DataTemplate x:DataType="connection:ConnectionPageCategory">
+                    <CollectionView x:Name="ConnectionsList"
+                                    Margin="0, 32"
+                                    ItemsSource="{Binding ConnectionListings}"
+                                    SelectionMode="Single"
+                                    SelectionChanged="ConnectionsList_OnSelectionChanged">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="classes:MediaConnectionListing">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="56"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Border BackgroundColor="Transparent" Opacity="{Binding ButtonOpacity}">
+                                        <Grid HorizontalOptions="Start" Padding="8, 8">
+                                            <StackLayout Orientation="Horizontal"
+                                                         HeightRequest="56">
+                                                <Frame HeightRequest="56"
+                                                       WidthRequest="56"
+                                                       BackgroundColor="Transparent"
+                                                       IsClippedToBounds="True"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center">
+                                                    <Image Aspect="AspectFit"
+                                                           Source="{Binding ImageUrl}"
+                                                           HeightRequest="56"
+                                                           WidthRequest="56"
+                                                           BackgroundColor="Transparent" />
+                                                </Frame>
+                                                <StackLayout Padding="16, 0" VerticalOptions="CenterAndExpand">
+                                                    <Label FontFamily="Roboto"
+
+                                                           FontSize="16"
+                                                           TextColor="{StaticResource PrimaryTextColor}"
+                                                           Text="{Binding PrimaryText}" />
+                                                    <Label FontFamily="RobotoMedium"
+                                                           MaxLines="2"
+                                                           MaximumWidthRequest="250"
+                                                           FontSize="14"
+                                                           TextColor="{StaticResource SecondaryTextColor}"
+                                                           Text="{Binding SecondaryText}" />
+                                                </StackLayout>
+                                            </StackLayout>
+                                        </Grid>
+                                    </Border>
+                                    <Border Grid.Column="1" BackgroundColor="Transparent">
+                                        <CheckBox CheckedChanged="ConnectionCheckBox_OnCheckedChanged" IsChecked="{Binding IsEnabled}"></CheckBox>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </DataTemplate>
+            </CarouselView.ItemTemplate>
+        </CarouselView>
+
+        <Line />
+
+        <StackLayout Spacing="14">
+            <Button IsEnabled="False" Text="Continue"></Button>
+        </StackLayout>
+    </VerticalStackLayout>
+</ContentPage>

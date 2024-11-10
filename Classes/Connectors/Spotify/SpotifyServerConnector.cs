@@ -20,13 +20,6 @@ namespace PortaJel_Blazor.Classes.Connectors.Spotify
         public Dictionary<string, ConnectorProperty> Properties { get; set; } =new Dictionary<string, ConnectorProperty>
         {
             {
-                "URL", new ConnectorProperty(
-                    label: "Url",
-                    description: "The URL of the Spotify api",
-                    value: "",
-                    protectValue: false)
-            },
-            {
                 "Username", new ConnectorProperty(
                     label: "Username",
                     description: "The username of the Spotify User",

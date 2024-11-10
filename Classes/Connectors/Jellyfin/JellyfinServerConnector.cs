@@ -47,15 +47,15 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 },
                 {
                     "Username", new ConnectorProperty(
-                        label: "Url",
-                        description: "The URL of the Jellyfin Server",
+                        label: "Username",
+                        description: "Username for server at Url.",
                         value: "",
                         protectValue: false)
                 },
                 {
                     "Password", new ConnectorProperty(
-                        label: "Url",
-                        description: "The URL of the Jellyfin Server",
+                        label: "Password",
+                        description: "User password for server at Url.",
                         value: "",
                         protectValue: false)
                 }
