@@ -64,32 +64,10 @@ public partial class MainPage : ContentPage
         // MauiProgram.webView = blazorWebView;
     }
 
-    public async void Initialize()
-    {
-        await MauiProgram.LoadData();
-        if (MauiProgram.Server.GetServers().Length == 0)
-        {
-            AddServerView addServerView = new();
-            await MauiProgram.MainPage.PushModalAsync(addServerView, false);
-        }
-
-        double spacing = (AllContent.Width - 350) / 2;
-        MainMediaController.PositionY = AllContent.Height;
-
-        // MauiProgram.MediaService.Initalize();
-    }
-
     public void UpdateDebugText(string updateTo)
     {
         LoadingBlockout_DebugText.Text = updateTo;
     }
-
-    //    private void Bwv_BlazorWebViewInitialized(object sender, BlazorWebViewInitializedEventArgs e)
-    //    {
-    //#if ANDROID
-    //        e.WebView.Settings.MixedContentMode = Android.Webkit.MixedContentHandling.AlwaysAllow;
-    //#endif
-    //    }
 
     protected override void OnHandlerChanged()
     {
@@ -480,6 +458,4 @@ public partial class MainPage : ContentPage
     }
 
     #endregion
-
-
 }

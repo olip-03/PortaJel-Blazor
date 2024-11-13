@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Enum;
@@ -12,9 +13,7 @@ public partial class AddServerView : ContentPage
     public IMediaServerConnector ServerConnecter { get; private set; } = null;
     private AddServerViewModel ViewModel { get; set; } = new();
 
-    public UserCredentials UserCredentials { get; set; } = UserCredentials.Empty;
-    public bool ServerPassed = false;
-    public bool UserPassed = false;
+    private bool _serverAdded = false;
 
     public AddServerView()
     {
@@ -43,42 +42,41 @@ public partial class AddServerView : ContentPage
         }
     }
     
+    [Obsolete("Obsolete")]
     private async void TryConnect()
     {
+        if (Application.Current == null) return;
+        if (_serverAdded)
+        {
+            Application.Current.MainPage = new MainPage();
+            return;
+        }
+            
         try
         {
-            AuthenticationResponse response = await ServerConnecter.AuthenticateAsync();
-            UserPassed = response.IsSuccess;
-            ServerPassed = true;
+            AuthenticationResponse response = await MauiProgram.Server.AuthenticateAsync();
+            _serverAdded = response.IsSuccess;
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException htex)
         {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                //LblErrormessage.Text = $"Unable to connect to {UserCredentials.ServerAddress}.";
-            });
-            ServerPassed = false;
+            _serverAdded = false;
+            Trace.WriteLine(htex.Message);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                // LblErrormessage.Text = $"Generic fault! Please try again.";
-            });
+            Trace.WriteLine(ex.Message);
         }
-
-        if (ServerPassed && !UserPassed)
-        {
-            ViewModel.ConnectionListing.Clear();
-            ViewModel.ConnectionListing.Add(new MediaConnectionListing(MediaServerConnection.Spotify));
-            ViewModel.ConnectionListing.Add(new MediaConnectionListing(MediaServerConnection.Discogs));
-        }
-    }
-    private void SkipLogin()
-    {
         
+        ViewModel.ConnectionListing.Clear();
+        await Task.Delay(500);
+        ViewModel.ConnectionListing =
+        [
+            new MediaConnectionListing(MediaServerConnection.Spotify),
+            new MediaConnectionListing(MediaServerConnection.Discogs),
+        ];
     }
-    private void btn_connect_Clicked(object sender, EventArgs e)
+    [Obsolete("Obsolete")]
+    private void ContinueButton_OnClicked(object sender, EventArgs e)
     {
         TryConnect();
     }

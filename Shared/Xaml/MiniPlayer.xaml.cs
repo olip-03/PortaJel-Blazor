@@ -121,14 +121,14 @@ public partial class MiniPlayer : ContentView
 
     public async void UpdateFavouriteButton(bool? syncToServer = false)
     {
-        if (App.Current == null) return;
+        if (Application.Current == null) return;
         if(MauiProgram.MediaService == null) return;
 
         Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
         if (song.IsFavourite)
         {
-            var hasColor = App.Current.Resources.TryGetValue("PrimaryColor", out object primaryColor);
-            var hasSource = App.Current.Resources.TryGetValue("HeartIcon", out object imageSource);
+            var hasColor = Application.Current.Resources.TryGetValue("PrimaryColor", out object primaryColor);
+            var hasSource = Application.Current.Resources.TryGetValue("HeartIcon", out object imageSource);
 
             if (hasColor)
             {
@@ -141,8 +141,8 @@ public partial class MiniPlayer : ContentView
         }
         else
         {
-            var hasColor = App.Current.Resources.TryGetValue("PrimaryTextColor", out object primaryColor);
-            var hasSource = App.Current.Resources.TryGetValue("HeartEmptyIcon", out object imageSource);
+            var hasColor = Application.Current.Resources.TryGetValue("PrimaryTextColor", out object primaryColor);
+            var hasSource = Application.Current.Resources.TryGetValue("HeartEmptyIcon", out object imageSource);
 
             if (hasColor)
             {
@@ -162,12 +162,12 @@ public partial class MiniPlayer : ContentView
 
     public void UpdatePlayButton(bool? isPlaying = null)
     {
-        if (App.Current == null) return;
+        if (Application.Current == null) return;
         if (MauiProgram.MediaService == null) return;
 
         if (isPlaying == true)
         {
-            var hasSource = App.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
@@ -175,7 +175,7 @@ public partial class MiniPlayer : ContentView
         }
         else if (MauiProgram.MediaService.GetIsPlaying())
         {
-            var hasSource = App.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
@@ -183,7 +183,7 @@ public partial class MiniPlayer : ContentView
         }
         else
         {
-            var hasSource = App.Current.Resources.TryGetValue("PlayIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("PlayIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
@@ -297,17 +297,17 @@ public partial class MiniPlayer : ContentView
         Btn_PlayToggle.Opacity = btnInOpacity;
         Btn_PlayToggle.Scale = btnInSize;
 
-        if (MauiProgram.MediaService.GetIsPlaying() && App.Current != null)
+        if (MauiProgram.MediaService.GetIsPlaying() && Application.Current != null)
         {
-            var hasSource = App.Current.Resources.TryGetValue("InversePlayIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("InversePlayIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
             }
         }
-        else if (App.Current != null)
+        else if (Application.Current != null)
         {
-            var hasSource = App.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;

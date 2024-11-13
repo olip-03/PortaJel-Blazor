@@ -1,13 +1,12 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Android.Content.Res;
 using Android.OS;
 using Android.Util;
 using Android.Views;
 using AndroidX.Core.View;
 using Google.Android.Material.Color;
-using Google.Android.Material.Internal;
+using Application = Microsoft.Maui.Controls.Application;
 
 namespace PortaJel_Blazor;
 
@@ -20,7 +19,7 @@ public class MainActivity : MauiAppCompatActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
-        if (Application != null && Window != null && App.Current != null && Theme != null)
+        if (Application != null && Window != null && Theme != null)
         {
             // Fit contants to whole screen and set header to be transparent
             WindowCompat.SetDecorFitsSystemWindows(Window, false);
@@ -46,13 +45,13 @@ public class MainActivity : MauiAppCompatActivity
             }
             
             // Themeing Settings
-            var hasSource = App.Current.Resources.TryGetValue("PageBackgroundColor", out object imageSource);
-            if (hasSource)
-            {
-                Color color = (Color)imageSource;
-                Android.Graphics.Color newColor = Android.Graphics.Color.ParseColor(color.ToHex());
-                Window.SetNavigationBarColor(newColor);
-            }
+            // var hasSource = Application.Current.Resources.TryGetValue("PageBackgroundColor", out object imageSource);
+            // if (hasSource)
+            // {
+            //     Color color = (Color)imageSource;
+            //     Android.Graphics.Color newColor = Android.Graphics.Color.ParseColor(color.ToHex());
+            //     Window.SetNavigationBarColor(newColor);
+            // }
 
             // Apply dynamic colors TODO: Implement dynamic colors
             DynamicColors.ApplyToActivitiesIfAvailable(Application);
@@ -89,12 +88,12 @@ public class MainActivity : MauiAppCompatActivity
                     MauiProgram.MainPage.PopStack();
                     return false;
                 }
-                else if (!MauiProgram.firstLoginComplete && App.Current != null && App.Current.MainPage != null)
-                {
-                    // null ref checks make me want to fuckign die 
-                    // This is also just to prevent a bug from occuring
-                    App.Current.CloseWindow(App.Current.MainPage.Window);
-                }
+                // else if (!MauiProgram.firstLoginComplete && Application.Current != null && Application.Current.MainPage != null)
+                // {
+                //     // null ref checks make me want to fuckign die 
+                //     // This is also just to prevent a bug from occuring
+                //     Application.Current.CloseWindow(Application.Current.MainPage.Window);
+                // }
 
                 // If the context menu is open, close it
                 if (MauiProgram.MainPage.isContextMenuOpen)

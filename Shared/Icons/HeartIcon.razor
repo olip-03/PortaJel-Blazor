@@ -29,15 +29,15 @@ else
     public void UpdateColors()
     {
         // PageSecondaryBackgroundColor
-        if (App.Current != null)
+        if (Application.Current != null)
         {
-            var hasPrimaryColor = App.Current.Resources.TryGetValue("PrimaryColor", out object outPrimaryColor);
+            var hasPrimaryColor = Application.Current.Resources.TryGetValue("PrimaryColor", out object outPrimaryColor);
             if (hasPrimaryColor)
             {
                 Color color = (Color)outPrimaryColor;
                 primaryColor = color.ToHex();
             }
-            var hasTextColor = App.Current.Resources.TryGetValue("PrimaryTextColor", out object outTextColor);
+            var hasTextColor = Application.Current.Resources.TryGetValue("PrimaryTextColor", out object outTextColor);
             if (hasTextColor)
             {
                 Color color = (Color)outTextColor;

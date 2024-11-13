@@ -71,7 +71,9 @@
         <Line />
 
         <StackLayout Spacing="14">
-            <Button IsEnabled="{Binding CanContinue}" Text="Continue"></Button>
+            <Button IsEnabled="{Binding CanContinue}" 
+                    Text="Continue"
+                    Clicked="ContinueButton_OnClicked"/>
         </StackLayout>
     </VerticalStackLayout>
 </ContentPage>

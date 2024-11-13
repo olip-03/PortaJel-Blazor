@@ -77,7 +77,7 @@ public class ServerConnector : IMediaServerConnector
                 break;
         }
         
-        return new AuthenticationResponse();
+        return AuthenticationResponse.Ok();
     }
     public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
     {

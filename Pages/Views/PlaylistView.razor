@@ -224,7 +224,7 @@
         }
         catch (Exception ex)
         {
-            bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
+            bool answer = await Application.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
             MauiProgram.WebView.NavigateHome();
         }
     }
@@ -240,7 +240,7 @@
         catch (Exception ex)
         {
             playlist.SetIsFavourite(resetState);
-            await App.Current.MainPage.DisplayAlert("Error?", $"{ex}", "Continue");
+            await Application.Current.MainPage.DisplayAlert("Error?", $"{ex}", "Continue");
         }
         StateHasChanged();
         // MauiProgram.Server.Playlist.SetFavourite
