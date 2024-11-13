@@ -6,35 +6,60 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Platform;
 using PortaJel_Blazor.Classes;
 using PortaJel_Blazor.Classes.Enum;
+using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Pages.Connection;
 
 public partial class AddConnectorView : ContentPage
 {
+    private IMediaServerConnector _serverConnector;
+    private Dictionary<string, object> _entries = [];
     public AddConnectorView()
     {
         InitializeComponent();
     }
-    
+
     public AddConnectorView(MediaConnectionListing connectionListing)
     {
         InitializeComponent();
-        var comps = connectionListing.GetConnector().Properties;
+        
+        _serverConnector = connectionListing.GetConnector();
+        var comps = _serverConnector.Properties;
         foreach (var property in comps)
         {
             switch (property.Value.Value)
             {
+                // Create text entry
                 case string value:
-                    PropertyStackLayout.Add(new Label() { Text = property.Value.Label, FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label)) });
-                    PropertyStackLayout.Add(new Entry() { Text = value, FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label)) });
+                    PropertyStackLayout.Add(new Label()
+                    {
+                        Text = property.Value.Label, 
+                        FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label))
+                    });
+
+                    Entry toAdd = new Entry()
+                    {
+                        Text = value,
+                        FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label)),
+                        IsPassword = property.Value.ProtectValue,
+                        BindingContext = property.Value.Value
+                    };
+                    
+                    _entries.Add(property.Key, toAdd);
+                    PropertyStackLayout.Add(toAdd);
                     break;
-                case bool boolValue:
-                    PropertyStackLayout.Add(new Label() { Text = property.Value.Label, FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label)) });
-                    PropertyStackLayout.Add(new CheckBox() { IsChecked = false });
-                    break;
+                // Create list values
                 case List<string> list:
-                    PropertyStackLayout.Add(new Label() { Text = property.Value.Label, FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label)) });
-                    PropertyStackLayout.Add(new Label() { Text = "List control here :(", FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label)) });
+                    PropertyStackLayout.Add(new Label()
+                    {
+                        Text = property.Value.Label, 
+                        FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label))
+                    });
+                    PropertyStackLayout.Add(new Label()
+                    {
+                        Text = "List control here :(", 
+                        FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label))
+                    });
                     break;
             }
         }
@@ -61,7 +86,32 @@ public partial class AddConnectorView : ContentPage
                 break;
         }
     }
-    
+
+    private async void ContinueButton_OnClicked(object sender, EventArgs e)
+    {
+        foreach (var entry in _entries)
+        {
+            var key = entry.Key;
+            var value = _entries[key];
+            switch (value)
+            {
+                case Entry inputEntry:
+                    _serverConnector.Properties[key].Value = inputEntry.Text;
+                    break;
+            }
+        }
+        
+        AuthenticationResponse auth = await _serverConnector.AuthenticateAsync();
+        if (auth.IsSuccess)
+        {
+            // No wukkas
+        }
+        else
+        {
+            // Throw error
+        }
+    }
+
     private async void CancelButton_OnClicked(object sender, EventArgs e)
     {
         if (Navigation.ModalStack.Count > 0)

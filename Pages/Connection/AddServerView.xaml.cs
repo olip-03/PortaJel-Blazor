@@ -19,53 +19,11 @@ public partial class AddServerView : ContentPage
     public AddServerView()
     {
         InitializeComponent();
-        
-        MediaConnectionListing[] connectionListing = new MediaConnectionListing[]
-        {
-            new MediaConnectionListing(MediaServerConnection.Filesystem),
-            new MediaConnectionListing(MediaServerConnection.Jellyfin)
-        };
-        
-        MediaConnectionListing[] serviceListing = new MediaConnectionListing[]
-        {
-            new MediaConnectionListing(MediaServerConnection.Spotify),
-            new MediaConnectionListing(MediaServerConnection.Discogs)
-        };
-        
         this.BindingContext = _vm;
     }
 
     private async void TryConnect()
     {
-        //      if (EntryServer.Text.StartsWith("http") && !EntryServer.Text.Contains("https"))
-        //      {
-        //          if (App.Current != null && App.Current.MainPage != null)
-        //          { // fuck i am so sick of these null reference checks
-        //              bool answer = await App.Current.MainPage.DisplayAlert("Warning?", $"Insecure servers are currently not fully supported, are you sure you want to use this connection?", "Yes", "No");
-        //              if (answer == false)
-        //              {
-        //                  return;
-        //              }
-        //          }
-        //          System.Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", $"--unsafely-treat-insecure-origin-as-secure={EntryServer.Text}");
-        //      }
-
-        //      UserCredentials.ServerAddress = EntryServer.Text;
-        //UserCredentials.UserName = EntryUsername.Text;
-        //      UserCredentials.Password = EntryPassword.Text;
-
-        //      EntryServer.IsReadOnly = true;
-        //      EntryUsername.IsReadOnly = true;
-        //      EntryPassword.IsReadOnly = true;
-
-        //      LblErrormessage.Opacity = 0;
-
-        //      EntryServer.Opacity = 0.5;
-        //      EntryUsername.Opacity = 0.5;
-        //      EntryPassword.Opacity = 0.5;
-
-        // serverConnecter = new(entry_server.Text);
-
         try
         {
             AuthenticationResponse response = await ServerConnecter.AuthenticateAsync();
@@ -98,29 +56,7 @@ public partial class AddServerView : ContentPage
 
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            //EntryServer.IsReadOnly = false;
-            //EntryUsername.IsReadOnly = false;
-            //EntryPassword.IsReadOnly = false;
 
-            //await Task.WhenAll(
-            //    EntryServer.FadeTo(1, 250, Easing.SinOut),
-            //    EntryUsername.FadeTo(1, 250, Easing.SinOut),
-            //    EntryPassword.FadeTo(1, 250, Easing.SinOut));
-
-            //if(ServerPassed && UserPassed)
-            //{
-            //    LblErrormessage.Opacity = 0;
-            //    // Close this page  
-            //    if (Navigation.ModalStack.Count > 0)
-            //    {
-            //        MauiProgram.Server.AddServer(serverConnecter);
-            //        await Navigation.PopModalAsync();
-            //    }
-            //}
-            //else
-            //{
-            //    await LblErrormessage.FadeTo(1, 250, Easing.SinOut);
-            //}
         });
     }
 

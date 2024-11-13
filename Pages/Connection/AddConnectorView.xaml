@@ -13,7 +13,7 @@
             </VerticalStackLayout>
             
             <StackLayout Spacing="14">
-                <Button IsEnabled="False" Text="Continue"></Button>
+                <Button IsEnabled="True" Text="Continue" Clicked="ContinueButton_OnClicked"></Button>
                 <Button IsEnabled="True" Text="Cancel" Clicked="CancelButton_OnClicked"></Button>
             </StackLayout>
         </VerticalStackLayout>
