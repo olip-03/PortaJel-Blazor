@@ -76,22 +76,22 @@ public class FileSystemConnector  : IMediaServerConnector
 
     public string GetUsername()
     {
-        throw new NotImplementedException();
+        return null;
     }
     
     public string GetPassword()
     {
-        throw new NotImplementedException();
+        return null;
     }
     
     public string GetAddress()
     {
-        throw new NotImplementedException();
+        return "http://localhost:5000";
     }
 
     public string GetProfileImageUrl()
     {
-        throw new NotImplementedException();
+        return null;
     }
 
     public UserCredentials GetUserCredentials()

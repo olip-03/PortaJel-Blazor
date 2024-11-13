@@ -16,9 +16,9 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
     public class JellyfinServerConnector : IMediaServerConnector
     {
         private UserDto _userDto;
-        private SessionInfo _sessionInfo;
-        private readonly JellyfinSdkSettings _sdkClientSettings;
-        private readonly JellyfinApiClient _jellyfinApiClient;
+        private SessionInfoDto _sessionInfo;
+        private JellyfinSdkSettings _sdkClientSettings;
+        private JellyfinApiClient _jellyfinApiClient;
         public IMediaServerAlbumConnector Album { get; set; }
         public IMediaServerArtistConnector Artist { get; set; }
         public IMediaServerSongConnector Song { get; set; }
@@ -57,7 +57,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                         label: "Password",
                         description: "User password for server at Url.",
                         value: "",
-                        protectValue: false)
+                        protectValue: true)
                 }
             };
 
@@ -68,9 +68,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             Properties["URL"].Value = url;
             Properties["Username"].Value = username;
             Properties["Password"].Value = password;
+        }
 
+        public async Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
+        {
             ServiceCollection serviceCollection = new ServiceCollection();
-
+            
             serviceCollection.AddHttpClient("Default", c =>
                 {
                     c.DefaultRequestHeaders.UserAgent.Add(
@@ -109,43 +112,27 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 MauiProgram.ApplicationClientVersion,
                 Microsoft.Maui.Devices.DeviceInfo.Current.Name,
                 Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
-            
+
             Album = new JellyfinServerAlbumConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
             Artist = new JellyfinServerArtistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
             Song = new JellyfinServerSongConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
             Playlist = new JellyfinServerPlaylistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
             Genre = new JellyfinServerGenreConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-        }
-
-        public async Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(
-                    new AuthenticateUserByName
-                    {
-                        Username = Properties["Username"].Value.ToString(),
-                        Pw = Properties["Password"].Value.ToString()
-                    }, cancellationToken: cancellationToken).ConfigureAwait(false);
-
-                if (authenticationResult != null)
+            
+            var authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(
+                new AuthenticateUserByName
                 {
-                    _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
-                    _userDto = authenticationResult.User;
-                    _sessionInfo = authenticationResult.SessionInfo;
-                    return new AuthenticationResponse(); // TODO: Update with legit OK auth message
-                }
-            }
-            catch (TaskCanceledException timeout)
-            {
-                Trace.WriteLine(timeout.GetType());
-                // SetOfflineStatus(true);
-            }
-            catch
-            {
-                // SetOfflineStatus(true);
-            }
+                    Username = Properties["Username"].Value.ToString(),
+                    Pw = Properties["Password"].Value.ToString()
+                }, cancellationToken: cancellationToken).ConfigureAwait(false);
 
+            if (authenticationResult != null)
+            {
+                _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
+                _userDto = authenticationResult.User;
+                _sessionInfo = authenticationResult.SessionInfo;
+                return AuthenticationResponse.Ok();
+            }
             return new AuthenticationResponse(); // TODO: Update with legit FAIL auth message
         }
         

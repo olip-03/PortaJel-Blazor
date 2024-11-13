@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using PortaJel_Blazor.Classes.Connectors;
@@ -13,13 +15,27 @@ using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Classes
 {
-    public class MediaConnectionListing
+    public sealed class MediaConnectionListing : INotifyPropertyChanged
     {
-        private IMediaServerConnector _mediaServerConnector;
+        private readonly IMediaServerConnector _connector = null;
+        private bool _isEnabled = false;
         public string ImageUrl { get; private set; }
-        public string PrimaryText { get; private set; }
-        public string SecondaryText { get; private set; }
-        public bool IsEnabled { get; set; } = false;
+        public string PrimaryText { get; set; }
+        public string SecondaryText { get; set; }
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set
+            {
+                if (_isEnabled != value)
+                {
+                    _isEnabled = value;
+                    OnPropertyChanged(nameof(IsEnabled));
+                    OnPropertyChanged(nameof(ButtonOpacity)); // Also update ButtonOpacity
+                }
+            }
+        }
+        private double _buttonOpacity = 1;
         public double ButtonOpacity
         {
             get
@@ -27,15 +43,13 @@ namespace PortaJel_Blazor.Classes
                 if (!IsEnabled) return 0.4;
                 return 1;
             }
+            set => _buttonOpacity = value;
         }
-
         public MediaServerConnection Connection { get; set; }
-
         public MediaConnectionListing(MediaServerConnection connection)
         {
             Connection = connection;
-
-            switch (connection)
+            switch (Connection)
             {
                 case MediaServerConnection.ServerConnector:
                     ImageUrl = "Logo_Folder.png";
@@ -51,39 +65,43 @@ namespace PortaJel_Blazor.Classes
                     ImageUrl = "Logo_Folder.png";
                     PrimaryText = "File System";
                     SecondaryText = "Add a connection to a music directory.";
-                    _mediaServerConnector = new FileSystemConnector();
+                    _connector = new FileSystemConnector();
                     break;
                 case MediaServerConnection.Jellyfin:
                     ImageUrl = "Logo_Jellyfin.png";
                     PrimaryText = "Jellyfin Media Server";
                     SecondaryText = "Add a connection to a JellyFin Server.";
-                    _mediaServerConnector = new JellyfinServerConnector();
+                    _connector = new JellyfinServerConnector();
                     break;
                 case MediaServerConnection.Spotify:
                     ImageUrl = "Logo_Spotify.png";
                     PrimaryText = "Spotify Account";
                     SecondaryText = "Add a connection to your Spotify account.";
-                    _mediaServerConnector = new SpotifyServerConnector();
+                    _connector = new SpotifyServerConnector();
                     break;
                 case MediaServerConnection.Discogs:
                     ImageUrl = "Logo_Discogs.png";
                     PrimaryText = "Discogs Account";
                     SecondaryText = "Add a connection to your Discogs account.";
-                    _mediaServerConnector = new SpotifyServerConnector();
+                    _connector =  new SpotifyServerConnector();
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(connection), connection, null);
             }
         }
-
         public IMediaServerConnector GetConnector()
         {
-            return _mediaServerConnector;
+            return _connector;
         }
-
-        public void SetConnector(IMediaServerConnector mediaServerConnector)
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            _mediaServerConnector = mediaServerConnector;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
     }
 }

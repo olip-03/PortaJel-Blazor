@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,19 +13,22 @@ namespace PortaJel_Blazor.Pages.Connection;
 
 public partial class AddConnectorView : ContentPage
 {
-    private IMediaServerConnector _serverConnector;
-    private Dictionary<string, object> _entries = [];
+    private IMediaServerConnector _connector;
+    private readonly MediaConnectionListing _connectionListing = null;
+    private readonly Dictionary<string, object> _entries = [];
+    private readonly AddServerView _parent = null;
     public AddConnectorView()
     {
         InitializeComponent();
     }
 
-    public AddConnectorView(MediaConnectionListing connectionListing)
+    public AddConnectorView(AddServerView parent, MediaConnectionListing connectionListing)
     {
+        _connectionListing = connectionListing;
+        _parent = parent;
         InitializeComponent();
         
-        _serverConnector = connectionListing.GetConnector();
-        var comps = _serverConnector.Properties;
+        var comps = connectionListing.GetConnector().Properties;
         foreach (var property in comps)
         {
             switch (property.Value.Value)
@@ -87,8 +91,18 @@ public partial class AddConnectorView : ContentPage
         }
     }
 
+    private async Task Close()
+    {
+        if (Navigation.ModalStack.Count > 0)
+        {
+            _parent.CheckConnections();
+            await _parent.Navigation.PopModalAsync(true);
+        }
+    }
+    
     private async void ContinueButton_OnClicked(object sender, EventArgs e)
     {
+        var collection = _connectionListing.GetConnector();
         foreach (var entry in _entries)
         {
             var key = entry.Key;
@@ -96,27 +110,31 @@ public partial class AddConnectorView : ContentPage
             switch (value)
             {
                 case Entry inputEntry:
-                    _serverConnector.Properties[key].Value = inputEntry.Text;
+                    collection.Properties[key].Value = inputEntry.Text;
                     break;
             }
         }
-        
-        AuthenticationResponse auth = await _serverConnector.AuthenticateAsync();
-        if (auth.IsSuccess)
+
+        try
         {
-            // No wukkas
+            AuthenticationResponse auth = await collection.AuthenticateAsync();
+            // Add to main connections
+            if (!auth.IsSuccess) return;
+            _connector = collection;
+            await Close();
+            _parent.AddConnection(_connectionListing);
+            // await Task.Delay(100);
+            // MauiProgram.Server.AddServer(_connector);
+            // _parent.PassConnection(_connectionListing); 
         }
-        else
+        catch (Exception exception)
         {
-            // Throw error
+            Trace.WriteLine(exception);
         }
     }
-
+    
     private async void CancelButton_OnClicked(object sender, EventArgs e)
     {
-        if (Navigation.ModalStack.Count > 0)
-        {
-            await Navigation.PopModalAsync();
-        }
+        await Close();
     }
 }

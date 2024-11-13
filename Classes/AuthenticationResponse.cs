@@ -26,6 +26,34 @@
         // Additional data related to the response (e.g., user profile info)
         public Dictionary<string, string> AdditionalData { get; set; } = new Dictionary<string, string>();
 
+        public static AuthenticationResponse Ok()
+        {
+            return new AuthenticationResponse
+            {
+                IsSuccess = true,
+                Token = string.Empty,
+                TokenExpiry = DateTime.MaxValue,
+                Message = "OK",
+                UserId = "Anonymous",
+                Username = "Anonymous",
+                Roles = new List<string> { "Anonymous" },
+                AdditionalData = new Dictionary<string, string> { { "AccessLevel", "Anonymous" } }
+            };
+        }
+        public static AuthenticationResponse Unauthorized(string message = "Unauthorized")
+        {
+            return new AuthenticationResponse
+            {
+                IsSuccess = false,
+                Token = string.Empty,
+                TokenExpiry = DateTime.MaxValue,
+                Message = message,
+                UserId = "Anonymous",
+                Username = "Anonymous",
+                Roles = new List<string> { "Anonymous" },
+                AdditionalData = new Dictionary<string, string> { { "AccessLevel", "Anonymous" } }
+            };
+        }
         public static AuthenticationResponse Unneccesary()
         {
             return new AuthenticationResponse

@@ -10,7 +10,7 @@ namespace PortaJel_Blazor.Pages.Connection;
 public partial class AddServerView : ContentPage
 {
     public IMediaServerConnector ServerConnecter { get; private set; } = null;
-    private readonly AddServerViewModel _vm = new();
+    private AddServerViewModel ViewModel { get; set; } = new();
 
     public UserCredentials UserCredentials { get; set; } = UserCredentials.Empty;
     public bool ServerPassed = false;
@@ -19,9 +19,30 @@ public partial class AddServerView : ContentPage
     public AddServerView()
     {
         InitializeComponent();
-        this.BindingContext = _vm;
+        BindingContext = ViewModel;
     }
 
+    public void AddConnection(MediaConnectionListing connectionListing)
+    {
+        if(MauiProgram.Server.GetServers().Contains(connectionListing.GetConnector())) return;
+        foreach (var t in ViewModel.ConnectionListing)
+        {
+            if (t.Connection != connectionListing.Connection) continue;
+            t.IsEnabled = true;
+            MauiProgram.Server.AddServer(connectionListing.GetConnector());
+        }
+    }
+
+    public void CheckConnections()
+    {
+        foreach (var t in ViewModel.ConnectionListing)
+        {
+            if (!t.IsEnabled) continue;
+            ViewModel.CanContinue = true;
+            break;
+        }
+    }
+    
     private async void TryConnect()
     {
         try
@@ -48,25 +69,14 @@ public partial class AddServerView : ContentPage
 
         if (ServerPassed && !UserPassed)
         {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                // LblErrormessage.Text = $"Username or password was incorrect.";
-            });
+            ViewModel.ConnectionListing.Clear();
+            ViewModel.ConnectionListing.Add(new MediaConnectionListing(MediaServerConnection.Spotify));
+            ViewModel.ConnectionListing.Add(new MediaConnectionListing(MediaServerConnection.Discogs));
         }
-
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-
-        });
     }
-
     private void SkipLogin()
     {
-    }
-
-    private void btn_skipLogin_Clicked(object sender, EventArgs e)
-    {
-        SkipLogin();
+        
     }
     private void btn_connect_Clicked(object sender, EventArgs e)
     {
@@ -76,7 +86,16 @@ public partial class AddServerView : ContentPage
     {
         if (sender is not CollectionView collection) return;
         if (collection.SelectedItem == null) return;
-        await Navigation.PushModalAsync(new AddConnectorView((MediaConnectionListing)collection.SelectedItem));
+        // Check if item is already in collection
+        MediaConnectionListing connectionListing = (MediaConnectionListing)collection.SelectedItem;
+        foreach (var item in MauiProgram.Server.GetServers())
+        {
+            if (item.GetType() == connectionListing.Connection)
+            {
+                collection.IsEnabled = false;
+            }
+        }
+        await Navigation.PushModalAsync(new AddConnectorView(this, connectionListing));
         collection.SelectedItem = null;
     }
 
@@ -85,7 +104,7 @@ public partial class AddServerView : ContentPage
         if (sender is not CheckBox collection) return;
         if (collection.BindingContext == null) return;
         var connectionListing = (MediaConnectionListing)collection.BindingContext;
-        await Navigation.PushModalAsync(new AddConnectorView(connectionListing));
+        await Navigation.PushModalAsync(new AddConnectorView(this, connectionListing));
         connectionListing.IsEnabled = collection.IsChecked;
     }
 }
