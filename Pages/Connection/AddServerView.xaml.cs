@@ -99,10 +99,16 @@ public partial class AddServerView : ContentPage
 
     private async void ConnectionCheckBox_OnCheckedChanged(object sender, CheckedChangedEventArgs e)
     {
-        if (sender is not CheckBox collection) return;
-        if (collection.BindingContext == null) return;
-        var connectionListing = (MediaConnectionListing)collection.BindingContext;
+        if (sender is not CheckBox checkBox) return;
+        if (checkBox.BindingContext == null) return;
+        if (checkBox.IsChecked)
+        {
+            checkBox.IsChecked = false;
+            return;
+        }
+
+        var connectionListing = (MediaConnectionListing)checkBox.BindingContext;
         await Navigation.PushModalAsync(new AddConnectorView(this, connectionListing));
-        connectionListing.IsEnabled = collection.IsChecked;
+        connectionListing.IsEnabled = checkBox.IsChecked;
     }
 }
