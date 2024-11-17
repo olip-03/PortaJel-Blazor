@@ -50,7 +50,17 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             Song = new DatabaseSongConnector(_database);
             Playlist = new DatabasePlaylistConnector(_database);
             Genre = new DatabaseGenreConnector(_database);
+            Authenticate();
         }
+
+        public void Authenticate()
+        {
+            _database.CreateTableAsync<AlbumData>().Wait();
+            _database.CreateTableAsync<SongData>().Wait();
+            _database.CreateTableAsync<ArtistData>().Wait();
+            _database.CreateTableAsync<PlaylistData>().Wait();
+        }
+
         public async Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
         {
             await _database.CreateTableAsync<AlbumData>();

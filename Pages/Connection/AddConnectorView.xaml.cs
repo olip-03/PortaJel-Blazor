@@ -95,7 +95,6 @@ public partial class AddConnectorView : ContentPage
     {
         if (Navigation.ModalStack.Count > 0)
         {
-            _parent.CheckConnections();
             await _parent.Navigation.PopModalAsync(true);
         }
     }
@@ -121,14 +120,19 @@ public partial class AddConnectorView : ContentPage
             // Add to main connections
             if (!auth.IsSuccess) return;
             _connector = collection;
+            if (!MauiProgram.Server.GetServers().Contains(_connector))
+            {
+                MauiProgram.Server.AddServer(_connector);
+            }
             await Close();
-            _parent.AddConnection(_connectionListing);
+            _parent.SetConnectionStatus(_connectionListing, true);
             // await Task.Delay(100);
-            // MauiProgram.Server.AddServer(_connector);
+            //
             // _parent.PassConnection(_connectionListing); 
         }
         catch (Exception exception)
         {
+            _parent.SetConnectionStatus(_connectionListing, false);
             Trace.WriteLine(exception);
         }
     }
@@ -136,5 +140,7 @@ public partial class AddConnectorView : ContentPage
     private async void CancelButton_OnClicked(object sender, EventArgs e)
     {
         await Close();
+        _parent.SetConnectionStatus(_connectionListing, false);
+        _parent.CheckConnections();
     }
 }

@@ -16,29 +16,35 @@ namespace PortaJel_Blazor.Classes.ViewModels
         public ObservableCollection<IMediaServerConnector> Connections { get; set; } =
         [
             new ServerConnector(),
-            new DatabaseConnector(),
+            new DatabaseConnector()
         ];
 
-        public ObservableCollection<MediaConnectionListing> ConnectionListing { get; set; } =
-        [
-            new MediaConnectionListing(MediaServerConnection.Filesystem),
-            new MediaConnectionListing(MediaServerConnection.Jellyfin),
-        ];
+        private ObservableCollection<MediaConnectionListing> _connectionListing;
+        public ObservableCollection<MediaConnectionListing> ConnectionListing
+        {
+            get => _connectionListing;
+            set => SetField(ref _connectionListing, value);
+        }
 
-        private bool _canContinue = false;
+        private bool _canContinue;
         public bool CanContinue
         {
             get => _canContinue;
-            set
-            {
-                if (_canContinue == value) return;
-                _canContinue = value;
-                OnPropertyChanged(nameof(CanContinue));
-            }
+            set => SetField(ref _canContinue, value);
         }
-    
+
         public bool DebugMode { get; set; } = true;
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public AddServerViewModel()
+        {
+            ConnectionListing = new ObservableCollection<MediaConnectionListing>
+            {
+                new MediaConnectionListing(MediaServerConnection.Filesystem),
+                new MediaConnectionListing(MediaServerConnection.Jellyfin),
+            };
+        }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

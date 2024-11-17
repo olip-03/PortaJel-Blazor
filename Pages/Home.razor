@@ -137,15 +137,15 @@
             Task<bool> runGetRecent = Task.Run(() =>
             {
                 // Get recently listened to songs. 
-                var itemsToAdd = MauiProgram.Server.Song.GetAllSongsAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.DatePlayed, setSortOrder: SortOrder.Descending);
-                itemsToAdd.GetAwaiter();
+                var itemsToAdd = MauiProgram.Database.Song.GetAllSongsAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.DatePlayed, setSortOrder: SortOrder.Descending);
+                itemsToAdd.Wait();
                 // Cut them down so you only have one track per Album
                 var foundIds = itemsToAdd.Result.OrderBy(s => s.DatePlayed).ToList();
                 foundIds = foundIds.GroupBy(song => song.AlbumId).Select(song => song.First()).ToList();
                 // Create list of Albums
                 List<Album> toReturn = [];
                 var getAlbumsTask = Parallel.ForEachAsync(foundIds, async (song, ct) => {
-                    toReturn.Add(await MauiProgram.Server.Album.GetAlbumAsync(song.AlbumId, cancellationToken: ct).ConfigureAwait(false));
+                    toReturn.Add(await MauiProgram.Database.Album.GetAlbumAsync(song.AlbumId, cancellationToken: ct).ConfigureAwait(false));
                 });
                 getAlbumsTask.Wait();
                 recentPlayData = toReturn.OrderByDescending(a => a.DatePlayed).ToArray();
@@ -158,7 +158,7 @@
             });
             Task<bool> runGetFavourites = Task.Run(async () =>
             {
-                favouritesPlayData = await MauiProgram.Server.Album.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, getFavourite: true).ConfigureAwait(false);
+                favouritesPlayData = await MauiProgram.Database.Album.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, getFavourite: true).ConfigureAwait(false);
                 favouritesPlaceholderImages = await GenerateBlurHash(favouritesPlayData).ConfigureAwait(false);
                 MauiProgram.homeCache.favouritesPlayData = favouritesPlayData;
                 MauiProgram.homeCache.favouritesPlaceholderImages = favouritesPlaceholderImages;
@@ -166,7 +166,7 @@
             });
             Task<bool> runGetRecentlyAdded = Task.Run(async () =>
             {
-                recentAddedData = await MauiProgram.Server.Album.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Descending).ConfigureAwait(false);
+                recentAddedData = await MauiProgram.Database.Album.GetAllAlbumsAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Descending).ConfigureAwait(false);
                 recentAddedPlaceholderImages = await GenerateBlurHash(recentAddedData).ConfigureAwait(false);
                 MauiProgram.homeCache.recentAddedData = recentAddedData;
                 MauiProgram.homeCache.recentAddedPlaceholderImages = recentAddedPlaceholderImages;
@@ -174,7 +174,7 @@
             });
             Task<bool> runGetMostPlayed = Task.Run(async () =>
             {
-                mostPlayData = await MauiProgram.Server.Song.GetAllSongsAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.PlayCount, setSortOrder: SortOrder.Descending).ConfigureAwait(false);
+                mostPlayData = await MauiProgram.Database.Song.GetAllSongsAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.PlayCount, setSortOrder: SortOrder.Descending).ConfigureAwait(false);
                 mostPlayPlaceholderImages = await GenerateBlurHash(mostPlayData).ConfigureAwait(false);
                 MauiProgram.homeCache.mostPlayData = mostPlayData;
                 MauiProgram.homeCache.mostPlayPlaceholderImages = mostPlayPlaceholderImages;
@@ -182,7 +182,7 @@
             });
             Task<bool> runGetRandom = Task.Run(async () =>
             {
-                randomData = await MauiProgram.Server.Song.GetAllSongsAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.Random, setSortOrder: SortOrder.Descending).ConfigureAwait(false);
+                randomData = await MauiProgram.Database.Song.GetAllSongsAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.Random, setSortOrder: SortOrder.Descending).ConfigureAwait(false);
                 randomPlaceholderImages = await GenerateBlurHash(randomData).ConfigureAwait(false);
                 if (!isLoading)
                 {

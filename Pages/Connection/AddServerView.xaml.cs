@@ -20,38 +20,40 @@ public partial class AddServerView : ContentPage
         InitializeComponent();
         BindingContext = ViewModel;
     }
-
-    public void AddConnection(MediaConnectionListing connectionListing)
+    
+    public void SetConnectionStatus(MediaConnectionListing connectionListing, bool enabled)
     {
-        if(MauiProgram.Server.GetServers().Contains(connectionListing.GetConnector())) return;
         foreach (var t in ViewModel.ConnectionListing)
         {
             if (t.Connection != connectionListing.Connection) continue;
-            t.IsEnabled = true;
-            MauiProgram.Server.AddServer(connectionListing.GetConnector());
+            t.IsEnabled = enabled;
         }
     }
 
     public void CheckConnections()
     {
-        foreach (var t in ViewModel.ConnectionListing)
+        if (_serverAdded)
         {
-            if (!t.IsEnabled) continue;
             ViewModel.CanContinue = true;
-            break;
+            return;
         }
+        ViewModel.CanContinue = ViewModel.ConnectionListing.Any(t => t.IsEnabled);
     }
     
+    private bool IsServerAdded(MediaConnectionListing connectionListing)
+    {
+        return MauiProgram.Server.GetServers().Any(item => item.GetAddress() == connectionListing.GetConnector().GetAddress());
+    }
     [Obsolete("Obsolete")]
     private async void TryConnect()
     {
         if (Application.Current == null) return;
         if (_serverAdded)
         {
+            await MauiProgram.SaveData();
             Application.Current.MainPage = new MainPage();
             return;
         }
-            
         try
         {
             AuthenticationResponse response = await MauiProgram.Server.AuthenticateAsync();
@@ -66,14 +68,9 @@ public partial class AddServerView : ContentPage
         {
             Trace.WriteLine(ex.Message);
         }
-        
         ViewModel.ConnectionListing.Clear();
-        await Task.Delay(500);
-        ViewModel.ConnectionListing =
-        [
-            new MediaConnectionListing(MediaServerConnection.Spotify),
-            new MediaConnectionListing(MediaServerConnection.Discogs),
-        ];
+        ViewModel.ConnectionListing.Add(new MediaConnectionListing(MediaServerConnection.Spotify));
+        ViewModel.ConnectionListing.Add(new MediaConnectionListing(MediaServerConnection.Discogs));
     }
     [Obsolete("Obsolete")]
     private void ContinueButton_OnClicked(object sender, EventArgs e)
@@ -84,31 +81,32 @@ public partial class AddServerView : ContentPage
     {
         if (sender is not CollectionView collection) return;
         if (collection.SelectedItem == null) return;
-        // Check if item is already in collection
         MediaConnectionListing connectionListing = (MediaConnectionListing)collection.SelectedItem;
-        foreach (var item in MauiProgram.Server.GetServers())
+        if (IsServerAdded(connectionListing))
         {
-            if (item.GetType() == connectionListing.Connection)
-            {
-                collection.IsEnabled = false;
-            }
+            collection.IsEnabled = true;
+            return;
         }
         await Navigation.PushModalAsync(new AddConnectorView(this, connectionListing));
         collection.SelectedItem = null;
     }
-
     private async void ConnectionCheckBox_OnCheckedChanged(object sender, CheckedChangedEventArgs e)
     {
         if (sender is not CheckBox checkBox) return;
         if (checkBox.BindingContext == null) return;
-        if (checkBox.IsChecked)
+        var connectionListing = (MediaConnectionListing)checkBox.BindingContext;
+        if (IsServerAdded(connectionListing) && !e.Value)
         {
-            checkBox.IsChecked = false;
+            CheckConnections();
             return;
         }
-
-        var connectionListing = (MediaConnectionListing)checkBox.BindingContext;
+        if (IsServerAdded(connectionListing) || !e.Value)
+        {
+            CheckConnections();
+            return;
+        }
         await Navigation.PushModalAsync(new AddConnectorView(this, connectionListing));
         connectionListing.IsEnabled = checkBox.IsChecked;
+        CheckConnections();
     }
 }

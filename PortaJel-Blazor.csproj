@@ -188,8 +188,7 @@
 		<PackageReference Include="Xam.Plugins.Android.ExoPlayer">
 			<Version>2.19.1</Version>
 		</PackageReference>
-		<ReferenceJar Include="$(MSBuildThisFileDirectory)guava-33.0.0-android.jar" />
-		<AndroidLibrary Include="guava-33.0.0-android.jar" Bind="false" />
+		<ReferenceJar Include="$(MSBuildThisFileDirectory)Resources/Libraries/guava-33.0.0-android.jar" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -251,4 +250,10 @@
 		</Compile>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <AndroidLibrary Include="Resources\Libraries\guava-33.0.0-android.jar">
+	    <Bind>false</Bind>
+	    <Pack>true</Pack>
+	  </AndroidLibrary>
+	</ItemGroup>
 </Project>

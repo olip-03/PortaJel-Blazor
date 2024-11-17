@@ -36,7 +36,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             };
 		
         public Dictionary<string, ConnectorProperty> Properties { get; set; } =
-            new Dictionary<string, ConnectorProperty>
+            new()
             {
                 {
                     "URL", new ConnectorProperty(
@@ -173,7 +173,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
 
         public string GetProfileImageUrl()
         {
-            throw new NotImplementedException();
+            return "";
         }
 
         public UserCredentials GetUserCredentials()

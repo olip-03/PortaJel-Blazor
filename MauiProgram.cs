@@ -88,7 +88,8 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
 	{
         Console.WriteLine("CreateMauiApp(): Beginning load data");
-
+        LoadData();
+            
         Console.WriteLine("CreateMauiApp(): Building application");
         var builder = MauiApp.CreateBuilder();
         builder
@@ -134,11 +135,13 @@ public static class MauiProgram
     /// <summary>
     /// Loads aaalll the fucking data
     /// </summary>
-    public static async Task<bool> LoadData()
+    public static bool LoadData()
     {
-        MauiProgram.UpdateDebugMessage("Starting data load");
+        UpdateDebugMessage("Starting data load");
         
-        string oauthToken = await SecureStorage.Default.GetAsync(GetOAuth());
+        Task<string> t =  SecureStorage.Default.GetAsync(GetOAuth());
+        t.Wait();
+        string oauthToken = t.Result;
 
         if (oauthToken == null)
         {
@@ -148,11 +151,8 @@ public static class MauiProgram
         
         ServerConnectorSettings settings = new(oauthToken);
         Server = settings.ServerConnector;
-        
-        // Validate connection data and log into servers
-        await Server.AuthenticateAsync();
 
-        MauiProgram.UpdateDebugMessage($"Completed data load");
+        UpdateDebugMessage($"Completed data load");
         DataLoadFinished = true;
         return true;
     }
@@ -160,7 +160,8 @@ public static class MauiProgram
     {
         try
         {
-            await SecureStorage.Default.SetAsync(GetOAuth(), Server.GetSettings().ToJson());
+            string toSave = Server.GetSettings().ToJson();
+            await SecureStorage.Default.SetAsync(GetOAuth(), toSave);
         }
         catch (Exception e)
         {
