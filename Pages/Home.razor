@@ -100,14 +100,7 @@
             StateHasChanged();
         }
 
-        await Task.Run(async () => 
-        { 
-            while (MauiProgram.DataLoadFinished == false)
-            {
-                // twiddle our thumbs
-            }
-            await LoadApi().ConfigureAwait(false);
-        });
+        await LoadApi().ConfigureAwait(false);
         MauiProgram.MainPage.SetNavbarVisibility(true);
     }
 

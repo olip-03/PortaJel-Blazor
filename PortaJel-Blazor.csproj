@@ -2,8 +2,6 @@
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-maccatalyst;net9.0-ios;net9.0-android</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
-		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
 		<OutputType>Exe</OutputType>
 		<RootNamespace>PortaJel_Blazor</RootNamespace>
 		<MauiVersion>9.0.0</MauiVersion>
@@ -178,10 +176,7 @@
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10" />
 		<PackageReference Include="System.Drawing.Common" Version="9.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<MauiImage Include="wwwroot\images\cd.svg" />
+		<PackageReference Update="Microsoft.AspNetCore.Components.WebView.Maui" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
@@ -189,13 +184,15 @@
 			<Version>2.19.1</Version>
 		</PackageReference>
 		<ReferenceJar Include="$(MSBuildThisFileDirectory)Resources/Libraries/guava-33.0.0-android.jar" />
+		<AndroidLibrary Include="Resources\Libraries\guava-33.0.0-android.jar">
+			<Bind>false</Bind>
+			<Pack>true</Pack>
+		  </AndroidLibrary>
 	</ItemGroup>
 
 	<ItemGroup>
+		<MauiImage Include="wwwroot\images\cd.svg" />
 		<MauiXaml Include="Platforms\Android\Resources\values\colors.xml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<MauiXaml Update="Pages\Xaml\PageLayoutEditor.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
@@ -235,10 +232,6 @@
 	</ProjectExtensions>
 
 	<ItemGroup>
-		<PackageReference Update="Microsoft.AspNetCore.Components.WebView.Maui" Version="9.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Compile Update="Platforms\MacCatalyst\MediaService.cs">
 			<ExcludeFromCurrentConfiguration>true</ExcludeFromCurrentConfiguration>
 		</Compile>
@@ -248,12 +241,5 @@
 		<Compile Update="Platforms\Windows\MediaService.cs">
 			<ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
 		</Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <AndroidLibrary Include="Resources\Libraries\guava-33.0.0-android.jar">
-	    <Bind>false</Bind>
-	    <Pack>true</Pack>
-	  </AndroidLibrary>
 	</ItemGroup>
 </Project>

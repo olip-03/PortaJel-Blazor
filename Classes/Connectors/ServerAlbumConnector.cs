@@ -22,7 +22,7 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
     /// <param name="serverUrl">The URL of the server to retrieve albums from. Defaults to an empty string, which uses the default server.</param>
     /// <param name="cancellationToken">A token to cancel the operation. Defaults to None.</param>
     /// <returns>An array of <see cref="Album"/> retrieved from the server.</returns>
-    public async Task<Album[]> GetAllAlbumsAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+    public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
         string serverUrl = "", CancellationToken cancellationToken = default)
     {

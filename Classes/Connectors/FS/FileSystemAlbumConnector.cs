@@ -14,7 +14,7 @@ public class FileSystemAlbumConnector : IMediaServerAlbumConnector
         _database = database;
     }
     
-    public Task<Album[]> GetAllAlbumsAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+    public Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {

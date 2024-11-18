@@ -15,11 +15,12 @@ public class DatabaseAlbumConnector : IMediaServerAlbumConnector
         _database = database;
     }
 
-    public async Task<Album[]> GetAllAlbumsAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+    public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         List<AlbumData> filteredCache = new();
+        limit ??= await _database.Table<AlbumData>().CountAsync();
         switch (setSortTypes)
         {
             case ItemSortBy.DateCreated:
@@ -93,5 +94,11 @@ public class DatabaseAlbumConnector : IMediaServerAlbumConnector
     {
         // Implementation to get the total count of albums in the database
         return await _database.Table<AlbumData>().CountAsync().ConfigureAwait(false);
+    }
+
+    public async Task<bool> AddRange(Album[] albums, CancellationToken cancellationToken = default)
+    {
+        await _database.InsertOrReplaceAsync(albums, albums.First().GetType());
+        return true;
     }
 }

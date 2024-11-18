@@ -9,6 +9,7 @@ using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
+using PortaJel_Blazor.Classes.Connectors.Database;
 using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
@@ -112,12 +113,6 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 MauiProgram.ApplicationClientVersion,
                 Microsoft.Maui.Devices.DeviceInfo.Current.Name,
                 Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
-
-            Album = new JellyfinServerAlbumConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-            Artist = new JellyfinServerArtistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-            Song = new JellyfinServerSongConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-            Playlist = new JellyfinServerPlaylistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-            Genre = new JellyfinServerGenreConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
             
             var authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(
                 new AuthenticateUserByName
@@ -131,24 +126,62 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
                 _userDto = authenticationResult.User;
                 _sessionInfo = authenticationResult.SessionInfo;
-                return AuthenticationResponse.Ok();
             }
-            return new AuthenticationResponse(); // TODO: Update with legit FAIL auth message
+            
+            Album = new JellyfinServerAlbumConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+            Artist = new JellyfinServerArtistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+            Song = new JellyfinServerSongConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+            Playlist = new JellyfinServerPlaylistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+            Genre = new JellyfinServerGenreConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+            
+            return AuthenticationResponse.Ok();
         }
         
-        public Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
+        public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await Task.Delay(10, cancellationToken);
+            return false;
         }
         
-        public Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
+        public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            Task albumT = Task.Run(() =>
+            {
+                try
+                {
+                    // Get album data 
+                    var status = Album.GetAllAlbumsAsync(cancellationToken: cancellationToken);
+                    status.Wait(cancellationToken);
+                    var result = status.Result;
+
+                    if (MauiProgram.Database.Album is not DatabaseAlbumConnector db) return;
+                    Task t = db.AddRange(result, cancellationToken);
+                    t.Wait(cancellationToken);
+                    // MauiProgram.Database.Album.AddRange(result);
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceError(ex.Message);
+                    throw;
+                }
+            }, cancellationToken);
+
+            try
+            {
+                await Task.WhenAll(albumT);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Trace.TraceError(e.Message);
+            }
+            return false;
         }
 
         public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
         {
-            throw new NotImplementedException();
+            await Task.Delay(10);
+            return false;
         }
         
         public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)

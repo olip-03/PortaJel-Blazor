@@ -61,6 +61,14 @@ public partial class MainPage : ContentPage
 
         InitializeComponent();
         MauiProgram.MainPage = this;
+        
+        // Authenticate and begin sync
+        _ = Task.Run(() =>
+            MauiProgram.Server.AuthenticateAsync()).ContinueWith(
+            _ => MauiProgram.Server.BeginSyncAsync(),
+            TaskContinuationOptions.ExecuteSynchronously
+        );
+        // TODO: Cancellation Token
         // MauiProgram.webView = blazorWebView;
     }
 

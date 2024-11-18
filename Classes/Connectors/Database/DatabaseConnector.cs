@@ -46,6 +46,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
 
         public DatabaseConnector()
         {
+            Album = new DatabaseAlbumConnector(_database);
             Artist = new DatabaseArtistConnector(_database);
             Song = new DatabaseSongConnector(_database);
             Playlist = new DatabasePlaylistConnector(_database);
