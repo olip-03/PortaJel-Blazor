@@ -8,7 +8,7 @@ namespace PortaJel_Blazor.Classes.Database
     public class ArtistData
     {
         [PrimaryKey, NotNull, AutoIncrement]
-        public int LocalId { get; set; }
+        public Guid LocalId { get; set; }
         public Guid Id { get; set; }
         public string ServerAddress { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
@@ -49,6 +49,7 @@ namespace PortaJel_Blazor.Classes.Database
 
             ArtistData toAdd = new();
             toAdd.Id = (Guid)baseItem.Id;
+            toAdd.LocalId = GuidHelper.GenerateNewGuidFromHash(toAdd.Id, server);
             toAdd.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
             toAdd.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
             toAdd.Description = baseItem.Overview == null ? string.Empty : baseItem.Overview;

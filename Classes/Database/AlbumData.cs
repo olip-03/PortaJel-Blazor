@@ -8,7 +8,7 @@ namespace PortaJel_Blazor.Classes.Database
     public class AlbumData
     {
         [PrimaryKey, NotNull, AutoIncrement]
-        public int LocalId { get; set; }
+        public Guid LocalId { get; set; }
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;
@@ -80,6 +80,7 @@ namespace PortaJel_Blazor.Classes.Database
             MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
             AlbumData album = new();
             album.Id = (Guid)baseItem.Id;
+            album.LocalId = GuidHelper.GenerateNewGuidFromHash(album.Id, server);
             album.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
             album.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
             // album.PlayCount = albumData.PlayCount; TODO: Implement playcount

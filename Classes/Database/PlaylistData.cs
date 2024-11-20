@@ -8,7 +8,7 @@ namespace PortaJel_Blazor.Classes.Database
     public class PlaylistData
     {
         [PrimaryKey, NotNull, AutoIncrement]
-        public int LocalId { get; set; }
+        public Guid LocalId { get; set; }
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;
@@ -46,6 +46,7 @@ namespace PortaJel_Blazor.Classes.Database
             MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
             newPlaylist.Name = baseItem.Name;
             newPlaylist.Id = (Guid)baseItem.Id;
+            newPlaylist.LocalId = GuidHelper.GenerateNewGuidFromHash(newPlaylist.Id, server);
             newPlaylist.IsFavourite = (bool)baseItem.UserData.IsFavorite;
             newPlaylist.Path = baseItem.Path;
             newPlaylist.ServerAddress = server;

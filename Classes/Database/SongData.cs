@@ -8,7 +8,7 @@ namespace PortaJel_Blazor.Classes.Database
     public class SongData
     {
         [PrimaryKey, NotNull, AutoIncrement]
-        public int LocalId { get; set; }
+        public Guid LocalId { get; set; }
         public Guid Id { get; set; }
         public string? PlaylistId { get; set; }
         public Guid AlbumId { get; set; }
@@ -62,6 +62,7 @@ namespace PortaJel_Blazor.Classes.Database
             MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
 
             song.Id = (Guid)baseItem.Id;
+            song.LocalId = GuidHelper.GenerateNewGuidFromHash(song.Id, server);
             song.PlaylistId = baseItem.PlaylistItemId;
             song.AlbumId = (Guid)baseItem.ParentId;
             song.ArtistIdsJson = JsonSerializer.Serialize(baseItem.ArtistItems.Select(baseItem => baseItem.Id).ToArray());
