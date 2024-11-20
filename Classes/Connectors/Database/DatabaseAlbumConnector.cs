@@ -92,9 +92,14 @@ public class DatabaseAlbumConnector : IMediaServerAlbumConnector
     public async Task<int> GetTotalAlbumCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
-        // Implementation to get the total count of albums in the database
-        return await _database.Table<AlbumData>().CountAsync().ConfigureAwait(false);
+        // Return the total count after removing duplicates
+        var query = _database.Table<AlbumData>();
+        if (getFavourite)
+            query = query.Where(album => album.IsFavourite);
+
+        return await query.CountAsync();
     }
+
 
     public async Task<bool> AddRange(Album[] albums, CancellationToken cancellationToken = default)
     {

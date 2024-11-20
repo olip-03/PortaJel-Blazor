@@ -65,8 +65,20 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
     public async Task<int> GetTotalPlaylistCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
-        // Implementation to get the total count of playlists
-        return await Task.FromResult(0);
+        BaseItemDtoQueryResult serverResults = await api.Items.GetAsync(c =>
+        {
+            c.QueryParameters.UserId = user.Id;
+            c.QueryParameters.IsFavorite = getFavourite;
+            c.QueryParameters.SortBy = [ItemSortBy.Name];
+            c.QueryParameters.SortOrder = [SortOrder.Descending];
+            c.QueryParameters.IncludeItemTypes = [BaseItemKind.Playlist];
+            c.QueryParameters.Limit = 1;
+            c.QueryParameters.StartIndex = 0;
+            c.QueryParameters.Recursive = true;
+            c.QueryParameters.EnableImages = true;
+            c.QueryParameters.EnableTotalRecordCount = true;
+        }, cancellationToken).ConfigureAwait(false);
+        return serverResults?.TotalRecordCount ?? 0;
     }
     
     public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId,

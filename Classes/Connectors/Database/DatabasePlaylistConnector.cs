@@ -39,7 +39,11 @@ public class DatabasePlaylistConnector : IMediaServerPlaylistConnector
     public async Task<int> GetTotalPlaylistCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
-        return await _database.Table<PlaylistData>().CountAsync();
+        var query = _database.Table<PlaylistData>();
+        if (getFavourite)
+            query = query.Where(song => song.IsFavourite);
+
+        return await query.CountAsync();
     }
     
     public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId,

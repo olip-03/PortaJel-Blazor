@@ -23,7 +23,6 @@ namespace PortaJel_Blazor.Classes.Data
         public Guid[] SimilarIds => albumData.GetSimilarIds();
         public bool IsPartial { get; private set; } = true;
         
-
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;
         public enum AlbumSortMethod
         {

@@ -25,9 +25,9 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         public IMediaServerSongConnector Song { get; set; }
         public IMediaServerPlaylistConnector Playlist { get; set; }
         public IMediaServerGenreConnector Genre { get; set; }
-		
+
         public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
-            new Dictionary<ConnectorDtoTypes, bool>
+            new()
             {
                 { ConnectorDtoTypes.Album, true },
                 { ConnectorDtoTypes.Artist, true },
@@ -35,7 +35,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 { ConnectorDtoTypes.Playlist, true },
                 { ConnectorDtoTypes.Genre, true },
             };
-		
+
         public Dictionary<string, ConnectorProperty> Properties { get; set; } =
             new()
             {
@@ -63,7 +63,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             };
 
         public TaskStatus SyncStatus { get; set; } = TaskStatus.WaitingToRun;
-        
+
         public JellyfinServerConnector(string url = "", string username = "", string password = "")
         {
             Properties["URL"].Value = url;
@@ -74,7 +74,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         public async Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
         {
             ServiceCollection serviceCollection = new ServiceCollection();
-            
+
             serviceCollection.AddHttpClient("Default", c =>
                 {
                     c.DefaultRequestHeaders.UserAgent.Add(
@@ -111,9 +111,9 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             _sdkClientSettings.Initialize(
                 MauiProgram.ApplicationName,
                 MauiProgram.ApplicationClientVersion,
-                Microsoft.Maui.Devices.DeviceInfo.Current.Name,
-                Microsoft.Maui.Devices.DeviceInfo.Current.Idiom.ToString());
-            
+                DeviceInfo.Current.Name,
+                DeviceInfo.Current.Idiom.ToString());
+
             var authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(
                 new AuthenticateUserByName
                 {
@@ -127,54 +127,196 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 _userDto = authenticationResult.User;
                 _sessionInfo = authenticationResult.SessionInfo;
             }
-            
+
             Album = new JellyfinServerAlbumConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
             Artist = new JellyfinServerArtistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
             Song = new JellyfinServerSongConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
             Playlist = new JellyfinServerPlaylistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
             Genre = new JellyfinServerGenreConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-            
+
             return AuthenticationResponse.Ok();
         }
-        
+
         public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
         {
             // TODO: Compare server counts with local database counts. If DB count matches server count, return
-            // true otherwise return false. 
-            await Task.Delay(10, cancellationToken);
-            return false;
+            if (MauiProgram.Database.Album is not DatabaseAlbumConnector albumDb) return false;
+            if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
+            if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
+            if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
+            if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
+
+            int albumDbT = await albumDb.GetTotalAlbumCountAsync(cancellationToken: cancellationToken);
+            int albumT = await Album.GetTotalAlbumCountAsync(cancellationToken: cancellationToken);
+            
+            int artistDbT = await artistDb.GetTotalArtistCount(cancellationToken: cancellationToken);
+            int artistT = await Artist.GetTotalArtistCount(cancellationToken: cancellationToken);
+            
+            int songDbT = await songDb.GetTotalSongCountAsync(cancellationToken: cancellationToken);
+            int songT = await Song.GetTotalSongCountAsync(cancellationToken: cancellationToken);
+
+            int playlistDbT = await playlistDb.GetTotalPlaylistCountAsync(cancellationToken: cancellationToken);
+            int playlistT = await Playlist.GetTotalPlaylistCountAsync(cancellationToken: cancellationToken);
+
+            if (albumDbT != albumT) return false;
+            if (artistDbT != artistT) return false;
+            if (songDbT != songT) return false;
+            if (playlistDbT != playlistT) return false;
+            
+            return true;
         }
-        
+
         public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
+            SyncStatus = TaskStatus.Running;
+            if (await IsUpToDateAsync(cancellationToken)) return true;
             try
             {
-                // TODO: Replace with crawled results 
-                // Each collection will crawl 50 items at a time, ordered by the date they were added to the server.
-                // Every time a single crawl finishes, check to see if the database matches the server count. If 
-                // true, assume finished, otherwise continue until we reach the end of the count. 
-                
-                var albumTask = Album.GetAllAlbumsAsync(cancellationToken: cancellationToken);
-                var artistTask = Artist.GetAllArtistAsync(cancellationToken: cancellationToken);
-                var songTask = Song.GetAllSongsAsync(cancellationToken: cancellationToken);
-                var playlistTask = Playlist.GetAllPlaylistsAsync(cancellationToken: cancellationToken);
-                var genreTask = Genre.GetAllGenresAsync();
-                await Task.WhenAll(albumTask, artistTask, songTask, playlistTask, genreTask);
-                
                 if (MauiProgram.Database.Album is not DatabaseAlbumConnector albumDb) return false;
                 if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
                 if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
                 if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
                 if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
-                await albumDb.AddRange(albumTask.Result, cancellationToken);
-                await artistDb.AddRange(artistTask.Result, cancellationToken);
-                await songDb.AddRange(songTask.Result, cancellationToken);
-                await playlistDb.AddRange(playlistTask.Result, cancellationToken);
-                await genreDb.AddRange(genreTask.Result, cancellationToken);
+                var albumTask = Task.Run(() =>
+                {
+                    Trace.Write("Jellyfin Album Sync Started");
+                    int albumDbT = albumDb.GetTotalAlbumCountAsync(cancellationToken: cancellationToken).Result;
+                    int currentItem = 0;
+                    int added = 0;
+                    while (true)
+                    {
+                        int serverTotal = Album.GetTotalAlbumCountAsync(cancellationToken: cancellationToken).Result;
+                        var itemTask = Album.GetAllAlbumsAsync(limit: 50, startIndex: currentItem,
+                            setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Ascending,
+                            cancellationToken: cancellationToken);
+                        itemTask.Wait(cancellationToken);
+                        albumDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
+                        added += itemTask.Result.Length;
+                        if (albumDbT == serverTotal)
+                        {
+                            Trace.Write($"Jellyfin Album Sync Completed Early");
+                            break;
+                        }
+                        if (itemTask.Result.Length < 49)
+                        {
+                            Trace.Write($"Jellyfin Album Sync Complete: {added} items processed.");
+                            break; // Exit when no more data
+                        }
+                        currentItem += 50;
+                    }
+                }, cancellationToken);
+                var artistTask = Task.Run(() =>
+                {
+                    Trace.Write("Jellyfin Artists Sync Started");
+                    int artistDbT = artistDb.GetTotalArtistCount(cancellationToken: cancellationToken).Result;
+                    int currentItem = 0;
+                    int added = 0;
+                    while (true)
+                    {
+                        int serverTotal = Artist.GetTotalArtistCount(cancellationToken: cancellationToken).Result;
+                        var itemTask = Artist.GetAllArtistAsync(limit: 50, startIndex: currentItem,
+                            setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Ascending,
+                            cancellationToken: cancellationToken);
+                        itemTask.Wait(cancellationToken);
+                        artistDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
+                        added += itemTask.Result.Length;
+                        if (artistDbT == serverTotal)
+                        {
+                            Trace.Write($"Jellyfin Artists Sync Completed Early");
+                            break;
+                        }
+                        if (itemTask.Result.Length < 49)
+                        {
+                            Trace.Write($"Jellyfin Artists Sync Complete: {added} items processed.");
+                            break; // Exit when no more data
+                        }
+                        currentItem += 50;
+                    }
+                }, cancellationToken);
+                var songTask = Task.Run(() =>
+                {
+                    Trace.Write("Jellyfin Songs Sync Started");
+                    int songDbT = songDb.GetTotalSongCountAsync(cancellationToken: cancellationToken).Result;
+                    int toAdd = 50;
+                    int currentItem = 0;
+                    int added = 0;
+                    while (true)
+                    {
+                        int serverTotal = Song.GetTotalSongCountAsync(cancellationToken: cancellationToken).Result;
+                        var itemTask = Song.GetAllSongsAsync(limit: toAdd, startIndex: currentItem,
+                            setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Ascending,
+                            cancellationToken: cancellationToken);
+                        itemTask.Wait(cancellationToken);
+                        songDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
+                        added += itemTask.Result.Length;
+                        if (songDbT >= serverTotal)
+                        {
+                            Trace.Write($"Jellyfin Songs Sync Completed Early");
+                            break;
+                        }
+                        if (itemTask.Result.Length < toAdd - 1)
+                        {
+                            Trace.Write($"Jellyfin Songs Sync Complete: {added} items processed.");
+                            break; // Exit when no more data
+                        }
+                        currentItem += toAdd;
+                    }
+                }, cancellationToken);
+                var playlistTask = Task.Run(() =>
+                {
+                    Trace.Write("Jellyfin Playlists Sync Started");
+                    int playlistDbT = playlistDb.GetTotalPlaylistCountAsync(cancellationToken: cancellationToken).Result;
+                    int currentItem = 0;
+                    int added = 0;
+                    while (true)
+                    {
+                        int serverTotal = Playlist.GetTotalPlaylistCountAsync(cancellationToken: cancellationToken).Result;
+                        var itemTask = Playlist.GetAllPlaylistsAsync(limit: 50, startIndex: currentItem,
+                            setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Ascending,
+                            cancellationToken: cancellationToken);
+                        itemTask.Wait(cancellationToken);
+                        playlistDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
+                        added += itemTask.Result.Length;
+                        if (playlistDbT == serverTotal)
+                        {
+                            Trace.Write($"Jellyfin Playlists Sync Completed Early");
+                            break;
+                        }
+                        if (itemTask.Result.Length < 49)
+                        {
+                            Trace.Write($"Jellyfin Playlists Sync Complete: {added} items processed.");
+                            break; // Exit when no more data
+                        }
+                        currentItem += 50;
+                    }
+                }, cancellationToken);
+                
+                var genreTask = Task.Run(() =>
+                {
+                    // int currentItem = 0;
+                    // while (true)
+                    // {
+                    //     var itemTask = Genre.GetAllGenresAsync(limit: 50, startIndex: currentItem,
+                    //         setSortTypes: ItemSortBy.Name, setSortOrder: SortOrder.Ascending,
+                    //         cancellationToken: cancellationToken);
+                    //     itemTask.Wait(cancellationToken);
+                    //     currentItem += 50;
+                    //     genreDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
+                    //     if (itemTask.Result.Length < 49)
+                    //     {
+                    //         break; // Exit when no more data
+                    //     }
+                    // }
+                    Trace.Write("Jellyfin Genres Sync Complete");
+                }, cancellationToken);
+
+                await Task.WhenAll(albumTask, artistTask, songTask, playlistTask, genreTask);
+                SyncStatus = TaskStatus.RanToCompletion;
                 return true;
             }
             catch (Exception e)
             {
+                SyncStatus = TaskStatus.Faulted;
                 Trace.TraceError(e.Message);
                 return false;
             }
@@ -186,7 +328,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             await Task.Delay(10);
             return false;
         }
-        
+
         public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Array.Empty<BaseMusicItem>());
@@ -196,12 +338,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         {
             return (string)Properties["Username"].Value;
         }
-        
+
         public string GetPassword()
         {
             return (string)Properties["Password"].Value;
         }
-        
+
         public string GetAddress()
         {
             return (string)Properties["URL"].Value;
@@ -214,9 +356,11 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
 
         public UserCredentials GetUserCredentials()
         {
-            return new UserCredentials(_sdkClientSettings.ServerUrl,  (string)Properties["Username"].Value, _userDto.Id.ToString(), (string)Properties["Password"].Value, _sessionInfo.Id, _sdkClientSettings.AccessToken);
+            return new UserCredentials(_sdkClientSettings.ServerUrl, (string)Properties["Username"].Value,
+                _userDto.Id.ToString(), (string)Properties["Password"].Value, _sessionInfo.Id,
+                _sdkClientSettings.AccessToken);
         }
-            
+
         public MediaServerConnection GetConnectionType()
         {
             return MediaServerConnection.Jellyfin;

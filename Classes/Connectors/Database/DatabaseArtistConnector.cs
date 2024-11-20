@@ -21,6 +21,7 @@ public class DatabaseArtistConnector : IMediaServerArtistConnector
         string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
+        limit ??= 0;
         List<ArtistData> filteredCache = [];
         switch (setSortTypes)
         {
@@ -75,7 +76,11 @@ public class DatabaseArtistConnector : IMediaServerArtistConnector
     public async Task<int> GetTotalArtistCount(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
-        return await _database.Table<ArtistData>().Where(artist => getFavourite || artist.IsFavourite).CountAsync();
+        var query = _database.Table<ArtistData>();
+        if (getFavourite)
+            query = query.Where(album => album.IsFavourite);
+
+        return await query.CountAsync();
     }
     
     public async Task<bool> AddRange(Artist[] artists, CancellationToken cancellationToken = default)

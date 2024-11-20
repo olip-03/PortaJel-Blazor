@@ -141,7 +141,7 @@
                     toReturn.Add(await MauiProgram.Database.Album.GetAlbumAsync(song.AlbumId, cancellationToken: ct).ConfigureAwait(false));
                 });
                 getAlbumsTask.Wait();
-                recentPlayData = toReturn.OrderByDescending(a => a.DatePlayed).ToArray();
+                recentPlayData = toReturn.Where(a => a.GetBase != null).OrderByDescending(a => a.DatePlayed).ToArray<BaseMusicItem>();
                 var blurhashTask = GenerateBlurHash(recentPlayData);
                 blurhashTask.Wait();
                 recentPlayPlaceholderImages = blurhashTask.Result; 

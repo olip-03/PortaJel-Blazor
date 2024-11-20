@@ -96,10 +96,23 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             return [];
         }
 
-        public Task<int> GetTotalArtistCount(bool getFavourite = false, string serverUrl = "",
+        public async Task<int> GetTotalArtistCount(bool getFavourite = false, string serverUrl = "",
             CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            BaseItemDtoQueryResult serverResults = await api.Items.GetAsync(c =>
+            {
+                c.QueryParameters.UserId = user.Id;
+                c.QueryParameters.IsFavorite = getFavourite;
+                c.QueryParameters.SortBy = [ItemSortBy.Name];
+                c.QueryParameters.SortOrder = [SortOrder.Descending];
+                c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicArtist];
+                c.QueryParameters.Limit = 1;
+                c.QueryParameters.StartIndex = 0;
+                c.QueryParameters.Recursive = true;
+                c.QueryParameters.EnableImages = true;
+                c.QueryParameters.EnableTotalRecordCount = true;
+            }, cancellationToken).ConfigureAwait(false);
+            return serverResults?.TotalRecordCount ?? 0;
         }
     }
 }
