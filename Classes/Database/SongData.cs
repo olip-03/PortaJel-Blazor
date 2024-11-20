@@ -49,7 +49,8 @@ namespace PortaJel_Blazor.Classes.Database
             }
             if (baseItem.ParentId == null)
             {
-                throw new ArgumentException("Cannot create Song without Parent ID! Please fix server call flags!");
+                baseItem.ParentId = baseItem.Id;
+                // throw new ArgumentException("Cannot create Song without Parent ID! Please fix server call flags!");
             }
             if (baseItem.ArtistItems == null)
             {

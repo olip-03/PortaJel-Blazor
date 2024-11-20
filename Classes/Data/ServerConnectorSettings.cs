@@ -122,11 +122,11 @@ public class ServerConnectorSettings
             if (!server.Properties.TryAdd("ConnectorType", new ConnectorProperty(
                     label: "ConnectorType",
                     description: "The Connection Type of this server.",
-                    value: server.GetType(),
+                    value: server.GetConnectionType(),
                     protectValue: false)
                 ))
             {
-                server.Properties["ConnectorType"].Value = server.GetType();
+                server.Properties["ConnectorType"].Value = server.GetConnectionType();
             }
         }
         return JsonSerializer.Serialize(ServerConnector.GetServers().Select(s => s.Properties), options);

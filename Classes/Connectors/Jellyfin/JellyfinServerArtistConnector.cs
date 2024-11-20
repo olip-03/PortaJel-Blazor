@@ -15,7 +15,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             return await Task.FromResult(Array.Empty<Artist>());
         }
 
-        public async Task<Artist[]> GetAllArtistAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+        public async Task<Artist[]> GetAllArtistAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
             ItemSortBy setSortTypes = ItemSortBy.Artist, SortOrder setSortOrder = SortOrder.Ascending,
             string serverUrl = "",
             CancellationToken cancellationToken = default)

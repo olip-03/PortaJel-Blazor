@@ -6,7 +6,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Discogs;
 
 public class DiscogsSongConnector : IMediaServerSongConnector
 {
-    public Task<Song[]> GetAllSongsAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+    public Task<Song[]> GetAllSongsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {

@@ -4,6 +4,7 @@ namespace PortaJel_Blazor.Classes.Data
 {
     public class Genre : BaseMusicItem
     {
+        public GenreData GetBase => _genreData;
         public Guid Id => _genreData.Id;
         public string ServerAddress => _genreData.ServerAddress;
         public string Name => _genreData.Name;

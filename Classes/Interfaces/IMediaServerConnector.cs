@@ -24,6 +24,6 @@ namespace PortaJel_Blazor.Classes.Interfaces
         string GetAddress();
         string GetProfileImageUrl();
         UserCredentials GetUserCredentials();
-        MediaServerConnection GetType();
+        MediaServerConnection GetConnectionType();
     }
 }

@@ -22,7 +22,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
 {
     public class DatabaseConnector : IMediaServerConnector
     {
-        private static readonly string MainDir = Path.Combine(FileSystem.Current.AppDataDirectory, "Database.bi");
+        private static readonly string MainDir = Path.Combine(FileSystem.Current.AppDataDirectory, "Database.sqlite");
         private const SQLiteOpenFlags DbFlags = SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache;
         private readonly SQLiteAsyncConnection _database = new SQLiteAsyncConnection(MainDir, DbFlags);
         public IMediaServerAlbumConnector Album { get; set; } 
@@ -46,6 +46,8 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
 
         public DatabaseConnector()
         {
+            Trace.WriteLine($"Database created at {MainDir}");
+            
             _database.CreateTableAsync<AlbumData>().Wait();
             _database.CreateTableAsync<SongData>().Wait();
             _database.CreateTableAsync<ArtistData>().Wait();
@@ -110,7 +112,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             return new UserCredentials(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
         }
         
-        public MediaServerConnection GetType()
+        public MediaServerConnection GetConnectionType()
         {
             return MediaServerConnection.Database;
         }

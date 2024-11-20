@@ -93,7 +93,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Spotify
             return new UserCredentials(Properties["Url"].Value.ToString(), Properties["Username"].Value.ToString(), string.Empty, Properties["Password"].Value.ToString(), string.Empty, string.Empty);
         }
         
-        public MediaServerConnection GetType()
+        public MediaServerConnection GetConnectionType()
         {
             return MediaServerConnection.Spotify;
         }

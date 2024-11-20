@@ -18,7 +18,7 @@ namespace PortaJel_Blazor.Classes.Connectors.FS
             throw new NotImplementedException();
         }
 
-        public Task<Artist[]> GetAllArtistAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+        public Task<Artist[]> GetAllArtistAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
             ItemSortBy setSortTypes = ItemSortBy.Artist, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
             CancellationToken cancellationToken = default)
         {

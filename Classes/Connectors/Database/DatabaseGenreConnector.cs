@@ -29,4 +29,16 @@ public class DatabaseGenreConnector  : IMediaServerGenreConnector
     {
         throw new NotImplementedException();
     }
+    public async Task<bool> AddRange(Genre[] genres, CancellationToken cancellationToken = default)
+    {
+        // foreach (var g in genres)
+        // {
+        //     await _database.InsertOrReplaceAsync(g.GetBase, genres.First().GetBase.GetType());
+        //     if (cancellationToken.IsCancellationRequested)
+        //     {
+        //         return false;
+        //     }
+        // }
+        return false;
+    }
 }

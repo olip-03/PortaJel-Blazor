@@ -226,7 +226,7 @@ public class ServerConnector : IMediaServerConnector
         return new UserCredentials("", "", "", "", "", "");
     }
 
-    public MediaServerConnection GetType()
+    public MediaServerConnection GetConnectionType()
     {
         return MediaServerConnection.ServerConnector;
     }

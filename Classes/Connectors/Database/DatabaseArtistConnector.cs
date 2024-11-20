@@ -16,7 +16,7 @@ public class DatabaseArtistConnector : IMediaServerArtistConnector
         _database = database;
     }
     
-    public async Task<Artist[]> GetAllArtistAsync(int limit = 50, int startIndex = 0, bool getFavourite = false,
+    public async Task<Artist[]> GetAllArtistAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
         ItemSortBy setSortTypes = ItemSortBy.Artist, SortOrder setSortOrder = SortOrder.Ascending,
         string serverUrl = "",
         CancellationToken cancellationToken = default)
@@ -76,5 +76,18 @@ public class DatabaseArtistConnector : IMediaServerArtistConnector
         CancellationToken cancellationToken = default)
     {
         return await _database.Table<ArtistData>().Where(artist => getFavourite || artist.IsFavourite).CountAsync();
+    }
+    
+    public async Task<bool> AddRange(Artist[] artists, CancellationToken cancellationToken = default)
+    {
+        foreach (var a in artists)
+        {
+            await _database.InsertOrReplaceAsync(a.GetBase, artists.First().GetBase.GetType());
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

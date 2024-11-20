@@ -99,7 +99,7 @@ public class FileSystemConnector  : IMediaServerConnector
         return new UserCredentials(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
     }
 
-    public MediaServerConnection GetType()
+    public MediaServerConnection GetConnectionType()
     {
         return MediaServerConnection.Filesystem;
     }

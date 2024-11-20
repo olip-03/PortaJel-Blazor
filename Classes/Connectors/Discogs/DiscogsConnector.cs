@@ -66,7 +66,7 @@ public class DiscogsConnector : IMediaServerConnector
         throw new NotImplementedException();
     }
 
-    public MediaServerConnection GetType()
+    public MediaServerConnection GetConnectionType()
     {
         throw new NotImplementedException();
     }

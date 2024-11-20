@@ -139,44 +139,47 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         
         public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
         {
+            // TODO: Compare server counts with local database counts. If DB count matches server count, return
+            // true otherwise return false. 
             await Task.Delay(10, cancellationToken);
             return false;
         }
         
         public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
-            Task albumT = Task.Run(() =>
-            {
-                try
-                {
-                    // Get album data 
-                    var status = Album.GetAllAlbumsAsync(cancellationToken: cancellationToken);
-                    status.Wait(cancellationToken);
-                    var result = status.Result;
-
-                    if (MauiProgram.Database.Album is not DatabaseAlbumConnector db) return;
-                    Task t = db.AddRange(result, cancellationToken);
-                    t.Wait(cancellationToken);
-                    // MauiProgram.Database.Album.AddRange(result);
-                }
-                catch (Exception ex)
-                {
-                    Trace.TraceError(ex.Message);
-                    throw;
-                }
-            }, cancellationToken);
-
             try
             {
-                await Task.WhenAll(albumT);
+                // TODO: Replace with crawled results 
+                // Each collection will crawl 50 items at a time, ordered by the date they were added to the server.
+                // Every time a single crawl finishes, check to see if the database matches the server count. If 
+                // true, assume finished, otherwise continue until we reach the end of the count. 
+                
+                var albumTask = Album.GetAllAlbumsAsync(cancellationToken: cancellationToken);
+                var artistTask = Artist.GetAllArtistAsync(cancellationToken: cancellationToken);
+                var songTask = Song.GetAllSongsAsync(cancellationToken: cancellationToken);
+                var playlistTask = Playlist.GetAllPlaylistsAsync(cancellationToken: cancellationToken);
+                var genreTask = Genre.GetAllGenresAsync();
+                await Task.WhenAll(albumTask, artistTask, songTask, playlistTask, genreTask);
+                
+                if (MauiProgram.Database.Album is not DatabaseAlbumConnector albumDb) return false;
+                if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
+                if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
+                if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
+                if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
+                await albumDb.AddRange(albumTask.Result, cancellationToken);
+                await artistDb.AddRange(artistTask.Result, cancellationToken);
+                await songDb.AddRange(songTask.Result, cancellationToken);
+                await playlistDb.AddRange(playlistTask.Result, cancellationToken);
+                await genreDb.AddRange(genreTask.Result, cancellationToken);
                 return true;
             }
             catch (Exception e)
             {
                 Trace.TraceError(e.Message);
+                return false;
             }
-            return false;
         }
+
 
         public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
         {
@@ -214,7 +217,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             return new UserCredentials(_sdkClientSettings.ServerUrl,  (string)Properties["Username"].Value, _userDto.Id.ToString(), (string)Properties["Password"].Value, _sessionInfo.Id, _sdkClientSettings.AccessToken);
         }
             
-        public MediaServerConnection GetType()
+        public MediaServerConnection GetConnectionType()
         {
             return MediaServerConnection.Jellyfin;
         }
