@@ -98,7 +98,14 @@ public class DatabaseAlbumConnector : IMediaServerAlbumConnector
 
     public async Task<bool> AddRange(Album[] albums, CancellationToken cancellationToken = default)
     {
-        await _database.InsertOrReplaceAsync(albums, albums.First().GetType());
+        foreach (var a in albums)
+        {
+            await _database.InsertOrReplaceAsync(a.GetBase, albums.First().GetBase.GetType());
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+        }
         return true;
     }
 }

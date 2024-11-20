@@ -5,6 +5,7 @@ namespace PortaJel_Blazor.Classes.Data
 {
     public class Album(AlbumData albumData = null, SongData[] songData = null, ArtistData[] artistData = null) : BaseMusicItem
     {
+        public AlbumData GetBase => albumData;
         public Guid Id => albumData.Id;
         public string Name => albumData.Name;
         public bool IsFavourite => albumData.IsFavourite;
@@ -55,5 +56,6 @@ namespace PortaJel_Blazor.Classes.Data
         {
             albumData.IsFavourite = state;
         }
+
     }
 }

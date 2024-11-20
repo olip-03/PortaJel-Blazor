@@ -13,7 +13,8 @@
 		<WindowsPackageType>None</WindowsPackageType>
 		<WindowsAppSDKSelfContained Condition="'$(IsUnpackaged)' == 'true'">true</WindowsAppSDKSelfContained>
 		<SelfContained Condition="'$(IsUnpackaged)' == 'true'">true</SelfContained>
-
+		<CsWinRTAotOptimizerEnabled>false</CsWinRTAotOptimizerEnabled>
+		
 		<!-- Display name -->
 		<ApplicationTitle>PortaJel-Blazor</ApplicationTitle>
 		<ProjectName>PortaJel-Blazor</ProjectName>

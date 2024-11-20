@@ -7,6 +7,7 @@ namespace PortaJel_Blazor.Classes.Data
     /// </summary>
     public class Song : BaseMusicItem
     {
+        public SongData GetBase => _songData;
         public Guid Id => _songData.Id;
         public Guid AlbumId => _songData.AlbumId;
         public string Name => _songData.Name;

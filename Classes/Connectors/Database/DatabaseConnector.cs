@@ -46,30 +46,21 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
 
         public DatabaseConnector()
         {
+            _database.CreateTableAsync<AlbumData>().Wait();
+            _database.CreateTableAsync<SongData>().Wait();
+            _database.CreateTableAsync<ArtistData>().Wait();
+            _database.CreateTableAsync<PlaylistData>().Wait();
+            
             Album = new DatabaseAlbumConnector(_database);
             Artist = new DatabaseArtistConnector(_database);
             Song = new DatabaseSongConnector(_database);
             Playlist = new DatabasePlaylistConnector(_database);
             Genre = new DatabaseGenreConnector(_database);
-            Authenticate();
         }
-
-        public void Authenticate()
+        
+        public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
         {
-            _database.CreateTableAsync<AlbumData>().Wait();
-            _database.CreateTableAsync<SongData>().Wait();
-            _database.CreateTableAsync<ArtistData>().Wait();
-            _database.CreateTableAsync<PlaylistData>().Wait();
-        }
-
-        public async Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
-        {
-            await _database.CreateTableAsync<AlbumData>();
-            await _database.CreateTableAsync<SongData>();
-            await _database.CreateTableAsync<ArtistData>();
-            await _database.CreateTableAsync<PlaylistData>();
-            
-            return AuthenticationResponse.Unneccesary();
+            return Task.FromResult(AuthenticationResponse.Unneccesary());
         }
         
         public Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
