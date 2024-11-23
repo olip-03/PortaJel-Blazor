@@ -166,7 +166,7 @@
         if (firstRender)
         {
             Guid parseId = Guid.Parse(albumId);
-            _album = await MauiProgram.Server.Album.GetAsync(parseId);
+            _album = await MauiProgram.Server.Album.GetAsync(parseId) as Album;
         }
 
         if (_album != null)
@@ -214,12 +214,12 @@
 
                 if (albumId != null)
                 {
-                    Task<Album> getAlbum = MauiProgram.Server.Album.GetAsync(parseId);
-                    Task<Album[]> getSimilarAlbum = MauiProgram.Server.Album.GetSimilarAsync(parseId, 50);
+                    Task<BaseMusicItem> getAlbum = MauiProgram.Server.Album.GetAsync(parseId);
+                    Task<BaseMusicItem[]> getSimilarAlbum = MauiProgram.Server.Album.GetSimilarAsync(parseId, 50);
                     await Task.WhenAll(getAlbum, getSimilarAlbum);
                     if (getAlbum.Result != null)
                     {
-                        _album = await MauiProgram.Server.Album.GetAsync(parseId);
+                        _album = await MauiProgram.Server.Album.GetAsync(parseId) as Album;
                         if (_album.Artists != null)
                         {
                             _artistHash = await Task.WhenAll(_album.Artists.Select(a => MusicItemImage.BlurhashToBase64Async(a.ImgBlurhash)).ToArray());
@@ -229,12 +229,12 @@
                     }
                     else
                     {
-                        _album = getAlbum.Result;
+                        _album = getAlbum.Result as Album;
                         _songs = _album.GetSongs();
                     }
 
                     SongCheckState = _songs.Select(s => false).ToArray();
-                    _similarAlbums = getSimilarAlbum.Result;
+                    _similarAlbums = getSimilarAlbum.Result as Album[];
                 }
                 else
                 {
@@ -275,7 +275,7 @@
         MauiProgram.MainPage.ShowLoadingScreen(false);
 
         // Pull data from online sources just to refresh the local dbs
-        _album = await MauiProgram.Server.Album.GetAsync(parseId);
+        _album = await MauiProgram.Server.Album.GetAsync(parseId) as Album;
         _songs = _album.GetSongs();
         StateHasChanged();
 

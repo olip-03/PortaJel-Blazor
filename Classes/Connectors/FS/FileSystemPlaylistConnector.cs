@@ -6,7 +6,7 @@ using SQLite;
 
 namespace PortaJel_Blazor.Classes.Connectors.FS;
 
-public class FileSystemPlaylistConnector : IMediaDataConnector
+public class FileSystemPlaylistConnector : IMediaDataConnector, IMediaPlaylistInterface
 {
     private SQLiteAsyncConnection _database = null;
     public FileSystemPlaylistConnector(SQLiteAsyncConnection database)
@@ -57,6 +57,24 @@ public class FileSystemPlaylistConnector : IMediaDataConnector
     }
 
     public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

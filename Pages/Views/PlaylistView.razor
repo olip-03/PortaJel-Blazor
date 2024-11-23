@@ -163,7 +163,7 @@
                 if (playlistId != null)
                 {
                     // album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
-                    playlist = await MauiProgram.Server.Playlist.GetAsync(parseId);
+                    playlist = await MauiProgram.Server.Playlist.GetAsync(parseId) as Playlist;
                     songs = playlist.Songs.Select(song => new Song(song)).ToArray();
                 }
                 else

@@ -9,11 +9,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
     public class JellyfinServerAlbumConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user)
         : IMediaDataConnector
     {
-        public SyncStatusInfo SyncStatusInfo { get; set; }
+        public SyncStatusInfo SyncStatusInfo { get; set; } = new();
 
         public void SetSyncStatusInfo(TaskStatus status, int percentage)
         {
-            throw new NotImplementedException();
+            SyncStatusInfo.TaskStatus = status;
+            SyncStatusInfo.StatusPercentage = percentage;
         }
 
         public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,

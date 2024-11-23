@@ -4,7 +4,7 @@ using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Classes.Connectors.Discogs;
 
-public class DiscogsPlaylistConnector : IMediaDataConnector
+public class DiscogsPlaylistConnector : IMediaDataConnector, IMediaPlaylistInterface
 {
     public SyncStatusInfo SyncStatusInfo { get; set; }
 
@@ -37,6 +37,24 @@ public class DiscogsPlaylistConnector : IMediaDataConnector
     }
 
     public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

@@ -136,8 +136,10 @@ public class DatabaseAlbumConnector : IMediaDataConnector
     {
         foreach (var baseMusicItem in albums)
         {
-            var a = (Album)baseMusicItem;
-            await _database.InsertOrReplaceAsync(a.GetBase, a.GetType());
+            if (baseMusicItem is Album a && a.GetBase != null)
+            {
+                await _database.InsertOrReplaceAsync(a.GetBase, a.GetBase.GetType());
+            }
             if (cancellationToken.IsCancellationRequested)
             {
                 break;

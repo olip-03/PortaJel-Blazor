@@ -65,7 +65,7 @@ public partial class MainPage : ContentPage
         // Authenticate and begin sync
         _ = Task.Run(() =>
             MauiProgram.Server.AuthenticateAsync()).ContinueWith(
-            _ => MauiProgram.Server.BeginSyncAsync(),
+            _ => new Thread(MauiProgram.Server.BeginSyncAsync().Wait),
             TaskContinuationOptions.ExecuteSynchronously
         );
         // TODO: Cancellation Token

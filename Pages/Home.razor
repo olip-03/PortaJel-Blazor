@@ -54,11 +54,11 @@
 
 @code {
     private int _itemReturnCount = 50;
-    private Album[] _recentPlayData = [];
-    private Album[] _favouritesPlayData = [];
-    private Album[] _recentAddedData = [];
-    private Song[] _mostPlayData = [];
-    private Song[] _randomData = [];
+    private BaseMusicItem[] _recentPlayData = [];
+    private BaseMusicItem[] _favouritesPlayData = [];
+    private BaseMusicItem[] _recentAddedData = [];
+    private BaseMusicItem[] _mostPlayData = [];
+    private BaseMusicItem[] _randomData = [];
 
     private Exception _errorMessage = null;
     private int resultCount = 50;
@@ -105,7 +105,7 @@
     {
         if (firstRender)
         {
-            await LoadApi().ConfigureAwait(false);
+            await LoadApi();
         }
 
         await Js.InvokeAsync<string>("InitAllImages");
@@ -124,19 +124,20 @@
             MauiProgram.UpdateDebugMessage("Starting request for Home page data.");
             var runGetRecent = Task.Run(() =>
             {
+                // TODO: Fix get recents
                 // Get recently listened to songs. 
-                var itemsToAdd = MauiProgram.Database.Song.GetAllAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.DatePlayed, setSortOrder: SortOrder.Descending);
-                itemsToAdd.Wait();
-                // Cut them down so you only have one track per Album
-                var foundIds = itemsToAdd.Result.OrderBy(s => s.DatePlayed).ToList();
-                foundIds = foundIds.GroupBy(song => song.AlbumId).Select(song => song.First()).ToList();
-                // Create list of Albums
-                List<Album> toReturn = [];
-                var getAlbumsTask = Parallel.ForEachAsync(foundIds, async (song, ct) => { toReturn.Add(await MauiProgram.Database.Album.GetAsync(song.AlbumId, cancellationToken: ct).ConfigureAwait(false)); });
-                getAlbumsTask.Wait();
-                _recentPlayData = toReturn.Where(a => a.GetBase != null).OrderByDescending(a => a.DatePlayed).ToArray();
-                var bht = GenerateBlurHash(_recentPlayData);
-                bht.Wait();
+                // var itemsToAdd = MauiProgram.Database.Song.GetAllAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.DatePlayed, setSortOrder: SortOrder.Descending);
+                // itemsToAdd.Wait();
+                // // Cut them down so you only have one track per Album
+                // var foundIds = itemsToAdd.Result.Select(o => (Song)o).OrderBy(s => s.DatePlayed).ToList();
+                // foundIds = foundIds.GroupBy(song => song.AlbumId).Select(song => song.First()).ToList();
+                // // Create list of Albums
+                // List<Album> toReturn = [];
+                // var getAlbumsTask = Parallel.ForEachAsync(foundIds, async (song, ct) => { toReturn.Add(await MauiProgram.Database.Album.GetAsync(song.AlbumId, cancellationToken: ct).ConfigureAwait(false)); });
+                // getAlbumsTask.Wait();
+                // _recentPlayData = toReturn.Where(a => a.GetBase != null).OrderByDescending(a => a.DatePlayed).ToArray();
+                // var bht = GenerateBlurHash(_recentPlayData);
+                // bht.Wait();
                 return true;
             });
             var runGetFavourites = Task.Run(() =>
@@ -164,7 +165,7 @@
                     var t = MauiProgram.Database.Album.GetAllAsync(limit: resultCount, startIndex: 0, setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Descending);
                     t.Wait();
                     _recentAddedData = t.Result; 
-                    var bht = GenerateBlurHash(_recentAddedData);
+                    var bht = GenerateBlurHash(t.Result);
                 }
                 catch (Exception e)
                 {

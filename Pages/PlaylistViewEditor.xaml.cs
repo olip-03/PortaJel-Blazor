@@ -1,4 +1,5 @@
 using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Pages;
 
@@ -46,11 +47,9 @@ public partial class PlaylistViewEditor : ContentPage
             loadingScreen.IsVisible = isLoading;
             // Neccesary to stop the page from lagging when you open it
             await Task.Run(() => { Thread.Sleep(200); });
-            Playlist? getPlaylist = await MauiProgram.Server.Playlist.GetAsync(playlistId);
-            if(getPlaylist != null)
-            {
-                playlist = getPlaylist;
-            }
+            BaseMusicItem? getObject = await MauiProgram.Server.Playlist.GetAsync(playlistId);
+            if (getObject is not Playlist getPlaylist) return;
+            playlist = getPlaylist;
         }
 
         songList = playlist.Songs.Select(song => new Song(song)).ToList();
@@ -98,7 +97,8 @@ public partial class PlaylistViewEditor : ContentPage
                     // removedSongs.Add(new Tuple<int, Song>(index, song));
                     if (song.PlaylistId != null)
                     {
-                        await MauiProgram.Server.Playlist.RemovePlaylistItemAsync(playlist.Id, Guid.Parse(song.PlaylistId));
+                        if(MauiProgram.Server.Playlist is IMediaPlaylistInterface mediaPlaylistInterface)
+                            await mediaPlaylistInterface.RemovePlaylistItemAsync(playlist.Id, Guid.Parse(song.PlaylistId));
                     }
                     unorderedList.Remove(song);
                 }
@@ -124,13 +124,12 @@ public partial class PlaylistViewEditor : ContentPage
                         // Needs to be moved
                         unorderedList.RemoveAt(i);
                         unorderedList.Insert(newIndex, item);
-
-                        bool passed = await MauiProgram.Server.Playlist.MovePlaylistItem(playlist.Id, Guid.Parse(item.PlaylistId), newIndex);
-                        if (!passed)
+                        
+                        if(MauiProgram.Server.Playlist is IMediaPlaylistInterface mediaPlaylistInterface)
                         {
-                            // wah wah
+                            bool passed = await mediaPlaylistInterface.MovePlaylistItem(playlist.Id, Guid.Parse(item.PlaylistId), newIndex);
                         }
-
+                        
                         // Forefit this loop, leaves completedLoop false
                         completedLoop = false;
                         break;

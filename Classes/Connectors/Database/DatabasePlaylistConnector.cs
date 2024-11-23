@@ -7,7 +7,7 @@ using SQLite;
 
 namespace PortaJel_Blazor.Classes.Connectors.Database;
 
-public class DatabasePlaylistConnector : IMediaDataConnector
+public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInterface
 {
     private readonly SQLiteAsyncConnection _database = null;
 
@@ -101,5 +101,23 @@ public class DatabasePlaylistConnector : IMediaDataConnector
             }
         }
         return true;
+    }
+
+    public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 }

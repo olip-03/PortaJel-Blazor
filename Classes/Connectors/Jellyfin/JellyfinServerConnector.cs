@@ -155,8 +155,13 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 if (DateTime.TryParse(oauthToken, out var lastSyncDate))
                 {
                     TimeSpan timeSinceLastSync = DateTime.Now - lastSyncDate;
-                    if (timeSinceLastSync.TotalHours > 18)
+                    if (timeSinceLastSync.TotalHours < (double)18)
                     {
+                        Trace.Write("Last sync occured too recently. Cancelling sync.");
+                        foreach (var data in GetDataConnectors())
+                        {
+                            data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
+                        }
                         return true;
                     }
                 }
@@ -214,7 +219,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 {
                     // Start the stopwatch
                     var stopwatch = Stopwatch.StartNew();
-                    Trace.WriteLine("Jellyfin Album Sync Started");
+                    Trace.WriteLine($"Jellyfin {data.Key} Sync Started");
                     try
                     {
                         data.Value.SetSyncStatusInfo(TaskStatus.Running, 0);
@@ -222,7 +227,8 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                         totalTask.Wait(cancellationToken);
                         var albums = albumDb.GetAllAsync(cancellationToken: cancellationToken).Result.ToList();
                         List<BaseMusicItem> serverItems = [];
-                        
+
+                        int batchSize = 100;
                         int currentFetch = 0;
                         int currentItem = 0;
                         int totalItem = totalTask.Result;
@@ -230,20 +236,21 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                         {
                             // Calculate and display progress
                             int progress = (int)((double)currentFetch / totalItem * 100);
-                            
+                            data.Value.SetSyncStatusInfo(TaskStatus.Running, progress);
+
                             // Get items
-                            var itemTask = data.Value.GetAllAsync(limit: 50, startIndex: currentItem,
+                            var itemTask = data.Value.GetAllAsync(limit: batchSize, startIndex: currentItem,
                                 setSortTypes: ItemSortBy.Name, setSortOrder: SortOrder.Ascending,
                                 cancellationToken: cancellationToken);
                             itemTask.Wait(cancellationToken);
                             
                             currentFetch += itemTask.Result.Length;
-                            currentItem += 50;
+                            currentItem += batchSize;
                             
                             albumDb.AddRange(serverItems.ToArray(), cancellationToken).Wait(cancellationToken);
                             serverItems.AddRange(itemTask.Result);
                             
-                            if ( itemTask.Result.Length < 49)
+                            if (itemTask.Result.Length < batchSize - 1)
                             {
                                 break; // Exit when no more data
                             }
@@ -266,13 +273,13 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                         if (albumsToDelete.Count > 0)
                         {
                             Trace.WriteLine(
-                                $"Deleted {albumsToDelete.Count} albums that were not in the new album list.\n");
+                                $"Deleted {albumsToDelete.Count} {data.Key} that were not in the new album list.\n");
                         }
                     }
                     catch (Exception ex)
                     {
                         data.Value.SetSyncStatusInfo(TaskStatus.Faulted, 100);
-                        Trace.WriteLine($"Error during Jellyfin Album Sync: {ex.Message}\n");
+                        Trace.WriteLine($"Error during Jellyfin {data.Key} Sync: {ex.Message}\n");
                          throw;
                     }
                     finally
@@ -280,7 +287,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                         // Stop the stopwatch and log the elapsed time
                         data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
                         stopwatch.Stop();
-                        Trace.WriteLine($"Jellyfin Album Sync finished in {stopwatch.ElapsedMilliseconds} ms\n");
+                        Trace.WriteLine($"Jellyfin {data.Key} Sync finished in {stopwatch.ElapsedMilliseconds} ms\n");
                     }
                 }, cancellationToken));
 

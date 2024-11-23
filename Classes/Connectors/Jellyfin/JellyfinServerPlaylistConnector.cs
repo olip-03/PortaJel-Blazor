@@ -8,13 +8,14 @@ using PortaJel_Blazor.Classes.Enum;
 namespace PortaJel_Blazor.Classes.Connectors.Jellyfin;
 
 public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user)
-    : IMediaDataConnector
+    : IMediaDataConnector, IMediaPlaylistInterface
 {
-    public SyncStatusInfo SyncStatusInfo { get; set; }
+    public SyncStatusInfo SyncStatusInfo { get; set; } = new();
 
     public void SetSyncStatusInfo(TaskStatus status, int percentage)
     {
-        throw new NotImplementedException();
+        SyncStatusInfo.TaskStatus = status;
+        SyncStatusInfo.StatusPercentage = percentage;
     }
 
     public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
@@ -105,6 +106,24 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
     }
 
     public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

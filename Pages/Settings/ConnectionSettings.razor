@@ -33,11 +33,11 @@
                 <button class="remove-button" @onclick="() => DeleteConnection(serverConnector.GetAddress())">Remove</button>
             </div>
             <div class="button-row">
-                @foreach (var status in serverConnector.SyncStatus.Statuses)
+                @foreach (var server in serverConnector.GetDataConnectors())
                 {
-                    int percent = serverConnector.SyncStatus.Percentages[status.Key];
+                    int percent = server.Value.SyncStatusInfo.StatusPercentage;
                     <div class="ComponentSecondaryColor">
-                        @switch (status.Value)
+                        @switch (server.Value.SyncStatusInfo.TaskStatus)
                         {
                             case TaskStatus.Running:
                                 <div class="statusIcon default">
@@ -65,7 +65,7 @@
                                 </div>
                                 break;
                         }
-                        <h6 class="PrimaryTextColor">@status.Key</h6>
+                        <h6 class="PrimaryTextColor">@server.Key</h6>
                     </div>
                 }
             </div>
