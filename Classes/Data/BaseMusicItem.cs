@@ -2,6 +2,11 @@
 {
     public abstract class BaseMusicItem
     {
+        public Guid LocalId;
+        public Guid Id;
+        public string ImgSource;
+        public string ImgBlurhash;
+        public string ImgBlurhashBase64;
         public Album ToAlbum()
         {
             return (Album)this;

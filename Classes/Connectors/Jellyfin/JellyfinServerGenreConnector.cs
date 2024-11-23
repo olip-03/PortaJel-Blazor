@@ -6,23 +6,40 @@ using PortaJel_Blazor.Classes.Enum;
 
 namespace PortaJel_Blazor.Classes.Connectors.Jellyfin;
 
-public class JellyfinServerGenreConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user) : IMediaServerGenreConnector
+public class JellyfinServerGenreConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user) : IMediaDataConnector
 {
-    public async Task<Genre[]> GetAllGenresAsync()
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
     {
-        // Implementation to fetch all genres
-        return await Task.FromResult(new Genre[0]);
+        throw new NotImplementedException();
     }
 
-    public async Task<Genre> GetGenreAsync(int genreId)
+    public Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
-        // Implementation to fetch a specific genre by its ID
-        return await Task.FromResult(new Genre());
+        throw new NotImplementedException();
     }
 
-    public async Task<int> GetTotalGenreCountAsync()
+    public Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
-        // Implementation to get the total count of genres
-        return await Task.FromResult(0);
+        throw new NotImplementedException();
+    }
+
+    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 }

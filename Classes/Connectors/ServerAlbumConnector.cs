@@ -9,38 +9,40 @@ namespace PortaJel_Blazor.Classes.Connectors;
 /// <summary>
 /// Provides functionality to connect and interact with media server albums.
 /// </summary>
-public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaServerAlbumConnector
+public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaDataConnector
 {
-    /// <summary>
-    /// Asynchronously retrieves all albums from the media server with the option to specify filters and sorting.
-    /// </summary>
-    /// <param name="limit">The maximum number of albums to retrieve. Defaults to 50.</param>
-    /// <param name="startIndex">The starting index for album retrieval. Defaults to 0.</param>
-    /// <param name="getFavourite">Indicates whether to retrieve only favourite albums. Defaults to false.</param>
-    /// <param name="setSortTypes">Specifies the sorting criteria for the albums. Defaults to sorting by album.</param>
-    /// <param name="setSortOrder">Specifies the order in which to sort the albums. Defaults to ascending order.</param>
-    /// <param name="serverUrl">The URL of the server to retrieve albums from. Defaults to an empty string, which uses the default server.</param>
-    /// <param name="cancellationToken">A token to cancel the operation. Defaults to None.</param>
-    /// <returns>An array of <see cref="Album"/> retrieved from the server.</returns>
-    public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
-        string serverUrl = "", CancellationToken cancellationToken = default)
+        Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         var albums = new ConcurrentBag<Album>();
         int failed = 0;
-        
-        var connectors = servers.ToDictionary(newServer => newServer.GetAddress(), newServer => (IMediaServerConnector)newServer);
+
+        var connectors = servers.ToDictionary(newServer => newServer.GetAddress(),
+            newServer => (IMediaServerConnector)newServer);
         var tasks = connectors.Select(server => Task.Run(() =>
             {
                 try
                 {
                     // Get album data 
-                    var toAdd = server.Value.Album.GetAllAlbumsAsync(limit, startIndex, getFavourite, setSortTypes, setSortOrder, serverUrl, cancellationToken);
+                    var toAdd = server.Value.GetDataConnectors()["Album"].GetAllAsync(limit, startIndex, getFavourite, setSortTypes,
+                        setSortOrder, serverUrl: serverUrl, cancellationToken: cancellationToken);
                     toAdd.Wait(cancellationToken);
                     // Add to list 
                     foreach (var album in toAdd.Result)
                     {
-                        albums.Add(album);
+                        if (album is Album a)
+                        {
+                            albums.Add(a);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -57,11 +59,11 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
         {
             await t;
         }
-        catch 
-        { 
+        catch
+        {
             // ignored
         }
-            
+
         switch (t.Status)
         {
             case TaskStatus.RanToCompletion:
@@ -75,11 +77,13 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
         return albums.ToArray();
     }
 
-    public async Task<Album> GetAlbumAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
-        var connectors = servers.ToDictionary(newServer => newServer.GetAddress(), newServer => (IMediaServerConnector)newServer);
+        var connectors = servers.ToDictionary(newServer => newServer.GetAddress(),
+            newServer => (IMediaServerConnector)newServer);
         IMediaServerConnector server = connectors.FirstOrDefault(c => c.Key == serverUrl).Value;
-        var albums = new ConcurrentBag<Album>();
+        var albums = new ConcurrentBag<BaseMusicItem>();
         int failed = 0;
 
         if (server == null)
@@ -90,7 +94,7 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
                     try
                     {
                         // Get album data 
-                        var t = connector.Value.Album.GetAlbumAsync(id, cancellationToken: cancellationToken);
+                        var t = connector.Value.GetDataConnectors()["Album"].GetAsync(id, cancellationToken: cancellationToken);
                         t.Wait(cancellationToken);
                         if (t.Result != null)
                         {
@@ -111,10 +115,11 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
             {
                 await t;
             }
-            catch 
-            { 
+            catch
+            {
                 // ignored
             }
+
             // Check response
             switch (t.Status)
             {
@@ -125,31 +130,38 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
         }
         else
         {
-            Album result = await server.Album.GetAlbumAsync(id, serverUrl, cancellationToken);
-            albums.Add(result);
+            var result = await server.GetDataConnectors()["Album"].GetAsync(id, serverUrl, cancellationToken);
+            if (result is Album a)
+            {
+                albums.Add(a);
+            }
         }
-        
+
         Trace.WriteLine($"Album request attempts succeeded: {albums.Count} albums retrieved.");
         return albums.First();
     }
 
-    public async Task<Album[]> GetSimilarAlbumsAsync(Guid id, int setLimit, string serverUrl = "",
+    public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         var albums = new ConcurrentBag<Album>();
         int failed = 0;
-        var connectors = servers.ToDictionary(newServer => newServer.GetAddress(), newServer => (IMediaServerConnector)newServer);
+        var connectors = servers.ToDictionary(newServer => newServer.GetAddress(),
+            newServer => (IMediaServerConnector)newServer);
         var tasks = connectors.Select(server => Task.Run(() =>
             {
                 try
                 {
                     // Get album data 
-                    var toAdd = server.Value.Album.GetSimilarAlbumsAsync(id, 50, serverUrl, cancellationToken);
+                    var toAdd = server.Value.GetDataConnectors()["Album"].GetSimilarAsync(id, 50, serverUrl, cancellationToken);
                     toAdd.Wait(cancellationToken);
                     // Add to list 
                     foreach (var album in toAdd.Result)
                     {
-                        albums.Add(album);
+                        if (album is Album a)
+                        {
+                            albums.Add(a);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -166,11 +178,11 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
         {
             await t;
         }
-        catch 
-        { 
+        catch
+        {
             // ignored
         }
-            
+
         switch (t.Status)
         {
             case TaskStatus.RanToCompletion:
@@ -184,17 +196,19 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
         return albums.ToArray();
     }
 
-    public async Task<int> GetTotalAlbumCountAsync(bool getFavourite = false, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         int totalCount = 0;
         int failed = 0;
-        var connectors = servers.ToDictionary(newServer => newServer.GetAddress(), newServer => (IMediaServerConnector)newServer);
+        var connectors = servers.ToDictionary(newServer => newServer.GetAddress(),
+            newServer => (IMediaServerConnector)newServer);
         var tasks = connectors.Select(server => Task.Run(() =>
             {
                 try
                 {
                     // Get album data 
-                    var toAdd = server.Value.Album.GetTotalAlbumCountAsync(getFavourite, serverUrl, cancellationToken);
+                    var toAdd = server.Value.GetDataConnectors()["Album"].GetTotalCountAsync(getFavourite, serverUrl, cancellationToken);
                     toAdd.Wait(cancellationToken);
                     // Add to total
                     Interlocked.Add(ref totalCount, toAdd.Result);
@@ -213,19 +227,24 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaS
         {
             await t;
         }
-        catch 
-        { 
+        catch
+        {
             // ignored
         }
-            
+
         switch (t.Status)
         {
             case TaskStatus.Faulted:
                 Trace.WriteLine($"{failed} Total Album count request attempts failed!");
                 break;
         }
-        
+
         Trace.WriteLine($"Total Album count request succeeded: Value is {totalCount}.");
         return totalCount;
+    }
+
+    public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 }

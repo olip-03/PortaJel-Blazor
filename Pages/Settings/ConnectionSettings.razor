@@ -1,43 +1,86 @@
-﻿@page "/settingsconnections"
+﻿@implements IDisposable
+@page "/settingsconnections"
 
-<!-- Hide M3U Playlists -->
-<div class="header">
-    <p>Offline Mode</p>
-    <!-- Rounded switch -->
-    <label class="switch">
-        <input type="checkbox">
-        <span class="slider round"></span>
-    </label>
-</div>
+<div class="connectionSettings">
+    <!-- Hide M3U Playlists -->
+    <div class="header">
+        <p class="PrimaryTextColor">Offline Mode</p>
+        <!-- Rounded switch -->
+        <label class="switch">
+            <input type="checkbox">
+            <span class="slider round"></span>
+        </label>
+    </div>
 
-<div class="header">
-    <div class="title">Connections</div>
-    <button class="add-button" @onclick=AddConnection>Add</button>
-</div>
+    <div class="header">
+        <div class="title PrimaryTextColor">Connections</div>
+        <button class="add-button" @onclick=AddConnection>Add</button>
+    </div>
 
-@foreach (var serverConnector in MauiProgram.Server.GetServers())
-{
-    <div class="connection-container">
-        <div class="connection-details">
-            <div class="user-profile">
-                <img class="user-profile-img" src="@serverConnector.GetProfileImageUrl()" onerror="this.src='/images/avatar.png'" />
+    @foreach (var serverConnector in MauiProgram.Server.GetServers())
+    {
+        <div class="connection-container ComponentColor">
+            <div class="connection-details">
+                <div class="details-usr">
+                    <div class="user-profile">
+                        <img class="user-profile-img ComponentSecondaryColor" src="@serverConnector.GetProfileImageUrl()" onerror="this.src='/images/avatar.png'"  alt="User profile photo"/>
+                    </div>
+                    <div>
+                        <div class="user-profile-name PrimaryTextColor">@serverConnector.GetUsername()</div>
+                        <div class="user-profile-connection SecondaryTextColor">@serverConnector.GetAddress()</div>
+                    </div>
+                </div>
+                <button class="remove-button" @onclick="() => DeleteConnection(serverConnector.GetAddress())">Remove</button>
             </div>
-            <div>
-                <div class="user-profile-name">@serverConnector.GetUsername()</div>
-                <div class="user-profile-connection">@serverConnector.GetAddress()</div>
+            <div class="button-row">
+                @foreach (var status in serverConnector.SyncStatus.Statuses)
+                {
+                    int percent = serverConnector.SyncStatus.Percentages[status.Key];
+                    <div class="ComponentSecondaryColor">
+                        @switch (status.Value)
+                        {
+                            case TaskStatus.Running:
+                                <div class="statusIcon default">
+                                    <p>@percent</p>
+                                </div>
+                                break;
+                            case TaskStatus.RanToCompletion:
+                                <div class="statusIcon complete">
+                                    <p>@percent</p>
+                                </div>
+                                break;
+                            case TaskStatus.Canceled:
+                                <div class="statusIcon waitingToRun">
+                                    <p>@percent</p>
+                                </div>
+                                break;
+                            case TaskStatus.Faulted:
+                                <div class="statusIcon faulted">
+                                    <p>@percent</p>
+                                </div>
+                                break;
+                            default:
+                                <div class="statusIcon default">
+                                    <p>@percent</p>
+                                </div>
+                                break;
+                        }
+                        <h6 class="PrimaryTextColor">@status.Key</h6>
+                    </div>
+                }
             </div>
         </div>
-        <button class="remove-button" @onclick="() => DeleteConnection(serverConnector.GetAddress())">Remove</button>
-    </div>
-}
-@if (!MauiProgram.isConnected)
-{
-    <button class="reconnect-button">Reconnect</button>
-}
+    }
+    @if (!MauiProgram.isConnected)
+    {
+        <button class="reconnect-button">Reconnect</button>
+    }
+</div>
 
 @code {
     private bool ForceOffline = false;
-
+    private IDispatcherTimer _updateTimers = null;
+    
     protected override void OnInitialized()
     {
         MauiProgram.WebView.pageTitle = "Connections";
@@ -48,13 +91,36 @@
         MauiProgram.MainPage.ShowLoadingScreen(false);
     }
 
-    public void DeleteConnection(string baseAddress)
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && Application.Current != null)
+        {
+            _updateTimers = Application.Current.Dispatcher.CreateTimer();
+            _updateTimers.Interval = TimeSpan.FromSeconds(1);
+            _updateTimers.Tick += (s,e) => UpdateConnectionSyncStatus();
+            _updateTimers.Start();
+        }
+    }
+
+    private void UpdateConnectionSyncStatus()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void DeleteConnection(string baseAddress)
     {
 
     }
 
-    public void AddConnection()
+    private void AddConnection()
     {
         
     }
+
+    public void Dispose()
+    {
+        _updateTimers.Stop();
+        _updateTimers = null;
+    }
+
 }

@@ -23,14 +23,26 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
     public class DatabaseConnector : IMediaServerConnector
     {
         private static readonly string MainDir = Path.Combine(FileSystem.Current.AppDataDirectory, "Database.sqlite");
-        private const SQLiteOpenFlags DbFlags = SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache;
+
+        private const SQLiteOpenFlags DbFlags =
+            SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache;
+
         private readonly SQLiteAsyncConnection _database = new SQLiteAsyncConnection(MainDir, DbFlags);
-        public IMediaServerAlbumConnector Album { get; set; } 
-        public IMediaServerArtistConnector Artist { get; set; } 
-        public IMediaServerSongConnector Song { get; set; } 
-        public IMediaServerPlaylistConnector Playlist { get; set; } 
-        public IMediaServerGenreConnector Genre { get; set; }
-        
+        public IMediaDataConnector Album { get; set; }
+        public IMediaDataConnector Artist { get; set; }
+        public IMediaDataConnector Song { get; set; }
+        public IMediaDataConnector Playlist { get; set; }
+        public IMediaDataConnector Genre { get; set; }
+
+        public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
+        {
+            { "Album", Album },
+            { "Artist", Artist },
+            { "Song", Song },
+            { "Playlist", Playlist },
+            { "Genre", Genre }
+        };
+
         public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
             new()
             {
@@ -40,40 +52,38 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
                 { ConnectorDtoTypes.Playlist, true },
                 { ConnectorDtoTypes.Genre, false },
             };
-        
+
         public Dictionary<string, ConnectorProperty> Properties { get; set; } = new();
-        public TaskStatus SyncStatus { get; set; }  = TaskStatus.WaitingToRun;
+        public SyncStatusInfo SyncStatus { get; set; } = new();
 
         public DatabaseConnector()
         {
             Trace.WriteLine($"Database created at {MainDir}");
-            
+
             _database.CreateTableAsync<AlbumData>().Wait();
             _database.CreateTableAsync<SongData>().Wait();
             _database.CreateTableAsync<ArtistData>().Wait();
             _database.CreateTableAsync<PlaylistData>().Wait();
-            
+
             Album = new DatabaseAlbumConnector(_database);
             Artist = new DatabaseArtistConnector(_database);
             Song = new DatabaseSongConnector(_database);
             Playlist = new DatabasePlaylistConnector(_database);
             Genre = new DatabaseGenreConnector(_database);
         }
-        
+
         public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(AuthenticationResponse.Unneccesary());
         }
-        
+
         public Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
         {
-            SyncStatus = TaskStatus.Running;
             throw new NotImplementedException();
         }
-        
+
         public Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
-            SyncStatus = TaskStatus.Running;
             throw new NotImplementedException();
         }
 
@@ -81,7 +91,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
         {
             throw new NotImplementedException();
         }
-        
+
         public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Array.Empty<BaseMusicItem>());
@@ -91,12 +101,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
         {
             throw new NotImplementedException();
         }
-        
+
         public string GetPassword()
         {
             throw new NotImplementedException();
         }
-        
+
         public string GetAddress()
         {
             throw new NotImplementedException();
@@ -109,14 +119,15 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
 
         public UserCredentials GetUserCredentials()
         {
-            return new UserCredentials(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            return new UserCredentials(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
+                string.Empty);
         }
-        
+
         public MediaServerConnection GetConnectionType()
         {
             return MediaServerConnection.Database;
         }
-        
+
         public SQLiteAsyncConnection GetDatabaseConnection()
         {
             return _database;

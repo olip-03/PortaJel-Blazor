@@ -230,19 +230,27 @@ public partial class MainPage : ContentPage
     }
     public async void ShowLoadingScreen(bool value)
     {
-        if (value)
-        { // If we're already visible, do nothin'
-            LoadingBlockout.IsVisible = true;
-            LoadingBlockout.InputTransparent = false;
-            LoadingBlockout.Opacity = 1; 
-        }
-        else if (LoadingBlockout.Opacity >= 1)
+        try
         {
-            LoadingBlockout.InputTransparent = true;
-            LoadingBlockout.Opacity = 1; // make fully visible
-            
-            await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
-            LoadingBlockout.IsVisible = false;
+            if (value)
+            {
+                // If we're already visible, do nothin'
+                LoadingBlockout.IsVisible = true;
+                LoadingBlockout.InputTransparent = false;
+                LoadingBlockout.Opacity = 1;
+            }
+            else if (LoadingBlockout.Opacity >= 1)
+            {
+                LoadingBlockout.InputTransparent = true;
+                LoadingBlockout.Opacity = 1; // make fully visible
+
+                await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
+                LoadingBlockout.IsVisible = false;
+            }
+        }
+        catch
+        {
+            LoadingBlockout.Opacity = 0; // make fully visible
         }
     }
     

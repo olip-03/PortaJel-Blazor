@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
@@ -20,11 +21,19 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         private SessionInfoDto _sessionInfo;
         private JellyfinSdkSettings _sdkClientSettings;
         private JellyfinApiClient _jellyfinApiClient;
-        public IMediaServerAlbumConnector Album { get; set; }
-        public IMediaServerArtistConnector Artist { get; set; }
-        public IMediaServerSongConnector Song { get; set; }
-        public IMediaServerPlaylistConnector Playlist { get; set; }
-        public IMediaServerGenreConnector Genre { get; set; }
+        public IMediaDataConnector Album { get; set; }
+        public IMediaDataConnector Artist { get; set; }
+        public IMediaDataConnector Song { get; set; }
+        public IMediaDataConnector Playlist { get; set; }
+        public IMediaDataConnector Genre { get; set; }
+        public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
+        {
+            { "Album", Album },
+            { "Artist", Artist },
+            { "Song", Song },
+            { "Playlist", Playlist },
+            { "Genre", Genre }
+        };
 
         public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
             new()
@@ -62,7 +71,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 }
             };
 
-        public TaskStatus SyncStatus { get; set; } = TaskStatus.WaitingToRun;
+        public SyncStatusInfo SyncStatus { get; set; } = new();
 
         public JellyfinServerConnector(string url = "", string username = "", string password = "")
         {
@@ -139,36 +148,60 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
 
         public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
         {
+            // If syncdate is less than 18hrs do not sync! 
+            string oauthToken = await SecureStorage.Default.GetAsync("syncdate");
+            if (oauthToken != null)
+            {
+                if (DateTime.TryParse(oauthToken, out var lastSyncDate))
+                {
+                    TimeSpan timeSinceLastSync = DateTime.Now - lastSyncDate;
+                    if (timeSinceLastSync.TotalHours > 18)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            if (oauthToken == null)
+            {
+                // No value is associated with the key "oauth_token"
+            }
+            
             // TODO: Compare server counts with local database counts. If DB count matches server count, return
             if (MauiProgram.Database.Album is not DatabaseAlbumConnector albumDb) return false;
             if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
             if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
             if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
-            if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
+            // if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
 
-            int albumDbT = await albumDb.GetTotalAlbumCountAsync(cancellationToken: cancellationToken);
-            int albumT = await Album.GetTotalAlbumCountAsync(cancellationToken: cancellationToken);
-            
-            int artistDbT = await artistDb.GetTotalArtistCount(cancellationToken: cancellationToken);
-            int artistT = await Artist.GetTotalArtistCount(cancellationToken: cancellationToken);
-            
-            int songDbT = await songDb.GetTotalSongCountAsync(cancellationToken: cancellationToken);
-            int songT = await Song.GetTotalSongCountAsync(cancellationToken: cancellationToken);
+            int albumDbT = await albumDb.GetTotalCountAsync(cancellationToken: cancellationToken);
+            int albumT = await Album.GetTotalCountAsync(cancellationToken: cancellationToken);
 
-            int playlistDbT = await playlistDb.GetTotalPlaylistCountAsync(cancellationToken: cancellationToken);
-            int playlistT = await Playlist.GetTotalPlaylistCountAsync(cancellationToken: cancellationToken);
+            int artistDbT = await artistDb.GetTotalCountAsync(cancellationToken: cancellationToken);
+            int artistT = await Artist.GetTotalCountAsync(cancellationToken: cancellationToken);
+
+            int songDbT = await songDb.GetTotalCountAsync(cancellationToken: cancellationToken);
+            int songT = await Song.GetTotalCountAsync(cancellationToken: cancellationToken);
+
+            int playlistDbT = await playlistDb.GetTotalCountAsync(cancellationToken: cancellationToken);
+            int playlistT = await Playlist.GetTotalCountAsync(cancellationToken: cancellationToken);
 
             if (albumDbT != albumT) return false;
             if (artistDbT != artistT) return false;
             if (songDbT != songT) return false;
             if (playlistDbT != playlistT) return false;
-            
+
             return true;
         }
-
+        
+        // Todo: Stupid as fuck idea, but, I think I should try it anyway...
+        // Say we want to get all the items on the server? Fortunately, the JellyFin api allows us to specify IDs we 
+        // want to collect, and IDs we want to exclude... What if we sent a request excluding EVERY ID we already have 
+        // on file. If we're still calling get-all, technically that should return us with all the items that... we 
+        // don't already have !!!! Excellent! Give that a shot tonight, see if you can come up with something that 
+        // works. 
         public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
-            SyncStatus = TaskStatus.Running;
             if (await IsUpToDateAsync(cancellationToken)) return true;
             try
             {
@@ -176,147 +209,88 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
                 if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
                 if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
-                if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
-                var albumTask = Task.Run(() =>
+                // if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
+                var tasks = GetDataConnectors().Select(data => Task.Run(() =>
                 {
-                    Trace.Write("Jellyfin Album Sync Started");
-                    int albumDbT = albumDb.GetTotalAlbumCountAsync(cancellationToken: cancellationToken).Result;
-                    int currentItem = 0;
-                    int added = 0;
-                    while (true)
+                    // Start the stopwatch
+                    var stopwatch = Stopwatch.StartNew();
+                    Trace.WriteLine("Jellyfin Album Sync Started");
+                    try
                     {
-                        int serverTotal = Album.GetTotalAlbumCountAsync(cancellationToken: cancellationToken).Result;
-                        var itemTask = Album.GetAllAlbumsAsync(limit: 50, startIndex: currentItem,
-                            setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Ascending,
-                            cancellationToken: cancellationToken);
-                        itemTask.Wait(cancellationToken);
-                        albumDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
-                        added += itemTask.Result.Length;
-                        if (albumDbT == serverTotal)
+                        data.Value.SetSyncStatusInfo(TaskStatus.Running, 0);
+                        var totalTask = data.Value.GetTotalCountAsync(cancellationToken: cancellationToken);
+                        totalTask.Wait(cancellationToken);
+                        var albums = albumDb.GetAllAsync(cancellationToken: cancellationToken).Result.ToList();
+                        List<BaseMusicItem> serverItems = [];
+                        
+                        int currentFetch = 0;
+                        int currentItem = 0;
+                        int totalItem = totalTask.Result;
+                        while (true)
                         {
-                            Trace.Write($"Jellyfin Album Sync Completed Early");
-                            break;
+                            // Calculate and display progress
+                            int progress = (int)((double)currentFetch / totalItem * 100);
+                            
+                            // Get items
+                            var itemTask = data.Value.GetAllAsync(limit: 50, startIndex: currentItem,
+                                setSortTypes: ItemSortBy.Name, setSortOrder: SortOrder.Ascending,
+                                cancellationToken: cancellationToken);
+                            itemTask.Wait(cancellationToken);
+                            
+                            currentFetch += itemTask.Result.Length;
+                            currentItem += 50;
+                            
+                            albumDb.AddRange(serverItems.ToArray(), cancellationToken).Wait(cancellationToken);
+                            serverItems.AddRange(itemTask.Result);
+                            
+                            if ( itemTask.Result.Length < 49)
+                            {
+                                break; // Exit when no more data
+                            }
                         }
-                        if (itemTask.Result.Length < 49)
+                        
+                        // Find albums that are not in newAlbums (itemTask.Result)
+                        var albumsToDelete = albums
+                            .Where(existingAlbum => serverItems.All(newAlbum => newAlbum.Id != existingAlbum.Id))
+                            .ToList();
+                        // Delete the albums not present in newAlbums
+                        foreach (var album in albumsToDelete)
                         {
-                            Trace.Write($"Jellyfin Album Sync Complete: {added} items processed.");
-                            break; // Exit when no more data
+                            if (album is Album a)
+                            {
+                                albumDb.DeleteAsync(a.Id, cancellationToken: cancellationToken)
+                                    .Wait(cancellationToken);
+                            }
                         }
-                        currentItem += 50;
-                    }
-                }, cancellationToken);
-                var artistTask = Task.Run(() =>
-                {
-                    Trace.Write("Jellyfin Artists Sync Started");
-                    int artistDbT = artistDb.GetTotalArtistCount(cancellationToken: cancellationToken).Result;
-                    int currentItem = 0;
-                    int added = 0;
-                    while (true)
-                    {
-                        int serverTotal = Artist.GetTotalArtistCount(cancellationToken: cancellationToken).Result;
-                        var itemTask = Artist.GetAllArtistAsync(limit: 50, startIndex: currentItem,
-                            setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Ascending,
-                            cancellationToken: cancellationToken);
-                        itemTask.Wait(cancellationToken);
-                        artistDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
-                        added += itemTask.Result.Length;
-                        if (artistDbT == serverTotal)
-                        {
-                            Trace.Write($"Jellyfin Artists Sync Completed Early");
-                            break;
-                        }
-                        if (itemTask.Result.Length < 49)
-                        {
-                            Trace.Write($"Jellyfin Artists Sync Complete: {added} items processed.");
-                            break; // Exit when no more data
-                        }
-                        currentItem += 50;
-                    }
-                }, cancellationToken);
-                var songTask = Task.Run(() =>
-                {
-                    Trace.Write("Jellyfin Songs Sync Started");
-                    int songDbT = songDb.GetTotalSongCountAsync(cancellationToken: cancellationToken).Result;
-                    int toAdd = 50;
-                    int currentItem = 0;
-                    int added = 0;
-                    while (true)
-                    {
-                        int serverTotal = Song.GetTotalSongCountAsync(cancellationToken: cancellationToken).Result;
-                        var itemTask = Song.GetAllSongsAsync(limit: toAdd, startIndex: currentItem,
-                            setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Ascending,
-                            cancellationToken: cancellationToken);
-                        itemTask.Wait(cancellationToken);
-                        songDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
-                        added += itemTask.Result.Length;
-                        if (songDbT >= serverTotal)
-                        {
-                            Trace.Write($"Jellyfin Songs Sync Completed Early");
-                            break;
-                        }
-                        if (itemTask.Result.Length < toAdd - 1)
-                        {
-                            Trace.Write($"Jellyfin Songs Sync Complete: {added} items processed.");
-                            break; // Exit when no more data
-                        }
-                        currentItem += toAdd;
-                    }
-                }, cancellationToken);
-                var playlistTask = Task.Run(() =>
-                {
-                    Trace.Write("Jellyfin Playlists Sync Started");
-                    int playlistDbT = playlistDb.GetTotalPlaylistCountAsync(cancellationToken: cancellationToken).Result;
-                    int currentItem = 0;
-                    int added = 0;
-                    while (true)
-                    {
-                        int serverTotal = Playlist.GetTotalPlaylistCountAsync(cancellationToken: cancellationToken).Result;
-                        var itemTask = Playlist.GetAllPlaylistsAsync(limit: 50, startIndex: currentItem,
-                            setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Ascending,
-                            cancellationToken: cancellationToken);
-                        itemTask.Wait(cancellationToken);
-                        playlistDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
-                        added += itemTask.Result.Length;
-                        if (playlistDbT == serverTotal)
-                        {
-                            Trace.Write($"Jellyfin Playlists Sync Completed Early");
-                            break;
-                        }
-                        if (itemTask.Result.Length < 49)
-                        {
-                            Trace.Write($"Jellyfin Playlists Sync Complete: {added} items processed.");
-                            break; // Exit when no more data
-                        }
-                        currentItem += 50;
-                    }
-                }, cancellationToken);
-                
-                var genreTask = Task.Run(() =>
-                {
-                    // int currentItem = 0;
-                    // while (true)
-                    // {
-                    //     var itemTask = Genre.GetAllGenresAsync(limit: 50, startIndex: currentItem,
-                    //         setSortTypes: ItemSortBy.Name, setSortOrder: SortOrder.Ascending,
-                    //         cancellationToken: cancellationToken);
-                    //     itemTask.Wait(cancellationToken);
-                    //     currentItem += 50;
-                    //     genreDb.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
-                    //     if (itemTask.Result.Length < 49)
-                    //     {
-                    //         break; // Exit when no more data
-                    //     }
-                    // }
-                    Trace.Write("Jellyfin Genres Sync Complete");
-                }, cancellationToken);
 
-                await Task.WhenAll(albumTask, artistTask, songTask, playlistTask, genreTask);
-                SyncStatus = TaskStatus.RanToCompletion;
+                        if (albumsToDelete.Count > 0)
+                        {
+                            Trace.WriteLine(
+                                $"Deleted {albumsToDelete.Count} albums that were not in the new album list.\n");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        data.Value.SetSyncStatusInfo(TaskStatus.Faulted, 100);
+                        Trace.WriteLine($"Error during Jellyfin Album Sync: {ex.Message}\n");
+                         throw;
+                    }
+                    finally
+                    {
+                        // Stop the stopwatch and log the elapsed time
+                        data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
+                        stopwatch.Stop();
+                        Trace.WriteLine($"Jellyfin Album Sync finished in {stopwatch.ElapsedMilliseconds} ms\n");
+                    }
+                }, cancellationToken));
+
+                await Task.WhenAll(tasks);
+                Trace.WriteLine("Jellyfin Sync Finished! Saving last date!");
+                await SecureStorage.Default.SetAsync("syncdate", DateTime.Now.ToString(CultureInfo.InvariantCulture));
                 return true;
             }
             catch (Exception e)
             {
-                SyncStatus = TaskStatus.Faulted;
                 Trace.TraceError(e.Message);
                 return false;
             }

@@ -6,16 +6,15 @@ namespace PortaJel_Blazor.Classes.Data
     public class Album(AlbumData albumData = null, SongData[] songData = null, ArtistData[] artistData = null) : BaseMusicItem
     {
         public AlbumData GetBase => albumData;
-        public Guid Id => albumData.Id;
+        public new Guid Id => albumData.Id;
         public string Name => albumData.Name;
         public bool IsFavourite => albumData.IsFavourite;
         public int PlayCount => albumData.PlayCount;
         public DateTimeOffset? DateAdded => albumData.DateAdded;
         public DateTimeOffset? DatePlayed => albumData.DatePlayed;
         public string ServerAddress => albumData.ServerAddress;
-        public string ImgSource => albumData.ImgSource;
-        public string ImgBlurhash => albumData.ImgBlurhash;
-        public string ImgBlurhashBase64 { get; set; } = String.Empty;
+        public new string ImgSource =>   albumData.ImgSource;
+        public new string ImgBlurhash => albumData.ImgBlurhash;
         public ArtistData[] Artists { get; } = artistData;
         public string ArtistNames => albumData.ArtistNames;
         public Guid[] ArtistIds => albumData.GetArtistIds();

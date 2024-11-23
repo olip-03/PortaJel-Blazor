@@ -50,7 +50,7 @@ namespace PortaJel_Blazor.Classes.Database
             newPlaylist.IsFavourite = (bool)baseItem.UserData.IsFavorite;
             newPlaylist.Path = baseItem.Path;
             newPlaylist.ServerAddress = server;
-            newPlaylist.ImgSource = musicItemImage.source;
+            newPlaylist.ImgSource = musicItemImage.Source;
             newPlaylist.ImgBlurhash = musicItemImage.Blurhash;
             if (songData != null)
             {

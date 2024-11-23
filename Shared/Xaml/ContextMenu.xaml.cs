@@ -321,7 +321,7 @@ public partial class ContextMenu : ContentView
         if (ViewModel.SecondaryMenuItems == null) ViewModel.SecondaryMenuItems = new();
         ViewModel.SecondaryMenuItems.Clear();
 
-        Playlist[] playlists = await MauiProgram.Server.Playlist.GetAllPlaylistsAsync();
+        Playlist[] playlists = await MauiProgram.Server.Playlist.GetAllAsync();
         foreach (Playlist playlist in playlists)
         {
             ViewModel.SecondaryMenuItems.Add((new ContextMenuItem(playlist.Name, playlist.ImgSource, new Action(async () =>

@@ -78,7 +78,7 @@ namespace PortaJel_Blazor.Classes.Database
             song.IsDownloaded = false; // TODO: Check if file exists idk 
             song.FileLocation = string.Empty; // TODO: Add file location
             song.StreamUrl = server + "/Audio/" + baseItem.Id + "/stream?static=true&audioCodec=adts&enableAutoStreamCopy=true&allowAudioStreamCopy=true&enableMpegtsM2TsMode=true&context=Static";
-            song.ImgSource = musicItemImage.source;
+            song.ImgSource = musicItemImage.Source;
             song.ImgBlurhash = musicItemImage.Blurhash;
 
             string artistNames = string.Empty;

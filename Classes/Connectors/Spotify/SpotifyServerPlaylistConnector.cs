@@ -10,21 +10,35 @@ using PortaJel_Blazor.Classes.Data;
 
 namespace PortaJel_Blazor.Classes.Connectors.Spotify
 {
-    public class SpotifyServerPlaylistConnector : IMediaServerPlaylistConnector
+    public class SpotifyServerPlaylistConnector : IMediaDataConnector
     {
-        public Task<Playlist[]> GetAllPlaylistsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-            ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
-            CancellationToken cancellationToken = default)
+        private IMediaDataConnector _mediaDataConnectorImplementation;
+
+        public SyncStatusInfo SyncStatusInfo { get; set; }
+
+        public void SetSyncStatusInfo(TaskStatus status, int percentage)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Playlist> GetPlaylistAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        public Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+            ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+            Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<int> GetTotalPlaylistCountAsync(bool getFavourite = false, string serverUrl = "",
+        public Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
             CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
@@ -36,6 +50,11 @@ namespace PortaJel_Blazor.Classes.Connectors.Spotify
         }
 
         public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

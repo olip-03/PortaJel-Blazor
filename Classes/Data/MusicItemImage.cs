@@ -7,17 +7,12 @@ namespace PortaJel_Blazor.Classes.Data
     public class MusicItemImage
     {
         // Variables
-        public string serverAddress { get; set; } = string.Empty;
-        public string source { get; set; } = string.Empty;
+        public string ServerAddress { get; set; } = string.Empty;
+        public string Source { get; set; } = string.Empty;
         public string Blurhash { get; set; } = string.Empty;
-        public int soureResolution { get; set; } = 500;
-        public string sourceAtResolution { get
-            {
-                return SourceAtResolution(soureResolution);
-            }
-            private set { }
-        }
-        public MusicItemImageType musicItemImageType { get; set; } = MusicItemImageType.url;
+        public int SoureResolution { get; set; } = 500;
+        public string SourceAtResolution => GetSourceAtResolution(SoureResolution);
+        public MusicItemImageType MusicItemImageType { get; set; } = MusicItemImageType.url;
 
         ///<summary>
         ///A read-only instance of the Data.MusicItemImage structure with default values.
@@ -29,14 +24,14 @@ namespace PortaJel_Blazor.Classes.Data
         /// </summary>
         /// <param name="px">The reqeusted resolution in pixels</param>
         /// <returns>Image at the requested resolution, by the 'px' variable.</returns>
-        public string SourceAtResolution(int px)
+        public string GetSourceAtResolution(int px)
         {
-            if(musicItemImageType == MusicItemImageType.url)
+            if(MusicItemImageType == MusicItemImageType.url)
             {
-                string toReturn = source + $"&fillHeight={px}&fillWidth={px}&quality=96";
+                string toReturn = Source + $"&fillHeight={px}&fillWidth={px}&quality=96";
                 return toReturn;
             }
-            return source;
+            return Source;
         }
         public static Task<string?> BlurhashToBase64Async(string? blurhash, int width = 0, int height = 0, float brightness = 1)
         {
@@ -91,14 +86,21 @@ namespace PortaJel_Blazor.Classes.Data
 
                     // Convert the bitmap to a base64 string
                     using (var image = SKImage.FromBitmap(bitmap))
-                    using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
-                    using (var stream = new MemoryStream())
-                    {
-                        data.SaveTo(stream);
-                        byte[] imageBytes = stream.ToArray();
-                        string base64String = Convert.ToBase64String(imageBytes);
-                        return Task.FromResult<string?>(base64String);
-                    }
+                        if (image != null)
+                        {
+                            using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                            using (var stream = new MemoryStream())
+                            {
+                                data.SaveTo(stream);
+                                byte[] imageBytes = stream.ToArray();
+                                string base64String = Convert.ToBase64String(imageBytes);
+                                return Task.FromResult<string?>(base64String);
+                            }
+                        }
+                        else
+                        {
+                            return Task.FromResult<string?>("");
+                        }
                 }
             }
             catch (Exception ex)
@@ -140,8 +142,8 @@ namespace PortaJel_Blazor.Classes.Data
         public static MusicItemImage Builder(BaseItemDto baseItem, string server, ImageBuilderImageType? imageType = ImageBuilderImageType.Primary)
         {
             MusicItemImage image = new();
-            image.serverAddress = server;
-            image.musicItemImageType = MusicItemImageType.url;
+            image.ServerAddress = server;
+            image.MusicItemImageType = MusicItemImageType.url;
             string imgType = "Primary";
 
             if(baseItem.ImageTags.AdditionalData.Count() == 0)
@@ -208,16 +210,16 @@ namespace PortaJel_Blazor.Classes.Data
             {
                 if (baseItem.ImageBlurHashes.Primary != null)
                 {
-                    image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                    image.Source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
                 }
                 else
                 {
-                    image.source = "emptyAlbum.png";
+                    image.Source = "emptyAlbum.png";
                 }
             }
             else if (baseItem.Type == BaseItemDto_Type.Playlist)
             {
-                image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                image.Source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
 
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
@@ -225,48 +227,48 @@ namespace PortaJel_Blazor.Classes.Data
             {
                 if (baseItem.AlbumId != null)
                 {
-                    image.source = server + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
+                    image.Source = server + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
                 }
                 else
                 {
-                    image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                    image.Source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
                 }
                 // image.blurHash = baseItem.ImageBlurHashes.Primary.FirstOrDefault().Value;
             }
             else if (baseItem.Type == BaseItemDto_Type.MusicArtist)
             {
-                image.source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                image.Source = server + "/Items/" + baseItem.Id + "/Images/" + imgType;
             }
             else if (baseItem.Type == BaseItemDto_Type.MusicGenre && baseItem.ImageBlurHashes.Primary != null)
             {
-                image.source =  server + "/Items/" + baseItem.Id + "/Images/" + imgType;
+                image.Source =  server + "/Items/" + baseItem.Id + "/Images/" + imgType;
                 image.Blurhash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
             }
             else if (baseItem.ImageBlurHashes.Primary != null && baseItem.AlbumId != null)
             {
-                image.source = server + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
+                image.Source = server + "/Items/" + baseItem.AlbumId + "/Images/" + imgType;
                 image.Blurhash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
             }
             else if (baseItem.ImageBlurHashes.Primary != null)
             {
-                image.source = server + "/Items/" + baseItem.Id.ToString() + "/Images/" + imgType;
+                image.Source = server + "/Items/" + baseItem.Id.ToString() + "/Images/" + imgType;
                 image.Blurhash = baseItem.ImageBlurHashes.Primary.AdditionalData.First().Value.ToString();
             }
             else if (baseItem.ArtistItems != null)
             {
-                image.source = server + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/" + imgType;
+                image.Source = server + "/Items/" + baseItem.ArtistItems.First().Id + "/Images/" + imgType;
             }
 
             switch (imageType)
             {
                 case ImageBuilderImageType.Backdrop:
-                    image.source += "?format=jpg";
+                    image.Source += "?format=jpg";
                     break;
                 case ImageBuilderImageType.Logo:
                     imgType = "Logo";
                     break;
                 default:
-                    image.source += "?format=jpg";
+                    image.Source += "?format=jpg";
                     break;
             }
 
@@ -276,8 +278,8 @@ namespace PortaJel_Blazor.Classes.Data
         {
             MusicItemImage image = new();
 
-            image.musicItemImageType = MusicItemImageType.url;
-            image.source = server + "/Items/" + nameGuidPair.Id + "/Images/Primary?format=jpg";
+            image.MusicItemImageType = MusicItemImageType.url;
+            image.Source = server + "/Items/" + nameGuidPair.Id + "/Images/Primary?format=jpg";
 
             return image;
         }

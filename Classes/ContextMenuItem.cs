@@ -62,7 +62,7 @@ namespace PortaJel_Blazor.Classes
         public ContextMenuItem(string setTaskName, MusicItemImage image, Action? setTask)
         {
             this.itemName = setTaskName;
-            this.itemIcon = image.source;
+            this.itemIcon = image.Source;
             this.action = setTask;
             this.itemSize = 35;
             this.cellSize = 50;

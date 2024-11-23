@@ -13,11 +13,21 @@ namespace PortaJel_Blazor.Classes.Connectors;
 public class ServerConnector : IMediaServerConnector
 {
     private readonly List<IMediaServerConnector> _servers = [];
-    public IMediaServerAlbumConnector Album { get; set; }
-    public IMediaServerArtistConnector Artist { get; set; }
-    public IMediaServerSongConnector Song { get; set; }
-    public IMediaServerPlaylistConnector Playlist { get; set; }
-    public IMediaServerGenreConnector Genre { get; set; }
+    public IMediaDataConnector Album { get; set; }
+    public IMediaDataConnector Artist { get; set; }
+    public IMediaDataConnector Song { get; set; }
+    public IMediaDataConnector Playlist { get; set; }
+    public IMediaDataConnector Genre { get; set; }
+
+    public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
+    {
+        { "Album", Album },
+        { "Artist", Artist },
+        { "Song", Song },
+        { "Playlist", Playlist },
+        { "Genre", Genre }
+    };
+
     public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
         new()
         {
@@ -28,7 +38,7 @@ public class ServerConnector : IMediaServerConnector
             { ConnectorDtoTypes.Genre, false }
         };
     public Dictionary<string, ConnectorProperty> Properties { get; set; }
-    public TaskStatus SyncStatus { get; set; } = TaskStatus.WaitingToRun;
+    public SyncStatusInfo SyncStatus { get; set; } = new();
     public ServerConnector()
     {
         Album = new ServerAlbumConnector(_servers);
@@ -81,7 +91,6 @@ public class ServerConnector : IMediaServerConnector
     }
     public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
     {
-        SyncStatus = TaskStatus.Running;
         int isUpToDate = 0;
         int failed = 0;
         var tasks = _servers.Select(server => Task.Run(() =>
@@ -119,7 +128,6 @@ public class ServerConnector : IMediaServerConnector
             // ignored
         }
         
-        SyncStatus = t.Status;
         switch (t.Status)
         {
             case TaskStatus.RanToCompletion:
@@ -134,7 +142,6 @@ public class ServerConnector : IMediaServerConnector
     }
     public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
     {
-        SyncStatus = TaskStatus.Running;
         int failed = 0;
         var tasks = _servers.Select(server => Task.Run(() =>
             {
@@ -162,7 +169,6 @@ public class ServerConnector : IMediaServerConnector
             // ignored
         }
         
-        SyncStatus = t.Status;
         switch (t.Status)
         {
             case TaskStatus.RanToCompletion:

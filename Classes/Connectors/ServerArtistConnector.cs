@@ -6,11 +6,18 @@ using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Classes.Connectors;
 
-public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMediaServerArtistConnector
+public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMediaDataConnector
 {
-    public async Task<Artist[]> GetAllArtistAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-        ItemSortBy setSortTypes = ItemSortBy.Artist, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         var artists = new ConcurrentBag<Artist>();
         int failed = 0;
@@ -21,12 +28,15 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
                 try
                 {
                     // Get album data 
-                    var toAdd = server.Value.Artist.GetAllArtistAsync(limit, startIndex, getFavourite, setSortTypes, setSortOrder, serverUrl, cancellationToken);
+                    var toAdd = server.Value.GetDataConnectors()["Artist"].GetAllAsync(limit, startIndex, getFavourite, setSortTypes, setSortOrder, serverUrl: serverUrl, cancellationToken: cancellationToken);
                     toAdd.Wait(cancellationToken);
                     // Add to list 
                     foreach (var artist in toAdd.Result)
                     {
-                        artists.Add(artist);
+                        if (artist is Artist a)
+                        {
+                            artists.Add(a);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -60,8 +70,7 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
 
         return artists.ToArray();
     }
-
-    public async Task<Artist> GetArtistAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         var connectors = servers.ToDictionary(newServer => newServer.GetAddress(), newServer => (IMediaServerConnector)newServer);
         IMediaServerConnector server = connectors.FirstOrDefault(c => c.Key == serverUrl).Value;
@@ -76,11 +85,14 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
                     try
                     {
                         // Get album data 
-                        var t = connector.Value.Artist.GetArtistAsync(id, cancellationToken: cancellationToken);
+                        var t = connector.Value.GetDataConnectors()["Artist"].GetAsync(id, cancellationToken: cancellationToken);
                         t.Wait(cancellationToken);
                         if (t.Result != null)
                         {
-                            artist.Add(t.Result);
+                            if (t.Result is Artist a)
+                            {
+                                artist.Add(a);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -111,15 +123,17 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
         }
         else
         {
-            Artist result = await server.Artist.GetArtistAsync(id, serverUrl, cancellationToken);
-            artist.Add(result);
+            var result = await server.GetDataConnectors()["Artist"].GetAsync(id, serverUrl, cancellationToken);
+            if (result is Artist a)
+            {
+                artist.Add(a);
+            }
         }
         
         Trace.WriteLine($"Album request attempts succeeded: {artist.Count} albums retrieved.");
         return artist.First();
     }
-    
-    public async Task<Artist[]> GetSimilarArtistAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         var artists = new ConcurrentBag<Artist>();
         int failed = 0;
@@ -129,12 +143,15 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
                 try
                 {
                     // Get album data 
-                    var toAdd = server.Value.Artist.GetSimilarArtistAsync(id, setLimit, serverUrl, cancellationToken);
+                    var toAdd = server.Value.GetDataConnectors()["Artist"].GetSimilarAsync(id, setLimit, serverUrl, cancellationToken);
                     toAdd.Wait(cancellationToken);
                     // Add to list 
                     foreach (var artist in toAdd.Result)
                     {
-                        artists.Add(artist);
+                        if (artist is Artist a)
+                        {
+                            artists.Add(a);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -169,7 +186,7 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
         return artists.ToArray();
     }
 
-    public async Task<int> GetTotalArtistCount(bool getFavourite = false, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         int totalCount = 0;
@@ -180,7 +197,7 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
                 try
                 {
                     // Get album data 
-                    var toAdd = server.Value.Artist.GetTotalArtistCount(getFavourite, serverUrl, cancellationToken);
+                    var toAdd = server.Value.GetDataConnectors()["Artist"].GetTotalCountAsync(getFavourite, serverUrl, cancellationToken);
                     toAdd.Wait(cancellationToken);
                     // Add to total
                     Interlocked.Add(ref totalCount, toAdd.Result);
@@ -213,5 +230,10 @@ public class ServerArtistConnector(List<IMediaServerConnector> servers) : IMedia
         
         Trace.WriteLine($"Total Album count request succeeded: Value is {totalCount}.");
         return totalCount;
+    }
+
+    public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 }

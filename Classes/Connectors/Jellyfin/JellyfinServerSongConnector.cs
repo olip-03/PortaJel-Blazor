@@ -8,11 +8,18 @@ using PortaJel_Blazor.Classes.Enum;
 namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
 {
     public class JellyfinServerSongConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user)
-        : IMediaServerSongConnector
+        : IMediaDataConnector
     {
-        public async Task<Song[]> GetAllSongsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-            ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
-            string serverUrl = "", CancellationToken cancellationToken = default)
+        public SyncStatusInfo SyncStatusInfo { get; set; }
+
+        public void SetSyncStatusInfo(TaskStatus status, int percentage)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+            ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+            Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
         {
             BaseItemDtoQueryResult serverResults = await api.Items.GetAsync(c =>
             {
@@ -33,7 +40,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             return serverResults.Items.Select(dto => new Song(SongData.Builder(dto, clientSettings.ServerUrl))).ToArray();
         }
 
-        public async Task<Song> GetSongAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
         {
             var songQueryResult = await api.Items.GetAsync(c =>
             {
@@ -49,7 +56,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             return new Song(SongData.Builder(songQueryResult.Items.First(), clientSettings.ServerUrl));
         }
 
-        public async Task<Song[]> GetSimilarSongsAsync(Guid id, string serverUrl = "",
+        public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, string serverUrl = "",
             CancellationToken cancellationToken = default)
         {
             await Task.Delay(10, cancellationToken).ConfigureAwait(false);
@@ -65,7 +77,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             return [];
         }
 
-        public async Task<int> GetTotalSongCountAsync(bool getFavourite = false, string serverUrl = "",
+        public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
             CancellationToken cancellationToken = default)
         {
             BaseItemDtoQueryResult serverResults = await api.Items.GetAsync(c =>
@@ -83,6 +95,11 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             }, cancellationToken).ConfigureAwait(false);
 
             return serverResults?.TotalRecordCount ?? 0;
+        }
+
+        public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

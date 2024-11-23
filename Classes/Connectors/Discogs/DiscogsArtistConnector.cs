@@ -4,27 +4,41 @@ using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Classes.Connectors.Discogs;
 
-public class DiscogsArtistConnector : IMediaServerArtistConnector
+public class DiscogsArtistConnector : IMediaDataConnector
 {
-    public Task<Artist[]> GetAllArtistAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-        ItemSortBy setSortTypes = ItemSortBy.Artist, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
+    private IMediaDataConnector _mediaDataConnectorImplementation;
+
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Artist> GetArtistAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Artist[]> GetSimilarArtistAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> GetTotalArtistCount(bool getFavourite = false, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

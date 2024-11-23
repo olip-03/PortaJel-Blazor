@@ -8,7 +8,7 @@ namespace PortaJel_Blazor.Classes.Data
     public class Song : BaseMusicItem
     {
         public SongData GetBase => _songData;
-        public Guid Id => _songData.Id;
+        public new Guid Id => _songData.Id;
         public Guid AlbumId => _songData.AlbumId;
         public string Name => _songData.Name;
         public bool IsFavourite => _songData.IsFavourite;
@@ -17,9 +17,8 @@ namespace PortaJel_Blazor.Classes.Data
         public DateTimeOffset? DatePlayed => _songData.DatePlayed;
         public string ServerAddress => _songData.ServerAddress;
         public string? PlaylistId => _songData.PlaylistId;
-        public string ImgSource => _songData.ImgSource;
-        public string ImgBlurhash => _songData.ImgBlurhash;
-        public string ImgBlurhashBase64 { get; set; } = String.Empty;
+        public new string ImgSource => _songData.ImgSource;
+        public new string ImgBlurhash => _songData.ImgBlurhash;
         public ArtistData[] Artists => _artistData;
         public Guid[] ArtistIds => _songData.GetArtistIds();
         public string ArtistNames => _songData.ArtistNames;

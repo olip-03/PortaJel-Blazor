@@ -46,7 +46,7 @@ public partial class PlaylistViewEditor : ContentPage
             loadingScreen.IsVisible = isLoading;
             // Neccesary to stop the page from lagging when you open it
             await Task.Run(() => { Thread.Sleep(200); });
-            Playlist? getPlaylist = await MauiProgram.Server.Playlist.GetPlaylistAsync(playlistId);
+            Playlist? getPlaylist = await MauiProgram.Server.Playlist.GetAsync(playlistId);
             if(getPlaylist != null)
             {
                 playlist = getPlaylist;

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Database;
@@ -6,7 +7,7 @@ using SQLite;
 
 namespace PortaJel_Blazor.Classes.Connectors.Database;
 
-public class DatabasePlaylistConnector : IMediaServerPlaylistConnector
+public class DatabasePlaylistConnector : IMediaDataConnector
 {
     private readonly SQLiteAsyncConnection _database = null;
 
@@ -15,9 +16,16 @@ public class DatabasePlaylistConnector : IMediaServerPlaylistConnector
         _database = database;
     }
 
-    public async Task<Playlist[]> GetAllPlaylistsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         limit ??= 50;
         List<PlaylistData> filteredCache = [];
@@ -27,7 +35,7 @@ public class DatabasePlaylistConnector : IMediaServerPlaylistConnector
         return filteredCache.Select(dbItem => new Playlist(dbItem)).ToArray();
     }
 
-    public async Task<Playlist> GetPlaylistAsync(Guid id, string serverUrl = "",
+    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         PlaylistData playlistDbItem =
@@ -36,7 +44,12 @@ public class DatabasePlaylistConnector : IMediaServerPlaylistConnector
         return new Playlist(playlistDbItem, songData);
     }
 
-    public async Task<int> GetTotalPlaylistCountAsync(bool getFavourite = false, string serverUrl = "",
+    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         var query = _database.Table<PlaylistData>();
@@ -56,7 +69,27 @@ public class DatabasePlaylistConnector : IMediaServerPlaylistConnector
     {
         throw new NotImplementedException();
     }
-    
+
+    public async Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Delete associated playlists
+            var playlists = await _database.Table<PlaylistData>().Where(p => p.LocalId == id).ToListAsync();
+            foreach (var playlist in playlists)
+            {
+                await _database.DeleteAsync(playlist);
+                Trace.WriteLine($"Deleted playlist with ID {playlist.LocalId} associated with album ID {id}.");
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Error deleting playlist with ID {id}: {ex.Message}");
+            return false; // Deletion failed
+        }
+    }
+
     public async Task<bool> AddRange(Playlist[] playlists, CancellationToken cancellationToken = default)
     {
         foreach (var p in playlists)

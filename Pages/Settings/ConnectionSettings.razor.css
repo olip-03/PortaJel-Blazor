@@ -1,4 +1,8 @@
-﻿.header {
+﻿.connectionSettings {
+    margin: 1rem
+}
+
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -22,7 +26,7 @@
 }
 .connection-container {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: space-between;
     background-color: whitesmoke;
     border-radius: 1rem;
@@ -36,6 +40,13 @@
     height: 100%;
     width: 100%;
 }
+
+.details-usr {
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+
 .user-profile {
     width: 3rem;
     height: 3rem;
@@ -138,4 +149,52 @@ input:checked + .slider:before {
 
     .slider.round:before {
         border-radius: 50%;
-    } 
+    }
+
+.button-row {
+    display: flex;
+    gap: 1rem; /* Spacing between each pill */
+    flex-wrap: wrap; /* Ensures row wraps if too many pills */
+}
+
+.button-row div {
+    display: flex;
+    align-items: center;
+    background-color: #f5f5f5; /* Light background for the pill */
+    border-radius: 20px; /* Pill shape */
+    padding: 0.5rem 1rem; /* Inner spacing for the pill */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.statusIcon {
+    width: 16px; /* Circle diameter */
+    height: 16px; /* Circle diameter */
+    border-radius: 50%; /* Makes the div a circle */
+    margin-right: 0.5rem; /* Space between circle and text */
+    flex-shrink: 0; /* Prevents shrinking of the circle */
+}
+
+
+.statusIcon.default {
+    background-color: gray; /* Gray for canceled */
+}
+
+.statusIcon.waitingToRun {
+    background-color: yellow; /* Yellow for waiting to run */
+}
+
+.statusIcon.faulted {
+    background-color: orangered; /* Red for faulted */
+}
+
+.statusIcon.complete {
+    background-color: yellowgreen; /* Red for faulted */
+}
+
+h6 {
+    margin: 0; /* Remove default margin from h6 */
+    font-size: 1rem; /* Adjust text size as needed */
+    color: #333; /* Text color */
+    flex-grow: 1; /* Ensures text doesn't shrink unnaturally */
+    white-space: nowrap; /* Prevent text wrapping */
+}

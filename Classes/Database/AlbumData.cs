@@ -87,7 +87,7 @@ namespace PortaJel_Blazor.Classes.Database
             album.DateAdded = baseItem.DateCreated;
             album.DatePlayed = baseItem.UserData.LastPlayedDate;
             album.ServerAddress = server;
-            album.ImgSource = musicItemImage.source;
+            album.ImgSource = musicItemImage.Source;
             album.ImgBlurhash = musicItemImage.Blurhash;
             album.ArtistIdsJson = JsonSerializer.Serialize(baseItem.ArtistItems.Select(idPair => idPair.Id).ToArray());
             if(songIds != null)

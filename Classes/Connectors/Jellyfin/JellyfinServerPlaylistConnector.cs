@@ -8,11 +8,18 @@ using PortaJel_Blazor.Classes.Enum;
 namespace PortaJel_Blazor.Classes.Connectors.Jellyfin;
 
 public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user)
-    : IMediaServerPlaylistConnector
+    : IMediaDataConnector
 {
-    public async Task<Playlist[]> GetAllPlaylistsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         var playlistResult = await api.Items.GetAsync(c =>
         {
@@ -33,8 +40,8 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
         return playlistResult.Items.Select(p => new Playlist(PlaylistData.Builder(p, clientSettings.ServerUrl)))
             .ToArray();
     }
-
-    public async Task<Playlist> GetPlaylistAsync(Guid id, string serverUrl = "",
+    
+    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         // Implementation to fetch a specific playlist by its ID
@@ -62,7 +69,12 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
         return await Task.FromResult(new Playlist());
     }
 
-    public async Task<int> GetTotalPlaylistCountAsync(bool getFavourite = false, string serverUrl = "",
+    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         BaseItemDtoQueryResult serverResults = await api.Items.GetAsync(c =>
@@ -88,6 +100,11 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
     }
 
     public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

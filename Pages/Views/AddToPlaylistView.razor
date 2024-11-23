@@ -63,10 +63,10 @@
         BaseMusicItem[] musicItems = [];
         //overscan = 20;
 
-        totalItems = await MauiProgram.Server.Playlist.GetTotalPlaylistCountAsync(false);
+        totalItems = await MauiProgram.Server.Playlist.GetTotalCountAsync(false);
         numItems = Math.Min(request.Count, totalItems - request.StartIndex);
         MauiProgram.UpdateDebugMessage($"Grabbing playlist items from {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}.");
-        musicItems = await MauiProgram.Server.Playlist.GetAllPlaylistsAsync(
+        musicItems = await MauiProgram.Server.Playlist.GetAllAsync(
         limit: numItems,
         startIndex: request.StartIndex,
         getFavourite: false);

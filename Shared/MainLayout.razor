@@ -90,7 +90,7 @@
             loading = value;
             if (MauiProgram.webViewInitalized)
             {
-                StateHasChanged();
+                InvokeAsync(StateHasChanged);
             }
         }
     }

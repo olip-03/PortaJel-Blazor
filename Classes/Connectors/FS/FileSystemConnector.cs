@@ -12,11 +12,20 @@ public class FileSystemConnector  : IMediaServerConnector
 {
     private SQLiteAsyncConnection _database = null;
 
-    public IMediaServerAlbumConnector Album { get; set; }
-    public IMediaServerArtistConnector Artist { get; set; }
-    public IMediaServerSongConnector Song { get; set; }
-    public IMediaServerPlaylistConnector Playlist { get; set; }
-    public IMediaServerGenreConnector Genre { get; set; }
+    public IMediaDataConnector Album { get; set; }
+    public IMediaDataConnector Artist { get; set; }
+    public IMediaDataConnector Song { get; set; }
+    public IMediaDataConnector Playlist { get; set; }
+    public IMediaDataConnector Genre { get; set; }
+    public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
+    {
+        { "Album", Album },
+        { "Artist", Artist },
+        { "Song", Song },
+        { "Playlist", Playlist },
+        { "Genre", Genre }
+    };
+
     public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; }
     
     public Dictionary<string, ConnectorProperty> Properties { get; set; } =new Dictionary<string, ConnectorProperty>
@@ -30,7 +39,7 @@ public class FileSystemConnector  : IMediaServerConnector
         }
     };
 
-    public TaskStatus SyncStatus { get; set; } = TaskStatus.WaitingToRun;
+    public SyncStatusInfo SyncStatus { get; set; } = new();
 
     public FileSystemConnector()
     {

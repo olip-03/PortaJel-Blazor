@@ -6,39 +6,58 @@ using SQLite;
 
 namespace PortaJel_Blazor.Classes.Connectors.FS;
 
-public class FileSystemSongConnector : IMediaServerSongConnector
+public class FileSystemSongConnector : IMediaDataConnector
 {
     private SQLiteAsyncConnection _database = null;
-    
+    private IMediaDataConnector _mediaDataConnectorImplementation;
+
     public FileSystemSongConnector(SQLiteAsyncConnection database)
     {
         _database = database;
     }
-    public async Task<Song[]> GetAllSongsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
-        string serverUrl = "", CancellationToken cancellationToken = default)
+
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         // Implementation to fetch all songs
-        return await Task.FromResult(new Song[0]);
+        return await Task.FromResult(Array.Empty<Song>());
     }
-    
-    public async Task<Song> GetSongAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+
+    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         // Implementation to fetch a specific song by its ID
         return await Task.FromResult(new Song());
     }
-    
-    public async Task<Song[]> GetSimilarSongsAsync(Guid id, string serverUrl = "",
+
+    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         // Implementation to fetch similar songs to the specified one
         return await Task.FromResult(new Song[0]);
     }
     
-    public async Task<int> GetTotalSongCountAsync(bool getFavourite = false, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         // Implementation to get the total count of songs
         return await Task.FromResult(0);
+    }
+
+    public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Database;
@@ -7,7 +8,8 @@ using SQLite;
 
 namespace PortaJel_Blazor.Classes.Connectors.Database;
 
-public class DatabaseArtistConnector : IMediaServerArtistConnector
+// ReSharper disable once CoVariantArrayConversion
+public class DatabaseArtistConnector : IMediaDataConnector
 {
     private readonly SQLiteAsyncConnection _database = null;
     
@@ -15,11 +17,17 @@ public class DatabaseArtistConnector : IMediaServerArtistConnector
     {
         _database = database;
     }
-    
-    public async Task<Artist[]> GetAllArtistAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-        ItemSortBy setSortTypes = ItemSortBy.Artist, SortOrder setSortOrder = SortOrder.Ascending,
-        string serverUrl = "",
-        CancellationToken cancellationToken = default)
+
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         limit ??= 0;
         List<ArtistData> filteredCache = [];
@@ -52,8 +60,7 @@ public class DatabaseArtistConnector : IMediaServerArtistConnector
         return filteredCache.Select(artist => new Artist(artist)).ToArray();
     }
     
-    public async Task<Artist> GetArtistAsync(Guid id, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl, CancellationToken cancellationToken)
     {
         ArtistData artistDbItem =
             await _database.Table<ArtistData>().Where(artist => artist.Id == id).FirstOrDefaultAsync();
@@ -62,7 +69,7 @@ public class DatabaseArtistConnector : IMediaServerArtistConnector
         return new Artist(artistDbItem, albumData);
     }
     
-    public async Task<Artist[]> GetSimilarArtistAsync(Guid id, int setLimit, string serverUrl = "",
+    public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         ArtistData artistFromDb = await _database.Table<ArtistData>().Where(artist => artist.Id == id).FirstOrDefaultAsync()
@@ -73,7 +80,7 @@ public class DatabaseArtistConnector : IMediaServerArtistConnector
         return artistsFromDb.Select(a => new Artist(a)).ToArray(); 
     }
     
-    public async Task<int> GetTotalArtistCount(bool getFavourite = false, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         var query = _database.Table<ArtistData>();
@@ -82,7 +89,27 @@ public class DatabaseArtistConnector : IMediaServerArtistConnector
 
         return await query.CountAsync();
     }
-    
+
+    public async Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Delete associated artists (if applicable)
+            var artists = await _database.Table<ArtistData>().Where(a => a.LocalId == id).ToListAsync();
+            foreach (var artist in artists)
+            {
+                await _database.DeleteAsync(artist);
+                Trace.WriteLine($"Deleted artist with ID {artist.LocalId} associated with album ID {id}.");
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Error deleting artist with ID {id}: {ex.Message}");
+            return false; // Deletion failed
+        }
+    }
+
     public async Task<bool> AddRange(Artist[] artists, CancellationToken cancellationToken = default)
     {
         foreach (var a in artists)

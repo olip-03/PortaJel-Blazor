@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Database;
@@ -6,7 +7,8 @@ using SQLite;
 
 namespace PortaJel_Blazor.Classes.Connectors.Database;
 
-public class DatabaseAlbumConnector : IMediaServerAlbumConnector
+// ReSharper disable once CoVariantArrayConversion
+public class DatabaseAlbumConnector : IMediaDataConnector
 {
     private readonly SQLiteAsyncConnection _database = null;
 
@@ -15,11 +17,19 @@ public class DatabaseAlbumConnector : IMediaServerAlbumConnector
         _database = database;
     }
 
-    public async Task<Album[]> GetAllAlbumsAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
     {
-        List<AlbumData> filteredCache = new();
+        throw new NotImplementedException();
+    }
+
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
+        Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        List<AlbumData> filteredCache = [];
         limit ??= await _database.Table<AlbumData>().CountAsync();
         switch (setSortTypes)
         {
@@ -56,10 +66,11 @@ public class DatabaseAlbumConnector : IMediaServerAlbumConnector
                     .Take((int)limit).ToListAsync().ConfigureAwait(false));
                 break;
         }
+
         return filteredCache.Select(dbItem => new Album(dbItem)).ToArray();
     }
 
-    public async Task<Album> GetAlbumAsync(Guid id, string serverUrl = "",
+    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         // Filter the cache based on the provided parameters
@@ -70,26 +81,28 @@ public class DatabaseAlbumConnector : IMediaServerAlbumConnector
         //Create tasks
         var songTask = _database.Table<SongData>().Where(song => albumFromDb.GetSongIds().Contains(song.Id))
             .ToArrayAsync();
-        var artistTask =  _database.Table<ArtistData>().Where(artist => albumFromDb.GetArtistIds().Contains(artist.Id)).ToArrayAsync();
+        var artistTask = _database.Table<ArtistData>().Where(artist => albumFromDb.GetArtistIds().Contains(artist.Id))
+            .ToArrayAsync();
         // Await
-        Task.WaitAll([songTask, artistTask],  cancellationToken);
+        Task.WaitAll([songTask, artistTask], cancellationToken);
         // Return data
         SongData[] songFromDb = songTask.Result;
         ArtistData[] artistsFromDb = artistTask.Result;
         return new Album(albumFromDb, songFromDb, artistsFromDb);
     }
 
-    public async Task<Album[]> GetSimilarAlbumsAsync(Guid id, int setLimit, string serverUrl = "",
+    public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         AlbumData albumFromDb = await _database.Table<AlbumData>().Where(album => album.Id == id).FirstOrDefaultAsync()
             .ConfigureAwait(false);
         if (albumFromDb == null) return [];
-        var artistsFromDb = await _database.Table<AlbumData>().Where(album => albumFromDb.GetSimilarIds().Contains(album.Id)).ToArrayAsync();
-        return artistsFromDb.Select(a => new Album(a)).ToArray(); 
+        var artistsFromDb = await _database.Table<AlbumData>()
+            .Where(album => albumFromDb.GetSimilarIds().Contains(album.Id)).ToArrayAsync();
+        return artistsFromDb.Select(a => new Album(a)).ToArray<BaseMusicItem>();
     }
 
-    public async Task<int> GetTotalAlbumCountAsync(bool getFavourite = false, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         // Return the total count after removing duplicates
@@ -100,12 +113,31 @@ public class DatabaseAlbumConnector : IMediaServerAlbumConnector
         return await query.CountAsync();
     }
 
-
-    public async Task<bool> AddRange(Album[] albums, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(Guid id, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
-        foreach (var a in albums)
+        try
         {
-            await _database.InsertOrReplaceAsync(a.GetBase, albums.First().GetBase.GetType());
+            // Find the album
+            var album = await _database.Table<AlbumData>().FirstOrDefaultAsync(a => a.LocalId == id);
+            if (album == null) return false;
+            await _database.DeleteAsync(album);
+            Trace.WriteLine($"Deleted album with ID {id}.");
+            return true; 
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Error deleting album with ID {id}: {ex.Message}");
+            return false; // Deletion failed
+        }
+    }
+    
+    public async Task<bool> AddRange(BaseMusicItem[] albums, CancellationToken cancellationToken = default)
+    {
+        foreach (var baseMusicItem in albums)
+        {
+            var a = (Album)baseMusicItem;
+            await _database.InsertOrReplaceAsync(a.GetBase, a.GetType());
             if (cancellationToken.IsCancellationRequested)
             {
                 break;

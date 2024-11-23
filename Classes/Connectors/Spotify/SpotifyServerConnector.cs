@@ -6,12 +6,21 @@ namespace PortaJel_Blazor.Classes.Connectors.Spotify
 {
     public class SpotifyServerConnector : IMediaServerConnector
     {
-        public IMediaServerAlbumConnector Album { get; set; } = null;
-        public IMediaServerArtistConnector Artist { get; set; } = null;
-        public IMediaServerSongConnector Song { get; set; } = null;
-        public IMediaServerPlaylistConnector Playlist { get; set; } = new SpotifyServerPlaylistConnector();
-        public IMediaServerGenreConnector Genre { get; set; } = null;
-        
+        public IMediaDataConnector Album { get; set; } = null;
+        public IMediaDataConnector Artist { get; set; } = null;
+        public IMediaDataConnector Song { get; set; } = null;
+        public IMediaDataConnector Playlist { get; set; } = new SpotifyServerPlaylistConnector();
+        public IMediaDataConnector Genre { get; set; } = null;
+
+        public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
+        {
+            { "Album", Album },
+            { "Artist", Artist },
+            { "Song", Song },
+            { "Playlist", Playlist },
+            { "Genre", Genre }
+        };
+
         public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } = new Dictionary<ConnectorDtoTypes, bool>
         {
             { ConnectorDtoTypes.Playlist, true }
@@ -35,7 +44,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Spotify
             }
         };
 
-        public TaskStatus SyncStatus { get; set; }  = TaskStatus.WaitingToRun;
+        public SyncStatusInfo SyncStatus { get; set; } = new();
         public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();

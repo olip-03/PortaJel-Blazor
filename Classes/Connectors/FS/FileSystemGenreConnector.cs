@@ -1,3 +1,4 @@
+using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Interfaces;
 using PortaJel_Blazor.Classes.Enum;
@@ -5,25 +6,46 @@ using SQLite;
 
 namespace PortaJel_Blazor.Classes.Connectors.FS;
 
-public class FileSystemGenreConnector : IMediaServerGenreConnector
+public class FileSystemGenreConnector : IMediaDataConnector
 {
     private SQLiteAsyncConnection _database = null;
-    
+
     public FileSystemGenreConnector(SQLiteAsyncConnection database)
     {
         _database = database;
     }
-    public Task<Genre[]> GetAllGenresAsync()
+
+    public SyncStatusInfo SyncStatusInfo { get; set; }
+
+    public void SetSyncStatusInfo(TaskStatus status, int percentage)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Genre> GetGenreAsync(int genreId)
+    public Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<int> GetTotalGenreCountAsync()
+    public Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

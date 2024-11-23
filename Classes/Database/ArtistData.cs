@@ -53,10 +53,10 @@ namespace PortaJel_Blazor.Classes.Database
             toAdd.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
             toAdd.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
             toAdd.Description = baseItem.Overview == null ? string.Empty : baseItem.Overview;
-            toAdd.LogoImgSource = artistLogo.source;
-            toAdd.ImgSource = artistImg.source;
+            toAdd.LogoImgSource = artistLogo.Source;
+            toAdd.ImgSource = artistImg.Source;
             toAdd.ImgBlurhash = artistImg.Blurhash;
-            toAdd.BackgroundImgSource = artistBackdrop.source;
+            toAdd.BackgroundImgSource = artistBackdrop.Source;
             toAdd.BackgroundImgBlurhash = artistBackdrop.Blurhash;
 
             return toAdd;
