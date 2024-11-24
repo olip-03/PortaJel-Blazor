@@ -251,6 +251,8 @@ public partial class MainPage : ContentPage
         catch
         {
             LoadingBlockout.Opacity = 0; // make fully visible
+            LoadingBlockout.IsVisible = false;
+            LoadingBlockout.InputTransparent = true;
         }
     }
     

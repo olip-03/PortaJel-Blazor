@@ -3,23 +3,24 @@ using PortaJel_Blazor.Classes.Database;
 
 namespace PortaJel_Blazor.Classes.Data
 {
-    public class Album(AlbumData albumData = null, SongData[] songData = null, ArtistData[] artistData = null) : BaseMusicItem
+    public class Album: BaseMusicItem
     {
-        public AlbumData GetBase => albumData;
-        public new Guid Id => albumData.Id;
-        public string Name => albumData.Name;
-        public bool IsFavourite => albumData.IsFavourite;
-        public int PlayCount => albumData.PlayCount;
-        public DateTimeOffset? DateAdded => albumData.DateAdded;
-        public DateTimeOffset? DatePlayed => albumData.DatePlayed;
-        public string ServerAddress => albumData.ServerAddress;
-        public new string ImgSource =>   albumData.ImgSource;
-        public new string ImgBlurhash => albumData.ImgBlurhash;
-        public ArtistData[] Artists { get; } = artistData;
-        public string ArtistNames => albumData.ArtistNames;
-        public Guid[] ArtistIds => albumData.GetArtistIds();
-        public SongData[] Songs { get; } = songData;
-        public Guid[] SimilarIds => albumData.GetSimilarIds();
+        private readonly AlbumData _albumData = new();
+        public AlbumData GetBase => _albumData;
+        public new Guid Id => _albumData.Id;
+        public string Name => _albumData.Name;
+        public bool IsFavourite => _albumData.IsFavourite;
+        public int PlayCount => _albumData.PlayCount;
+        public DateTimeOffset? DateAdded => _albumData.DateAdded;
+        public DateTimeOffset? DatePlayed => _albumData.DatePlayed;
+        public string ServerAddress => _albumData.ServerAddress;
+        public new string ImgSource =>   _albumData.ImgSource;
+        public new string ImgBlurhash => _albumData.ImgBlurhash;
+        public ArtistData[] Artists { get; }
+        public string ArtistNames => _albumData.ArtistNames;
+        public Guid[] ArtistIds => _albumData.GetArtistIds();
+        public SongData[] Songs { get; }
+        public Guid[] SimilarIds => _albumData.GetSimilarIds();
         public bool IsPartial { get; private set; } = true;
         
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;
@@ -29,6 +30,13 @@ namespace PortaJel_Blazor.Classes.Data
             artist,
             id
         }
+        public Album(AlbumData albumData = null, SongData[] songData = null, ArtistData[] artistData = null)
+        {
+            Artists = artistData ?? [];
+            Songs = songData ?? [];
+            _albumData = albumData ?? new();
+        }
+
         public static readonly Album Empty = new();
 
         public static Album Builder(BaseItemDto albumData, string server, BaseItemDto[]? songData = null, BaseItemDto[]? artistData = null)
@@ -48,11 +56,11 @@ namespace PortaJel_Blazor.Classes.Data
         }
         public Song[] GetSongs()
         {
-            return Songs == null ? [] : Songs.Select(song => new Song(song, albumData, Artists)).ToArray();
+            return Songs == null ? [] : Songs.Select(song => new Song(song, _albumData, Artists)).ToArray();
         }
         public void SetIsFavourite(bool state)
         {
-            albumData.IsFavourite = state;
+            _albumData.IsFavourite = state;
         }
 
     }

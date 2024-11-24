@@ -25,7 +25,7 @@ public class DatabaseArtistConnector : IMediaDataConnector
         throw new NotImplementedException();
     }
 
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
         Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
@@ -80,11 +80,11 @@ public class DatabaseArtistConnector : IMediaDataConnector
         return artistsFromDb.Select(a => new Artist(a)).ToArray(); 
     }
     
-    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         var query = _database.Table<ArtistData>();
-        if (getFavourite)
+        if (getFavourite == true)
             query = query.Where(album => album.IsFavourite);
 
         return await query.CountAsync();
@@ -110,11 +110,12 @@ public class DatabaseArtistConnector : IMediaDataConnector
         }
     }
 
-    public async Task<bool> AddRange(Artist[] artists, CancellationToken cancellationToken = default)
+    public async Task<bool> AddRange(BaseMusicItem[] artists, CancellationToken cancellationToken = default)
     {
         foreach (var a in artists)
         {
-            await _database.InsertOrReplaceAsync(a.GetBase, artists.First().GetBase.GetType());
+            if (a is not Artist artist) continue;
+            await _database.InsertOrReplaceAsync(artist.GetBase, artist.GetBase.GetType());
             if (cancellationToken.IsCancellationRequested)
             {
                 return false;

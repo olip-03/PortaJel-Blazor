@@ -45,7 +45,7 @@ namespace PortaJel_Blazor.Classes.Database
             }
             catch (Exception)
             {
-                songIds = null;
+                songIds = [];
             }
             return songIds;
         }

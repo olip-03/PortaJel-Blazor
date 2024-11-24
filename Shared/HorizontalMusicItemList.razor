@@ -14,13 +14,21 @@
                 <img src="/images/showgrid.svg" class="horizScroll-showall-img">
             </div>
     </div>*@
-
+    
     <div class="horizScroll-scrollmenu">
         @if (albumData != null && albumData.Length > 0)
         {
             @for (int i = 0; i < albumData.Count(); i++)
             {
-                <AlbumCard musicObject="@albumData[i]" placeholderBase64="@albumBlurHashData[i]" />
+                int delay = 0;
+                for (int j = 0; j < i; j++)
+                {
+                    delay += 50;
+                }
+                BaseMusicItem item = albumData[i];
+                <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.4)" Delay="TimeSpan.FromMilliseconds(delay)">
+                    <AlbumCard musicObject="@item" placeholderBase64="@item.ImgBlurhashBase64" />
+                </Animate>
             }
             <div class="horizScroll-scrollmenu-showall">
                 <p style="margin: 1rem; color: darkgray;">Show All</p>

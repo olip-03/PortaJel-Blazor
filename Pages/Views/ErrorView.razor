@@ -1,10 +1,8 @@
 ﻿<h3>@exception.Message</h3>
 
-@exception.StackTrace
-
-@exception.Data
-
-@exception.InnerException
+<p class="PrimaryTextColor">@exception.StackTrace</p>
+<p class="SecondaryTextColor">@exception.Data</p>
+<p class="SecondaryTextColor">@exception.InnerException</p>
 
 @code {
     [Parameter] public Exception? exception { get; set; } = null;

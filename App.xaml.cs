@@ -21,5 +21,5 @@ public partial class App : Application
 		{
 			MainPage = new AddServerView();
 		}
-    }
+	}
 }

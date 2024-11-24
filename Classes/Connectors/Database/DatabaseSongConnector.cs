@@ -24,80 +24,134 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             throw new NotImplementedException();
         }
 
-        public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
-            ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
+            ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
+            Guid?[] includeIds = null,
             Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
         {
-            limit ??= 50;
-
-            List<SongData> filteredCache = new();
             var query = _database.Table<SongData>();
 
-            if (getFavourite)
-                query = query.Where(song => song.IsFavourite);
+            // Apply includeIds filter
+            if (includeIds != null && includeIds.Any())
+            {
+                query = query.Where(song => includeIds.Contains(song.Id));
+            }
+            else if(includeIds != null)
+            {
+                return [];
+            }
 
+            // Apply excludeIds filter
+            if (excludeIds != null && excludeIds.Any())
+            {
+                query = query.Where(song => !excludeIds.Contains(song.Id));
+            }
+            else if(includeIds != null)
+            {
+                return [];
+            }
+
+            // Apply getFavourite filter
+            if (getFavourite.HasValue)
+            {
+                query = query.Where(song => song.IsFavourite == getFavourite.Value);
+            }
+
+            // Apply sorting
             switch (setSortTypes)
             {
                 case ItemSortBy.DateCreated:
-                    query = query.OrderByDescending(song => song.DateAdded);
+                    query = setSortOrder == SortOrder.Ascending
+                        ? query.OrderBy(song => song.DateAdded)
+                        : query.OrderByDescending(song => song.DateAdded);
                     break;
                 case ItemSortBy.DatePlayed:
-                    query = query.OrderByDescending(song => song.DatePlayed);
+                    query = setSortOrder == SortOrder.Ascending
+                        ? query.OrderBy(song => song.DatePlayed)
+                        : query.OrderByDescending(song => song.DatePlayed);
                     break;
                 case ItemSortBy.Name:
-                    query = query.OrderBy(song => song.Name);
-                    break;
-                case ItemSortBy.Random:
-                    var allSongs = await query.ToListAsync();
-                    filteredCache = allSongs.OrderBy(_ => Guid.NewGuid()).Take(limit.Value).ToList();
+                    query = setSortOrder == SortOrder.Ascending
+                        ? query.OrderBy(song => song.Name)
+                        : query.OrderByDescending(song => song.Name);
                     break;
                 case ItemSortBy.PlayCount:
-                    query = query.OrderByDescending(song => song.PlayCount);
+                    query = setSortOrder == SortOrder.Ascending
+                        ? query.OrderBy(song => song.PlayCount)
+                        : query.OrderByDescending(song => song.PlayCount);
                     break;
+                case ItemSortBy.Random:
+                    // For random sorting, fetch data first and then shuffle
+                    var allSongs = await query.ToListAsync().ConfigureAwait(false);
+                    allSongs = allSongs.OrderBy(song => Guid.NewGuid()).ToList();
+                    if (limit.HasValue)
+                    {
+                        allSongs = allSongs.Take(limit.Value).ToList();
+                    }
+
+                    return allSongs.Select(dbItem => new Song(dbItem)).ToArray();
                 default:
-                    query = query.OrderBy(song => song.Name);
+                    query = setSortOrder == SortOrder.Ascending
+                        ? query.OrderBy(song => song.Name)
+                        : query.OrderByDescending(song => song.Name);
                     break;
             }
 
-            if (setSortTypes != ItemSortBy.Random)
-                filteredCache = await query.Skip(startIndex).Take(limit.Value).ToListAsync();
+            // Apply pagination
+            if (startIndex > 0)
+            {
+                query = query.Skip(startIndex);
+            }
 
-            return filteredCache.Select(song => new Song(song)).ToArray();
+            if (limit.HasValue)
+            {
+                query = query.Take(limit.Value);
+            }
+
+            // Execute the query
+            var filteredCache = await query.ToListAsync().ConfigureAwait(false);
+
+            // Convert to BaseMusicItem[]
+            return filteredCache.Select(dbItem => new Song(dbItem)).ToArray();
         }
-        
 
-        public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
+            CancellationToken cancellationToken = default)
         {
             var songData = await _database.Table<SongData>().Where(song => song.Id == id).FirstOrDefaultAsync();
             if (songData == null) return Song.Empty;
 
-            var albumData = await _database.Table<AlbumData>().Where(album => songData.AlbumId == album.Id).FirstOrDefaultAsync();
-            var artistData = await _database.Table<ArtistData>().Where(artist => songData.GetArtistIds().First() == artist.Id).FirstOrDefaultAsync();
+            var albumData = await _database.Table<AlbumData>().Where(album => songData.AlbumId == album.Id)
+                .FirstOrDefaultAsync();
+            var artistData = await _database.Table<ArtistData>()
+                .Where(artist => songData.GetArtistIds().First() == artist.Id).FirstOrDefaultAsync();
             return new Song(songData, albumData, [artistData]);
         }
 
-        public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<BaseMusicItem[]>([]);
-
-        }
-
-        public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
+            CancellationToken cancellationToken = default)
         {
             return Task.FromResult<BaseMusicItem[]>([]);
         }
 
-        public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+        public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, string serverUrl = "",
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<BaseMusicItem[]>([]);
+        }
+
+        public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
             CancellationToken cancellationToken = default)
         {
             var query = _database.Table<SongData>();
-            if (getFavourite)
+            if (getFavourite == true)
                 query = query.Where(song => song.IsFavourite);
 
             return await query.CountAsync();
         }
 
-        public async Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteAsync(Guid id, string serverUrl = "",
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -108,6 +162,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
                     await _database.DeleteAsync(song);
                     Trace.WriteLine($"Deleted song with ID {song.LocalId} associated with album ID {id}.");
                 }
+
                 return true;
             }
             catch (Exception ex)
@@ -117,16 +172,18 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             }
         }
 
-        public async Task<bool> AddRange(Song[] songs, CancellationToken cancellationToken = default)
+        public async Task<bool> AddRange(BaseMusicItem[] songs, CancellationToken cancellationToken = default)
         {
             foreach (var s in songs)
             {
-                await _database.InsertOrReplaceAsync(s.GetBase, songs.First().GetBase.GetType());
+                if (s is not Song song) continue;
+                await _database.InsertOrReplaceAsync(song.GetBase, song.GetBase.GetType());
                 if (cancellationToken.IsCancellationRequested)
                 {
                     return false;
                 }
             }
+
             return true;
         }
     }

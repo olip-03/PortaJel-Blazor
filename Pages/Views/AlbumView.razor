@@ -1,4 +1,5 @@
-﻿@using BlazorAnimate;
+﻿@using System.Web
+@using BlazorAnimate;
 @using PortaJel_Blazor.Classes.Services;
 @using PortaJel_Blazor.Shared.Icons;
 @using CommunityToolkit.Maui.Core;
@@ -6,7 +7,7 @@
 @using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime Js;
 
-@page "/AlbumView/{albumId}"
+@page "/AlbumView/{AlbumId}/{ServerAddress}"
 
 <ViewHeader backgroundImgUrl="@_album.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@_album ShowSelectionTools="@EngageSongCheckmode" SelectionCancelCallback="@GetCancelSelectionAction()" ContextMenuOpenCallback="GetOpenContextMenuAction()"/>
 
@@ -119,11 +120,16 @@
         </div>
     }
 
-    @errormessage
+    @if (_errorMessage != null)
+    {
+        <ErrorView exception="@_errorMessage"/>
+    }
+
 </div>
 
 @code {
-    [Parameter] public string albumId { get; set; } = String.Empty;
+    [Parameter] public string AlbumId { get; set; } = string.Empty;
+    [Parameter] public string ServerAddress { get; set; } = string.Empty;
 
     // GUID records of items that may be in the queue
     private Guid? currentAlbumGuid { get; set; } = null;
@@ -140,7 +146,7 @@
     private Album[] _similarAlbums = new Album[0];
     private string[] _similarAlbumsBase64BlurHash = new string[0];
 
-    private string errormessage = String.Empty;
+    private Exception _errorMessage = null;
     string base64BlurHash = String.Empty;
     string backgroundBlurHash = String.Empty;
 
@@ -155,7 +161,7 @@
     protected override void OnInitialized()
     {
         MauiProgram.WebView.pageTitle = "Album";
-        MauiProgram.WebView.currentUri = $"/AlbumView/{albumId}";
+        MauiProgram.WebView.currentUri = $"/AlbumView/{AlbumId}";
         MauiProgram.WebView.showHeader = false;
 
         MauiProgram.UpdateDebugMessage("Page Loaded.");
@@ -165,8 +171,7 @@
     {
         if (firstRender)
         {
-            Guid parseId = Guid.Parse(albumId);
-            _album = await MauiProgram.Server.Album.GetAsync(parseId) as Album;
+
         }
 
         if (_album != null)
@@ -184,8 +189,31 @@
         }
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
+        ServerAddress = HttpUtility.UrlDecode(ServerAddress);
+        try
+        {
+            Guid parseId = Guid.Parse(AlbumId);
+            _album = await MauiProgram.Database.Album.GetAsync(parseId) as Album;
+            if (_album != null)
+            {
+                var ids = _album.Songs.Select(s => (Guid?)s.LocalId).ToArray();
+                _songs = await MauiProgram.Database.Song.GetAllAsync(includeIds: ids) as Song[];
+            }
+
+            _songs ??= [];
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Trace.WriteLine(ex.ToString());
+            await Application.Current?.MainPage.DisplayAlert("Error?", $"{ex.Message}", "Continue");
+            _errorMessage = ex;
+            await InvokeAsync(StateHasChanged);
+            
+        }
         _loaded = false;
         _similarAlbums = new Album[0];
         _similarAlbumsBase64BlurHash = new string?[0];
@@ -196,7 +224,7 @@
     private async void LoadAlbum()
     {
         // Block for getting all the album info
-        Guid parseId = Guid.Parse(albumId);
+        Guid parseId = Guid.Parse(AlbumId);
         try
         {
             if (_album != null)
@@ -212,7 +240,7 @@
                     isCurrentAlbum = false;
                 }
 
-                if (albumId != null)
+                if (AlbumId != null)
                 {
                     Task<BaseMusicItem> getAlbum = MauiProgram.Server.Album.GetAsync(parseId);
                     Task<BaseMusicItem[]> getSimilarAlbum = MauiProgram.Server.Album.GetSimilarAsync(parseId, 50);
@@ -262,7 +290,10 @@
         }
         catch (Exception ex)
         {
-            errormessage = ex.ToString();
+            System.Diagnostics.Trace.WriteLine(ex.ToString());
+            await Application.Current?.MainPage.DisplayAlert("Error?", $"{ex.Message}", "Continue");
+            _errorMessage = ex;
+            await InvokeAsync(StateHasChanged);
             // TODO : Implement 'Something went wrong, please try again'
         }
 
@@ -515,7 +546,7 @@
             {
             }
 
-            InvokeAsync(() => StateHasChanged());
+            InvokeAsync(StateHasChanged);
         });
     }
 

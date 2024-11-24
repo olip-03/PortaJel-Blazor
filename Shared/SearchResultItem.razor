@@ -109,51 +109,46 @@
             return;
         }
         musicObjectType = musicObject.GetType().Name;
-        if (musicObject is Album)
+        switch (musicObject)
         {
-            Album album = (Album)musicObject;
-            mainText = album.Name;
-            subText = album.ArtistNames;
-            isFavourite = album.IsFavourite;
-            server = album.ServerAddress;
-            imgSrc = album.ImgSource;
-            elementId = album.Id;
-            placeholderBase64 = album.ImgBlurhashBase64;
-            hasImg = album.ImgSource != string.Empty;
-        }
-        else if (musicObject is Song)
-        {
-            Song song = (Song)musicObject;
-            mainText = song.Name;
-            subText = song.ArtistNames;
-            isFavourite = song.IsFavourite;
-            server = song.ServerAddress;
-            imgSrc = song.ImgSource;
-            elementId = song.Id;
-            placeholderBase64 = song.ImgBlurhashBase64;
-            hasImg = song.ImgSource != string.Empty;
-        }
-        else if (musicObject is Artist)
-        {
-            Artist artist = (Artist)musicObject;
-            mainText = artist.Name;
-            isFavourite = artist.IsFavourite;
-            imgSrc = artist.ImgSource;
-            server = artist.ServerAddress;
-            elementId = artist.Id;
-            placeholderBase64 = artist.ImgBlurhashBase64;
-            hasImg = artist.ImgSource != string.Empty;
-        }
-        else if (musicObject is Playlist)
-        {
-            Playlist playlist = (Playlist)musicObject;
-            mainText = playlist.Name;
-            isFavourite = playlist.IsFavourite;
-            server = playlist.ServerAddress;
-            imgSrc = playlist.ImgSource;
-            elementId = playlist.Id;
-            placeholderBase64 = playlist.ImgBlurhashBase64;
-            hasImg = playlist.ImgSource != string.Empty;
+            case Album album:
+                mainText = album.Name;
+                subText = album.ArtistNames;
+                isFavourite = album.IsFavourite;
+                server = album.ServerAddress;
+                imgSrc = album.ImgSource;
+                elementId = album.Id;
+                placeholderBase64 = album.ImgBlurhashBase64;
+                hasImg = album.ImgSource != string.Empty;
+                break;
+            case Song song:
+                mainText = song.Name;
+                subText = song.ArtistNames;
+                isFavourite = song.IsFavourite;
+                server = song.ServerAddress;
+                imgSrc = song.ImgSource;
+                elementId = song.Id;
+                placeholderBase64 = song.ImgBlurhashBase64;
+                hasImg = song.ImgSource != string.Empty;
+                break;
+            case Artist artist:
+                mainText = artist.Name;
+                isFavourite = artist.IsFavourite;
+                imgSrc = artist.ImgSource;
+                server = artist.ServerAddress;
+                elementId = artist.Id;
+                placeholderBase64 = artist.ImgBlurhashBase64;
+                hasImg = artist.ImgSource != string.Empty;
+                break;
+            case Playlist playlist:
+                mainText = playlist.Name;
+                isFavourite = playlist.IsFavourite;
+                server = playlist.ServerAddress;
+                imgSrc = playlist.ImgSource;
+                elementId = playlist.Id;
+                placeholderBase64 = playlist.ImgBlurhashBase64;
+                hasImg = playlist.ImgSource != string.Empty;
+                break;
         }
         base.OnParametersSet();
     }
@@ -173,30 +168,19 @@
         if (musicObject != null)
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
-            var typeHandle = musicObject.GetType().Name;
-            switch (typeHandle)
+            switch (musicObject)
             {
-                case "Album":
-                    if (cacheAsRecentItem) { AddToRecentResult(); }
-                    MauiProgram.WebView.NavigateAlbum(elementId);
+                case Album album:
+                    MauiProgram.WebView.NavigateAlbum(album);
                     break;
-                case "Artist":
-                    if (cacheAsRecentItem) { AddToRecentResult(); }
+                case Song song:
+                    MauiProgram.WebView.NavigateAlbum(new Album(song.Album));
+                    break;
+                case Artist artist:
                     MauiProgram.WebView.NavigateArtist(elementId);
                     break;
-                case "Song":
-                    Song song = (Song)musicObject;
-                    MauiProgram.WebView.NavigateAlbum(song.AlbumId);
-                    break;
-                case "Genre":
-                    // TODO: Configure genre page
-                    break;
-                case "Playlist":
-                    if (cacheAsRecentItem) { AddToRecentResult(); }
+                case Playlist playlist:
                     MauiProgram.WebView.NavigatePlaylist(elementId);
-                    break;
-                default:
-                    // TODO: Configure error message
                     break;
             }
         }

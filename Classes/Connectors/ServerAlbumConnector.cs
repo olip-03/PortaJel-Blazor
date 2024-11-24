@@ -18,7 +18,7 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaD
         throw new NotImplementedException();
     }
 
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
         Guid?[] includeIds = null,
         Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
@@ -196,7 +196,7 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaD
         return albums.ToArray();
     }
 
-    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         int totalCount = 0;
@@ -244,6 +244,11 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaD
     }
 
     public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

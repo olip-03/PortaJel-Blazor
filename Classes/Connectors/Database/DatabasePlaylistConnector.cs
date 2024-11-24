@@ -23,7 +23,7 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         throw new NotImplementedException();
     }
 
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
         Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
@@ -49,11 +49,11 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         throw new NotImplementedException();
     }
 
-    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         var query = _database.Table<PlaylistData>();
-        if (getFavourite)
+        if (getFavourite == true)
             query = query.Where(song => song.IsFavourite);
 
         return await query.CountAsync();
@@ -90,11 +90,12 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         }
     }
 
-    public async Task<bool> AddRange(Playlist[] playlists, CancellationToken cancellationToken = default)
+    public async Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
     {
-        foreach (var p in playlists)
+        foreach (var p in musicItems)
         {
-            await _database.InsertOrReplaceAsync(p.GetBase, playlists.First().GetBase.GetType());
+            if (p is not Playlist playlist) continue;
+            await _database.InsertOrReplaceAsync(playlist.GetBase, playlist.GetBase.GetType());
             if (cancellationToken.IsCancellationRequested)
             {
                 return false;

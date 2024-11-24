@@ -38,49 +38,41 @@
 
     protected override void OnParametersSet()
     {
-        if (musicItem is Album)
+        switch (musicItem)
         {
-            Album album = (Album)musicItem;
-            imgSrc = album.ImgSource;
-            musicItemId = album.Id;
-        }
-        else if (musicItem is Song)
-        {
-            Song song = (Song)musicItem;
-            imgSrc = song.ImgSource;
-            musicItemId = song.Id;
-        }
-        else if (musicItem is Artist)
-        {
-            Artist artist = (Artist)musicItem;
-            imgSrc = artist.ImgSource;
-            musicItemId = artist.Id;
-        }
-        else if (musicItem is Playlist)
-        {
-            Playlist playlist = (Playlist)musicItem;
-            imgSrc = playlist.ImgSource;
-            musicItemId = playlist.Id;
+            case Album album:
+                imgSrc = album.ImgSource;
+                musicItemId = album.Id;
+                break;
+            case Song song:
+                imgSrc = song.ImgSource;
+                musicItemId = song.Id;
+                break;
+            case Artist artist:
+                imgSrc = artist.ImgSource;
+                musicItemId = artist.Id;
+                break;
+            case Playlist playlist:
+                imgSrc = playlist.ImgSource;
+                musicItemId = playlist.Id;
+                break;
         }
         base.OnParametersSet();
     }
 
     private void NavigateToAlbum()
     {
-        if (musicItem != null)
-        {
-            MauiProgram.MainPage.ShowLoadingScreen(true);
-            MauiProgram.WebView.NavigateAlbum(musicItemId);
-        }
+        if (musicItem is not Album album) return;
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        MauiProgram.WebView.NavigateAlbum(album);
     }
 
     private void NavigateToArtist()
     {
-        if (musicItem != null)
-        {
-            MauiProgram.MainPage.ShowLoadingScreen(true);
-            MauiProgram.WebView.NavigateArtist(musicItemId);
-        }
+        if (musicItem is not Artist artist) return;
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        MauiProgram.WebView.NavigateArtist(artist.Id);
+        
     }
 
     private async void OpenContextMenu()

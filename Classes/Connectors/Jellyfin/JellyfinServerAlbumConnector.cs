@@ -17,7 +17,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             SyncStatusInfo.StatusPercentage = percentage;
         }
 
-        public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+        public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0,  bool? getFavourite = null,
             ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
             Guid?[] includeIds = null,
             Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
@@ -33,6 +33,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 c.QueryParameters.Limit = limit;
                 c.QueryParameters.StartIndex = startIndex;
                 c.QueryParameters.Recursive = true;
+                c.QueryParameters.Fields = [ItemFields.DateCreated, ItemFields.DateLastSaved, ItemFields.DateLastMediaAdded];
                 c.QueryParameters.EnableImages = true;
                 c.QueryParameters.EnableTotalRecordCount = true;
             }, cancellationToken).ConfigureAwait(false);
@@ -115,7 +116,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             if (result?.Items == null) return [];
             return result.Items.Select(dto => Album.Builder(dto, clientSettings.ServerUrl)).ToArray();
         }
-        public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+        public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
             CancellationToken cancellationToken = default)
         {
             BaseItemDtoQueryResult serverResults = await api.Items.GetAsync(c =>
@@ -135,6 +136,11 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         }
 
         public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

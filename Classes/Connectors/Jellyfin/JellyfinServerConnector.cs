@@ -148,37 +148,11 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
 
         public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
         {
-            // If syncdate is less than 18hrs do not sync! 
-            string oauthToken = await SecureStorage.Default.GetAsync("syncdate");
-            if (oauthToken != null)
-            {
-                if (DateTime.TryParse(oauthToken, out var lastSyncDate))
-                {
-                    TimeSpan timeSinceLastSync = DateTime.Now - lastSyncDate;
-                    if (timeSinceLastSync.TotalHours < (double)18)
-                    {
-                        Trace.Write("Last sync occured too recently. Cancelling sync.");
-                        foreach (var data in GetDataConnectors())
-                        {
-                            data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
-                        }
-                        return true;
-                    }
-                }
-            }
-
-            if (oauthToken == null)
-            {
-                // No value is associated with the key "oauth_token"
-            }
-            
-            // TODO: Compare server counts with local database counts. If DB count matches server count, return
             if (MauiProgram.Database.Album is not DatabaseAlbumConnector albumDb) return false;
             if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
             if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
             if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
-            // if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
-
+            
             int albumDbT = await albumDb.GetTotalCountAsync(cancellationToken: cancellationToken);
             int albumT = await Album.GetTotalCountAsync(cancellationToken: cancellationToken);
 
@@ -191,6 +165,31 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             int playlistDbT = await playlistDb.GetTotalCountAsync(cancellationToken: cancellationToken);
             int playlistT = await Playlist.GetTotalCountAsync(cancellationToken: cancellationToken);
 
+            int passCount = 0;
+            if (albumDbT == albumT) passCount += 1;
+            if (artistDbT == artistT) passCount += 1;
+            if (songDbT == songT) passCount += 1;
+            if (playlistDbT == playlistT) passCount += 1;
+            
+            // If sync date is less than 18hrs do not sync! 
+            string oauthToken = await SecureStorage.Default.GetAsync("syncdate");
+            if (oauthToken != null && passCount >= 1)
+            {
+                if (DateTime.TryParse(oauthToken, out var lastSyncDate))
+                {
+                    TimeSpan timeSinceLastSync = DateTime.Now - lastSyncDate;
+                    if (timeSinceLastSync.TotalHours < 18)
+                    {
+                        Trace.Write("Last sync occured too recently. Cancelling sync.");
+                        foreach (var data in GetDataConnectors())
+                        {
+                            data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
+                        }
+                        return true;
+                    }
+                }
+            }
+            
             if (albumDbT != albumT) return false;
             if (artistDbT != artistT) return false;
             if (songDbT != songT) return false;
@@ -207,16 +206,49 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         // works. 
         public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
-            if (await IsUpToDateAsync(cancellationToken)) return true;
+            bool upToDate = await IsUpToDateAsync(cancellationToken);
+            if (upToDate) return true;
             try
             {
                 if (MauiProgram.Database.Album is not DatabaseAlbumConnector albumDb) return false;
                 if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
                 if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
                 if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
+                if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
                 // if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
                 var tasks = GetDataConnectors().Select(data => Task.Run(() =>
                 {
+                    IMediaDataConnector dbConnector = null;
+                    int batchSize = 100;
+                    int currentFetch = 0;
+                    int currentItem = 0;
+                    
+                    switch (data.Key)
+                    {
+                        case "Album":
+                            batchSize = 100;
+                            dbConnector = albumDb;
+                            break;
+                        case "Artist":
+                            batchSize = 10;
+                            dbConnector = artistDb;
+                            break;
+                        case "Song":
+                            batchSize = 1000;
+                            dbConnector = songDb;
+                            break;
+                        case "Playlist":
+                            batchSize = 10;
+                            dbConnector = playlistDb;
+                            break;
+                        case "Genre":
+                            batchSize = 100;
+                            dbConnector = genreDb;
+                            break;
+                    }
+
+                    if (dbConnector == null) return;
+                    
                     // Start the stopwatch
                     var stopwatch = Stopwatch.StartNew();
                     Trace.WriteLine($"Jellyfin {data.Key} Sync Started");
@@ -227,10 +259,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                         totalTask.Wait(cancellationToken);
                         var albums = albumDb.GetAllAsync(cancellationToken: cancellationToken).Result.ToList();
                         List<BaseMusicItem> serverItems = [];
-
-                        int batchSize = 100;
-                        int currentFetch = 0;
-                        int currentItem = 0;
+                        
                         int totalItem = totalTask.Result;
                         while (true)
                         {
@@ -246,13 +275,20 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                             
                             currentFetch += itemTask.Result.Length;
                             currentItem += batchSize;
-                            
-                            albumDb.AddRange(serverItems.ToArray(), cancellationToken).Wait(cancellationToken);
-                            serverItems.AddRange(itemTask.Result);
-                            
-                            if (itemTask.Result.Length < batchSize - 1)
+
+                            try
                             {
-                                break; // Exit when no more data
+                                dbConnector.AddRange(serverItems.ToArray(), cancellationToken).Wait(cancellationToken);
+                                serverItems.AddRange(itemTask.Result);
+                            
+                                if (itemTask.Result.Length < batchSize - 1)
+                                {
+                                    break; // Exit when no more data
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Trace.WriteLine(e);
                             }
                         }
                         

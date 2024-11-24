@@ -585,8 +585,8 @@ public partial class MediaController : ContentView
     {
         if (MauiProgram.MediaService == null) return;
         MauiProgram.MainPage.ShowLoadingScreen(true);
-        Guid? itemId = MauiProgram.MediaService.GetCurrentlyPlaying().AlbumId;
-        MauiProgram.WebView.NavigateAlbum((Guid)itemId);
+        var currentlyPlaying = MauiProgram.MediaService.GetCurrentlyPlaying();
+        MauiProgram.WebView.NavigateAlbum(new Album(currentlyPlaying.Album));
         await Close();
     }
 

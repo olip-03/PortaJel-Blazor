@@ -23,7 +23,7 @@ public class FileSystemSongConnector : IMediaDataConnector
         throw new NotImplementedException();
     }
 
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
         Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
@@ -49,7 +49,7 @@ public class FileSystemSongConnector : IMediaDataConnector
         return await Task.FromResult(new Song[0]);
     }
     
-    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         // Implementation to get the total count of songs
@@ -57,6 +57,11 @@ public class FileSystemSongConnector : IMediaDataConnector
     }
 
     public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

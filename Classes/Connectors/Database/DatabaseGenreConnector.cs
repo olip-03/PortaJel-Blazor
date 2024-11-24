@@ -19,34 +19,38 @@ public class DatabaseGenreConnector : IMediaDataConnector
 
     public void SetSyncStatusInfo(TaskStatus status, int percentage)
     {
-        throw new NotImplementedException();
     }
 
-    public Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+    public Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
         Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return Task.FromResult<BaseMusicItem[]>([]);
     }
 
     public Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return Task.FromResult<BaseMusicItem>(new Genre());
     }
 
     public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return Task.FromResult<BaseMusicItem[]>([]);
     }
 
-    public Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+    public Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(0);
     }
 
     public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(false);
+    }
+
+    public Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(false);
     }
 }

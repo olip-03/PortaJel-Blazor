@@ -24,7 +24,7 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         throw new NotImplementedException();
     }
 
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool getFavourite = false,
+    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
         ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
         Guid?[] includeIds = null,
         Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
@@ -79,10 +79,15 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         // Null reference check
         if (albumFromDb == null) return Album.Empty;
         //Create tasks
-        var songTask = _database.Table<SongData>().Where(song => albumFromDb.GetSongIds().Contains(song.Id))
-            .ToArrayAsync();
-        var artistTask = _database.Table<ArtistData>().Where(artist => albumFromDb.GetArtistIds().Contains(artist.Id))
-            .ToArrayAsync();
+        var songIds = albumFromDb.GetSongIds();
+        var songTask = songIds.Length > 0
+            ? _database.Table<SongData>().Where(song => songIds.Contains(song.Id)).ToArrayAsync()
+            : Task.FromResult(Array.Empty<SongData>());
+        var artistIds = albumFromDb.GetArtistIds();
+        var artistTask = artistIds.Length > 0
+            ? _database.Table<ArtistData>().Where(artist => artistIds.Contains(artist.Id)).ToArrayAsync()
+            : Task.FromResult(Array.Empty<ArtistData>());
+
         // Await
         Task.WaitAll([songTask, artistTask], cancellationToken);
         // Return data
@@ -102,12 +107,12 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         return artistsFromDb.Select(a => new Album(a)).ToArray<BaseMusicItem>();
     }
 
-    public async Task<int> GetTotalCountAsync(bool getFavourite = false, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         // Return the total count after removing duplicates
         var query = _database.Table<AlbumData>();
-        if (getFavourite)
+        if (getFavourite == true)
             query = query.Where(album => album.IsFavourite);
 
         return await query.CountAsync();
