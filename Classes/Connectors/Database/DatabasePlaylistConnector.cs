@@ -90,6 +90,31 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         }
     }
 
+    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            foreach (var id in ids)
+            {
+                // Find the album
+                var playlist = await _database.Table<PlaylistData>().FirstOrDefaultAsync(p => p.LocalId == id);
+                if (playlist == null)
+                {
+                    Trace.WriteLine($"Playlist with ID {id} not found.");
+                    return false; // Stop if any album is not found
+                }
+                await _database.DeleteAsync(playlist);
+                Trace.WriteLine($"Deleted playlist with ID {id}.");
+            }
+            return true; // All deletions succeeded
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Error deleting playlists: {ex.Message}");
+            return false; // Deletion failed for one or more
+        }
+    }
+
     public async Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
     {
         foreach (var p in musicItems)

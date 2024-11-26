@@ -7,9 +7,10 @@ namespace PortaJel_Blazor.Classes.Data
     public class Artist : BaseMusicItem
     {
         public ArtistData GetBase => _artistData;
+        public new Guid LocalId => _artistData.LocalId;
         public new Guid Id => _artistData.Id;
-        public string Name => _artistData.Name;
-        public bool IsFavourite => _artistData.IsFavourite;
+        public new string Name => _artistData.Name;
+        public new bool IsFavourite => _artistData.IsFavourite;
         public string Description => _artistData.Description;
         public string LogoImgSource => _artistData.LogoImgSource;
         public string BackgroundImgSource => _artistData.BackgroundImgSource;
@@ -18,7 +19,7 @@ namespace PortaJel_Blazor.Classes.Data
         public new string ImgBlurhash => _artistData.ImgBlurhash;
         public Guid[] AlbumIds => _artistData.GetAlbumIds();
         public Guid[] SimilarIds => _artistData.GetSimilarIds();
-        public string ServerAddress => _artistData.ServerAddress;
+        public new string ServerAddress => _artistData.ServerAddress;
         public bool IsPartial { get; set; } = false;
         public AlbumData[] Albums => _albumData;
 

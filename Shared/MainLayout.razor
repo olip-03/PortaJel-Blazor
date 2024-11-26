@@ -420,4 +420,23 @@
         NavManager.NavigateTo($"/AddToPlaylistView/{items}", forceLoad: true);
         return currentUri;
     }
+    
+    public string NavigateServerConnectorSettings(string address)
+    {
+        if (MauiProgram.libraryDataCToken != null)
+        {
+            MauiProgram.libraryDataCToken.Cancel();
+            MauiProgram.libraryDataCToken = null;
+        }
+        
+        MauiProgram.MainPage.DeselectMenuItems();
+        
+        var urlEncode = HttpUtility.UrlEncode(address);
+        MauiProgram.MainPage.DeselectMenuItems();
+        showHeader = false;
+        pageTitle = $"Connection Settings";
+        currentUri = $"/ServerConnectorSettings/{urlEncode}";
+        NavManager.NavigateTo($"/ServerConnectorSettings/{urlEncode}");
+        return currentUri;
+    }
 }

@@ -26,38 +26,38 @@ public class DatabaseArtistConnector : IMediaDataConnector
     }
 
     public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Descending, Guid?[] includeIds = null,
         Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
-        limit ??= 0;
         List<ArtistData> filteredCache = [];
+        limit ??= await _database.Table<ArtistData>().CountAsync();
         switch (setSortTypes)
         {
             case ItemSortBy.DateCreated:
                 filteredCache.AddRange(await _database.Table<ArtistData>()
-                    .OrderByDescending(artist => artist.DateAdded)
-                    .Take((int)limit).ToListAsync());
+                    .OrderByDescending(album => album.DateAdded)
+                    .Take((int)limit).ToListAsync().ConfigureAwait(false));
                 break;
             case ItemSortBy.Name:
                 filteredCache.AddRange(await _database.Table<ArtistData>()
-                    .OrderByDescending(artist => artist.Name)
-                    .Take((int)limit).ToListAsync());
+                    .OrderByDescending(album => album.Name)
+                    .Take((int)limit).ToListAsync().ConfigureAwait(false));
                 break;
             case ItemSortBy.Random:
-                var firstTake = await _database.Table<ArtistData>().ToListAsync();
+                var firstTake = await _database.Table<ArtistData>().ToListAsync().ConfigureAwait(false);
                 filteredCache = firstTake
-                    .OrderBy(artist => Guid.NewGuid())
+                    .OrderBy(album => Guid.NewGuid())
                     .Take((int)limit)
                     .ToList();
                 break;
             default:
                 filteredCache.AddRange(await _database.Table<ArtistData>()
-                    .OrderByDescending(artist => artist.Name)
-                    .Take((int)limit).ToListAsync());
+                    .OrderByDescending(album => album.Name)
+                    .Take((int)limit).ToListAsync().ConfigureAwait(false));
                 break;
         }
 
-        return filteredCache.Select(artist => new Artist(artist)).ToArray();
+        return filteredCache.Select(dbItem => new Artist(dbItem)).ToArray();
     }
     
     public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl, CancellationToken cancellationToken)
@@ -107,6 +107,31 @@ public class DatabaseArtistConnector : IMediaDataConnector
         {
             Trace.WriteLine($"Error deleting artist with ID {id}: {ex.Message}");
             return false; // Deletion failed
+        }
+    }
+
+    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            foreach (var id in ids)
+            {
+                // Find the album
+                var artist = await _database.Table<ArtistData>().FirstOrDefaultAsync(a => a.LocalId == id);
+                if (artist == null)
+                {
+                    Trace.WriteLine($"Artist with ID {id} not found.");
+                    return false; // Stop if any album is not found
+                }
+                await _database.DeleteAsync(artist);
+                Trace.WriteLine($"Deleted artist with ID {id}.");
+            }
+            return true; // All deletions succeeded
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Error deleting artist: {ex.Message}");
+            return false; // Deletion failed for one or more
         }
     }
 

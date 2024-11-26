@@ -2,11 +2,17 @@
 {
     public abstract class BaseMusicItem
     {
-        public Guid LocalId;
-        public Guid Id;
-        public string ImgSource;
-        public string ImgBlurhash;
-        public string ImgBlurhashBase64;
+        public string ServerAddress { get; set; }
+        public Guid LocalId { get; set; }
+        public Guid Id { get; set; }
+        public string ImgSource { get; set; }
+        public string ImgBlurhash { get; set; }
+        public string ImgBlurhashBase64 { get; set; }
+        public string Name { get; set; }
+        public bool IsFavourite { get; set; }
+        public int PlayCount { get; set; }
+        public DateTimeOffset? DateAdded { get; set; }
+        public DateTimeOffset? DatePlayed { get; set; }
         public Album ToAlbum()
         {
             return (Album)this;

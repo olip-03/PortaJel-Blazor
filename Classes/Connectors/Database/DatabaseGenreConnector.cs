@@ -49,6 +49,11 @@ public class DatabaseGenreConnector : IMediaDataConnector
         return Task.FromResult(false);
     }
 
+    public Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(false);
+    }
+
     public Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(false);

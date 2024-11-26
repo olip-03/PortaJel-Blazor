@@ -1,28 +1,17 @@
-﻿using PortaJel_Blazor.Classes;
+﻿#if WINDOWS
+using Microsoft.UI.Xaml.Controls;
+#endif
+using PortaJel_Blazor.Classes;
 using System.Windows.Input;
-using Microsoft.Maui.Platform;
-using System;
-using Microsoft.Maui.Controls.Shapes;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using Jellyfin.Sdk;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using SkiaSharp;
-using Microsoft.Maui.Dispatching;
-using System.Collections.ObjectModel;
-using CommunityToolkit.Maui.Core.Extensions;
-using System.Diagnostics;
-using Microsoft.Maui.Layouts;
 using CommunityToolkit.Maui.Core;
-using Microsoft.Maui.Controls.Internals;
-using PortaJel_Blazor.Shared;
-using Microsoft.Maui.Animations;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Pages;
 using PortaJel_Blazor.Pages.Connection;
 using PortaJel_Blazor.Shared.Xaml;
+using Page = Microsoft.Maui.Controls.Page;
 
 #if ANDROID
 using Android;
@@ -60,6 +49,15 @@ public partial class MainPage : ContentPage
         }
 
         InitializeComponent();
+        #if WINDOWS
+                System.Drawing.Color color = System.Drawing.Color.Transparent;
+                Windows.UI.Color color1 = Windows.UI.Color.FromArgb(color.A, color.R, color.G, color.B);
+                if (BlazorWebView.Handler != null)
+                {
+                    ((BlazorWebView.Handler.PlatformView as WebView2)!).DefaultBackgroundColor = color1;
+                }
+        #endif
+
         MauiProgram.MainPage = this;
         
         // Authenticate and begin sync
@@ -82,7 +80,7 @@ public partial class MainPage : ContentPage
         // Disabled overscroll 'stretch' effect that I fucking hate.
         // I'd actually be okay enabling this but only once the headers become native elements
         #if ANDROID
-        var blazorview = this.blazorWebView;
+        var blazorview = this.BlazorWebView;
         if (blazorview.Handler != null && blazorview.Handler.PlatformView != null)
         {
             var platformview = (Android.Webkit.WebView)blazorview.Handler.PlatformView;

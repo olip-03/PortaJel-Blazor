@@ -7,13 +7,14 @@ namespace PortaJel_Blazor.Classes.Data
     {
         private readonly AlbumData _albumData = new();
         public AlbumData GetBase => _albumData;
+        public new Guid LocalId => _albumData.LocalId;
         public new Guid Id => _albumData.Id;
-        public string Name => _albumData.Name;
-        public bool IsFavourite => _albumData.IsFavourite;
-        public int PlayCount => _albumData.PlayCount;
-        public DateTimeOffset? DateAdded => _albumData.DateAdded;
-        public DateTimeOffset? DatePlayed => _albumData.DatePlayed;
-        public string ServerAddress => _albumData.ServerAddress;
+        public new string Name => _albumData.Name;
+        public new bool IsFavourite => _albumData.IsFavourite;
+        public new int PlayCount => _albumData.PlayCount;
+        public new DateTimeOffset? DateAdded => _albumData.DateAdded;
+        public new DateTimeOffset? DatePlayed => _albumData.DatePlayed;
+        public new string ServerAddress => _albumData.ServerAddress;
         public new string ImgSource =>   _albumData.ImgSource;
         public new string ImgBlurhash => _albumData.ImgBlurhash;
         public ArtistData[] Artists { get; }

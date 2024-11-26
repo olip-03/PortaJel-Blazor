@@ -136,7 +136,32 @@ public class DatabaseAlbumConnector : IMediaDataConnector
             return false; // Deletion failed
         }
     }
-    
+
+    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            foreach (var id in ids)
+            {
+                // Find the album
+                var album = await _database.Table<AlbumData>().FirstOrDefaultAsync(a => a.LocalId == id);
+                if (album == null)
+                {
+                    Trace.WriteLine($"Album with ID {id} not found.");
+                    return false; // Stop if any album is not found
+                }
+                await _database.DeleteAsync(album);
+                Trace.WriteLine($"Deleted album with ID {id}.");
+            }
+            return true; // All deletions succeeded
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Error deleting albums: {ex.Message}");
+            return false; // Deletion failed for one or more
+        }
+    }
+
     public async Task<bool> AddRange(BaseMusicItem[] albums, CancellationToken cancellationToken = default)
     {
         foreach (var baseMusicItem in albums)

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Connectors.Database;
 using PortaJel_Blazor.Classes.Connectors.FS;
 using PortaJel_Blazor.Classes.Connectors.Jellyfin;
@@ -189,7 +190,9 @@ public class ServerConnector : IMediaServerConnector
         return true;
     }
     
-    public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)
+    public Task<BaseMusicItem[]> SearchAsync(string searchTerm = "", int? limit = null, int startIndex = 0,
+        ItemSortBy setSortTypes = ItemSortBy.Name, SortOrder setSortOrder = SortOrder.Ascending,
+        CancellationToken cancellationToken = default)
     {
         return Task.FromResult(Array.Empty<BaseMusicItem>());
     }

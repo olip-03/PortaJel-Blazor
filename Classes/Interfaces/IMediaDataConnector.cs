@@ -21,6 +21,8 @@ public interface IMediaDataConnector
         CancellationToken cancellationToken = default);
 
     Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(Guid[] id, string serverUrl = "", CancellationToken cancellationToken = default);
+
 
     Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default);
 }

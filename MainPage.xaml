@@ -8,10 +8,10 @@
              xmlns:xaml="clr-namespace:PortaJel_Blazor.Shared.Xaml"
              x:DataType="local:MainPage"
              x:Class="PortaJel_Blazor.MainPage">
-    <Grid VerticalOptions="Fill" HorizontalOptions="Fill" x:Name="AllContent" BackgroundColor="Black">
+    <Grid VerticalOptions="Fill" HorizontalOptions="Fill" x:Name="AllContent">
                 <!-- Navigation Bar, MiniPlayer & Web Content -->
         <Grid VerticalOptions="Fill" HorizontalOptions="Fill">
-            <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html" VerticalOptions="FillAndExpand" Grid.Row="0">
+            <BlazorWebView x:Name="BlazorWebView" HostPage="wwwroot/index.html" VerticalOptions="FillAndExpand" Grid.Row="0" BackgroundColor="Transparent">
                 <BlazorWebView.RootComponents>
                     <RootComponent Selector="#app" ComponentType="{x:Type local:Main}" />
                 </BlazorWebView.RootComponents>
@@ -103,10 +103,10 @@
                 <RowDefinition Height="48"/>
             </Grid.RowDefinitions>
 
-            <Grid.Background>
-                <SolidColorBrush Color="{StaticResource PageSecondaryColor}">
-                </SolidColorBrush>
-            </Grid.Background>
+            <!-- <Grid.Background> -->
+            <!--     <SolidColorBrush Color="{StaticResource PageSecondaryColor}"> -->
+            <!--     </SolidColorBrush> -->
+            <!-- </Grid.Background> -->
         </Grid>
 
         <xaml:MediaController x:Name="MediaControl" IsVisible="False"/>

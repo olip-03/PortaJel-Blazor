@@ -43,6 +43,11 @@ public class DiscogsArtistConnector : IMediaDataConnector
         throw new NotImplementedException();
     }
 
+    public Task<bool> DeleteAsync(Guid[] id, string serverUrl = "", CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();

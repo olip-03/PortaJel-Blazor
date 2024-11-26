@@ -7,52 +7,25 @@
 @using PortaJel_Blazor.Shared;
 @using PortaJel_Blazor.Shared.Icons;
 @using System.Collections.Concurrent;
+@using System.Diagnostics
 @using PortaJel_Blazor.Classes
 @using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime JS;
 @implements IDisposable
 
 <div id="libraryToolbar" class="button-container boxed PageSecondaryColor">
-    @if (_selected == ConnectorDtoTypes.Playlist)
+    @foreach (var connection in MauiProgram.Database.GetDataConnectors())
     {
-        <input checked type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(ConnectorDtoTypes.Playlist)">
+        @if (_selected == connection.Key)
+        {
+            <input checked type="radio" id="@connection.Key" name="skills" value="@connection.Key" @onclick="() => SelectPage(connection.Key)">
+        }
+        else
+        {
+            <input type="radio" id="@connection.Key" name="skills" value="@connection.Key" @onclick="() => SelectPage(connection.Key)">
+        }
+        <label class="PrimaryTextColor" for="@connection.Key">@connection.Key</label>
     }
-    else
-    {
-        <input type="radio" id="playlists" name="skills" value="Playlists" @onclick="() => SelectPage(ConnectorDtoTypes.Playlist)">
-    }
-    <label class="PrimaryTextColor" for="playlists">Playlists</label>
-
-    @if (_selected == ConnectorDtoTypes.Album)
-    {
-        <input checked type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(ConnectorDtoTypes.Album)">
-    }
-    else
-    {
-        <input type="radio" id="albums" name="skills" value="Albums" @onclick="() => SelectPage(ConnectorDtoTypes.Album)">
-    }
-    <label class="PrimaryTextColor" for="albums">Albums</label>
-
-    @if (_selected == ConnectorDtoTypes.Artist)
-    {
-        <input checked type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(ConnectorDtoTypes.Artist)">
-    }
-    else
-    {
-        <input type="radio" id="artists" name="skills" value="Artists" @onclick="() => SelectPage(ConnectorDtoTypes.Artist)">
-    }
-    <label class="PrimaryTextColor" for="artists">Artists</label>
-
-
-    @if (_selected == ConnectorDtoTypes.Song)
-    {
-        <input checked type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(ConnectorDtoTypes.Song)">
-    }
-    else
-    {
-        <input type="radio" id="songs" name="skills" value="Songs" @onclick="() => SelectPage(ConnectorDtoTypes.Song)">
-    }
-    <label class="PrimaryTextColor" for="songs">Songs</label>
 
     @* @if (!isFavouritesPage)
         {
@@ -92,28 +65,21 @@
 
 <div class="album-list">
     @*  Good morning! So far, so good. Shit is working as it's supposed to be :) :) :) :P'*@
-    @if (isLoading)
+    @if (_isLoading)
     {
         <Spinner />
     }
     else
     {
-        <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="@overscan" ItemSize="100" @ref="virtualizeComponent">
+        <Virtualize Context="musicItem" ItemsProvider="LoadEmployees" OverscanCount="@overscan" ItemSize="100" @ref="virtualizeComponent">
             <ItemContent>
                 <SearchResultItem musicObject="musicItem" />
             </ItemContent>
-
+        
             <Placeholder>
-                @if (_selected == ConnectorDtoTypes.Artist)
-                {
-                    <SearchResultItem musicObject="Artist.Empty" />
-                }
-                else
-                {
-                    <SearchResultItem musicObject="Album.Empty" />
-                }
-            </Placeholder>
 
+            </Placeholder>
+        
             <EmptyContent>
                 <p>
                     There are no items to display.
@@ -127,26 +93,26 @@
     [Parameter] public string showFavourites { get; set; } = "false";
     private bool isFavouritesPage = false;
 
-    private List<BaseMusicItem> musicData = new();
-    private List<BaseMusicItem> viewData = new();
-    private string[] placeholderImages = [];
-    private int totalRecordCount = 0;
+    private IDispatcherTimer _timer = null;
+
+    private BaseMusicItem[] _musicData = [];
+    private int _totalRecordCount = 0;
     private bool showGrid = MauiProgram.libraryShowGrid;
 
     private BaseMusicItem[] musicCache = new BaseMusicItem[0];
     private int totalItems = 0;
     private int overscan = 20;
     private Virtualize<BaseMusicItem>? virtualizeComponent;
-    private bool isLoading = false;
+    private bool _isLoading = false;
 
     private bool hasData = false;
-    private ConnectorDtoTypes _selected = ConnectorDtoTypes.Playlist;
+    private string _selected = string.Empty;
     
     private enum sortMethod
     {
         byArtist,
         byName,
-        byActivity
+        byActivity 
     }
     sortMethod sort = (sortMethod)Enum.ToObject(typeof(sortMethod), MauiProgram.librarySortMethod);
 
@@ -174,11 +140,9 @@
     {
         // When parameters change (first load or catalogue/fav change)
         hasData = false;
-        viewData = new();
-        placeholderImages = [];
         isFavouritesPage = Boolean.Parse(showFavourites);
-        isLoading = true;
-        SelectPage(_selected);
+        _isLoading = true;
+        // SelectPage(MauiProgram.Database.GetDataConnectors().First().Key);
         StateHasChanged();
     }
 
@@ -186,311 +150,82 @@
     {
         if (firstRender)
         {
-
-        }
-
-        await JS.InvokeAsync<string>("InitAllImages");
-        if (hasData)
-        {
+            _isLoading = true;
             MauiProgram.MainPage.ShowLoadingScreen(false);
+            SelectPage(MauiProgram.Database.GetDataConnectors().First().Key);
+
+            if (Application.Current != null)
+            {
+                _timer = Application.Current.Dispatcher.CreateTimer();
+                _timer.Interval = TimeSpan.FromSeconds(1);
+                _timer.Tick += (_,_) => InitalizeImages();
+                _timer.Start();
+            }
         }
+        MauiProgram.MainPage.ShowLoadingScreen(false);
+    }
+
+    private bool InitalizeImages()
+    {
+        Trace.WriteLine("Loading Images");
+        _ = Task.Run(() => JS.InvokeAsync<string>("InitAllImages"));
+        return true;
     }
 
     public void Dispose()
     {
+        _timer.Stop();
+        _timer = null;
         if (MauiProgram.libraryDataCToken != null)
         {
             MauiProgram.libraryDataCToken.Cancel();
         }
     }
 
-    private void ToggleSort()
+    private async void SelectPage(string page)
     {
-        if (sort >= sortMethod.byActivity)
-        {
-            sort = 0;
-        }
-        else
-        {
-            sort++;
-        }
-        MauiProgram.librarySortMethod = (int)sort;
-    }
-
-    private void ToggleView()
-    {
-        // electPage(selectedPage);
-
-        showGrid = !showGrid; // toggle
-        MauiProgram.libraryShowGrid = showGrid;
-
-        StateHasChanged();
-    }
-
-    // Please implement virtualization
-    // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/virtualization?view=aspnetcore-8.0
-    private async void SelectPage(ConnectorDtoTypes page)
-    {
-        MauiProgram.libraryItemView = (int)page;
+        _isLoading = true;
         _selected = page;
-
-        isLoading = true;
-        LoadAllListItems();
-        StateHasChanged();
-
-        viewData.Clear();
-        musicData.Clear();
-
-        if (virtualizeComponent != null)
+        switch (page)
         {
-            await virtualizeComponent.RefreshDataAsync();
+            case "Album":
+                _musicData = await MauiProgram.Database.Album.GetAllAsync();
+                _totalRecordCount = _musicData.Length;
+                break;
+            case "Artist":
+                _musicData = await MauiProgram.Database.Artist.GetAllAsync();
+                _totalRecordCount = _musicData.Length;
+                break;
+            case "Song":
+                _musicData = await MauiProgram.Database.Song.GetAllAsync();
+                _totalRecordCount = _musicData.Length;
+                break;
+            case "Playlist":
+                _musicData = await MauiProgram.Database.Playlist.GetAllAsync();
+                _totalRecordCount = _musicData.Length;
+                break;
+            case "Genre":
+                _musicData = await MauiProgram.Database.Genre.GetAllAsync();
+                _totalRecordCount = _musicData.Length;
+                break;
         }
-
-        isLoading = false;
-        StateHasChanged();
-        await JS.InvokeAsync<string>("InitAllImages");
+        
+        if (virtualizeComponent != null) await virtualizeComponent.RefreshDataAsync();
+        _isLoading = false;
+        await InvokeAsync(StateHasChanged);
     }
-
-    private async ValueTask<ItemsProviderResult<BaseMusicItem>> LoadListItems(ItemsProviderRequest request)
+    
+    private async ValueTask<ItemsProviderResult<BaseMusicItem>> LoadEmployees(
+        ItemsProviderRequest request)
     {
-        int numItems = 0;
-        BaseMusicItem[] musicItems = await Task<BaseMusicItem[]>.Run(async () =>
+        var toReturn = _musicData.Skip(request.StartIndex).Take(request.Count);
+        var baseMusicItems = toReturn.ToList();
+        _ = baseMusicItems.Select(m => Task.Run(() =>
         {
-            try
-            {
-                if (BaseMusicItem.IsNullOrEmpty(musicCache[request.StartIndex]))
-                {
-                    numItems = Math.Min(request.Count, totalItems - request.StartIndex);
-
-                    System.Diagnostics.Trace.WriteLine($"Reading API {request.StartIndex} to {request.StartIndex + numItems} of total {musicCache.Length}.");
-
-                    return await UpdateBlurhash(await GetSelectedItems(numItems, request.StartIndex, request.CancellationToken).ConfigureAwait(false)).ConfigureAwait(false);
-                }
-                else
-                {
-                    System.Diagnostics.Trace.WriteLine($"Reading memory {request.StartIndex} to {request.StartIndex + request.Count} of total {musicCache.Length}.");
-                    return await UpdateBlurhash(musicCache.Skip(request.StartIndex).Take(request.Count).ToArray());
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.WriteLine($"Memory Read Failed: {ex.Message} at {ex.StackTrace}");
-            }
-            return new BaseMusicItem[request.Count];
-        });
-
-        await JS.InvokeAsync<string>("InitAllImages");
-        await InvokeAsync(() => StateHasChanged());
-
-        hasData = true;
-        return new ItemsProviderResult<BaseMusicItem>(musicItems, musicCache.Length);
-    }
-
-    private async Task<BaseMusicItem[]> UpdateBlurhash(BaseMusicItem[] musicItems)
-    {
-        for (int i = 0; i < musicItems.Length; i++)
-        {
-            BaseMusicItem musicItem = musicItems[i];
-            switch (_selected)
-            {
-                case ConnectorDtoTypes.Playlist:
-                    Playlist playlist = musicItem as Playlist;
-                    if (playlist != null)
-                    {
-                        playlist.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 10, 10).ConfigureAwait(false);
-                        musicItem = playlist;
-                    }
-                    break;
-                case ConnectorDtoTypes.Album:
-                    Album album = musicItem as Album;
-                    if (album != null)
-                    {
-                        album.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 10, 10).ConfigureAwait(false);
-                        musicItem = album;
-                    }
-                    break;
-                case ConnectorDtoTypes.Artist:
-                    Artist artist = musicItem as Artist;
-                    if (artist != null)
-                    {
-                        artist.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 10, 10).ConfigureAwait(false);
-                        musicItem = artist;
-                    }
-                    break;
-                case ConnectorDtoTypes.Song:
-                    Song song = musicItem as Song;
-                    if (song != null)
-                    {
-                        song.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 10, 10).ConfigureAwait(false);
-                        musicItem = song;
-                    }
-                    break;
-                // case Selectable.genres:
-                //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM
-                //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex
-                //     break;
-                default:
-
-                    break;
-            }
-            musicItems[i] = musicItem;
-        }
-        return musicItems;
-    }
-
-    private async Task<BaseMusicItem[]> GetSelectedItems(int setLimit, int setStartIndex, CancellationToken cancellationToken)
-    {
-        switch (_selected)
-        {
-            case ConnectorDtoTypes.Playlist:
-                return await MauiProgram.Server.Playlist.GetAllAsync(
-                limit: setLimit,
-                startIndex: setStartIndex,
-                setSortOrder: SortOrder.Ascending,
-                getFavourite: isFavouritesPage,
-                cancellationToken: cancellationToken).ConfigureAwait(false);
-            case ConnectorDtoTypes.Album:
-                return await MauiProgram.Server.Album.GetAllAsync(
-                limit: setLimit,
-                startIndex: setStartIndex,
-                setSortOrder: SortOrder.Ascending,
-                getFavourite: isFavouritesPage,
-                cancellationToken: cancellationToken).ConfigureAwait(false);
-            case ConnectorDtoTypes.Artist:
-                return await MauiProgram.Server.Artist.GetAllAsync(
-                limit: setLimit,
-                startIndex: setStartIndex,
-                // setSortOrder: SortOrder.Ascending,
-                getFavourite: isFavouritesPage,
-                cancellationToken: cancellationToken).ConfigureAwait(false);
-            case ConnectorDtoTypes.Song:
-                return await MauiProgram.Server.Song.GetAllAsync(
-                limit: setLimit,
-                startIndex: setStartIndex,
-                setSortOrder: SortOrder.Ascending,
-                getFavourite: isFavouritesPage,
-                cancellationToken: cancellationToken).ConfigureAwait(false);
-            // case Selectable.genres:
-            //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM
-            //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex
-            //     break;
-            default:
-                return Array.Empty<BaseMusicItem>();
-        }
-        return Array.Empty<BaseMusicItem>();
-    }
-
-    private async Task<int> GetSelectedTotalItems()
-    {
-        try
-        {
-            switch (_selected)
-            {
-                case ConnectorDtoTypes.Playlist:
-                    return await MauiProgram.Server.Playlist.GetTotalCountAsync(isFavouritesPage);
-                case ConnectorDtoTypes.Album:
-                    return await MauiProgram.Server.Album.GetTotalCountAsync(isFavouritesPage);
-                case ConnectorDtoTypes.Artist:
-                    return await MauiProgram.Server.Artist.GetTotalCountAsync(isFavouritesPage);
-                case ConnectorDtoTypes.Song:
-                    return await MauiProgram.Server.Song.GetTotalCountAsync(isFavouritesPage);
-                // case Selectable.genres:
-                //     GENRES CURRENTLY DISABLED BECAUSE I CANNOT BE FUCKED ATM
-                //     results = await MauiProgram.api.GetAllGenresAsync(limit: loadLimit, startIndex: currentStartIndex
-                //     break;
-                default:
-                    return 0;
-            }
-        }
-        catch (Exception)
-        {
-            return 0;
-        }
-    }
-
-    private bool LoadAllListItemsDebug = true;
-    private async void LoadAllListItems()
-    {
-        if (MauiProgram.libraryDataCToken == null)
-        {
-            MauiProgram.libraryDataCToken = new CancellationTokenSource();
-
-            if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine("Creating Data Loader thread!");
-            CancellationToken token = MauiProgram.libraryDataCToken.Token;
-
-            Task task = Task.Run(async delegate
-            {
-                Guid threadID = Guid.NewGuid();
-
-                try
-                {
-
-                    bool complete = false;
-                    int count = 200;
-                    int loopStartIndex = 0;
-
-                    BaseMusicItem[] musicItems = [];
-                    totalItems = await GetSelectedTotalItems();
-                    // Reset musicCache to new zero;
-                    musicCache = new BaseMusicItem[totalItems];
-                    while (!complete)
-                    {
-                        int itemCount = 0;
-                        int iCheck = 0;
-                        try
-                        {
-                            musicItems = await GetSelectedItems(count, loopStartIndex, MauiProgram.libraryDataCToken.Token);
-
-                            for (int i = loopStartIndex; i < loopStartIndex + count; i++)
-                            {
-                                iCheck = i;
-                                if (itemCount < musicItems.Length)
-                                {
-                                    musicCache[i] = musicItems[itemCount];
-                                    itemCount++;
-                                }
-                            }
-                            if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine(($"[{threadID}]: Playlists Items Between {loopStartIndex} and {loopStartIndex + count} Collected. Total of {musicCache.Length}."));
-
-                            loopStartIndex += count;
-                            token.ThrowIfCancellationRequested();
-
-                            if (musicItems.Length < count)
-                            {
-                                complete = true;
-                                MauiProgram.libraryDataCToken = null;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine($"[{threadID}]: Data load cancelled!");
-                            MauiProgram.libraryDataCToken = null;
-                            complete = true;
-                        }
-                    }
-                    if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine($"[{threadID}]: Playlists fully loaded with {musicCache.Length} total!");
-                    MauiProgram.libraryDataCToken = null;
-                }
-                catch (Exception ex)
-                {
-                    if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine($"[{threadID}]: Data load cancelled: {ex.Message} at {ex.StackTrace}");
-                    MauiProgram.libraryDataCToken = null;
-                }
-            }, token);
-            if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine("Data Loader Thread Started in background!");
-        }
-        else
-        {
-            await Task.Run(async () =>
-            {
-                while (MauiProgram.libraryDataCToken != null)
-                {
-                    await MauiProgram.libraryDataCToken.CancelAsync();
-                    if (LoadAllListItemsDebug) System.Diagnostics.Trace.WriteLine("Attempting cancellation!");
-                    await Task.Delay(500);
-                }
-            });
-            LoadAllListItems();
-        }
+            var task = MusicItemImage.BlurhashToBase64Async(m.ImgBlurhash);
+            task.Wait();
+            m.ImgBlurhash = task.Result;
+        }));
+        return new ItemsProviderResult<BaseMusicItem>(baseMusicItems, _totalRecordCount);
     }
 }

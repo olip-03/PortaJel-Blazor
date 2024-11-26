@@ -35,10 +35,10 @@ namespace PortaJel_Blazor.Classes.Data
         }
         public static Task<string?> BlurhashToBase64Async(string? blurhash, int width = 0, int height = 0, float brightness = 1)
         {
-            if(String.IsNullOrWhiteSpace(blurhash))
-            {
-                return Task.FromResult<string?>(string.Empty);
-            }
+            // if(String.IsNullOrWhiteSpace(blurhash))
+            // {
+            //     return Task.FromResult<string?>(string.Empty);
+            // }
             try
             {            
                 // TODO: SQLite DB for Blurhashes you have already decoded ;) 

@@ -172,6 +172,31 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             }
         }
 
+        public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                foreach (var id in ids)
+                {
+                    // Find the album
+                    var song = await _database.Table<SongData>().FirstOrDefaultAsync(s => s.LocalId == id);
+                    if (song == null)
+                    {
+                        Trace.WriteLine($"Song with ID {id} not found.");
+                        return false; // Stop if any album is not found
+                    }
+                    await _database.DeleteAsync(song);
+                    Trace.WriteLine($"Deleted Song with ID {id}.");
+                }
+                return true; // All deletions succeeded
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Error deleting albums: {ex.Message}");
+                return false; // Deletion failed for one or more
+            }
+        }
+
         public async Task<bool> AddRange(BaseMusicItem[] songs, CancellationToken cancellationToken = default)
         {
             foreach (var s in songs)

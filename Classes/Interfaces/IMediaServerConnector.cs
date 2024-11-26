@@ -1,4 +1,5 @@
-﻿using PortaJel_Blazor.Classes.Connectors;
+﻿using Jellyfin.Sdk.Generated.Models;
+using PortaJel_Blazor.Classes.Connectors;
 using PortaJel_Blazor.Classes.Data;
 using PortaJel_Blazor.Classes.Enum;
 
@@ -14,7 +15,10 @@ namespace PortaJel_Blazor.Classes.Interfaces
         Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default);
         Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default);
         Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl);
-        public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default);
+
+        public Task<BaseMusicItem[]> SearchAsync(string searchTerm = "", int? limit = null, int startIndex = 0,
+            ItemSortBy setSortTypes = ItemSortBy.Name, SortOrder setSortOrder = SortOrder.Ascending,
+            CancellationToken cancellationToken = default);
         string GetUsername();
         string GetPassword();
         string GetAddress();

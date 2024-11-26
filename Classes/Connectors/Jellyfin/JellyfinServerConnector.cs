@@ -173,7 +173,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             
             // If sync date is less than 18hrs do not sync! 
             string oauthToken = await SecureStorage.Default.GetAsync("syncdate");
-            if (oauthToken != null && passCount >= 1)
+            if (oauthToken != null && passCount >= 2)
             {
                 if (DateTime.TryParse(oauthToken, out var lastSyncDate))
                 {
@@ -278,7 +278,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
 
                             try
                             {
-                                dbConnector.AddRange(serverItems.ToArray(), cancellationToken).Wait(cancellationToken);
+                                dbConnector.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
                                 serverItems.AddRange(itemTask.Result);
                             
                                 if (itemTask.Result.Length < batchSize - 1)
@@ -309,13 +309,13 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                         if (albumsToDelete.Count > 0)
                         {
                             Trace.WriteLine(
-                                $"Deleted {albumsToDelete.Count} {data.Key} that were not in the new album list.\n");
+                                $"Deleted {albumsToDelete.Count} {data.Key} that were not in the new {data.Key} list.");
                         }
                     }
                     catch (Exception ex)
                     {
                         data.Value.SetSyncStatusInfo(TaskStatus.Faulted, 100);
-                        Trace.WriteLine($"Error during Jellyfin {data.Key} Sync: {ex.Message}\n");
+                        Trace.WriteLine($"Error during Jellyfin {data.Key} Sync: {ex.Message}");
                          throw;
                     }
                     finally
@@ -323,7 +323,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                         // Stop the stopwatch and log the elapsed time
                         data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
                         stopwatch.Stop();
-                        Trace.WriteLine($"Jellyfin {data.Key} Sync finished in {stopwatch.ElapsedMilliseconds} ms\n");
+                        Trace.WriteLine($"Jellyfin {data.Key} Sync finished in {stopwatch.ElapsedMilliseconds} ms");
                     }
                 }, cancellationToken));
 
@@ -346,7 +346,9 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             return false;
         }
 
-        public Task<BaseMusicItem[]> SearchAsync(CancellationToken cancellationToken = default)
+        public Task<BaseMusicItem[]> SearchAsync(string searchTerm = "", int? limit = null, int startIndex = 0,
+            ItemSortBy setSortTypes = ItemSortBy.Name, SortOrder setSortOrder = SortOrder.Ascending,
+            CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Array.Empty<BaseMusicItem>());
         }

@@ -5,13 +5,14 @@ namespace PortaJel_Blazor.Classes.Data
     public class Playlist: BaseMusicItem
     {
         public PlaylistData GetBase => _playlistData;
+        public new Guid LocalId => _playlistData.LocalId;
         public new Guid Id => _playlistData.Id;
-        public string Name => _playlistData.Name;
-        public bool IsFavourite => _playlistData.IsFavourite;
+        public new string Name => _playlistData.Name;
+        public new bool IsFavourite => _playlistData.IsFavourite;
         public new string ImgSource => _playlistData.ImgSource;
         public new string ImgBlurhash => _playlistData.ImgBlurhash;
         public string Path => _playlistData.Path;
-        public string ServerAddress => _playlistData.ServerAddress;
+        public new string ServerAddress => _playlistData.ServerAddress;
         public bool IsPartial { get; set; } = true;
 
         public Guid[] SongIds => _playlistData.GetSongIds();

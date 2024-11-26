@@ -1,4 +1,5 @@
 ﻿@implements IDisposable
+@inject NavigationManager NavManager
 @page "/settingsconnections"
 
 <div class="connectionSettings">
@@ -19,7 +20,7 @@
 
     @foreach (var serverConnector in MauiProgram.Server.GetServers())
     {
-        <div class="connection-container ComponentColor">
+        <div class="connection-container ComponentColor" @onclick="@(() => MauiProgram.WebView.NavigateServerConnectorSettings(serverConnector.GetAddress()))">
             <div class="connection-details">
                 <div class="details-usr">
                     <div class="user-profile">
