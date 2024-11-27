@@ -53,6 +53,10 @@
                         <h3 id="header-text" class="header-text hidden PrimaryTextColor">@item.Name</h3>
                     }
                 }
+                else
+                {
+                    <h3 id="header-text" class="header-text hidden PrimaryTextColor">@Title</h3>
+                }
             </div>
         }
 
@@ -78,7 +82,7 @@
     [Parameter] public bool ShowSelectionTools { get; set; } = false;
     [Parameter] public ContextMenuItem[] ToolMenuItems { get; set; } = [];
 
-    private string name = string.Empty;
+    [Parameter] public string Title { get; set; } = string.Empty;
 
     private string headerHeight = (MauiProgram.SystemHeaderHeight + 64) + "px!important";
     private string contentHeight = (MauiProgram.SystemHeaderHeight) + "px!important";

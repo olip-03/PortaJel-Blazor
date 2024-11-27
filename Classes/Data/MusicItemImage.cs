@@ -1,8 +1,10 @@
 ﻿using Blurhash;
 using Jellyfin.Sdk.Generated.Models;
+using PortaJel_Blazor.Classes;
+using PortaJel_Blazor.Classes.Data;
 using SkiaSharp;
 
-namespace PortaJel_Blazor.Classes.Data
+namespace PortaJel_Blazor.Data
 {
     public class MusicItemImage
     {
@@ -10,9 +12,14 @@ namespace PortaJel_Blazor.Classes.Data
         public string ServerAddress { get; set; } = string.Empty;
         public string Source { get; set; } = string.Empty;
         public string Blurhash { get; set; } = string.Empty;
-        public int SoureResolution { get; set; } = 500;
-        public string SourceAtResolution => GetSourceAtResolution(SoureResolution);
-        public MusicItemImageType MusicItemImageType { get; set; } = MusicItemImageType.url;
+        public int soureResolution { get; set; } = 500;
+        public string sourceAtResolution { get
+            {
+                return SourceAtResolution(soureResolution);
+            }
+            private set { }
+        }
+        public MusicItemImageType musicItemImageType { get; set; } = MusicItemImageType.url;
 
         ///<summary>
         ///A read-only instance of the Data.MusicItemImage structure with default values.
@@ -24,9 +31,9 @@ namespace PortaJel_Blazor.Classes.Data
         /// </summary>
         /// <param name="px">The reqeusted resolution in pixels</param>
         /// <returns>Image at the requested resolution, by the 'px' variable.</returns>
-        public string GetSourceAtResolution(int px)
+        public string SourceAtResolution(int px)
         {
-            if(MusicItemImageType == MusicItemImageType.url)
+            if(musicItemImageType == MusicItemImageType.url)
             {
                 string toReturn = Source + $"&fillHeight={px}&fillWidth={px}&quality=96";
                 return toReturn;
@@ -35,10 +42,10 @@ namespace PortaJel_Blazor.Classes.Data
         }
         public static Task<string?> BlurhashToBase64Async(string? blurhash, int width = 0, int height = 0, float brightness = 1)
         {
-            // if(String.IsNullOrWhiteSpace(blurhash))
-            // {
-            //     return Task.FromResult<string?>(string.Empty);
-            // }
+            if(String.IsNullOrWhiteSpace(blurhash))
+            {
+                return Task.FromResult<string?>(string.Empty);
+            }
             try
             {            
                 // TODO: SQLite DB for Blurhashes you have already decoded ;) 
@@ -86,21 +93,14 @@ namespace PortaJel_Blazor.Classes.Data
 
                     // Convert the bitmap to a base64 string
                     using (var image = SKImage.FromBitmap(bitmap))
-                        if (image != null)
-                        {
-                            using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
-                            using (var stream = new MemoryStream())
-                            {
-                                data.SaveTo(stream);
-                                byte[] imageBytes = stream.ToArray();
-                                string base64String = Convert.ToBase64String(imageBytes);
-                                return Task.FromResult<string?>(base64String);
-                            }
-                        }
-                        else
-                        {
-                            return Task.FromResult<string?>("");
-                        }
+                    using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                    using (var stream = new MemoryStream())
+                    {
+                        data.SaveTo(stream);
+                        byte[] imageBytes = stream.ToArray();
+                        string base64String = Convert.ToBase64String(imageBytes);
+                        return Task.FromResult<string?>(base64String);
+                    }
                 }
             }
             catch (Exception ex)
@@ -143,7 +143,7 @@ namespace PortaJel_Blazor.Classes.Data
         {
             MusicItemImage image = new();
             image.ServerAddress = server;
-            image.MusicItemImageType = MusicItemImageType.url;
+            image.musicItemImageType = MusicItemImageType.url;
             string imgType = "Primary";
 
             if(baseItem.ImageTags.AdditionalData.Count() == 0)
@@ -278,10 +278,24 @@ namespace PortaJel_Blazor.Classes.Data
         {
             MusicItemImage image = new();
 
-            image.MusicItemImageType = MusicItemImageType.url;
+            image.musicItemImageType = MusicItemImageType.url;
             image.Source = server + "/Items/" + nameGuidPair.Id + "/Images/Primary?format=jpg";
 
             return image;
+        }
+        public void GenerateBlurHash(BaseMusicItem[] data)
+        {
+            for (int i = 0; i < data.Count(); i++)
+            {
+                try
+                {
+                    data[i].ImgBlurhashBase64 = Blurhelper.BlurhashToBase64Async_OpenTK(data[i].ImgBlurhash, 5, 5);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            }
         }
     }
     public enum MusicItemImageType

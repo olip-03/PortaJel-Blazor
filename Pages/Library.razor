@@ -10,6 +10,7 @@
 @using System.Diagnostics
 @using PortaJel_Blazor.Classes
 @using PortaJel_Blazor.Classes.Data
+@using PortaJel_Blazor.Data
 @inject IJSRuntime JS;
 @implements IDisposable
 
@@ -219,13 +220,7 @@
         ItemsProviderRequest request)
     {
         var toReturn = _musicData.Skip(request.StartIndex).Take(request.Count);
-        var baseMusicItems = toReturn.ToList();
-        _ = baseMusicItems.Select(m => Task.Run(() =>
-        {
-            var task = MusicItemImage.BlurhashToBase64Async(m.ImgBlurhash);
-            task.Wait();
-            m.ImgBlurhash = task.Result;
-        }));
+        var baseMusicItems = toReturn.ToArray();
         return new ItemsProviderResult<BaseMusicItem>(baseMusicItems, _totalRecordCount);
     }
 }

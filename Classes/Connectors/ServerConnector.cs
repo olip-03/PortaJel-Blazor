@@ -67,7 +67,6 @@ public class ServerConnector : IMediaServerConnector
                 }
             }, cancellationToken))
             .ToList();
-        
         Task t = Task.WhenAll(tasks);
         try
         {
