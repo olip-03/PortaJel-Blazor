@@ -72,19 +72,17 @@
     }
     else
     {
-        <Virtualize Context="musicItem" ItemsProvider="LoadEmployees" OverscanCount="@overscan" ItemSize="100" @ref="virtualizeComponent">
+        <Virtualize Context="musicItem" ItemsProvider="LoadEmployees" OverscanCount="40" ItemSize="100" @ref="virtualizeComponent">
             <ItemContent>
                 <SearchResultItem musicObject="musicItem" />
             </ItemContent>
         
             <Placeholder>
-
+                <SearchResultItem musicObject="Album.Empty" />
             </Placeholder>
         
             <EmptyContent>
-                <p>
-                    There are no items to display.
-                </p>
+                <h5 class="SecondaryTextColor">There are no items to display.</h5>
             </EmptyContent>
         </Virtualize>
     }
@@ -102,7 +100,6 @@
 
     private BaseMusicItem[] musicCache = new BaseMusicItem[0];
     private int totalItems = 0;
-    private int overscan = 20;
     private Virtualize<BaseMusicItem>? virtualizeComponent;
     private bool _isLoading = false;
 
@@ -134,7 +131,7 @@
         }
 
         MauiProgram.WebView.showHeader = true;
-        MauiProgram.WebView.isLoading = false;
+        MauiProgram.WebView.IsLoading = false;
     }
 
     protected override void OnParametersSet()

@@ -2,6 +2,7 @@
 using SQLite;
 using System.Text.Json;
 using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes.Database
 {
@@ -18,6 +19,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string ServerAddress { get; set; } = string.Empty;
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
+        public string BlurhashBase64 { get; set; } = string.Empty;
         public string ArtistIdsJson { get; set; } = string.Empty;
         public string ArtistNames { get; set; } = string.Empty;
         public string SongIdsJson { get; set; } = string.Empty;

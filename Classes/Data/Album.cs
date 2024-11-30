@@ -17,10 +17,11 @@ namespace PortaJel_Blazor.Classes.Data
         public new string ServerAddress => _albumData.ServerAddress;
         public new string ImgSource =>   _albumData.ImgSource;
         public new string ImgBlurhash => _albumData.ImgBlurhash;
+        public new string ImgBlurhashBase64 => _albumData.BlurhashBase64;
         public ArtistData[] Artists { get; }
         public string ArtistNames => _albumData.ArtistNames;
         public Guid[] ArtistIds => _albumData.GetArtistIds();
-        public SongData[] Songs { get; }
+        public SongData[] Songs { get; private set; }
         public Guid[] SimilarIds => _albumData.GetSimilarIds();
         public bool IsPartial { get; private set; } = true;
         
@@ -58,6 +59,15 @@ namespace PortaJel_Blazor.Classes.Data
         public Song[] GetSongs()
         {
             return Songs == null ? [] : Songs.Select(song => new Song(song, _albumData, Artists)).ToArray();
+        }
+
+        // Method to add a song
+        public bool AddSong(SongData newSong)
+        {
+            var list = Songs.ToList();
+            list.Add(newSong);
+            Songs = list.ToArray();
+            return true; 
         }
         public void SetIsFavourite(bool state)
         {

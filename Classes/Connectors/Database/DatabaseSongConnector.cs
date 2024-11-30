@@ -11,10 +11,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
     public class DatabaseSongConnector : IMediaDataConnector
     {
         private readonly SQLiteAsyncConnection _database;
+        private readonly DatabaseConnector _databaseConnector;
 
-        public DatabaseSongConnector(SQLiteAsyncConnection database)
+        public DatabaseSongConnector(SQLiteAsyncConnection database, DatabaseConnector connector)
         {
             _database = database;
+            _databaseConnector = connector;
         }
 
         public SyncStatusInfo SyncStatusInfo { get; set; }
@@ -34,7 +36,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             // Apply includeIds filter
             if (includeIds != null && includeIds.Any())
             {
-                query = query.Where(song => includeIds.Contains(song.Id));
+                query = query.Where(song => includeIds.Contains(song.LocalId));
             }
             else if(includeIds != null)
             {
@@ -44,9 +46,9 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             // Apply excludeIds filter
             if (excludeIds != null && excludeIds.Any())
             {
-                query = query.Where(song => !excludeIds.Contains(song.Id));
+                query = query.Where(song => !excludeIds.Contains(song.LocalId));
             }
-            else if(includeIds != null)
+            else if(excludeIds != null)
             {
                 return [];
             }
@@ -88,7 +90,6 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
                     {
                         allSongs = allSongs.Take(limit.Value).ToList();
                     }
-
                     return allSongs.Select(dbItem => new Song(dbItem)).ToArray();
                 default:
                     query = setSortOrder == SortOrder.Ascending
@@ -110,9 +111,20 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
 
             // Execute the query
             var filteredCache = await query.ToListAsync().ConfigureAwait(false);
-
+            List<BaseMusicItem> toReturn = [];
+            foreach (var song in filteredCache)
+            {
+                Guid?[] artistIds = song.GetArtistIds().Select(id => (Guid?)id).ToArray();
+                BaseMusicItem album = await _databaseConnector.Album.GetAsync(song.LocalAlbumId, cancellationToken: cancellationToken);
+                BaseMusicItem[] fullArtists = await _databaseConnector.Artist.GetAllAsync(includeIds: artistIds, cancellationToken: cancellationToken);
+                var artistBaseData = fullArtists.Select(a => a.ToArtist().GetBase).ToArray();
+                toReturn.Add(new Song(song, album.ToAlbum().GetBase, artistBaseData));
+            }
+            // Item.AlbumId;
+            // Item.GetArtistIds();
+            
             // Convert to BaseMusicItem[]
-            return filteredCache.Select(dbItem => new Song(dbItem)).ToArray();
+            return toReturn.ToArray();
         }
 
         public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
@@ -120,7 +132,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
         {
             var songData = await _database.Table<SongData>().Where(song => song.Id == id).FirstOrDefaultAsync();
             if (songData == null) return Song.Empty;
-
+            
             var albumData = await _database.Table<AlbumData>().Where(album => songData.AlbumId == album.Id)
                 .FirstOrDefaultAsync();
             var artistData = await _database.Table<ArtistData>()
@@ -147,8 +159,9 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             if (getFavourite == true)
                 query = query.Where(song => song.IsFavourite);
 
-            return await query.CountAsync();
-        }
+            int total =  await query.CountAsync();
+            return total;
+        } 
 
         public async Task<bool> DeleteAsync(Guid id, string serverUrl = "",
             CancellationToken cancellationToken = default)
@@ -196,13 +209,14 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
                 return false; // Deletion failed for one or more
             }
         }
-
+        
         public async Task<bool> AddRange(BaseMusicItem[] songs, CancellationToken cancellationToken = default)
         {
             foreach (var s in songs)
             {
                 if (s is not Song song) continue;
                 await _database.InsertOrReplaceAsync(song.GetBase, song.GetBase.GetType());
+                
                 if (cancellationToken.IsCancellationRequested)
                 {
                     return false;

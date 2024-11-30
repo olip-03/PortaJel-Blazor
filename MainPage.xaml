@@ -18,7 +18,14 @@
             </BlazorWebView>
 
             <!-- Loading blockout -->
-            <Grid x:Name="LoadingBlockout" BackgroundColor="{StaticResource PageBackgroundColor}" Grid.Row="0" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" InputTransparent="False" IsVisible="True">
+            <Grid x:Name="LoadingBlockout" 
+                  BackgroundColor="{StaticResource PageBackgroundColor}" 
+                  Grid.Row="0" 
+                  VerticalOptions="FillAndExpand" 
+                  HorizontalOptions="FillAndExpand"
+                  InputTransparent="False"
+                  Opacity="1"
+                  IsVisible="True">
                 <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
                     <ActivityIndicator x:Name="save_activityIndicator" IsRunning="True" Color="{StaticResource PrimaryColor}" IsVisible="True" HeightRequest="80" WidthRequest="80" />
                     <Label x:Name="LoadingBlockout_DebugText" Text="Default debug text." TextColor="{StaticResource PrimaryTextColor}"></Label>

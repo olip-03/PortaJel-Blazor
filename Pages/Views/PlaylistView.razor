@@ -5,6 +5,7 @@
 @using Blurhash;
 @using CommunityToolkit.Maui.Core;
 @using CommunityToolkit.Maui.Alerts;
+@using PortaJel_Blazor.Classes
 @using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime JS;
 
@@ -12,7 +13,7 @@
 
 @if (loaded)
 {
-    <ViewHeader backgroundImgUrl="@playlist.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@playlist />
+    <ViewHeader backgroundImgUrl="@playlist.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" BaseMusicItem=@playlist />
 
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
         <img src="data:image/png;base64, @backgroundBlurHash" class="background-blur" alt="backgound" style="top: @backgroundBlurHeight" />
@@ -125,7 +126,7 @@
         }
         if (loaded)
         {
-            MauiProgram.WebView.isLoading = false;
+            MauiProgram.WebView.IsLoading = false;
             // await JS.InvokeAsync<string>("InitAllAlbumSongItem");
             await Task.Delay(150); // allow album items time to snap into place
             MauiProgram.MainPage.ShowLoadingScreen(false);
@@ -183,8 +184,8 @@
                 }
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
-                base64BlurHash = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20);
-                backgroundBlurHash = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20, 0.3f);
+                base64BlurHash = Blurhelper.BlurhashToBase64Async_OpenTK(playlist.ImgBlurhash, 20, 20);
+                backgroundBlurHash = Blurhelper.BlurhashToBase64Async_OpenTK(playlist.ImgBlurhash, 20, 20, 0.3f);
                 Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarAlbums);
                 similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }
@@ -204,7 +205,7 @@
         StateHasChanged();
         await JS.InvokeAsync<string>("InitAllAlbumSongItem");
         await Task.Delay(250); // allow album items time to snap into place
-        MauiProgram.WebView.isLoading = false;
+        MauiProgram.WebView.IsLoading = false;
         MauiProgram.MainPage.ShowLoadingScreen(false);
     }
 
@@ -217,7 +218,7 @@
     private async void GoBack()
     {
         MauiProgram.MainPage.ShowLoadingScreen(true);
-        MauiProgram.WebView.isLoading = true;
+        MauiProgram.WebView.IsLoading = true;
         try
         {
             await JS.InvokeAsync<string>("goBack");
@@ -381,8 +382,7 @@
         {
             try
             {
-                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
-                toReturn[i] = base64 == null ? string.Empty : base64;
+                toReturn[i] = Blurhelper.BlurhashToBase64Async_OpenTK(data[i].ImgBlurhash, 20, 20);
             }
             catch (Exception)
             {

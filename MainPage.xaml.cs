@@ -237,7 +237,7 @@ public partial class MainPage : ContentPage
                 LoadingBlockout.InputTransparent = false;
                 LoadingBlockout.Opacity = 1;
             }
-            else if (LoadingBlockout.Opacity >= 1)
+            else if ((int)LoadingBlockout.Opacity >= 1)
             {
                 LoadingBlockout.InputTransparent = true;
                 LoadingBlockout.Opacity = 1; // make fully visible

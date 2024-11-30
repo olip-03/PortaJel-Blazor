@@ -29,6 +29,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 c.QueryParameters.SortBy = [setSortTypes];
                 c.QueryParameters.SortOrder = [setSortOrder];
                 c.QueryParameters.IncludeItemTypes = [BaseItemKind.Audio];
+                c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.PlayAccess, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
                 c.QueryParameters.Limit = limit;
                 c.QueryParameters.StartIndex = startIndex;
                 c.QueryParameters.Recursive = true;

@@ -27,25 +27,21 @@
         <div class="textContainer">
             @if (!String.IsNullOrWhiteSpace(mainText))
             {
-                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <b class="PrimaryTextColor mainText">@mainText</b>
-                </Animate>
+                <b class="PrimaryTextColor mainText">@mainText</b>
             }
             @if (!String.IsNullOrWhiteSpace(subText))
             {
-                <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-                    <div class="SecondaryTextColor subText">
-                        @if (musicObject is Song)
-                        { // Show the little song icon
+                <div class="SecondaryTextColor subText">
+                    @if (musicObject is Song)
+                    { // Show the little song icon
                         <img src="/images/song.svg" class="subTextImg"/>
-                        }
-                        else if(musicObject is Album)
-                        {
+                    }
+                    else if(musicObject is Album)
+                    {
                         <img src="/images/album.svg" class="subTextImg"/>
-                        }
-                        @subText
-                    </div>
-                </Animate>
+                    }
+                    @subText
+                </div>
             }
         </div>
     </div>
@@ -97,11 +93,6 @@
     private string errorMsg = string.Empty;
     Guid elementId = Guid.NewGuid();
 
-    protected override void OnInitialized()
-    {
-
-    }
-
     protected override void OnParametersSet()
     {
         if(musicObject == null)
@@ -151,16 +142,6 @@
                 break;
         }
         base.OnParametersSet();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (OnViewAction != null)
-        {
-            var lDotNetReference = DotNetObjectReference.Create(this);
-            await JS.InvokeAsync<string>("InfiniteScrollInitObserver", new object[2] { lDotNetReference, elementId });
-            // Need to add event listener on this componenet to have it call the LoadMore function
-        }
     }
 
     private void NavigateTo()

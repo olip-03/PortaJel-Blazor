@@ -234,7 +234,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                             dbConnector = artistDb;
                             break;
                         case "Song":
-                            batchSize = 1000;
+                            batchSize = 100;
                             dbConnector = songDb;
                             break;
                         case "Playlist":
@@ -275,11 +275,19 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                             
                             currentFetch += itemTask.Result.Length;
                             currentItem += batchSize;
+                            
+                            // Compile blurhash at sync 
+                            BaseMusicItem[] items = itemTask.Result.ToArray();
+                            Parallel.ForEach(items, item =>
+                            {
+                                string hash = item.GetBlurhash();
+                                item.ImgBlurhashBase64 = Blurhelper.BlurhashToBase64Async(hash, 10, 10, 1);
+                            });
 
                             try
                             {
-                                dbConnector.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
-                                serverItems.AddRange(itemTask.Result);
+                                dbConnector.AddRange(items, cancellationToken).Wait(cancellationToken);
+                                serverItems.AddRange(items);
                             
                                 if (itemTask.Result.Length < batchSize - 1)
                                 {

@@ -2,6 +2,7 @@
 using SQLite;
 using System.Text.Json;
 using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes.Database
 {
@@ -12,6 +13,7 @@ namespace PortaJel_Blazor.Classes.Database
         public Guid Id { get; set; }
         public string? PlaylistId { get; set; }
         public Guid AlbumId { get; set; }
+        public Guid LocalAlbumId { get; set; }
         public string ArtistIdsJson { get; set; } = string.Empty;
         public string ArtistNames { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
@@ -28,6 +30,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string StreamUrl { get; set; } = string.Empty;
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
+        public string BlurhashBase64 { get; set; } = string.Empty;
         public bool IsPartial { get; set; } = true;
         public Guid[] GetArtistIds()
         {
@@ -35,6 +38,7 @@ namespace PortaJel_Blazor.Classes.Database
             if (artistIds == null) return [];
             return artistIds;
         }
+        
         public static SongData Builder(BaseItemDto baseItem, string server)
         {
             SongData song = new();
@@ -66,6 +70,7 @@ namespace PortaJel_Blazor.Classes.Database
             song.LocalId = GuidHelper.GenerateNewGuidFromHash(song.Id, server);
             song.PlaylistId = baseItem.PlaylistItemId;
             song.AlbumId = (Guid)baseItem.ParentId;
+            song.LocalAlbumId = GuidHelper.GenerateNewGuidFromHash((Guid)baseItem.ParentId, server);
             song.ArtistIdsJson = JsonSerializer.Serialize(baseItem.ArtistItems.Select(baseItem => baseItem.Id).ToArray());
             song.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
             song.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;

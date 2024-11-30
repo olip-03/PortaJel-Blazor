@@ -105,7 +105,6 @@ public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaD
                     {
                         Trace.WriteLine(ex.Message);
                         Interlocked.Increment(ref failed);
-                        throw;
                     }
                 }, cancellationToken))
                 .ToList();

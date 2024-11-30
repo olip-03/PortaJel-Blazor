@@ -64,6 +64,12 @@
     }
 }
 
+.item-disknumber {
+    margin: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
 .playback-controls {
     display: flex;
     flex-direction: row;

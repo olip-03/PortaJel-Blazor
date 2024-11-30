@@ -11,6 +11,7 @@ namespace PortaJel_Blazor.Classes.Data
         public new Guid LocalId => _songData.LocalId;
         public new Guid Id => _songData.Id;
         public Guid AlbumId => _songData.AlbumId;
+        public Guid LocalAlbumId => _songData.LocalAlbumId;
         public new string Name => _songData.Name;
         public new bool IsFavourite => _songData.IsFavourite;
         public new int PlayCount => _songData.PlayCount;
@@ -20,6 +21,7 @@ namespace PortaJel_Blazor.Classes.Data
         public string? PlaylistId => _songData.PlaylistId;
         public new string ImgSource => _songData.ImgSource;
         public new string ImgBlurhash => _songData.ImgBlurhash;
+        public new string ImgBlurhashBase64 => _songData.BlurhashBase64;
         public ArtistData[] Artists => _artistData;
         public Guid[] ArtistIds => _songData.GetArtistIds();
         public string ArtistNames => _songData.ArtistNames;

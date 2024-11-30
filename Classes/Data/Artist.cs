@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Database;
+using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes.Data
 {
@@ -17,6 +18,7 @@ namespace PortaJel_Blazor.Classes.Data
         public string BackgroundImgBlurhash => _artistData.BackgroundImgBlurhash;
         public new string ImgSource => _artistData.ImgSource;
         public new string ImgBlurhash => _artistData.ImgBlurhash;
+        public new string ImgBlurhashBase64 => _artistData.BlurhashBase64;
         public Guid[] AlbumIds => _artistData.GetAlbumIds();
         public Guid[] SimilarIds => _artistData.GetSimilarIds();
         public new string ServerAddress => _artistData.ServerAddress;

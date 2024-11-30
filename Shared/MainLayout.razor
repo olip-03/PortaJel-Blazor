@@ -6,7 +6,7 @@
 @using PortaJel_Blazor.Classes.Data
 @inherits LayoutComponentBase
 @inject NavigationManager NavManager
-@inject IJSRuntime JS
+@inject IJSRuntime Js
 @namespace PortaJel_Blazor.Shared
 
 <AutoStyle/>
@@ -81,13 +81,15 @@
             }
         }
     }
-    private bool loading { get; set; } = true;
-    public bool isLoading
+
+    private bool Loading { get; set; } = true;
+
+    public bool IsLoading
     {
-        get { return loading; }
+        get { return Loading; }
         set
         {
-            loading = value;
+            Loading = value;
             if (MauiProgram.webViewInitalized)
             {
                 InvokeAsync(StateHasChanged);
@@ -123,7 +125,7 @@
     protected override async Task OnInitializedAsync()
     {
         MauiProgram.WebView = this;
-        await JS.InvokeAsync<string>("InitMainLayout", cancellationToken, new object[1] { MauiProgram.SystemHeaderHeight });
+        await Js.InvokeAsync<string>("InitMainLayout", cancellationToken, new object[1] { MauiProgram.SystemHeaderHeight });
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -165,11 +167,6 @@
 
     public string NavigateHome()
     {
-        if (MauiProgram.libraryDataCToken != null)
-        {
-            MauiProgram.libraryDataCToken.Cancel();
-            MauiProgram.libraryDataCToken = null;
-        }
         if (currentUri != "/")
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
@@ -348,15 +345,15 @@
         MauiProgram.MainPage.DeselectMenuItems();
 
         var urlEncode = HttpUtility.UrlEncode(album.ServerAddress);
-        if (currentUri != $"/AlbumView/{album.Id}/{urlEncode}")
+        if (currentUri != $"/AlbumView/{album.LocalId}/{urlEncode}")
         {
             showHeader = false;
             pageTitle = "Album View";
             currentUri = "/settings";
 
-            NavManager.NavigateTo($"/AlbumView/{album.Id}/{urlEncode}");
+            NavManager.NavigateTo($"/AlbumView/{album.LocalId}/{urlEncode}");
         }
-        else if (currentUri == $"/AlbumView/{album.Id}/{urlEncode}")
+        else if (currentUri == $"/AlbumView/{album.LocalId}/{urlEncode}")
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }

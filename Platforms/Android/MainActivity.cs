@@ -127,7 +127,7 @@ public class MainActivity : MauiAppCompatActivity
                     // Navigate back request
                     // Check if we should actually be doing this
                     MauiProgram.MainPage.ShowLoadingScreen(true);
-                    MauiProgram.WebView.isLoading = true;
+                    MauiProgram.WebView.IsLoading = true;
                 }
             }
             return base.DispatchKeyEvent(e);

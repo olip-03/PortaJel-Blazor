@@ -11,10 +11,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Database;
 public class DatabaseAlbumConnector : IMediaDataConnector
 {
     private readonly SQLiteAsyncConnection _database = null;
+    private readonly DatabaseConnector _databaseConnector;
 
-    public DatabaseAlbumConnector(SQLiteAsyncConnection database)
+    public DatabaseAlbumConnector(SQLiteAsyncConnection database, DatabaseConnector connector)
     {
         _database = database;
+        _databaseConnector = connector;
     }
 
     public SyncStatusInfo SyncStatusInfo { get; set; }
@@ -24,74 +26,119 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         throw new NotImplementedException();
     }
 
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
+    public async Task<BaseMusicItem[]> GetAllAsync(
+        int? limit = null,
+        int startIndex = 0,
+        bool? getFavourite = null,
+        ItemSortBy setSortTypes = ItemSortBy.Album,
+        SortOrder setSortOrder = SortOrder.Ascending,
         Guid?[] includeIds = null,
-        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
+        Guid?[] excludeIds = null,
+        string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
-        List<AlbumData> filteredCache = [];
+        // Initialize filtered cache
+        List<AlbumData> filteredCache = new();
+
+        // Set default limit if not provided
         limit ??= await _database.Table<AlbumData>().CountAsync();
+
+        // Base query
+        var query = _database.Table<AlbumData>();
+
+        // Apply includeIds and excludeIds filters
+        if (includeIds != null && includeIds.Any())
+        {
+            query = query.Where(album => includeIds.Contains(album.LocalId));
+        }
+        
+        if (excludeIds != null && excludeIds.Any())
+        {
+            query = query.Where(album => !excludeIds.Contains(album.LocalId));
+        }
+        
+        // Apply serverUrl filter
+        if (!string.IsNullOrWhiteSpace(serverUrl))
+        {
+            query = query.Where(album => album.ServerAddress == serverUrl);
+        }
+        
+        // Sort and retrieve data based on sorting type
         switch (setSortTypes)
         {
             case ItemSortBy.DateCreated:
-                filteredCache.AddRange(await _database.Table<AlbumData>()
-                    .OrderByDescending(album => album.DateAdded)
-                    .Take((int)limit).ToListAsync().ConfigureAwait(false));
+                query = setSortOrder == SortOrder.Ascending
+                    ? query.OrderBy(album => album.DateAdded)
+                    : query.OrderByDescending(album => album.DateAdded);
                 break;
+
             case ItemSortBy.DatePlayed:
-                filteredCache.AddRange(await _database.Table<AlbumData>()
-                    .OrderByDescending(album => album.DatePlayed)
-                    .Take((int)limit).ToListAsync().ConfigureAwait(false));
+                query = setSortOrder == SortOrder.Ascending
+                    ? query.OrderBy(album => album.DatePlayed)
+                    : query.OrderByDescending(album => album.DatePlayed);
                 break;
+
             case ItemSortBy.Name:
-                filteredCache.AddRange(await _database.Table<AlbumData>()
-                    .OrderByDescending(album => album.Name)
-                    .Take((int)limit).ToListAsync().ConfigureAwait(false));
+                query = setSortOrder == SortOrder.Ascending
+                    ? query.OrderBy(album => album.Name)
+                    : query.OrderByDescending(album => album.Name);
                 break;
+
+            case ItemSortBy.PlayCount:
+                query = setSortOrder == SortOrder.Ascending
+                    ? query.OrderBy(album => album.PlayCount)
+                    : query.OrderByDescending(album => album.PlayCount);
+                break;
+
             case ItemSortBy.Random:
-                var firstTake = await _database.Table<AlbumData>().ToListAsync().ConfigureAwait(false);
-                filteredCache = firstTake
-                    .OrderBy(album => Guid.NewGuid())
+                // Random sorting has to be done in memory
+                var allItems = await query.ToListAsync().ConfigureAwait(false);
+                filteredCache = allItems
+                    .OrderBy(_ => Guid.NewGuid())
+                    .Skip(startIndex)
                     .Take((int)limit)
                     .ToList();
-                break;
-            case ItemSortBy.PlayCount:
-                filteredCache.AddRange(await _database.Table<AlbumData>()
-                    .OrderByDescending(album => album.PlayCount)
-                    .Take((int)limit).ToListAsync().ConfigureAwait(false));
-                break;
+                return filteredCache.Select(album => new Album(album)).ToArray();
+
             default:
-                filteredCache.AddRange(await _database.Table<AlbumData>()
-                    .OrderByDescending(album => album.Name)
-                    .Take((int)limit).ToListAsync().ConfigureAwait(false));
+                query = setSortOrder == SortOrder.Ascending
+                    ? query.OrderBy(album => album.Name)
+                    : query.OrderByDescending(album => album.Name);
                 break;
         }
 
+        // Apply pagination and limit
+        filteredCache.AddRange(await query
+            .Skip(startIndex)
+            .Take((int)limit)
+            .ToListAsync()
+            .ConfigureAwait(false));
+
+        // Convert filtered data to the output type
         return filteredCache.Select(dbItem => new Album(dbItem)).ToArray();
     }
-
+    
     public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         // Filter the cache based on the provided parameters
-        AlbumData albumFromDb = await _database.Table<AlbumData>().Where(album => album.Id == id).FirstOrDefaultAsync()
+        AlbumData albumFromDb = await _database.Table<AlbumData>().Where(album => album.LocalId == id)
+            .FirstOrDefaultAsync()
             .ConfigureAwait(false);
         // Null reference check
         if (albumFromDb == null) return Album.Empty;
         //Create tasks
-        var songIds = albumFromDb.GetSongIds();
-        var songTask = songIds.Length > 0
-            ? _database.Table<SongData>().Where(song => songIds.Contains(song.Id)).ToArrayAsync()
-            : Task.FromResult(Array.Empty<SongData>());
+        var songTask = _database.Table<SongData>().Where(song => song.LocalAlbumId == albumFromDb.LocalId)
+            .ToArrayAsync();
         var artistIds = albumFromDb.GetArtistIds();
         var artistTask = artistIds.Length > 0
-            ? _database.Table<ArtistData>().Where(artist => artistIds.Contains(artist.Id)).ToArrayAsync()
+            ? _database.Table<ArtistData>().Where(artist => artistIds.Contains(artist.LocalId)).ToArrayAsync()
             : Task.FromResult(Array.Empty<ArtistData>());
 
         // Await
         Task.WaitAll([songTask, artistTask], cancellationToken);
         // Return data
-        SongData[] songFromDb = songTask.Result;
+        SongData[] songFromDb = songTask.Result.OrderBy(s => s.IndexNumber).ToArray();
         ArtistData[] artistsFromDb = artistTask.Result;
         return new Album(albumFromDb, songFromDb, artistsFromDb);
     }
@@ -99,11 +146,12 @@ public class DatabaseAlbumConnector : IMediaDataConnector
     public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
-        AlbumData albumFromDb = await _database.Table<AlbumData>().Where(album => album.Id == id).FirstOrDefaultAsync()
+        AlbumData albumFromDb = await _database.Table<AlbumData>().Where(album => album.LocalId == id)
+            .FirstOrDefaultAsync()
             .ConfigureAwait(false);
         if (albumFromDb == null) return [];
         var artistsFromDb = await _database.Table<AlbumData>()
-            .Where(album => albumFromDb.GetSimilarIds().Contains(album.Id)).ToArrayAsync();
+            .Where(album => albumFromDb.GetSimilarIds().Contains(album.LocalId)).ToArrayAsync();
         return artistsFromDb.Select(a => new Album(a)).ToArray<BaseMusicItem>();
     }
 
@@ -128,7 +176,7 @@ public class DatabaseAlbumConnector : IMediaDataConnector
             if (album == null) return false;
             await _database.DeleteAsync(album);
             Trace.WriteLine($"Deleted album with ID {id}.");
-            return true; 
+            return true;
         }
         catch (Exception ex)
         {
@@ -137,7 +185,8 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -150,9 +199,11 @@ public class DatabaseAlbumConnector : IMediaDataConnector
                     Trace.WriteLine($"Album with ID {id} not found.");
                     return false; // Stop if any album is not found
                 }
+
                 await _database.DeleteAsync(album);
                 Trace.WriteLine($"Deleted album with ID {id}.");
             }
+
             return true; // All deletions succeeded
         }
         catch (Exception ex)
@@ -166,15 +217,19 @@ public class DatabaseAlbumConnector : IMediaDataConnector
     {
         foreach (var baseMusicItem in albums)
         {
-            if (baseMusicItem is Album a && a.GetBase != null)
+            if (baseMusicItem is Album { GetBase: not null } a)
             {
-                await _database.InsertOrReplaceAsync(a.GetBase, a.GetBase.GetType());
+                AlbumData album = a.GetBase;
+                album.BlurhashBase64 = baseMusicItem.ImgBlurhashBase64;
+                await _database.InsertOrReplaceAsync(album, a.GetBase.GetType());
             }
+
             if (cancellationToken.IsCancellationRequested)
             {
                 break;
             }
         }
+
         return true;
     }
 }

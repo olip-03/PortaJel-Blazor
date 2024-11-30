@@ -66,11 +66,11 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             _database.CreateTableAsync<ArtistData>().Wait();
             _database.CreateTableAsync<PlaylistData>().Wait();
 
-            Album = new DatabaseAlbumConnector(_database);
-            Artist = new DatabaseArtistConnector(_database);
-            Song = new DatabaseSongConnector(_database);
-            Playlist = new DatabasePlaylistConnector(_database);
-            Genre = new DatabaseGenreConnector(_database);
+            Album = new DatabaseAlbumConnector(_database, this);
+            Artist = new DatabaseArtistConnector(_database, this);
+            Song = new DatabaseSongConnector(_database, this);
+            Playlist = new DatabasePlaylistConnector(_database, this);
+            Genre = new DatabaseGenreConnector(_database, this);
         }
 
         public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)

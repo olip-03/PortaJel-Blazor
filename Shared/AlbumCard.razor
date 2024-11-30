@@ -39,19 +39,19 @@
 </style>
 
 @code {
-    [Parameter] public BaseMusicItem musicObject { get; set; } = new Album();
-    [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
+    [Parameter] public BaseMusicItem musicObject { get; set; } = Album.Empty;
+    [Parameter] public string placeholderBase64 { get; set; } = string.Empty;
     [Parameter] public int? albumResolutionpx { get; set; } = 160;
     bool isArtist = false;
-    string? albumText = null;
-    string? artistName = null;
-    string? titleCongregate = null;
+    string albumText = string.Empty;
+    string artistName = string.Empty;
+    string titleCongregate = string.Empty;
 
     private int resolution = 250;
 
-    private string albumImg { get; set; } = String.Empty;
+    private string albumImg { get; set; } = string.Empty;
 
-    protected override async void OnInitialized()
+    protected override void OnParametersSet()
     {
         if(musicObject != null)
         {
@@ -63,11 +63,8 @@
                     titleCongregate = album.Name + " • " + artistName;
 
                     albumImg = album.ImgSource;
-                    if (string.IsNullOrWhiteSpace(placeholderBase64))
-                    {
-                        string base64 = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 5, 5);
-                        placeholderBase64  = base64 == null ? string.Empty : base64;
-                    }
+                    placeholderBase64 = album.ImgBlurhashBase64;
+
 
                     break;
                 }
@@ -77,11 +74,7 @@
                     titleCongregate = song.Name + " • " + artistName;
 
                     albumImg = song.ImgSource;
-                    if (string.IsNullOrWhiteSpace(placeholderBase64))
-                    {
-                        string base64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 5, 5);
-                        placeholderBase64 = base64 == null ? string.Empty : base64;
-                    }
+                    placeholderBase64 = song.ImgBlurhashBase64;
 
                     break;
                 }
@@ -91,11 +84,8 @@
                     titleCongregate = artist.Name;
 
                     albumImg = artist.ImgSource;
-                    if (string.IsNullOrWhiteSpace(placeholderBase64))
-                    {
-                        string base64 = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 5, 5);
-                        placeholderBase64 = base64 == null ? string.Empty : base64;
-                    }
+                    placeholderBase64 = artist.ImgBlurhashBase64;
+
 
                     break;
                 }

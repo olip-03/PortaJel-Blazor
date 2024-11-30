@@ -10,10 +10,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Database;
 public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInterface
 {
     private readonly SQLiteAsyncConnection _database = null;
+    private readonly DatabaseConnector _databaseConnector;
 
-    public DatabasePlaylistConnector(SQLiteAsyncConnection database)
+    public DatabasePlaylistConnector(SQLiteAsyncConnection database, DatabaseConnector connector)
     {
         _database = database;
+        _databaseConnector = connector;
     }
 
     public SyncStatusInfo SyncStatusInfo { get; set; }

@@ -100,7 +100,7 @@
         MauiProgram.WebView.cancellationSource = new();
         MauiProgram.WebView.cancellationToken = MauiProgram.WebView.cancellationSource.Token;
 
-        MauiProgram.WebView.isLoading = false;
+        MauiProgram.WebView.IsLoading = false;
 
         _dbSearch.SearchUpdated += UpdateList;
         return Task.CompletedTask;

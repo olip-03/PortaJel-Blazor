@@ -29,6 +29,19 @@
         {
             return (Song)this;
         }
+
+        public string GetBlurhash()
+        {
+            return this switch
+            {
+                Album album => album.ImgBlurhash,
+                Artist artist => artist.ImgBlurhash,
+                Song song => song.ImgBlurhash,
+                Playlist playlist => playlist.ImgBlurhash,
+                Genre genre => genre.ImgBlurhash,
+                _ => ""
+            };
+        }
         public static bool IsNullOrEmpty(BaseMusicItem item)
         {
             if (item == null) return true;

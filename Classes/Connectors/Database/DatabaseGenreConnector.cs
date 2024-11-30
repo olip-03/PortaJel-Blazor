@@ -9,10 +9,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Database;
 public class DatabaseGenreConnector : IMediaDataConnector
 {
     private readonly SQLiteAsyncConnection _database = null;
+    private readonly DatabaseConnector _databaseConnector;
 
-    public DatabaseGenreConnector(SQLiteAsyncConnection database)
+    public DatabaseGenreConnector(SQLiteAsyncConnection database, DatabaseConnector connector)
     {
         _database = database;
+        _databaseConnector = connector;
     }
 
     public SyncStatusInfo SyncStatusInfo { get; set; }

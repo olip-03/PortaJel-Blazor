@@ -77,8 +77,6 @@ public class DatabaseSearcher(int debounceDelay = 300)
         
         var searchResults = await MauiProgram.Database.SearchAsync(query, limit: 50);
         
-        await Task.WhenAll(searchResults.Select(async p => await MusicItemImage.BlurhashToBase64Async(p.ImgBlurhash)));
-        
         return searchResults; // Replace this with actual search results
     }
 }

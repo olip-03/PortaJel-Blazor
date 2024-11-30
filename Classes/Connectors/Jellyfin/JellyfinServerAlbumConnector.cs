@@ -108,6 +108,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
             CancellationToken cancellationToken = default)
         {
+            if (serverUrl != clientSettings.ServerUrl) return [];
             BaseItemDtoQueryResult result = await api.Albums[id].Similar.GetAsync(c =>
             {
                 c.QueryParameters.UserId = user.Id;
