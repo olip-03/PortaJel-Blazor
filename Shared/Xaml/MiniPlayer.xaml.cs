@@ -1,10 +1,10 @@
+using System.Diagnostics;
 using CommunityToolkit.Maui.Core.Extensions;
 using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Data;
-using System.Diagnostics;
-using System.Security.Cryptography;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Classes.ViewModels;
 
-namespace PortaJel_Blazor.Shared;
+namespace PortaJel_Blazor.Shared.Xaml;
 
 public partial class MiniPlayer : ContentView
 {
@@ -121,14 +121,14 @@ public partial class MiniPlayer : ContentView
 
     public async void UpdateFavouriteButton(bool? syncToServer = false)
     {
-        if (App.Current == null) return;
+        if (Application.Current == null) return;
         if(MauiProgram.MediaService == null) return;
 
         Song song = MauiProgram.MediaService.GetCurrentlyPlaying();
         if (song.IsFavourite)
         {
-            var hasColor = App.Current.Resources.TryGetValue("PrimaryColor", out object primaryColor);
-            var hasSource = App.Current.Resources.TryGetValue("HeartIcon", out object imageSource);
+            var hasColor = Application.Current.Resources.TryGetValue("PrimaryColor", out object primaryColor);
+            var hasSource = Application.Current.Resources.TryGetValue("HeartIcon", out object imageSource);
 
             if (hasColor)
             {
@@ -141,8 +141,8 @@ public partial class MiniPlayer : ContentView
         }
         else
         {
-            var hasColor = App.Current.Resources.TryGetValue("PrimaryTextColor", out object primaryColor);
-            var hasSource = App.Current.Resources.TryGetValue("HeartEmptyIcon", out object imageSource);
+            var hasColor = Application.Current.Resources.TryGetValue("PrimaryTextColor", out object primaryColor);
+            var hasSource = Application.Current.Resources.TryGetValue("HeartEmptyIcon", out object imageSource);
 
             if (hasColor)
             {
@@ -156,18 +156,18 @@ public partial class MiniPlayer : ContentView
 
         if (syncToServer == true)
         {
-            await MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, song.IsFavourite);
+            await MauiProgram.Server.SetIsFavourite(song.Id, song.IsFavourite, song.ServerAddress);
         }
     }
 
     public void UpdatePlayButton(bool? isPlaying = null)
     {
-        if (App.Current == null) return;
+        if (Application.Current == null) return;
         if (MauiProgram.MediaService == null) return;
 
         if (isPlaying == true)
         {
-            var hasSource = App.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
@@ -175,7 +175,7 @@ public partial class MiniPlayer : ContentView
         }
         else if (MauiProgram.MediaService.GetIsPlaying())
         {
-            var hasSource = App.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("PauseIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
@@ -183,7 +183,7 @@ public partial class MiniPlayer : ContentView
         }
         else
         {
-            var hasSource = App.Current.Resources.TryGetValue("PlayIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("PlayIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
@@ -198,11 +198,11 @@ public partial class MiniPlayer : ContentView
         Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
         if (currentSong.ImgBlurhash == currentBlurhash) return false; // dont run if hash is the same
         currentBlurhash = currentSong.ImgBlurhash;
-        await Task.WhenAll(Task.Run(async () =>
+        await Task.WhenAll(Task.Run( () =>
         {
             // Fuck yeah get the image to move based on gyro
             //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
-            string? base64 = await MusicItemImage.BlurhashToBase64Async(currentSong.ImgBlurhash, 100, 100, 0.3f).ConfigureAwait(false);
+            string? base64 = Blurhelper.BlurhashToBase64Async_OpenTK(currentSong.ImgBlurhash, 100, 100, 0.3f);
             if (base64 != null)
             {
                 var imageBytes = Convert.FromBase64String(base64);
@@ -297,17 +297,17 @@ public partial class MiniPlayer : ContentView
         Btn_PlayToggle.Opacity = btnInOpacity;
         Btn_PlayToggle.Scale = btnInSize;
 
-        if (MauiProgram.MediaService.GetIsPlaying() && App.Current != null)
+        if (MauiProgram.MediaService.GetIsPlaying() && Application.Current != null)
         {
-            var hasSource = App.Current.Resources.TryGetValue("InversePlayIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("InversePlayIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
             }
         }
-        else if (App.Current != null)
+        else if (Application.Current != null)
         {
-            var hasSource = App.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
+            var hasSource = Application.Current.Resources.TryGetValue("InversePauseIcon", out object imageSource);
             if (hasSource)
             {
                 ViewModel.PlayButtonSource = (string)imageSource;
@@ -348,7 +348,7 @@ public partial class MiniPlayer : ContentView
         UpdateFavouriteButton();
         MauiProgram.MainPage.MainMediaController.UpdateFavouriteButton();
 
-        await Task.Run(() => MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, state));
+        await Task.Run(() => MauiProgram.Server.SetIsFavourite(song.Id, state, song.ServerAddress));
     }
 
     private async void Btn_FavToggle_Released(object sender, EventArgs e)

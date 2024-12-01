@@ -1,10 +1,6 @@
-﻿using CommunityToolkit.Maui.Core.Extensions;
-using Microsoft.Maui.Controls.Shapes;
-using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Data;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
-namespace PortaJel_Blazor.Classes
+namespace PortaJel_Blazor.Classes.ViewModels
 {
     public class ContextMenuViewModel : BindableObject
     {

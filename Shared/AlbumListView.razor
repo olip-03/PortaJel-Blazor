@@ -1,24 +1,18 @@
-﻿@using PortaJel_Blazor.Data;
+﻿@using PortaJel_Blazor.Classes.Data
 @namespace PortaJel_Blazor.Shared
 
-<li class="music-item PageSecondaryColor" @onclick=NavigateToAlbum @oncontextmenu=OpenContextMenu>
+<li class="music-item PageSecondaryColor" @onclick="NavigateToAlbum" @oncontextmenu="OpenContextMenu">
     <div class="image-container" style="display: grid;">
         @{ 
             string imageSrc = imgSrc;
-            string placeholder = "data:image/png;base64, " + placeholderBase64;
+            string placeholder = "data:image/png;base64, " + PlaceholderBase64;
         }
-        <img class="album-image album-cover-img opacityTransition"
-             src="@imageSrc"
-             style="opacity: 0" 
-             onerror="this.src='/images/emptyAlbum.png'"/>
-        <img class="album-image-placeholder"
-             src=" @placeholder" 
-             onerror="this.style.opacity=0" />
+        <img class="album-image album-cover-img opacityTransition" src="@imageSrc" style="opacity: 0" onerror="this.src='/images/emptyAlbum.png'"/>
+        <img class="album-image-placeholder" src=" @placeholder" onerror="this.style.opacity=0"/>
     </div>
     <div class="music-details PrimaryTextColor">
-        @if(musicItem is Album)
+        @if(MusicItem is Album album)
         {
-            Album album = (Album)musicItem;
             string artistName = " • " + album.ArtistNames;
             <b class="PrimaryTextColor">@album.Name</b> @artistName
         }   
@@ -26,66 +20,52 @@
 </li>
 
 @code {
-    [Parameter] public BaseMusicItem musicItem { get; set; } = new Album();
-    [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
+    [Parameter] public BaseMusicItem MusicItem { get; set; } = new Album();
+    [Parameter] public string PlaceholderBase64 { get; set; } = string.Empty;
     private string imgSrc = string.Empty;
     private Guid musicItemId;
 
-    protected override void OnInitialized()
-    {
-
-    }
-
     protected override void OnParametersSet()
     {
-        if (musicItem is Album)
+        switch (MusicItem)
         {
-            Album album = (Album)musicItem;
-            imgSrc = album.ImgSource;
-            musicItemId = album.Id;
+            case Album album:
+                imgSrc = album.ImgSource;
+                musicItemId = album.Id;
+                break;
+            case Song song:
+                imgSrc = song.ImgSource;
+                musicItemId = song.Id;
+                break;
+            case Artist artist:
+                imgSrc = artist.ImgSource;
+                musicItemId = artist.Id;
+                break;
+            case Playlist playlist:
+                imgSrc = playlist.ImgSource;
+                musicItemId = playlist.Id;
+                break;
         }
-        else if (musicItem is Song)
-        {
-            Song song = (Song)musicItem;
-            imgSrc = song.ImgSource;
-            musicItemId = song.Id;
-        }
-        else if (musicItem is Artist)
-        {
-            Artist artist = (Artist)musicItem;
-            imgSrc = artist.ImgSource;
-            musicItemId = artist.Id;
-        }
-        else if (musicItem is Playlist)
-        {
-            Playlist playlist = (Playlist)musicItem;
-            imgSrc = playlist.ImgSource;
-            musicItemId = playlist.Id;
-        }
-        base.OnParametersSet();
     }
 
     private void NavigateToAlbum()
     {
-        if (musicItem != null)
-        {
-            MauiProgram.MainPage.ShowLoadingScreen(true);
-            MauiProgram.WebView.NavigateAlbum(musicItemId);
-        }
+        if (MusicItem is not Album album) return;
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        MauiProgram.WebView.NavigateAlbum(album);
     }
 
     private void NavigateToArtist()
     {
-        if (musicItem != null)
-        {
-            MauiProgram.MainPage.ShowLoadingScreen(true);
-            MauiProgram.WebView.NavigateArtist(musicItemId);
-        }
+        if (MusicItem is not Artist artist) return;
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        MauiProgram.WebView.NavigateArtist(artist.Id);
+        
     }
 
     private async void OpenContextMenu()
     {
-        MauiProgram.MainPage.OpenContextMenu(musicItem, 250, placeholderBase64);
+        MauiProgram.MainPage.OpenContextMenu(MusicItem, 250, PlaceholderBase64);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh

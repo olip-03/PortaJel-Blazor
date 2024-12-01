@@ -1,22 +1,18 @@
-﻿using PortaJel_Blazor.Classes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PortaJel_Blazor.Data
+﻿namespace PortaJel_Blazor.Classes.Data
 {
     public abstract class BaseMusicItem
     {
-        //public Guid id { get; set; } = Guid.Empty;
-        //public string name { get; set; } = String.Empty;
-        //public bool isFavourite { get; set; } = false;
-        //public int playCount { get; set; } = 0;
-        //public int dateAdded { get; set; } = 0;
-        //public string serverAddress { get; set; } = String.Empty;
-        //public MusicItemImage image { get; set; } = MusicItemImage.Empty;
-        //public List<ContextMenuItem> contextMenuItems { get; set; } = new();
+        public string ServerAddress { get; set; }
+        public Guid LocalId { get; set; }
+        public Guid Id { get; set; }
+        public string ImgSource { get; set; }
+        public string ImgBlurhash { get; set; }
+        public string ImgBlurhashBase64 { get; set; }
+        public string Name { get; set; }
+        public bool IsFavourite { get; set; }
+        public int PlayCount { get; set; }
+        public DateTimeOffset? DateAdded { get; set; }
+        public DateTimeOffset? DatePlayed { get; set; }
         public Album ToAlbum()
         {
             return (Album)this;
@@ -32,6 +28,19 @@ namespace PortaJel_Blazor.Data
         public Song ToSong()
         {
             return (Song)this;
+        }
+
+        public string GetBlurhash()
+        {
+            return this switch
+            {
+                Album album => album.ImgBlurhash,
+                Artist artist => artist.ImgBlurhash,
+                Song song => song.ImgBlurhash,
+                Playlist playlist => playlist.ImgBlurhash,
+                Genre genre => genre.ImgBlurhash,
+                _ => ""
+            };
         }
         public static bool IsNullOrEmpty(BaseMusicItem item)
         {

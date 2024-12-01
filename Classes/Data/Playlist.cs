@@ -1,23 +1,19 @@
-﻿using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Classes.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PortaJel_Blazor.Classes.Database;
 
-namespace PortaJel_Blazor.Data
+namespace PortaJel_Blazor.Classes.Data
 {
     public class Playlist: BaseMusicItem
     {
-        public Guid Id => _playlistData.Id;
-        public string Name => _playlistData.Name;
-        public bool IsFavourite => _playlistData.IsFavourite;
-        public string ImgSource => _playlistData.ImgSource;
-        public string ImgBlurhash => _playlistData.ImgBlurhash;
-        public string ImgBlurhashBase64 { get; set; } = String.Empty;
+        public PlaylistData GetBase => _playlistData;
+        public new Guid LocalId => _playlistData.LocalId;
+        public new Guid Id => _playlistData.Id;
+        public new string Name => _playlistData.Name;
+        public new bool IsFavourite => _playlistData.IsFavourite;
+        public new string ImgSource => _playlistData.ImgSource;
+        public new string ImgBlurhash => _playlistData.ImgBlurhash;
+        public new string ImgBlurhashBase64 => _playlistData.BlurhashBase64;
         public string Path => _playlistData.Path;
-        public string ServerAddress => _playlistData.ServerAddress;
+        public new string ServerAddress => _playlistData.ServerAddress;
         public bool IsPartial { get; set; } = true;
 
         public Guid[] SongIds => _playlistData.GetSongIds();

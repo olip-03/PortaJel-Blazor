@@ -1,12 +1,32 @@
-﻿<Router AppAssembly="@typeof(Main).Assembly">
+﻿@using System.Diagnostics
+@using CommunityToolkit.Maui.Core.Views
+<Router AppAssembly="@typeof(Main).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
         <LayoutView Layout="@typeof(MainLayout)">
+            @{
+                bool didFail = DidFail();
+                Trace.WriteLine($"Page Load is {didFail}");
+            }
             <p role="alert">Sorry, nothing here!!</p>
             <p role="alert">:(</p>
+            <button @onclick="GoHome">Go home.</button>
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+
+    private static bool DidFail()
+    {        
+        MauiProgram.MainPage.ShowLoadingScreen(false);
+        return true;
+    }
+    private static void GoHome()
+    {
+        MauiProgram.WebView.NavigateHome();
+    }
+}

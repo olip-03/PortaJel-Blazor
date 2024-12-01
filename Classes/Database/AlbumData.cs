@@ -1,13 +1,15 @@
 ﻿using Jellyfin.Sdk.Generated.Models;
-using PortaJel_Blazor.Data;
 using SQLite;
 using System.Text.Json;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes.Database
 {
     public class AlbumData
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey, NotNull, AutoIncrement]
+        public Guid LocalId { get; set; }
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;
@@ -17,13 +19,15 @@ namespace PortaJel_Blazor.Classes.Database
         public string ServerAddress { get; set; } = string.Empty;
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
+        public string BlurhashBase64 { get; set; } = string.Empty;
         public string ArtistIdsJson { get; set; } = string.Empty;
         public string ArtistNames { get; set; } = string.Empty;
         public string SongIdsJson { get; set; } = string.Empty;
+        public string GetSimilarJson { get; set; } = string.Empty;
         public bool IsPartial { get; set; } = true;
-        public Guid[]? GetArtistIds()
+        public Guid[] GetArtistIds()
         {
-            Guid[]? artistIds;
+            Guid[] artistIds;
             try
             {
                 artistIds = JsonSerializer.Deserialize<Guid[]>(ArtistIdsJson);
@@ -34,18 +38,31 @@ namespace PortaJel_Blazor.Classes.Database
             }
             return artistIds;
         }
-        public Guid[]? GetSongIds()
+        public Guid[] GetSongIds()
         {
-            Guid[]? songIds;
+            Guid[] songIds;
             try
             {
                 songIds = JsonSerializer.Deserialize<Guid[]>(SongIdsJson);
             }
             catch (Exception)
             {
-                songIds = null;
+                songIds = [];
             }
             return songIds;
+        }
+        public Guid[] GetSimilarIds()
+        {
+            Guid[] similarIds;
+            try
+            {
+                similarIds = JsonSerializer.Deserialize<Guid[]>(GetSimilarJson);
+            }
+            catch (Exception)
+            {
+                similarIds = [];
+            }
+            return similarIds;
         }
         public static AlbumData Builder(BaseItemDto baseItem, string server, Guid[]? songIds = null, SongData[]? songDataItems = null)
         {
@@ -65,13 +82,14 @@ namespace PortaJel_Blazor.Classes.Database
             MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
             AlbumData album = new();
             album.Id = (Guid)baseItem.Id;
+            album.LocalId = GuidHelper.GenerateNewGuidFromHash(album.Id, server);
             album.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
             album.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
             // album.PlayCount = albumData.PlayCount; TODO: Implement playcount
             album.DateAdded = baseItem.DateCreated;
             album.DatePlayed = baseItem.UserData.LastPlayedDate;
             album.ServerAddress = server;
-            album.ImgSource = musicItemImage.source;
+            album.ImgSource = musicItemImage.Source;
             album.ImgBlurhash = musicItemImage.Blurhash;
             album.ArtistIdsJson = JsonSerializer.Serialize(baseItem.ArtistItems.Select(idPair => idPair.Id).ToArray());
             if(songIds != null)

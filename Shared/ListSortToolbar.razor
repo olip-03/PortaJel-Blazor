@@ -1,4 +1,5 @@
 @using PortaJel_Blazor.Classes
+@using PortaJel_Blazor.Classes.Enum
 <div style="@($"margin:{Margin}rem")" id="libraryToolbar" class="tool-container">
     @foreach (var filter in Filters)
     {
@@ -28,7 +29,7 @@
         base.OnParametersSet();
     }
 
-    private void SelectFiter(FilterItemTypes type)
+    private void SelectFiter(ConnectorDtoTypes type)
     {
         
     }

@@ -1,26 +1,17 @@
-﻿using PortaJel_Blazor.Classes;
+﻿#if WINDOWS
+using Microsoft.UI.Xaml.Controls;
+#endif
+using PortaJel_Blazor.Classes;
 using System.Windows.Input;
-using PortaJel_Blazor.Data;
-using PortaJel_Blazor.Pages.Xaml;
-using Microsoft.Maui.Platform;
-using System;
-using Microsoft.Maui.Controls.Shapes;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using Jellyfin.Sdk;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using SkiaSharp;
-using Microsoft.Maui.Dispatching;
-using System.Collections.ObjectModel;
-using CommunityToolkit.Maui.Core.Extensions;
-using System.Diagnostics;
-using Microsoft.Maui.Layouts;
 using CommunityToolkit.Maui.Core;
-using Microsoft.Maui.Controls.Internals;
-using PortaJel_Blazor.Shared;
-using Microsoft.Maui.Animations;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Pages;
+using PortaJel_Blazor.Pages.Connection;
+using PortaJel_Blazor.Shared.Xaml;
+using Page = Microsoft.Maui.Controls.Page;
 
 #if ANDROID
 using Android;
@@ -58,23 +49,25 @@ public partial class MainPage : ContentPage
         }
 
         InitializeComponent();
+        #if WINDOWS
+                System.Drawing.Color color = System.Drawing.Color.Transparent;
+                Windows.UI.Color color1 = Windows.UI.Color.FromArgb(color.A, color.R, color.G, color.B);
+                if (BlazorWebView.Handler != null)
+                {
+                    ((BlazorWebView.Handler.PlatformView as WebView2)!).DefaultBackgroundColor = color1;
+                }
+        #endif
+
         MauiProgram.MainPage = this;
+        
+        // Authenticate and begin sync
+        _ = Task.Run(() =>
+            MauiProgram.Server.AuthenticateAsync()).ContinueWith(
+            _ => new Thread(MauiProgram.Server.BeginSyncAsync().Wait),
+            TaskContinuationOptions.ExecuteSynchronously
+        );
+        // TODO: Cancellation Token
         // MauiProgram.webView = blazorWebView;
-    }
-
-    public async void Initialize()
-    {
-        await MauiProgram.LoadData();
-        if (MauiProgram.api.GetServers().Count() <= 0)
-        {
-            AddServerView addServerView = new();
-            await MauiProgram.MainPage.PushModalAsync(addServerView, false);
-        }
-
-        double spacing = (AllContent.Width - 350) / 2;
-        MainMediaController.PositionY = AllContent.Height;
-
-        // MauiProgram.MediaService.Initalize();
     }
 
     public void UpdateDebugText(string updateTo)
@@ -82,19 +75,12 @@ public partial class MainPage : ContentPage
         LoadingBlockout_DebugText.Text = updateTo;
     }
 
-    //    private void Bwv_BlazorWebViewInitialized(object sender, BlazorWebViewInitializedEventArgs e)
-    //    {
-    //#if ANDROID
-    //        e.WebView.Settings.MixedContentMode = Android.Webkit.MixedContentHandling.AlwaysAllow;
-    //#endif
-    //    }
-
     protected override void OnHandlerChanged()
     {
         // Disabled overscroll 'stretch' effect that I fucking hate.
         // I'd actually be okay enabling this but only once the headers become native elements
         #if ANDROID
-        var blazorview = this.blazorWebView;
+        var blazorview = this.BlazorWebView;
         if (blazorview.Handler != null && blazorview.Handler.PlatformView != null)
         {
             var platformview = (Android.Webkit.WebView)blazorview.Handler.PlatformView;
@@ -242,19 +228,29 @@ public partial class MainPage : ContentPage
     }
     public async void ShowLoadingScreen(bool value)
     {
-        if (value)
-        { // If we're already visible, do nothin'
-            LoadingBlockout.IsVisible = true;
-            LoadingBlockout.InputTransparent = false;
-            LoadingBlockout.Opacity = 1; 
-        }
-        else if (LoadingBlockout.Opacity >= 1)
+        try
         {
-            LoadingBlockout.InputTransparent = true;
-            LoadingBlockout.Opacity = 1; // make fully visible
-            
-            await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
+            if (value)
+            {
+                // If we're already visible, do nothin'
+                LoadingBlockout.IsVisible = true;
+                LoadingBlockout.InputTransparent = false;
+                LoadingBlockout.Opacity = 1;
+            }
+            else if ((int)LoadingBlockout.Opacity >= 1)
+            {
+                LoadingBlockout.InputTransparent = true;
+                LoadingBlockout.Opacity = 1; // make fully visible
+
+                await LoadingBlockout.FadeTo(0, 500, Easing.SinOut);
+                LoadingBlockout.IsVisible = false;
+            }
+        }
+        catch
+        {
+            LoadingBlockout.Opacity = 0; // make fully visible
             LoadingBlockout.IsVisible = false;
+            LoadingBlockout.InputTransparent = true;
         }
     }
     
@@ -478,6 +474,4 @@ public partial class MainPage : ContentPage
     }
 
     #endregion
-
-
 }

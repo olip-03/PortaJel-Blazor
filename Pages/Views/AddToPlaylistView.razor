@@ -1,8 +1,9 @@
-﻿@using PortaJel_Blazor.Data;
-@using Microsoft.AspNetCore.Components.Web.Virtualization;
+﻿@using Microsoft.AspNetCore.Components.Web.Virtualization;
 @using PortaJel_Blazor;
 @using Jellyfin.Sdk.Generated.Models;
 @using System.Text.Json;
+@using PortaJel_Blazor.Classes
+@using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime JS;
 @page "/AddToPlaylistView/{songItemIds}"
 
@@ -63,24 +64,21 @@
         BaseMusicItem[] musicItems = [];
         //overscan = 20;
 
-        totalItems = await MauiProgram.api.GetTotalPlaylistCount(false);
+        totalItems = await MauiProgram.Server.Playlist.GetTotalCountAsync(false);
         numItems = Math.Min(request.Count, totalItems - request.StartIndex);
         MauiProgram.UpdateDebugMessage($"Grabbing playlist items from {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}.");
-        musicItems = await MauiProgram.api.GetAllPlaylistsAsync(
+        musicItems = await MauiProgram.Server.Playlist.GetAllAsync(
         limit: numItems,
         startIndex: request.StartIndex,
-        sortOrder: SortOrder.Ascending,
-        isFavourite: false,
-        cancellactionToken: request.CancellationToken);
+        getFavourite: false);
 
         await Parallel.ForEachAsync(musicItems, async (musicItem, ct) =>
         {
             Playlist playlist = musicItem as Playlist;
-            playlist.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20).ConfigureAwait(false);
             musicItem = playlist;
         });
 
-        MauiProgram.WebView.isLoading = false;
+        MauiProgram.WebView.IsLoading = false;
         await JS.InvokeAsync<string>("InitAllImages");
         StateHasChanged();
         hasPlaylists = musicItems.Count() > 0;

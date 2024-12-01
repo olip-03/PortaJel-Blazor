@@ -1,12 +1,12 @@
-﻿@using PortaJel_Blazor.Data;
-@using PortaJel_Blazor.Shared.Icons;
+﻿@using PortaJel_Blazor.Shared.Icons;
 @using PortaJel_Blazor.Classes; 
+@using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime JS
 @namespace PortaJel_Blazor.Shared
 
 <div class="header" style="height: @headerHeight">
     <div class="header-imgcontainer PageSecondaryBackgroundColor" style="height: @headerHeight" id="header-backgroundPlaceholder">
-        <img src="data:image/png;base64, @backgroundImgUrlPlaceholder" class="header-background" />
+        <img src="data:image/png;base64, @BaseMusicItem.ImgBlurhashBase64" class="header-background" />
     </div>
 
     <div style="height: @contentHeight" class="header-infocontainer">
@@ -35,23 +35,27 @@
             </div>
 
             <div class="header-nameContainer" @onclick=GoToArtist>
-                @if (baseMusicItem != null)
+                @if (BaseMusicItem != null)
                 {
-                    if (baseMusicItem is Album)
+                    if (BaseMusicItem is Album)
                     {
-                        Album item = (Album)baseMusicItem;
+                        Album item = (Album)BaseMusicItem;
                         <h3 id="header-text" class="header-text hidden PrimaryTextColor">@item.Name</h3>
                     }
-                    else if (baseMusicItem is Artist)
+                    else if (BaseMusicItem is Artist)
                     {
-                        Artist item = (Artist)baseMusicItem;
+                        Artist item = (Artist)BaseMusicItem;
                         <h3 id="header-text" class="header-text hidden PrimaryTextColor">@item.Name</h3>
                     }
-                    else if (baseMusicItem is Playlist)
+                    else if (BaseMusicItem is Playlist)
                     {
-                        Playlist item = (Playlist)baseMusicItem;
+                        Playlist item = (Playlist)BaseMusicItem;
                         <h3 id="header-text" class="header-text hidden PrimaryTextColor">@item.Name</h3>
                     }
+                }
+                else
+                {
+                    <h3 id="header-text" class="header-text hidden PrimaryTextColor">@Title</h3>
                 }
             </div>
         }
@@ -71,21 +75,21 @@
 @code {
     [Parameter] public string backgroundImgUrlPlaceholder { get; set; } = string.Empty;
     [Parameter] public string backgroundImgUrl { get; set; } = string.Empty;
-    [Parameter] public BaseMusicItem? baseMusicItem { get; set; } = null;
+    [Parameter] public BaseMusicItem BaseMusicItem { get; set; } = Album.Empty;
 
     [Parameter] public Action? SelectionCancelCallback { get; set; } = null;
     [Parameter] public Action? ContextMenuOpenCallback { get; set; } = null;
     [Parameter] public bool ShowSelectionTools { get; set; } = false;
     [Parameter] public ContextMenuItem[] ToolMenuItems { get; set; } = [];
 
-    private string name = string.Empty;
+    [Parameter] public string Title { get; set; } = string.Empty;
 
     private string headerHeight = (MauiProgram.SystemHeaderHeight + 64) + "px!important";
     private string contentHeight = (MauiProgram.SystemHeaderHeight) + "px!important";
 
     private async void GoBack()
     {
-        MauiProgram.WebView.isLoading = true;
+        MauiProgram.WebView.IsLoading = true;
         MauiProgram.MainPage.ShowLoadingScreen(true);
         try
         {
@@ -93,7 +97,7 @@
         }
         catch (Exception ex)
         {
-            bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
+            bool answer = await Application.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
             MauiProgram.WebView.NavigateHome();
         }
     }
@@ -111,9 +115,9 @@
 
     private void GoToArtist()
     {
-        if (baseMusicItem is Album)
+        if (BaseMusicItem is Album)
         {
-            Album item = (Album)baseMusicItem;
+            Album item = (Album)BaseMusicItem;
             if (item != null && item.Artists.First() != null)
             {
                 MauiProgram.WebView.NavigateArtist(item.Artists.First().Id);

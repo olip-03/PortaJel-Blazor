@@ -13,6 +13,13 @@
         background: #202020 !important;
     }
 
+    .ComponentColor {
+        background: #383838 !important;
+    }
+    .ComponentSecondaryColor {
+        background: #a8a8a8 !important;
+    }
+
     .NavigationBarColor {
         background-color: teal !important;
     }
@@ -55,15 +62,15 @@
     public void UpdateColors()
     {
         // PageSecondaryBackgroundColor
-        if(App.Current != null)
+        if(Application.Current != null)
         {
-            var hasPrimaryColor = App.Current.Resources.TryGetValue("PrimaryColor", out object outPrimaryColor);
+            var hasPrimaryColor = Application.Current.Resources.TryGetValue("PrimaryColor", out object outPrimaryColor);
             if (hasPrimaryColor)
             {
                 Color color = (Color)outPrimaryColor;
                 primaryColor = color.ToHex();
             }
-            var hasSecondaryBackgroundColor = App.Current.Resources.TryGetValue("PageSecondaryBackgroundColor", out object outSecondaryBackgroundColor);
+            var hasSecondaryBackgroundColor = Application.Current.Resources.TryGetValue("PageSecondaryBackgroundColor", out object outSecondaryBackgroundColor);
             if (hasSecondaryBackgroundColor)
             {
                 Color color = (Color)outSecondaryBackgroundColor;

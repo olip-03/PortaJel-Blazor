@@ -1,56 +1,30 @@
-﻿using PortaJel_Blazor.Classes.Database;
-using Jellyfin.Sdk.Generated.Models;
-using System.Text.Json;
+﻿using Jellyfin.Sdk.Generated.Models;
+using PortaJel_Blazor.Classes.Database;
 
-namespace PortaJel_Blazor.Data
+namespace PortaJel_Blazor.Classes.Data
 {
-    public class Album : BaseMusicItem
+    public class Album: BaseMusicItem
     {
-        public Guid Id => _albumData.Id;
-        public string Name => _albumData.Name;
-        public bool IsFavourite => _albumData.IsFavourite;
-        public int PlayCount => _albumData.PlayCount;
-        public DateTimeOffset? DateAdded => _albumData.DateAdded;
-        public DateTimeOffset? DatePlayed => _albumData.DatePlayed;
-        public string ServerAddress => _albumData.ServerAddress;
-        public string ImgSource => _albumData.ImgSource;
-        public string ImgBlurhash => _albumData.ImgBlurhash;
-        public string ImgBlurhashBase64 { get; set; } = String.Empty;
-        public ArtistData[]? Artists => _artistData;
+        private readonly AlbumData _albumData = new();
+        public AlbumData GetBase => _albumData;
+        public new Guid LocalId => _albumData.LocalId;
+        public new Guid Id => _albumData.Id;
+        public new string Name => _albumData.Name;
+        public new bool IsFavourite => _albumData.IsFavourite;
+        public new int PlayCount => _albumData.PlayCount;
+        public new DateTimeOffset? DateAdded => _albumData.DateAdded;
+        public new DateTimeOffset? DatePlayed => _albumData.DatePlayed;
+        public new string ServerAddress => _albumData.ServerAddress;
+        public new string ImgSource =>   _albumData.ImgSource;
+        public new string ImgBlurhash => _albumData.ImgBlurhash;
+        public new string ImgBlurhashBase64 => _albumData.BlurhashBase64;
+        public ArtistData[] Artists { get; }
         public string ArtistNames => _albumData.ArtistNames;
-        public Guid[]? ArtistIds => _albumData.GetArtistIds();
-        public SongData[]? Songs => _songData;
+        public Guid[] ArtistIds => _albumData.GetArtistIds();
+        public SongData[] Songs { get; private set; }
+        public Guid[] SimilarIds => _albumData.GetSimilarIds();
         public bool IsPartial { get; private set; } = true;
-
-        private AlbumData _albumData; 
-        private SongData[]? _songData;
-        private ArtistData[]? _artistData;
-
-        public Album()
-        {
-            _albumData = new();
-            _songData = [];
-            _artistData = [];
-        }
-        public Album(AlbumData albumData)
-        {
-            _albumData = albumData;
-            _songData = [];
-            _artistData = [];
-        }
-        public Album(AlbumData albumData, SongData[] songData)
-        {
-            _albumData = albumData;
-            _songData = songData;
-            _artistData = [];
-        }
-        public Album(AlbumData albumData, SongData[] songData, ArtistData[] artistData)
-        {
-            _albumData = albumData;
-            _songData = songData;
-            _artistData = artistData;
-        }
-
+        
         public AlbumSortMethod sortMethod { get; set; } = AlbumSortMethod.name;
         public enum AlbumSortMethod
         {
@@ -58,6 +32,13 @@ namespace PortaJel_Blazor.Data
             artist,
             id
         }
+        public Album(AlbumData albumData = null, SongData[] songData = null, ArtistData[] artistData = null)
+        {
+            Artists = artistData ?? [];
+            Songs = songData ?? [];
+            _albumData = albumData ?? new();
+        }
+
         public static readonly Album Empty = new();
 
         public static Album Builder(BaseItemDto albumData, string server, BaseItemDto[]? songData = null, BaseItemDto[]? artistData = null)
@@ -77,12 +58,21 @@ namespace PortaJel_Blazor.Data
         }
         public Song[] GetSongs()
         {
-            if (_songData == null) return [];
-            return _songData.Select(song => new Song(song, _albumData, _artistData)).ToArray();
+            return Songs == null ? [] : Songs.Select(song => new Song(song, _albumData, Artists)).ToArray();
+        }
+
+        // Method to add a song
+        public bool AddSong(SongData newSong)
+        {
+            var list = Songs.ToList();
+            list.Add(newSong);
+            Songs = list.ToArray();
+            return true; 
         }
         public void SetIsFavourite(bool state)
         {
             _albumData.IsFavourite = state;
         }
+
     }
 }

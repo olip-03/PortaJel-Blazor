@@ -1,4 +1,4 @@
-namespace PortaJel_Blazor.Shared;
+namespace PortaJel_Blazor.Shared.Xaml;
 
 public partial class StatusIndicator : ContentView
 {

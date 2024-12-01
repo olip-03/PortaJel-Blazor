@@ -1,11 +1,11 @@
-﻿@using PortaJel_Blazor.Data;
-@using BlazorAnimate;
+﻿@using BlazorAnimate;
 @using PortaJel_Blazor.Shared.Icons;
 @using PortaJel_Blazor.Classes.Services;
 @using PortaJel_Blazor.Shared;
 @using Blurhash;
 @using CommunityToolkit.Maui.Core;
 @using CommunityToolkit.Maui.Alerts;
+@using PortaJel_Blazor.Classes.Data
 @namespace PortaJel_Blazor.Shared
 @inject IJSRuntime JS;
 
@@ -141,7 +141,7 @@
     {
         song.SetIsFavourite(!song.IsFavourite);
         StateHasChanged();
-        await Task.Run<bool>(() => MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, song.IsFavourite));
+        await Task.Run<bool>(() => MauiProgram.Server.SetIsFavourite(song.Id, song.IsFavourite, song.ServerAddress));
     }
 
     private async void OpenContextMenu()
@@ -154,22 +154,17 @@
             {
 
             }
-            InvokeAsync(() => StateHasChanged());
+            InvokeAsync(StateHasChanged);
         });
     }
 
     private void SelectItem()
     {
-        if (EngageCheckmode == false)
-        {
-            if (OnSelectCallback != null)
-            {
-                OnSelectCallback.Invoke();
-            }
+        if (EngageCheckmode != false) return;
+        OnSelectCallback?.Invoke();
 
-            IsChecked = true;
-            StateHasChanged();
-        }
+        IsChecked = true;
+        StateHasChanged();
     }
 
 
@@ -178,10 +173,7 @@
         if (EngageCheckmode)
         {
             IsChecked = !IsChecked;
-            if (OnSelectCallback != null)
-            {
-                OnSelectCallback.Invoke();
-            }
+            OnSelectCallback?.Invoke();
             StateHasChanged();
         }
         else
@@ -218,6 +210,6 @@
 
         StateHasChanged();
         FavouriteSongLock = false;
-        await Task.Run(() => MauiProgram.api.SetFavourite(song.Id, song.ServerAddress, song.IsFavourite));
+        await Task.Run(() => MauiProgram.Server.SetIsFavourite(song.Id, song.IsFavourite, song.ServerAddress));
     }
 }

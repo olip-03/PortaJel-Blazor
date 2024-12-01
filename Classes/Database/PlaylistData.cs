@@ -1,17 +1,21 @@
 ﻿using Jellyfin.Sdk.Generated.Models;
-using PortaJel_Blazor.Data;
 using SQLite;
 using System.Text.Json;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Data;
+
 namespace PortaJel_Blazor.Classes.Database
 {
     public class PlaylistData
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey, NotNull, AutoIncrement]
+        public Guid LocalId { get; set; }
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool IsFavourite { get; set; } = false;
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
+        public string BlurhashBase64 { get; set; } = string.Empty;
         public string SongIdsJson { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
         public string ServerAddress { get; set; } = string.Empty;
@@ -44,10 +48,11 @@ namespace PortaJel_Blazor.Classes.Database
             MusicItemImage musicItemImage = MusicItemImage.Builder(baseItem, server);
             newPlaylist.Name = baseItem.Name;
             newPlaylist.Id = (Guid)baseItem.Id;
+            newPlaylist.LocalId = GuidHelper.GenerateNewGuidFromHash(newPlaylist.Id, server);
             newPlaylist.IsFavourite = (bool)baseItem.UserData.IsFavorite;
             newPlaylist.Path = baseItem.Path;
             newPlaylist.ServerAddress = server;
-            newPlaylist.ImgSource = musicItemImage.source;
+            newPlaylist.ImgSource = musicItemImage.Source;
             newPlaylist.ImgBlurhash = musicItemImage.Blurhash;
             if (songData != null)
             {

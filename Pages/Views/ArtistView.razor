@@ -1,6 +1,7 @@
-﻿@using PortaJel_Blazor.Data;
-@using PortaJel_Blazor.Shared;
+﻿@using PortaJel_Blazor.Shared;
 @using BlazorAnimate;
+@using PortaJel_Blazor.Classes
+@using PortaJel_Blazor.Classes.Data
 @using PortaJel_Blazor.Shared.Icons;
 
 @inject IJSRuntime JS;
@@ -9,7 +10,7 @@
 @if (loaded)
 {
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-        <ViewHeader backgroundImgUrl="@backgroundImgUrl" backgroundImgUrlPlaceholder="@backgroundImgUrlPlaceholder" baseMusicItem=@artist />
+        <ViewHeader backgroundImgUrl="@backgroundImgUrl" backgroundImgUrlPlaceholder="@backgroundImgUrlPlaceholder" BaseMusicItem=@artist />
 
         <!-- Container for background image-->
         <div class="backgroundImgContainer">
@@ -151,11 +152,11 @@
 
         @if (similarArtistsBase64BlurHash.Count() > 0)
         { // but only after the blurhash is done lol
-            <HorizontalMusicItemList Title="More Like This" itemCount="@similarArtists.Count()" albumData="@similarArtists" albumBlurHashData="@similarArtistsBase64BlurHash" />
+            <HorizontalMusicItemList Title="More Like This" itemCount="@similarArtists.Count()" AlbumData="@similarArtists" albumBlurHashData="@similarArtistsBase64BlurHash" />
         }
         else if (similarArtists.Count() > 0)
         { // and again only if we actually HAVE reccomedation
-            <HorizontalMusicItemList Title="More Like This" itemCount="@similarArtists.Count()" albumData="null" albumBlurHashData="null" />
+            <HorizontalMusicItemList Title="More Like This" itemCount="@similarArtists.Count()" AlbumData="null" albumBlurHashData="null" />
         }
 
         <p>@errorMsg</p>
@@ -219,7 +220,7 @@
         }
         if (loaded)
         {
-            MauiProgram.WebView.isLoading = false;
+            MauiProgram.WebView.IsLoading = false;
             MauiProgram.MainPage.ShowLoadingScreen(false);
         }
     }
@@ -243,11 +244,11 @@
             if (artistId != null)
             {
                 MauiProgram.UpdateDebugMessage("Starting request for Artists data.");
-                Task<Artist> getArtist = MauiProgram.api.GetArtistAsync(parseId);
-                Task<Artist[]> getSimilarArtist = MauiProgram.api.GetSimilarArtistsAsync(parseId, similarArtistLimit);
+                Task<BaseMusicItem> getArtist = MauiProgram.Server.Artist.GetAsync(parseId);
+                Task<BaseMusicItem[]> getSimilarArtist = MauiProgram.Server.Artist.GetSimilarAsync(parseId, similarArtistLimit);
                 await Task.WhenAll(getArtist, getSimilarArtist);
-                artist = getArtist.Result;
-                similarArtists = getSimilarArtist.Result;
+                artist = getArtist.Result as Artist;
+                similarArtists = getSimilarArtist.Result as Artist[];
 
                 MauiProgram.UpdateDebugMessage("Setting Image resolution.");
                 int screenWidth = (int)window.Width;
@@ -260,15 +261,15 @@
                 artistAlbums = artist.Albums.Select(album => new Album(album)).ToArray();
                 placeholderImages = await GenerateBlurHash(artistAlbums);
 
-                string? artistBlurhash = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 20, 20);
-                string? backgrounBlurhash = await MusicItemImage.BlurhashToBase64Async(artist.BackgroundImgBlurhash, 20, 20);
+                string? artistBlurhash = Blurhelper.BlurhashToBase64Async_OpenTK(artist.ImgBlurhash, 20, 20);
+                string? backgrounBlurhash = Blurhelper.BlurhashToBase64Async_OpenTK(artist.BackgroundImgBlurhash, 20, 20);
                 imgUrlPlaceholder = artistBlurhash == null ? string.Empty : artistBlurhash;
                 backgroundImgUrlPlaceholder = backgrounBlurhash == null ? string.Empty : backgrounBlurhash;
 
                 logoUrl = artist.LogoImgSource;
                 if (!String.IsNullOrWhiteSpace(logoUrl))
                 {
-                    string? getLogoblurhash = await MusicItemImage.BlurhashToBase64Async(artist.LogoImgSource, 20, 20);
+                    string? getLogoblurhash = Blurhelper.BlurhashToBase64Async_OpenTK(artist.LogoImgSource, 20, 20);
                     logoUrlPlaceholder = getLogoblurhash == null ? string.Empty : getLogoblurhash;
                     hasLogo = true;
                 }
@@ -290,7 +291,7 @@
         loaded = true;
         StateHasChanged();
         await Task.Delay(250); // allow page to catch up 
-        MauiProgram.WebView.isLoading = false;
+        MauiProgram.WebView.IsLoading = false;
         MauiProgram.MainPage.ShowLoadingScreen(false);
     }
     private void SelectPage(int page)
@@ -327,21 +328,21 @@
     {
         artist.SetIsFavourite(!artist.IsFavourite);
         StateHasChanged();
-        await MauiProgram.api.SetFavourite(artist.Id, artist.ServerAddress, artist.IsFavourite);
+        await MauiProgram.Server.SetIsFavourite(artist.Id, artist.IsFavourite, artist.ServerAddress);
     }
     private async void GoBack()
     {
-        if (App.Current == null) return; 
-        if (App.Current.MainPage == null) return;
+        if (Application.Current == null) return; 
+        if (Application.Current.MainPage == null) return;
 
-        MauiProgram.WebView.isLoading = true;
+        MauiProgram.WebView.IsLoading = true;
         try
         {
             await JS.InvokeAsync<string>("goBack");
         }
         catch (Exception ex)
         {
-            bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
+            bool answer = await Application.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
             MauiProgram.WebView.NavigateHome();
         }
     }
@@ -352,8 +353,7 @@
         {
             try
             {
-                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
-                toReturn[i] = base64 == null ? string.Empty : base64;
+                toReturn[i] = Blurhelper.BlurhashToBase64Async_OpenTK(data[i].ImgBlurhash, 20, 20);
             }
             catch (Exception)
             {

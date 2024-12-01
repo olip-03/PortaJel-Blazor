@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-maccatalyst;net8.0-ios;net8.0-android</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
-		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-		<!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
+		<TargetFrameworks>net9.0-maccatalyst;net9.0-ios;net9.0-android</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>PortaJel_Blazor</RootNamespace>
-		<MauiVersion>8.0.7</MauiVersion>
+		<MauiVersion>9.0.0</MauiVersion>
 		<UseMaui>true</UseMaui>
 		<EnableMauiImageProcessing>true</EnableMauiImageProcessing>
 		<SingleProject>true</SingleProject>
@@ -15,7 +13,8 @@
 		<WindowsPackageType>None</WindowsPackageType>
 		<WindowsAppSDKSelfContained Condition="'$(IsUnpackaged)' == 'true'">true</WindowsAppSDKSelfContained>
 		<SelfContained Condition="'$(IsUnpackaged)' == 'true'">true</SelfContained>
-
+		<CsWinRTAotOptimizerEnabled>false</CsWinRTAotOptimizerEnabled>
+		
 		<!-- Display name -->
 		<ApplicationTitle>PortaJel-Blazor</ApplicationTitle>
 		<ProjectName>PortaJel-Blazor</ProjectName>
@@ -41,72 +40,70 @@
 		<XamarinGoogleGuavaOptOut>true</XamarinGoogleGuavaOptOut>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-ios|AnyCPU'">
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-maccatalyst|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-maccatalyst|AnyCPU'">
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
-		<ApplicationId>portajel.portajel_blazor</ApplicationId>
+		<ApplicationId>com.portajel_blazor</ApplicationId>
 		<AndroidEnableMultiDex>False</AndroidEnableMultiDex>
-		<AotAssemblies>True</AotAssemblies>
+		<AcceptAndroidSDKLicenses>true</AcceptAndroidSDKLicenses>
 		<AndroidDexTool>d8</AndroidDexTool>
 		<AndroidUseAapt2>true</AndroidUseAapt2>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows10.0.19041.0|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-windows10.0.19041.0|AnyCPU'">
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-ios|AnyCPU'">
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-maccatalyst|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-maccatalyst|AnyCPU'">
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
-		<AotAssemblies>True</AotAssemblies>
 		<AndroidEnableMultiDex>False</AndroidEnableMultiDex>
 		<AndroidDexTool>d8</AndroidDexTool>
 		<AndroidUseAapt2>true</AndroidUseAapt2>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows10.0.19041.0|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-windows10.0.19041.0|AnyCPU'">
 		<ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 		<ApplicationId>portajel.portajel_blazor</ApplicationId>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
-	  <AndroidEnableMultiDex>False</AndroidEnableMultiDex>
-	  <RunAOTCompilation>False</RunAOTCompilation>
-	  <EnableLLVM>False</EnableLLVM>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
+		<AndroidEnableMultiDex>False</AndroidEnableMultiDex>
+		<EnableLLVM>False</EnableLLVM>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
-	  <AndroidEnableMultiDex>False</AndroidEnableMultiDex>
-	  <AndroidLinkTool>r8</AndroidLinkTool>
-	  <EnableLLVM>False</EnableLLVM>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
+		<AndroidEnableMultiDex>False</AndroidEnableMultiDex>
+		<AndroidLinkTool>r8</AndroidLinkTool>
+		<EnableLLVM>False</EnableLLVM>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -119,6 +116,9 @@
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
 		<MauiImage Include="Resources\Images\Light\*" />
+		<MauiImage Include="Resources\Images\Logo\*" />
+
+		<MauiImage Update="Resources\Images\logo_folder.svg" BaseSize="56,56" />
 
 		<MauiImage Update="Resources\Images\favourite.svg" BaseSize="40,40" />
 		<MauiImage Update="Resources\Images\home.svg" BaseSize="40,40" />
@@ -144,88 +144,88 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="wwwroot\js\NewFolder1\**" />
-	  <Compile Remove="wwwroot\js\SongElement\**" />
-	  <Content Remove="wwwroot\js\NewFolder1\**" />
-	  <Content Remove="wwwroot\js\SongElement\**" />
-	  <EmbeddedResource Remove="wwwroot\js\NewFolder1\**" />
-	  <EmbeddedResource Remove="wwwroot\js\SongElement\**" />
-	  <None Remove="wwwroot\js\NewFolder1\**" />
-	  <None Remove="wwwroot\js\SongElement\**" />
+		<Compile Remove="wwwroot\js\NewFolder1\**" />
+		<Compile Remove="wwwroot\js\SongElement\**" />
+		<Content Remove="wwwroot\js\NewFolder1\**" />
+		<Content Remove="wwwroot\js\SongElement\**" />
+		<EmbeddedResource Remove="wwwroot\js\NewFolder1\**" />
+		<EmbeddedResource Remove="wwwroot\js\SongElement\**" />
+		<None Remove="wwwroot\js\NewFolder1\**" />
+		<None Remove="wwwroot\js\SongElement\**" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Platforms\Android\Resources\values\colors.xml" />
+		<None Remove="Platforms\Android\Resources\values\colors.xml" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AngleSharp" Version="1.1.2" />
+		<PackageReference Include="AngleSharp" Version="1.2.0-beta.439" />
 		<PackageReference Include="BlazorAnimate" Version="3.0.0" />
-		<PackageReference Include="Blurhash.Core" Version="2.0.0" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.2" />
+		<PackageReference Include="Blurhash.Core" Version="4.0.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
 		<PackageReference Include="CompiledBindings.MAUI" Version="1.0.18" />
-		<PackageReference Include="Jellyfin.Sdk" Version="2024.5.11" />
-		<PackageReference Include="MatBlazor" Version="2.10.0" />
+		<PackageReference Include="ComputeSharp" Version="3.1.0-preview2" />
+		<PackageReference Include="ComputeSharp.Core" Version="3.1.0-preview2" />
+		<PackageReference Include="Jellyfin.Sdk" Version="2024.11.13-unstable.202411130050" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.8" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.80" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.80" />
-		<PackageReference Include="SkiaSharp" Version="2.88.8" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.0" />
+		<PackageReference Include="OpenTK" Version="5.0.0-pre.13" />
+		<PackageReference Include="SkiaSharp" Version="3.118.0-preview.1.2" />
 		<PackageReference Include="sqlite-net" Version="1.6.292" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.9" />
-		<PackageReference Include="System.Drawing.Common" Version="8.0.8" />
+		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+		<PackageReference Update="Microsoft.AspNetCore.Components.WebView.Maui" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+		<PackageReference Include="Xam.Plugins.Android.ExoPlayer">
+			<Version>2.19.1</Version>
+		</PackageReference>
+		<ReferenceJar Include="$(MSBuildThisFileDirectory)Resources/Libraries/guava-33.0.0-android.jar" />
+		<AndroidLibrary Include="Resources\Libraries\guava-33.0.0-android.jar">
+			<Bind>false</Bind>
+			<Pack>true</Pack>
+		  </AndroidLibrary>
 	</ItemGroup>
 
 	<ItemGroup>
 		<MauiImage Include="wwwroot\images\cd.svg" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
-	  <PackageReference Include="Xam.Plugins.Android.ExoPlayer">
-	    <Version>2.19.1</Version>
-	  </PackageReference>
-		<ReferenceJar Include="$(MSBuildThisFileDirectory)guava-33.0.0-android.jar" />
-		<AndroidLibrary Include="guava-33.0.0-android.jar" Bind="false" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiXaml Include="Platforms\Android\Resources\values\colors.xml" />
-	</ItemGroup>
-
-	<ItemGroup>
+		<MauiXaml Include="Platforms\Android\Resources\values\colors.xml" />
 		<MauiXaml Update="Pages\Xaml\PageLayoutEditor.xaml">
-		  <Generator>MSBuild:Compile</Generator>
+			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Pages\Xaml\PlaylistViewEditor.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Resources\Themes\DarkTheme.xaml">
-		  <Generator>MSBuild:Compile</Generator>
+			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Resources\Themes\LightTheme.xaml">
-		  <Generator>MSBuild:Compile</Generator>
+			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Shared\Xaml\AddToPlaylistPopup.xaml">
-		  <Generator>MSBuild:Compile</Generator>
+			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Shared\Xaml\ContextMenu.xaml">
-		  <Generator>MSBuild:Compile</Generator>
+			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Shared\Xaml\MediaController.xaml">
-		  <Generator>MSBuild:Compile</Generator>
+			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Shared\Xaml\MediaQueue.xaml">
-		  <Generator>MSBuild:Compile</Generator>
+			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Shared\Xaml\MiniPlayer.xaml">
-		  <Generator>MSBuild:Compile</Generator>
+			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Shared\Xaml\StatusIndicator.xaml">
-		  <Generator>MSBuild:Compile</Generator>
+			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 	</ItemGroup>
 
@@ -236,19 +236,14 @@
 	</ProjectExtensions>
 
 	<ItemGroup>
-	  <PackageReference Update="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.80" />
+		<Compile Update="Platforms\MacCatalyst\MediaService.cs">
+			<ExcludeFromCurrentConfiguration>true</ExcludeFromCurrentConfiguration>
+		</Compile>
+		<Compile Update="Platforms\Tizen\MediaService.cs">
+			<ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+		</Compile>
+		<Compile Update="Platforms\Windows\MediaService.cs">
+			<ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+		</Compile>
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Platforms\MacCatalyst\MediaService.cs">
-	    <ExcludeFromCurrentConfiguration>true</ExcludeFromCurrentConfiguration>
-	  </Compile>
-	  <Compile Update="Platforms\Tizen\MediaService.cs">
-	    <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
-	  </Compile>
-	  <Compile Update="Platforms\Windows\MediaService.cs">
-	    <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
-	  </Compile>
-	</ItemGroup>
-
 </Project>

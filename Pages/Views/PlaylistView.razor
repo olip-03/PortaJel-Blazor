@@ -1,18 +1,19 @@
-﻿@using PortaJel_Blazor.Data;
-@using BlazorAnimate;
+﻿@using BlazorAnimate;
 @using PortaJel_Blazor.Classes.Services;
 @using PortaJel_Blazor.Shared;
 @using PortaJel_Blazor.Shared.Icons;
 @using Blurhash;
 @using CommunityToolkit.Maui.Core;
 @using CommunityToolkit.Maui.Alerts;
+@using PortaJel_Blazor.Classes
+@using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime JS;
 
 @page "/PlaylistView/{playlistId}"
 
 @if (loaded)
 {
-    <ViewHeader backgroundImgUrl="@playlist.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" baseMusicItem=@playlist />
+    <ViewHeader backgroundImgUrl="@playlist.ImgSource" backgroundImgUrlPlaceholder="@backgroundBlurHash" BaseMusicItem=@playlist />
 
     <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" style="position:relative;">
         <img src="data:image/png;base64, @backgroundBlurHash" class="background-blur" alt="backgound" style="top: @backgroundBlurHeight" />
@@ -125,7 +126,7 @@
         }
         if (loaded)
         {
-            MauiProgram.WebView.isLoading = false;
+            MauiProgram.WebView.IsLoading = false;
             // await JS.InvokeAsync<string>("InitAllAlbumSongItem");
             await Task.Delay(150); // allow album items time to snap into place
             MauiProgram.MainPage.ShowLoadingScreen(false);
@@ -163,7 +164,7 @@
                 if (playlistId != null)
                 {
                     // album = await MauiProgram.servers[0].FetchAlbumByIDAsync(parseId, fetchFullArtist: true);
-                    playlist = await MauiProgram.api.GetPlaylistAsync(parseId);
+                    playlist = await MauiProgram.Server.Playlist.GetAsync(parseId) as Playlist;
                     songs = playlist.Songs.Select(song => new Song(song)).ToArray();
                 }
                 else
@@ -183,13 +184,13 @@
                 }
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
-                base64BlurHash = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20);
-                backgroundBlurHash = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20, 0.3f);
+                base64BlurHash = Blurhelper.BlurhashToBase64Async_OpenTK(playlist.ImgBlurhash, 20, 20);
+                backgroundBlurHash = Blurhelper.BlurhashToBase64Async_OpenTK(playlist.ImgBlurhash, 20, 20, 0.3f);
                 Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarAlbums);
                 similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }
 
-            // TODO: Add this as an API in the plugin, not in the app itself
+            // TODO: Add this as an Server.Playlist in the plugin, not in the app itself
             // GnodService reccomendations = new();
             // similarArtists = await reccomendations.QueryGnod(album.artists.FirstOrDefault().name);
         }
@@ -204,7 +205,7 @@
         StateHasChanged();
         await JS.InvokeAsync<string>("InitAllAlbumSongItem");
         await Task.Delay(250); // allow album items time to snap into place
-        MauiProgram.WebView.isLoading = false;
+        MauiProgram.WebView.IsLoading = false;
         MauiProgram.MainPage.ShowLoadingScreen(false);
     }
 
@@ -217,14 +218,14 @@
     private async void GoBack()
     {
         MauiProgram.MainPage.ShowLoadingScreen(true);
-        MauiProgram.WebView.isLoading = true;
+        MauiProgram.WebView.IsLoading = true;
         try
         {
             await JS.InvokeAsync<string>("goBack");
         }
         catch (Exception ex)
         {
-            bool answer = await App.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
+            bool answer = await Application.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
             MauiProgram.WebView.NavigateHome();
         }
     }
@@ -235,15 +236,15 @@
         try
         {
             playlist.SetIsFavourite(!playlist.IsFavourite);
-            await MauiProgram.api.SetFavourite(playlist.Id, playlist.ServerAddress, playlist.IsFavourite);
+            await MauiProgram.Server.SetIsFavourite(playlist.Id, playlist.IsFavourite, playlist.ServerAddress);
         }
         catch (Exception ex)
         {
             playlist.SetIsFavourite(resetState);
-            await App.Current.MainPage.DisplayAlert("Error?", $"{ex}", "Continue");
+            await Application.Current.MainPage.DisplayAlert("Error?", $"{ex}", "Continue");
         }
         StateHasChanged();
-        // MauiProgram.api.SetFavourite
+        // MauiProgram.Server.Playlist.SetFavourite
     }
 
     private async void FavouriteSong(Guid songId)
@@ -262,7 +263,7 @@
         if (foundItem != null)
         {
             StateHasChanged();
-            await MauiProgram.api.SetFavourite(foundItem.Id, foundItem.ServerAddress, foundItem.IsFavourite);
+            await MauiProgram.Server.SetIsFavourite(foundItem.Id, foundItem.IsFavourite, foundItem.ServerAddress);
         }
     }
 
@@ -381,8 +382,7 @@
         {
             try
             {
-                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
-                toReturn[i] = base64 == null ? string.Empty : base64;
+                toReturn[i] = Blurhelper.BlurhashToBase64Async_OpenTK(data[i].ImgBlurhash, 20, 20);
             }
             catch (Exception)
             {

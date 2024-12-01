@@ -1,8 +1,8 @@
-﻿@using PortaJel_Blazor.Data;
-@using PortaJel_Blazor;
+﻿@using PortaJel_Blazor;
 @using Microsoft.Maui.Controls;
 @using PortaJel_Blazor.Pages;
 @using PortaJel_Blazor.Classes;
+@using PortaJel_Blazor.Classes.Data
 @inject NavigationManager NavigationManager
 @namespace PortaJel_Blazor.Shared
 
@@ -39,61 +39,58 @@
 </style>
 
 @code {
-    [Parameter] public BaseMusicItem musicObject { get; set; } = new Album();
-    [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
+    [Parameter] public BaseMusicItem musicObject { get; set; } = Album.Empty;
+    [Parameter] public string placeholderBase64 { get; set; } = string.Empty;
     [Parameter] public int? albumResolutionpx { get; set; } = 160;
     bool isArtist = false;
-    string? albumText = null;
-    string? artistName = null;
-    string? titleCongregate = null;
+    string albumText = string.Empty;
+    string artistName = string.Empty;
+    string titleCongregate = string.Empty;
 
     private int resolution = 250;
 
-    private string albumImg { get; set; } = String.Empty;
+    private string albumImg { get; set; } = string.Empty;
 
-    protected override async void OnInitialized()
+    protected override void OnParametersSet()
     {
         if(musicObject != null)
         {
-            if (musicObject is Album)
+            switch (musicObject)
             {
-                Album album = (Album)musicObject;
-                artistName = album.ArtistNames;
-                titleCongregate = album.Name + " • " + artistName;
-
-                albumImg = album.ImgSource;
-                if (string.IsNullOrWhiteSpace(placeholderBase64))
+                case Album album:
                 {
-                    string? base64 = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 5, 5);
-                    placeholderBase64  = base64 == null ? string.Empty : base64;
+                    artistName = album.ArtistNames;
+                    titleCongregate = album.Name + " • " + artistName;
+
+                    albumImg = album.ImgSource;
+                    placeholderBase64 = album.ImgBlurhashBase64;
+
+
+                    break;
+                }
+                case Song song:
+                {
+                    artistName = song.ArtistNames;
+                    titleCongregate = song.Name + " • " + artistName;
+
+                    albumImg = song.ImgSource;
+                    placeholderBase64 = song.ImgBlurhashBase64;
+
+                    break;
+                }
+                case Artist artist:
+                {
+                    isArtist = true;
+                    titleCongregate = artist.Name;
+
+                    albumImg = artist.ImgSource;
+                    placeholderBase64 = artist.ImgBlurhashBase64;
+
+
+                    break;
                 }
             }
-            if (musicObject is Song)
-            {
-                Song song = (Song)musicObject;
-                artistName = song.ArtistNames;
-                titleCongregate = song.Name + " • " + artistName;
 
-                albumImg = song.ImgSource;
-                if (string.IsNullOrWhiteSpace(placeholderBase64))
-                {
-                    string? base64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 5, 5);
-                    placeholderBase64 = base64 == null ? string.Empty : base64;
-                }
-            }
-            if(musicObject is Artist)
-            {
-                Artist artist = (Artist)musicObject;
-                isArtist = true;
-                titleCongregate = artist.Name;
-
-                albumImg = artist.ImgSource;
-                if (string.IsNullOrWhiteSpace(placeholderBase64))
-                {
-                    string? base64 = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 5, 5);
-                    placeholderBase64 = base64 == null ? string.Empty : base64;
-                }
-            }
             StateHasChanged();
         }
     }
@@ -102,24 +99,18 @@
     {
         if (musicObject != null)
         {
-            if (musicObject is Album)
+            if (musicObject is Album album)
             {
-                Album album = (Album)musicObject;
                 MauiProgram.MainPage.ShowLoadingScreen(true);
-                MauiProgram.WebView.NavigateAlbum(album.Id);
+                MauiProgram.WebView.NavigateAlbum(album);
             }
-            if (musicObject is Song)
+            if (musicObject is Song song)
             {
-                Song song = (Song)musicObject;
-                if (song != null)
-                {
-                    MauiProgram.MainPage.ShowLoadingScreen(true);
-                    MauiProgram.WebView.NavigateAlbum(song.AlbumId);
-                }
+                MauiProgram.MainPage.ShowLoadingScreen(true);
+                MauiProgram.WebView.NavigateAlbum(new Album(song.Album));
             }
-            if(musicObject is Artist)
+            if(musicObject is Artist artist)
             {
-                Artist artist = (Artist)musicObject;
                 if (artist.Id == Guid.Empty) { return; }
                 MauiProgram.MainPage.ShowLoadingScreen(true);
                 MauiProgram.WebView.NavigateArtist(artist.Id);

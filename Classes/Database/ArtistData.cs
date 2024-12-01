@@ -1,13 +1,15 @@
 ﻿using Jellyfin.Sdk.Generated.Models;
-using PortaJel_Blazor.Data;
 using SQLite;
 using System.Text.Json;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes.Database
 {
     public class ArtistData
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey, NotNull, AutoIncrement]
+        public Guid LocalId { get; set; }
         public Guid Id { get; set; }
         public string ServerAddress { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
@@ -19,12 +21,18 @@ namespace PortaJel_Blazor.Classes.Database
         public string BackgroundImgBlurhash { get; set; } = string.Empty;
         public string ImgSource { get; set; } = string.Empty;
         public string ImgBlurhash { get; set; } = string.Empty;
+        public string BlurhashBase64 { get; set; } = string.Empty;
         public string AlbumIdsJson { get; set;} = string.Empty;
         public bool IsPartial { get; set; } = true;
         public Guid[] GetAlbumIds()
         {
             Guid[]? guids = JsonSerializer.Deserialize<Guid[]>(AlbumIdsJson);
             return guids == null ? [] : guids;
+        }
+
+        public Guid[] GetSimilarIds()
+        {
+            return [];
         }
         public static ArtistData Builder(BaseItemDto baseItem, string server)
         {
@@ -43,13 +51,14 @@ namespace PortaJel_Blazor.Classes.Database
 
             ArtistData toAdd = new();
             toAdd.Id = (Guid)baseItem.Id;
+            toAdd.LocalId = GuidHelper.GenerateNewGuidFromHash(toAdd.Id, server);
             toAdd.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
             toAdd.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
             toAdd.Description = baseItem.Overview == null ? string.Empty : baseItem.Overview;
-            toAdd.LogoImgSource = artistLogo.source;
-            toAdd.ImgSource = artistImg.source;
+            toAdd.LogoImgSource = artistLogo.Source;
+            toAdd.ImgSource = artistImg.Source;
             toAdd.ImgBlurhash = artistImg.Blurhash;
-            toAdd.BackgroundImgSource = artistBackdrop.source;
+            toAdd.BackgroundImgSource = artistBackdrop.Source;
             toAdd.BackgroundImgBlurhash = artistBackdrop.Blurhash;
 
             return toAdd;

@@ -1,48 +1,47 @@
 ﻿@page "/"
+@using System.Diagnostics
+@using System.Runtime.CompilerServices
 @using Jellyfin.Sdk;
 @using Jellyfin.Sdk.Generated.Models;
-@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared;
 @using BlazorAnimate;
+@using PortaJel_Blazor.Classes
+@using PortaJel_Blazor.Classes.Data
 @using PortaJel_Blazor.Pages.Views
 @inject IJSRuntime Js;
 
 <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
     <div style="margin-bottom: 1rem; margin-top:1rem;">
         <ul class="music-list">
-            @for (int i = 0; i < 6; i++)
+            @for (int i = 0; i < 8; i++)
             {
                 itemFadeInDelay += 0.1f;
-                if (i >= recentPlayData.Count())
+                if (i >= _recentPlayData.Count())
                 {
                     continue;
                 }
 
-                if (recentPlayData[i] == null || recentPlayPlaceholderImages.Length <= i)
+                if (_recentPlayData[i] == null)
                 {
                     continue;
                 }
 
-                BaseMusicItem item = recentPlayData[i];
-                string base64 = recentPlayPlaceholderImages[i];
-                <AlbumListView musicItem="@item" placeholderBase64="@base64" />
+                var item = _recentPlayData[i];
+                string base64 = item.ImgBlurhashBase64;
+                <AlbumListView MusicItem="@item" placeholderBase64="@base64"/>
             }
         </ul>
     </div>
+    <HorizontalMusicItemList Title="Favourites" AlbumData="@_favouritesPlayData"/>
+    <br/>
 
-    <HorizontalMusicItemList Title="Favourites" itemCount="50" albumData="@favouritesPlayData" albumBlurHashData="@favouritesPlaceholderImages" />
-    <br />
+    <HorizontalMusicItemList Title="Recently Added" AlbumData="@_recentAddedData"/>
+    <br/>
 
-    <!-- Horizontal container for Recently added Albums -->
-    <HorizontalMusicItemList Title="Recently Added" itemCount="50" albumData="@recentAddedData" albumBlurHashData="@recentAddedPlaceholderImages" />
-    <br />
+    <HorizontalMusicItemList Title="Most Played" AlbumData="@_mostPlayData"/>
+    <br/>
 
-    <!-- Horizontal container for Most Played Songs -->
-    <HorizontalMusicItemList Title="Most Played" itemCount="50" albumData="@mostPlayData" albumBlurHashData="@mostPlayPlaceholderImages" />
-    <br />
-
-    <!-- Horizontal container for Most Random Albums -->
-    <HorizontalMusicItemList Title="Random" itemCount="50" albumData="@randomData" albumBlurHashData="@randomPlaceholderImages" showLoading="true"/>
+    <HorizontalMusicItemList Title="Random" AlbumData="@_randomData" ShowLoading="true"/>
 </Animate>
 
 @if (_errorMessage != null)
@@ -51,256 +50,58 @@
 }
 
 @code {
-    private int itemReturnCount = 50;
+    private BaseMusicItem[] _recentPlayData = [];
+    private BaseMusicItem[] _favouritesPlayData = [];
+    private BaseMusicItem[] _recentAddedData = [];
+    private BaseMusicItem[] _mostPlayData = [];
+    private BaseMusicItem[] _randomData = [];
 
-    private BaseMusicItem[] recentPlayData = MauiProgram.homeCache.recentPlayData;
-    private string[] recentPlayPlaceholderImages = MauiProgram.homeCache.recentPlayPlaceholderImages;
-
-    private BaseMusicItem[] favouritesPlayData = MauiProgram.homeCache.favouritesPlayData;
-    private string[] favouritesPlaceholderImages = MauiProgram.homeCache.favouritesPlaceholderImages;
-
-    private BaseMusicItem[] recentAddedData = MauiProgram.homeCache.recentAddedData;
-    private string[] recentAddedPlaceholderImages = MauiProgram.homeCache.recentAddedPlaceholderImages;
-
-    private BaseMusicItem[] mostPlayData = MauiProgram.homeCache.mostPlayData;
-    private string[] mostPlayPlaceholderImages = MauiProgram.homeCache.mostPlayPlaceholderImages;
-
-    private BaseMusicItem[] randomData = new Album[0];
-    private string[] randomPlaceholderImages = new string[0];
-
-    private Exception _errorMessage = null;
-    private int resultCount = 50;
-    private bool isLoading = true;
+    private readonly Exception _errorMessage = null;
+    private const int ResultCount = 50;
     private float itemFadeInDelay = 0;
-
-    private bool searchDisplayGrid = false;
-    private bool isSearching = false;
-    public string searchQuery { get; set; } = String.Empty;
-    private string queudQuery = String.Empty;
-    private bool queryQueued = false;
-    BaseMusicItem[] searchResults = new BaseMusicItem[0];
-    string[] placeholderImages = new string[0];
-
-    private bool waitingForResult = false;
-    private bool isSearchLoading = true;
-
-    protected override async Task OnInitializedAsync()
+    
+    protected override Task OnInitializedAsync()
     {
         MauiProgram.WebView.pageTitle = "PortaJel";
         MauiProgram.WebView.currentUri = "/home";
         MauiProgram.WebView.showHeader = true;
-        MauiProgram.UpdateDebugMessage("Home page loaded.");
-
-        if (!MauiProgram.homeCache.IsEmpty())
-        {
-            isLoading = false;
-            MauiProgram.MainPage.SetNavbarVisibility(true);
-            MauiProgram.UpdateDebugMessage("Loading complete!");
-            StateHasChanged();
-        }
-
-        await Task.Run(async () => 
-        { 
-            while (MauiProgram.dataLoadFinished == false)
-            {
-                // twiddle our thumbs
-            }
-            await LoadApi().ConfigureAwait(false);
-        });
         MauiProgram.MainPage.SetNavbarVisibility(true);
-    }
-
-    protected override void OnParametersSet()
-    {
-        searchQuery = string.Empty;
-        OnInitialized();
-        StateHasChanged();
-    }
-
-    private async Task LoadApi()
-    {
-        // Run data collection
-        try
-        {
-            MauiProgram.UpdateDebugMessage("Starting request for Home page data.");
-            Task<bool> runGetRecent = Task.Run(async () =>
-            {
-                // Get recently listened to songs. 
-                var itemsToAdd = await MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.DatePlayed, sortOrder: [SortOrder.Descending]).ConfigureAwait(false);
-                // Cut them down so you only have one track per Album
-                List<Song> foundIds = itemsToAdd.OrderBy(s => s.DatePlayed).ToList();
-                foundIds = foundIds.GroupBy(song => song.AlbumId).Select(song => song.First()).ToList();
-                // Create list of Albums
-                List<Album> toReturn = new();
-                await Parallel.ForEachAsync(foundIds, async (song, ct) => {
-                    toReturn.Add(await MauiProgram.api.GetAlbumAsync(song.AlbumId).ConfigureAwait(false));
-                }).ConfigureAwait(false);
-                recentPlayData = toReturn.OrderByDescending(a => a.DatePlayed).ToArray();
-                recentPlayPlaceholderImages =  await GenerateBlurHash(recentPlayData).ConfigureAwait(false);
-                MauiProgram.homeCache.recentPlayData = recentPlayData;
-                MauiProgram.homeCache.recentPlayPlaceholderImages = recentPlayPlaceholderImages;
-                return true;
-            });
-            Task<bool> runGetFavourites = Task.Run(async () =>
-            {
-                favouritesPlayData = await MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, isPartial: true, startIndex: 0, isFavourite: true).ConfigureAwait(false);
-                favouritesPlaceholderImages = await GenerateBlurHash(favouritesPlayData).ConfigureAwait(false);
-                MauiProgram.homeCache.favouritesPlayData = favouritesPlayData;
-                MauiProgram.homeCache.favouritesPlaceholderImages = favouritesPlaceholderImages;
-                return true;
-            });
-            Task<bool> runGetRecentlyAdded = Task.Run(async () =>
-            {
-                recentAddedData = await MauiProgram.api.GetAllAlbumsAsync(limit: resultCount, isPartial: true, startIndex: 0, sortTypes: ItemSortBy.DateCreated, sortOrder: SortOrder.Descending).ConfigureAwait(false);
-                recentAddedPlaceholderImages = await GenerateBlurHash(recentAddedData).ConfigureAwait(false);
-                MauiProgram.homeCache.recentAddedData = recentAddedData;
-                MauiProgram.homeCache.recentAddedPlaceholderImages = recentAddedPlaceholderImages;
-                return true;
-            });
-            Task<bool> runGetMostPlayed = Task.Run(async () =>
-            {
-                mostPlayData = await MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.PlayCount, sortOrder: [SortOrder.Descending]).ConfigureAwait(false);
-                mostPlayPlaceholderImages = await GenerateBlurHash(mostPlayData).ConfigureAwait(false);
-                MauiProgram.homeCache.mostPlayData = mostPlayData;
-                MauiProgram.homeCache.mostPlayPlaceholderImages = mostPlayPlaceholderImages;
-                return true;
-            });
-            Task<bool> runGetRandom = Task.Run(async () =>
-            {
-                randomData = await MauiProgram.api.GetAllSongsAsync(limit: resultCount, startIndex: 0, sortTypes: ItemSortBy.Random, sortOrder: [SortOrder.Descending]).ConfigureAwait(false);
-                randomPlaceholderImages = await GenerateBlurHash(randomData).ConfigureAwait(false);
-                if (!isLoading)
-                {
-                    await InvokeAsync(() => StateHasChanged());   
-                }
-                return true;
-            });
-            await Task.WhenAll(
-                runGetRecent,
-                runGetFavourites,
-                runGetRecentlyAdded,
-                runGetMostPlayed,
-                runGetRandom
-            );
-            isLoading = false;
-            await InvokeAsync(() => StateHasChanged());
-        }
-        catch (Exception ex)
-        {
-            if (Application.Current != null && Application.Current.MainPage != null)
-            {
-                Application.Current.Dispatcher.Dispatch(async () =>
-                {
-                    System.Diagnostics.Trace.WriteLine(ex.ToString());
-                    await Application.Current.MainPage.DisplayAlert("Error?", $"{ex.Message}", "Continue");
-                    isLoading = false;
-                    _errorMessage = ex;
-                    await InvokeAsync(() => StateHasChanged());
-                });
-            }
-        }
-    }
-
-    private async void SearchTextChange(string? searchFor)
-    {
-        if (searchFor == null || String.IsNullOrWhiteSpace(searchFor))
-        {
-            searchResults = new BaseMusicItem[0];
-            isSearching = false;
-            StateHasChanged();
-            return;
-        }
-
-        if (waitingForResult)
-        {
-            queudQuery = searchFor;
-            queryQueued = true;
-            return;
-        }
-
-        itemFadeInDelay = 0;
-        searchQuery = searchFor;
-
-        isSearching = true;
-        waitingForResult = true;
-        StateHasChanged();
-
-        // If there is a queued result
-        await Task.Run(async () =>
-        {
-            bool recheck = true;
-            while (recheck)
-            {
-                recheck = false; // automatically do not reiterate
-
-                searchResults = await MauiProgram.servers[0].SearchAsync(searchFor, sorted: true, searchLimit: 50);
-
-                if (searchResults == null)
-                {
-                    waitingForResult = false;
-                    await InvokeAsync(StateHasChanged);
-                    return;
-                }
-
-                placeholderImages = new string[searchResults.Length];
-                for (int i = 0; i < searchResults.Length; i++)
-                {
-                    try
-                    {
-                        string? base64 = await MusicItemImage.BlurhashToBase64Async(searchResults[i], 20, 20);
-                        placeholderImages[i] = base64 == null ? string.Empty : base64;
-                    }
-                    catch (Exception)
-                    {
-                        placeholderImages[i] = string.Empty;
-                    }
-                }
-
-                if (queryQueued)
-                {
-                    recheck = true;
-                    searchFor = queudQuery;
-                    searchQuery = queudQuery;
-                    queryQueued = false;
-                }
-            }
-        });
-
-        waitingForResult = false;
-        await InvokeAsync(StateHasChanged);
-    }
-
-    // Helper method to remove special characters from a string
-    private string RemoveSpecialCharacters(string str)
-    {
-        return new string(str.Where(c => Char.IsLetterOrDigit(c) || Char.IsWhiteSpace(c)).ToArray());
+        return Task.CompletedTask;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await Js.InvokeAsync<string>("InitAllImages");
-        if (isLoading == false)
+        if (firstRender)
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
-            MauiProgram.WebView.isLoading = false;
-        }
-    }
-
-    private async Task<string[]> GenerateBlurHash(BaseMusicItem[] data)
-    {
-        String[] toReturn = new string[data.Count()];
-        for (int i = 0; i < data.Count(); i++)
-        {
-            try
+            MauiProgram.WebView.IsLoading = false;
+            await Task.Delay(500);
+            
+            var favTask = MauiProgram.Database.Album.GetAllAsync(limit: ResultCount, startIndex: 0, getFavourite: true).ContinueWith(async task =>
             {
-                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
-                toReturn[i] = base64 == null ? string.Empty : base64;
-            }
-            catch (Exception)
+                _favouritesPlayData = task.Result;
+                await InvokeAsync(StateHasChanged);
+                await Js.InvokeAsync<string>("InitAllImages");
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+            var recentTask = MauiProgram.Database.Album.GetAllAsync(limit: ResultCount, startIndex: 0, setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Descending).ContinueWith(async task =>
             {
-                toReturn[i] = string.Empty;
-            }
+                _recentAddedData = task.Result;
+                await InvokeAsync(StateHasChanged);
+                await Js.InvokeAsync<string>("InitAllImages");
+            }, TaskScheduler.FromCurrentSynchronizationContext());;
+            var playTask = MauiProgram.Database.Song.GetAllAsync(limit: ResultCount, startIndex: 0, setSortTypes: ItemSortBy.PlayCount, setSortOrder: SortOrder.Descending).ContinueWith(async task =>
+            {
+                _mostPlayData = task.Result;
+                await InvokeAsync(StateHasChanged);
+                await Js.InvokeAsync<string>("InitAllImages");
+            }, TaskScheduler.FromCurrentSynchronizationContext());;
+            var randomTask = MauiProgram.Database.Song.GetAllAsync(limit: ResultCount, startIndex: 0, setSortTypes: ItemSortBy.Random, setSortOrder: SortOrder.Descending).ContinueWith(async task =>
+            {
+                _randomData = task.Result;
+                await InvokeAsync(StateHasChanged);
+                await Js.InvokeAsync<string>("InitAllImages");
+            }, TaskScheduler.FromCurrentSynchronizationContext());;
+            await Task.WhenAll(favTask, recentTask, playTask,randomTask);
         }
-        return toReturn;
     }
 }

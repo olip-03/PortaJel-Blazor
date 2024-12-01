@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             BindingContext=" PortaJel_Blazor.Classes.AddConnectorPageView"
+             x:Class="PortaJel_Blazor.Pages.Connection.AddConnectorView">
+    <ContentPage.Content>
+        <VerticalStackLayout VerticalOptions="CenterAndExpand" Margin="16" MaximumWidthRequest="600" Spacing="10">
+            <Label x:Name="Title" FontFamily="RobotoMedium" HorizontalOptions="Center" FontSize="40">PortaJel</Label>
+            
+            <VerticalStackLayout x:Name="PropertyStackLayout">
+                
+            </VerticalStackLayout>
+            
+            <StackLayout Spacing="14">
+                <Button IsEnabled="True" Text="Continue" Clicked="ContinueButton_OnClicked"></Button>
+                <Button IsEnabled="True" Text="Cancel" Clicked="CancelButton_OnClicked"></Button>
+            </StackLayout>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>

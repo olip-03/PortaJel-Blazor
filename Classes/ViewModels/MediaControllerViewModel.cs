@@ -1,7 +1,7 @@
-﻿using PortaJel_Blazor.Data;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using PortaJel_Blazor.Classes.Data;
 
-namespace PortaJel_Blazor.Classes
+namespace PortaJel_Blazor.Classes.ViewModels
 {
     public class MediaControllerViewModel : BindableObject
     {

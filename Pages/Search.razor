@@ -1,7 +1,8 @@
 ﻿@using System.Diagnostics
-@using PortaJel_Blazor.Data;
 @using PortaJel_Blazor.Shared;
 @using BlazorAnimate;
+@using PortaJel_Blazor.Classes.Connectors.Database
+@using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime JS
 
 @page "/search"
@@ -11,96 +12,86 @@
     <div class="search">
         <input type="text" id="SearchPage_SearchInput" name="search" class="input PageSecondaryBackgroundColor PrimaryTextColor" @oninput="@((e) => TextChange((string)e.Value))"/>
 
-        <MatChipSet Style="padding: 8px 1rem;" Choice="true" @bind-SelectedChip="selectedChip">
-            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Playlist" LeadingIcon="favorite"> </MatChip>
-            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Album" LeadingIcon="favorite"></MatChip>
-            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Artist" LeadingIcon="favorite"></MatChip>
-            <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Song" LeadingIcon="favorite"></MatChip>
-        </MatChipSet>
-
-        @if (waitingForResult)
-        {
-            <div class="spinner">
-                <Spinner/>
-            </div>
-        }
-        else
-        {
-            <div class="searchResponse">
-                @switch (searchResults.Count())
+        @* <MatChipSet Style="padding: 8px 1rem;" Choice="true" @bind-SelectedChip="selectedChip"> *@
+        @*     <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Playlist" LeadingIcon="favorite"> </MatChip> *@
+        @*     <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Album" LeadingIcon="favorite"></MatChip> *@
+        @*     <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Artist" LeadingIcon="favorite"></MatChip> *@
+        @*     <MatChip Style="border-radius: 8px; margin: 0 4px;" Label="Song" LeadingIcon="favorite"></MatChip> *@
+        @* </MatChipSet> *@
+        <div class="searchResponse">
+            @if (IsSearching)
+            {
+                <h5 class="SecondaryTextColor">Searching...</h5>
+            }
+            else
+            {
+                switch (_totals)
                 {
                     case > 0:
                     {
                         foreach (Playlist playlist in _playlistResult)
                         {
-                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
                                 <SearchResultItem musicObject="@playlist" cacheAsRecentItem=true placeholderBase64="@playlist.ImgBlurhashBase64"/>
                             </Animate>
                         }
+
                         foreach (Artist artist in _artistResult)
                         {
-                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
                                 <SearchResultItem musicObject="@artist" cacheAsRecentItem=true placeholderBase64="@artist.ImgBlurhashBase64"/>
                             </Animate>
                         }
+
                         foreach (Album album in _albumResult)
                         {
-                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
                                 <SearchResultItem musicObject="@album" cacheAsRecentItem=true placeholderBase64="@album.ImgBlurhashBase64"/>
                             </Animate>
                         }
+
                         foreach (Song song in _songResult)
                         {
-                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)" Delay="TimeSpan.FromSeconds(itemFadeInDelay)">
+                            <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
                                 <SearchResultItem musicObject="@song" cacheAsRecentItem=true placeholderBase64="@song.ImgBlurhashBase64"/>
                             </Animate>
                         }
+
                         break;
                     }
-                    case <= 0 when !String.IsNullOrWhiteSpace(searchQuery):
+                    case <= 0 when !String.IsNullOrWhiteSpace(SearchQuery):
                     {
                         <h5 class="SecondaryTextColor">Nothing found</h5>
                         break;
                     }
                     default:
                     {
-                        if (String.IsNullOrWhiteSpace(searchQuery))
+                        if (String.IsNullOrWhiteSpace(SearchQuery))
                         {
-                            itemFadeInDelay = 0;
                             <h5 class="SecondaryTextColor">Recent searches</h5>
                         }
 
                         break;
                     }
                 }
-            </div>
-        }
+            }
+        </div>
     </div>
 </Animate>
 
 @code {
-    // https://www.meziantou.net/infinite-scrolling-in-blazor.htm
-    // This is a good resource please implement it 
+    [Parameter] public string SearchQuery { get; set; } = String.Empty;
 
-    [Parameter] public string searchQuery { get; set; } = String.Empty;
-    private string queudQuery = String.Empty;
-    private bool queryQueued = false;
-    BaseMusicItem[] searchResults = new BaseMusicItem[0];
+    private readonly DatabaseSearcher _dbSearch = new();
+    private bool IsSearching => _dbSearch.IsSearching;
 
+    private int _totals = 0;
     private Playlist[] _playlistResult = [];
     private Artist[] _artistResult = [];
     private Album[] _albumResult = [];
     private Song[] _songResult = [];
-    
-    string[] placeholderImages = new string[0];
-    
-    MatChip selectedChip = null;
 
-    private bool waitingForResult = false;
-    private float itemFadeInDelay = 0;
-    private bool isLoading = true;
-
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
         MauiProgram.WebView.pageTitle = "Search";
         MauiProgram.WebView.currentUri = "/search";
@@ -109,91 +100,31 @@
         MauiProgram.WebView.cancellationSource = new();
         MauiProgram.WebView.cancellationToken = MauiProgram.WebView.cancellationSource.Token;
 
-        MauiProgram.WebView.isLoading = false;
-        //
-        isLoading = false;
-        // MauiProgram.mainPage.UpdateKeyboardLocation();
+        MauiProgram.WebView.IsLoading = false;
+
+        _dbSearch.SearchUpdated += UpdateList;
+        return Task.CompletedTask;
     }
 
-    private async void TextChange(string searchFor)
+    private void TextChange(string searchFor)
     {
-        if (searchFor == null)
-        {
-            searchFor = String.Empty;
-        }
-
-        if (waitingForResult)
-        {
-            queudQuery = searchFor;
-            queryQueued = true;
-            return;
-        }
-
-        itemFadeInDelay = 0;
-        searchQuery = searchFor;
-
-        if (String.IsNullOrWhiteSpace(searchFor))
-        {
-            searchResults = new BaseMusicItem[0];
-            return;
-        }
-
-        waitingForResult = true;
-
-        // If there is a queued result 
-        await Task.Run(async () =>
-        {
-            bool recheck = true;
-            while (recheck)
-            {
-                recheck = false; // automatically do not reiterate
-
-                searchResults = await MauiProgram.servers[0].SearchAsync(searchFor, sorted: true, searchLimit: 50);
-                
-                if (searchResults == null)
-                {
-                    waitingForResult = false;
-                    await InvokeAsync(StateHasChanged);
-                    return;
-                }
-
-                _playlistResult = searchResults.OfType<Playlist>().ToArray();
-                _artistResult = searchResults.OfType<Artist>().ToArray();
-                _albumResult = searchResults.OfType<Album>().ToArray();
-                _songResult = searchResults.OfType<Song>().ToArray();
-
-                await Task.WhenAll(_playlistResult.Select(async p => await MusicItemImage.BlurhashToBase64Async(p.ImgBlurhash)));
-                await Task.WhenAll(_artistResult.Select(async ar => await MusicItemImage.BlurhashToBase64Async(ar.ImgBlurhash)));
-                await Task.WhenAll(_albumResult.Select(async al => await MusicItemImage.BlurhashToBase64Async(al.ImgBlurhash)));
-                await Task.WhenAll(_songResult.Select(async so => await MusicItemImage.BlurhashToBase64Async(so.ImgBlurhash)));
-
-                if (queryQueued)
-                {
-                    recheck = true;
-                    searchFor = queudQuery;
-                    searchQuery = queudQuery;
-                    queryQueued = false;
-                }
-            }
-        });
-
-        waitingForResult = false;
-        await InvokeAsync(StateHasChanged);
+        searchFor ??= string.Empty;
+        _dbSearch.QueueSearch(searchFor);
     }
 
-    // Helper method to remove special characters from a string
-    private string RemoveSpecialCharacters(string str)
+    private void UpdateList(BaseMusicItem[] result)
     {
-        return new string(str.Where(c => Char.IsLetterOrDigit(c) || Char.IsWhiteSpace(c)).ToArray());
+        _totals = result.Length;
+        _playlistResult = result.OfType<Playlist>().ToArray();
+        _artistResult = result.OfType<Artist>().ToArray();
+        _albumResult = result.OfType<Album>().ToArray();
+        _songResult = result.OfType<Song>().ToArray();
+        StateHasChanged();
     }
 
     protected override async void OnAfterRender(bool firstRender)
     {
-        if (!isLoading)
-        {
-            await JS.InvokeAsync<string>("SearchPage_FocusOnInput");
-        }
-
+        await JS.InvokeAsync<string>("SearchPage_FocusOnInput");
         await JS.InvokeAsync<string>("InitAllImages");
         MauiProgram.MainPage.ShowLoadingScreen(false);
     }

@@ -1,7 +1,6 @@
 ﻿@using PortaJel_Blazor.Classes;
 @using Microsoft.Maui.Controls;
 @using PortaJel_Blazor.Shared;
-@using PortaJel_Blazor.Pages.Xaml;
 @using PortaJel_Blazor.Shared.Icons;
 @using BlazorAnimate;
 @inject NavigationManager NavManager
@@ -48,7 +47,7 @@
         MauiProgram.WebView.currentUri = "/settingshome";
         MauiProgram.WebView.showHeader = true;
 
-        MauiProgram.WebView.isLoading = false;
+        MauiProgram.WebView.IsLoading = false;
         MauiProgram.MainPage.ShowLoadingScreen(false);
     }
 

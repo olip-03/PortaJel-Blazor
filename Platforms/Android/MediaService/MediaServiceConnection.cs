@@ -1,8 +1,9 @@
 ﻿using Android.Content;
 using Android.Util;
 using Android.OS;
-using PortaJel_Blazor.Data;
 using System.Diagnostics;
+using PortaJel_Blazor.Classes.Data;
+
 namespace PortaJel_Blazor.Platforms.Android.MediaService
 {
     public class MediaServiceConnection : Java.Lang.Object, IServiceConnection

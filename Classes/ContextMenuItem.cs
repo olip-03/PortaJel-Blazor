@@ -1,8 +1,9 @@
 ﻿using CommunityToolkit.Maui.Core.Extensions;
 using Microsoft.Maui.Controls.Shapes;
 using PortaJel_Blazor.Classes;
-using PortaJel_Blazor.Data;
 using System.Collections.ObjectModel;
+using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes
 {
@@ -62,7 +63,7 @@ namespace PortaJel_Blazor.Classes
         public ContextMenuItem(string setTaskName, MusicItemImage image, Action? setTask)
         {
             this.itemName = setTaskName;
-            this.itemIcon = image.source;
+            // this.itemIcon = image;
             this.action = setTask;
             this.itemSize = 35;
             this.cellSize = 50;
