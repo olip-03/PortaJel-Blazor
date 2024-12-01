@@ -71,6 +71,16 @@ public class FileSystemPlaylistConnector : IMediaDataConnector, IMediaPlaylistIn
         throw new NotImplementedException();
     }
 
+    public Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {

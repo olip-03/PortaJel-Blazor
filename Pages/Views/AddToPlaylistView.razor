@@ -4,20 +4,24 @@
 @using System.Text.Json;
 @using PortaJel_Blazor.Classes
 @using PortaJel_Blazor.Classes.Data
-@inject IJSRuntime JS;
-@page "/AddToPlaylistView/{songItemIds}"
+@using PortaJel_Blazor.Classes.EventArgs
+@inject IJSRuntime Js;
+
+@page "/AddToPlaylistView/{SongItemIds}"
+
+<FloatingActionButton Text="Add to playlist" OnClick="AddToPlaylist"></FloatingActionButton>
 
 <div class="addPlaylistView">
-    <h3>
+    <h3 class="title">
         @songIds.Count() Items
     </h3>
-
+    
     <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="20" ItemSize="100">
         <ItemContent>
-            <SearchResultItem musicObject="musicItem" />
+            <MusicLibraryItem MusicObject="musicItem" OnCheckChanged="SelectionChanged"/>
         </ItemContent>
         <Placeholder>
-            <SearchResultItem musicObject="Album.Empty"/>
+            <MusicLibraryItem MusicObject="Album.Empty"/>
         </Placeholder>
         <EmptyContent>
             <p>
@@ -25,63 +29,82 @@
             </p>
         </EmptyContent>
     </Virtualize>
-
 </div>
 
 @code {
-    [Parameter] public string songItemIds { get; set; } = string.Empty;
+    [Parameter] public string SongItemIds { get; set; } = string.Empty;
     private Guid[] songIds = Array.Empty<Guid>();
-    private bool hasPlaylists = false;
+    
+    private BaseMusicItem[] _playlistData = [];
+    private int _totalRecordCount = 0;
+    private bool _hasPlaylists = false;
 
-    protected override async Task OnInitializedAsync()
+    private readonly List<Guid> _selectedPlaylistIds = [];
+
+    protected override void OnInitialized()
     {
         MauiProgram.WebView.pageTitle = "Add To Playlist";
-        MauiProgram.WebView.currentUri = $"/AddToPlaylistView/{songItemIds}";
+        MauiProgram.WebView.currentUri = $"/AddToPlaylistView/{SongItemIds}";
         MauiProgram.WebView.showHeader = true;
-        // MauiProgram.MainPage.ShowLoadingScreen(false);
     }
-
-    protected override void OnParametersSet()
+    
+    protected override async Task OnParametersSetAsync()
     {
-        songIds = JsonSerializer.Deserialize<Guid[]>(songItemIds);
-        base.OnParametersSet();
+        songIds = JsonSerializer.Deserialize<Guid[]>(SongItemIds);
+        
+        _playlistData = await MauiProgram.Database.Playlist.GetAllAsync();
+        _totalRecordCount = _playlistData.Length;
+        _hasPlaylists = _totalRecordCount > 0;
     }
-
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (hasPlaylists)
+        if (_hasPlaylists)
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
-            await JS.InvokeAsync<string>("InitAllImages");
+            await Js.InvokeAsync<string>("InitAllImages");
         }
-        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+        {
+            MauiProgram.MainPage.ShowLoadingScreen(false);
+        }
+    }
+
+    private void SelectionChanged(CheckedItemEventArg eventArg)
+    {
+        if (eventArg.IsChecked)
+        {
+            _selectedPlaylistIds.Add(eventArg.ItemId);
+        }
+        else
+        {
+            _selectedPlaylistIds.Remove(eventArg.ItemId);
+        }
+    }
+
+    private async void AddToPlaylist()
+    {
+        // Add to playlist function here
+        
+        // This function just sends us back to the last page
+        MauiProgram.WebView.IsLoading = true;
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        try
+        {
+            MauiProgram.WebView.NavigateBack();
+        }
+        catch (Exception ex)
+        {
+            bool answer = await Application.Current.MainPage.DisplayAlert("Error?", $"Failed to navigate back will return home. Error: {ex} ", "Return", "Continue");
+            MauiProgram.WebView.NavigateHome();
+        }
     }
 
     private async ValueTask<ItemsProviderResult<BaseMusicItem>> LoadListItems(ItemsProviderRequest request)
     {
-        int totalItems = 0;
-        int numItems = 0;
-        BaseMusicItem[] musicItems = [];
-        //overscan = 20;
-
-        totalItems = await MauiProgram.Server.Playlist.GetTotalCountAsync(false);
-        numItems = Math.Min(request.Count, totalItems - request.StartIndex);
-        MauiProgram.UpdateDebugMessage($"Grabbing playlist items from {request.StartIndex} to {request.StartIndex + numItems} of total {totalItems}.");
-        musicItems = await MauiProgram.Server.Playlist.GetAllAsync(
-        limit: numItems,
-        startIndex: request.StartIndex,
-        getFavourite: false);
-
-        await Parallel.ForEachAsync(musicItems, async (musicItem, ct) =>
-        {
-            Playlist playlist = musicItem as Playlist;
-            musicItem = playlist;
-        });
-
-        MauiProgram.WebView.IsLoading = false;
-        await JS.InvokeAsync<string>("InitAllImages");
-        StateHasChanged();
-        hasPlaylists = musicItems.Count() > 0;
-        return new ItemsProviderResult<BaseMusicItem>(musicItems, totalItems);
+        var toReturn = _playlistData.Skip(request.StartIndex).Take(request.Count);
+        var baseMusicItems = toReturn.ToArray();
+        return new ItemsProviderResult<BaseMusicItem>(baseMusicItems, _totalRecordCount);
     }
 }

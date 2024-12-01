@@ -190,3 +190,34 @@ img.gridLayout {
 .grid-album-artist {
     color: gray;
 }
+.radioButtonContainer {
+    margin: auto auto auto auto;
+    width: 3rem;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+.radioButton {
+    appearance: none;
+    margin: auto;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #999;
+    transition: 0.2s all linear;
+    position: relative;
+}
+.radioButton:checked {
+    border: 2px solid #999;
+}
+.radioButton:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #999;
+    transform: translate(-50%, -50%);
+}

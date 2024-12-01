@@ -138,7 +138,7 @@
                     string placeholderImg = string.Empty;
                     try { placeholderImg = placeholderImages[i]; }
                     catch { placeholderImg = string.Empty; }
-                    <SearchResultItem musicObject="@item" isGrid=@showGrid placeholderBase64="@placeholderImg" />
+                    <MusicLibraryItem MusicObject="@item" isGrid=@showGrid placeholderBase64="@placeholderImg" />
                 }
             </div>
         </div>

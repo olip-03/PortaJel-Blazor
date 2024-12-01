@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
@@ -115,9 +116,46 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
         throw new NotImplementedException();
     }
 
-    public Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
+    [Obsolete("This will return false! Playlist Connector methods must specify a playlistId! AddAsync(Guid playlistId, BaseMusicItem musicItem, CancellationToken cancellationToken = default)")]
+    public async Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return false;
+    }
+
+    public async Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await api.Playlists[playlistId].Items.PostAsync(c =>
+            {
+                c.QueryParameters.UserId = user.Id;
+                c.QueryParameters.Ids = [musicItem.Id];
+            }, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine($"{e.Message} {e.StackTrace}");
+            return false;
+        }
+        return true;
+    }
+
+    public async Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await api.Playlists[playlistId].Items.PostAsync(c =>
+            {
+                c.QueryParameters.UserId = user.Id;
+                c.QueryParameters.Ids = musicItems.Select(s => (Guid?)s.Id).ToArray();
+            }, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine($"{e.Message} {e.StackTrace}");
+            return false;
+        }
+        return true;
     }
 
     public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId, string serverUrl = "",

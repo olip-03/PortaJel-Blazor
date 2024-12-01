@@ -4,6 +4,7 @@
 @using BlazorAnimate;
 @using System.Diagnostics;
 @using PortaJel_Blazor.Classes.Data
+@using PortaJel_Blazor.Classes.EventArgs
 @namespace PortaJel_Blazor.Shared
 
 @if(OnViewAction != null)
@@ -13,15 +14,34 @@
 
 <div id="@elementId" class="album-container @(isGrid == true ? "gridLayout" : "")">
     <div style="display: flex" @oncontextmenu=OpenContextMenu @onclick=NavigateTo>
+        @if (CheckModeOn)
+        {
+            <div class="radioButtonContainer">
+                @if (IsChecked)
+                {
+                    <Animate class="radioButtonBox"  Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <input class="radioButton" type="radio" checked="checked">
+                    </Animate>
+                }
+                else
+                {
+                    <Animate class="radioButtonBox"  Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                        <input class="radioButton" type="radio">
+                    </Animate>
+                }
+            </div>
+        }
         <div class="artist-cover @(isGrid == true ? "gridLayout" : "")">
             @if (hasImg)
-            { // Has actual image, and isn't a null object
-                <img class="album-cover-img opacityTransition @(musicObjectType == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@imgSrc" style="opacity: 0" onerror="this.src='/images/emptyAlbum.png'" />
-                <img class="album-cover-placeholder @(musicObjectType == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@elementId" onerror="this.style.opacity=0" />
+            {
+                // Has actual image, and isn't a null object
+                <img class="album-cover-img opacityTransition @(musicObjectType == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="@imgSrc" style="opacity: 0" onerror="this.src='/images/emptyAlbum.png'"/>
+                <img class="album-cover-placeholder @(musicObjectType == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" src="data:image/png;base64, @placeholderBase64" id="@elementId" onerror="this.style.opacity=0"/>
             }
             else
-            { // Do yer placeholder here
-                <img class="album-cover-img @(musicObjectType == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" src="/images/emptyAlbum.png" onerror="this.src='/images/emptyAlbum.png'" />
+            {
+                // Do yer placeholder here
+                <img class="album-cover-img @(musicObjectType == "Artist" ? "circle" : "") @(isGrid == true ? "gridLayout" : "")" loading="lazy" src="/images/emptyAlbum.png" onerror="this.src='/images/emptyAlbum.png'"/>
             }
         </div>
         <div class="textContainer">
@@ -32,11 +52,12 @@
             @if (!String.IsNullOrWhiteSpace(subText))
             {
                 <div class="SecondaryTextColor subText">
-                    @if (musicObject is Song)
-                    { // Show the little song icon
+                    @if (MusicObject is Song)
+                    {
+                        // Show the little song icon
                         <img src="/images/song.svg" class="subTextImg"/>
                     }
-                    else if(musicObject is Album)
+                    else if (MusicObject is Album)
                     {
                         <img src="/images/album.svg" class="subTextImg"/>
                     }
@@ -45,7 +66,7 @@
             }
         </div>
     </div>
-    @if (musicObject != null && musicObject is not Genre && !isGrid)
+    @if (MusicObject != null && MusicObject is not Genre && !isGrid)
     {
         <div class="favorite-button">
             @if (MauiProgram.styleSettings.listItemsContextMenu)
@@ -66,7 +87,7 @@
                 }
                 else
                 {
-                    <Animate Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
+                    <Animate class="radioButtonBox" Animation="Animations.ZoomIn" Duration="TimeSpan.FromSeconds(0.5)">
                         <img class="favorite-button-icon" src="/images/heart.svg" />
                     </Animate>
                 }
@@ -76,12 +97,16 @@
 </div>
 
 @code {
-    [Parameter] public BaseMusicItem? musicObject { get; set; } = null;
+    [Parameter] public BaseMusicItem? MusicObject { get; set; } = null;
     [Parameter] public string placeholderBase64 { get; set; } = String.Empty;
     [Parameter] public int indexNumber { get; set; } = -1;
     [Parameter] public bool isGrid { get; set; } = false;
     [Parameter] public bool cacheAsRecentItem { get; set; } = false;
     [Parameter] public Action? OnViewAction { get; set; } = null;
+    [Parameter] public bool CheckModeOn { get; set; } = true;
+    [Parameter] public bool IsChecked { get; set; } = false;
+    [Parameter] public EventCallback<CheckedItemEventArg> OnCheckChanged { get; set; }
+    
     private string musicObjectType = string.Empty;
     private string mainText = string.Empty;
     private string subText = string.Empty;
@@ -95,12 +120,12 @@
 
     protected override void OnParametersSet()
     {
-        if(musicObject == null)
+        if(MusicObject == null)
         {
             return;
         }
-        musicObjectType = musicObject.GetType().Name;
-        switch (musicObject)
+        musicObjectType = MusicObject.GetType().Name;
+        switch (MusicObject)
         {
             case Album album:
                 mainText = album.Name;
@@ -144,32 +169,43 @@
         base.OnParametersSet();
     }
 
-    private void NavigateTo()
+    private async void NavigateTo()
     {
-        if (musicObject != null)
+        if (MusicObject == null) return;
+
+        if (CheckModeOn)
         {
-            MauiProgram.MainPage.ShowLoadingScreen(true);
-            switch (musicObject)
+            IsChecked = !IsChecked;
+            if (OnCheckChanged.HasDelegate)
             {
-                case Album album:
-                    MauiProgram.WebView.NavigateAlbum(album);
-                    break;
-                case Song song:
-                    MauiProgram.WebView.NavigateAlbum(new Album(song.Album));
-                    break;
-                case Artist artist:
-                    MauiProgram.WebView.NavigateArtist(elementId);
-                    break;
-                case Playlist playlist:
-                    MauiProgram.WebView.NavigatePlaylist(elementId);
-                    break;
+                var eventArgs = new CheckedItemEventArg(MusicObject.Id, IsChecked);
+                await OnCheckChanged.InvokeAsync(eventArgs);
             }
+            StateHasChanged();
+            return;
+        }
+
+        MauiProgram.MainPage.ShowLoadingScreen(true);
+        switch (MusicObject)
+        {
+            case Album album:
+                MauiProgram.WebView.NavigateAlbum(album);
+                break;
+            case Song song:
+                MauiProgram.WebView.NavigateAlbum(new Album(song.Album));
+                break;
+            case Artist artist:
+                MauiProgram.WebView.NavigateArtist(elementId);
+                break;
+            case Playlist playlist:
+                MauiProgram.WebView.NavigatePlaylist(elementId);
+                break;
         }
     }
 
     private async void FavouriteItem()
     {
-        if (musicObject != null)
+        if (MusicObject != null)
         {
             isFavourite = !isFavourite;
             await MauiProgram.Server.SetIsFavourite(elementId, isFavourite, server);
@@ -179,26 +215,27 @@
 
     private void AddToRecentResult()
     {
-        if (musicObject != null)
+        if (MusicObject != null)
         {
             if (!MauiProgram.recentSearchResults.ContainsKey(elementId))
             {
-                MauiProgram.recentSearchResults.Add(elementId, musicObject);
+                MauiProgram.recentSearchResults.Add(elementId, MusicObject);
             }
             else
             {
                 // delete and add :) Put shit back on top 
                 MauiProgram.recentSearchResults.Remove(elementId);
-                MauiProgram.recentSearchResults.Add(elementId, musicObject);
+                MauiProgram.recentSearchResults.Add(elementId, MusicObject);
             }
         }
     }
 
     private async void OpenContextMenu()
     {
-        if(musicObject != null)
+        if(CheckModeOn) return;
+        if(MusicObject != null)
         {
-            MauiProgram.MainPage.OpenContextMenu(musicObject, 250, placeholderBase64);
+            MauiProgram.MainPage.OpenContextMenu(MusicObject, 250, placeholderBase64);
             await Task.Run(() =>
             {
                 // Literally just waiting for the fucking thing to close before we refresh

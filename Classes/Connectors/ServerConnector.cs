@@ -19,7 +19,6 @@ public class ServerConnector : IMediaServerConnector
     public IMediaDataConnector Song { get; set; }
     public IMediaDataConnector Playlist { get; set; }
     public IMediaDataConnector Genre { get; set; }
-
     public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
     {
         { "Album", Album },
@@ -28,7 +27,6 @@ public class ServerConnector : IMediaServerConnector
         { "Playlist", Playlist },
         { "Genre", Genre }
     };
-
     public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
         new()
         {

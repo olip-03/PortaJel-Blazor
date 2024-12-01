@@ -37,7 +37,7 @@ public static class MauiProgram
 
     public static StyleSettings styleSettings = new();
 
-    public static bool debugMode = true;
+    public const bool DebugMode = false;
     public static bool isConnected = false;
     public static bool firstLoginComplete = false;
     public static bool webViewInitalized = false;
@@ -124,7 +124,7 @@ public static class MauiProgram
     /// <param name="message">Debug message to display</param>
     public static void UpdateDebugMessage(string message)
     {
-        if (!debugMode) return;
+        if (!DebugMode) return;
         Trace.WriteLine(message);
         if (Application.Current != null)
         {

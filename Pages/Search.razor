@@ -32,28 +32,28 @@
                         foreach (Playlist playlist in _playlistResult)
                         {
                             <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <SearchResultItem musicObject="@playlist" cacheAsRecentItem=true placeholderBase64="@playlist.ImgBlurhashBase64"/>
+                                <MusicLibraryItem MusicObject="@playlist" cacheAsRecentItem=true placeholderBase64="@playlist.ImgBlurhashBase64"/>
                             </Animate>
                         }
 
                         foreach (Artist artist in _artistResult)
                         {
                             <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <SearchResultItem musicObject="@artist" cacheAsRecentItem=true placeholderBase64="@artist.ImgBlurhashBase64"/>
+                                <MusicLibraryItem MusicObject="@artist" cacheAsRecentItem=true placeholderBase64="@artist.ImgBlurhashBase64"/>
                             </Animate>
                         }
 
                         foreach (Album album in _albumResult)
                         {
                             <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <SearchResultItem musicObject="@album" cacheAsRecentItem=true placeholderBase64="@album.ImgBlurhashBase64"/>
+                                <MusicLibraryItem MusicObject="@album" cacheAsRecentItem=true placeholderBase64="@album.ImgBlurhashBase64"/>
                             </Animate>
                         }
 
                         foreach (Song song in _songResult)
                         {
                             <Animate Animation="Animations.FadeIn" Duration="TimeSpan.FromSeconds(0.5)">
-                                <SearchResultItem musicObject="@song" cacheAsRecentItem=true placeholderBase64="@song.ImgBlurhashBase64"/>
+                                <MusicLibraryItem MusicObject="@song" cacheAsRecentItem=true placeholderBase64="@song.ImgBlurhashBase64"/>
                             </Animate>
                         }
 

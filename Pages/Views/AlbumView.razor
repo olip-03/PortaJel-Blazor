@@ -191,7 +191,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        ServerAddress = HttpUtility.UrlDecode(ServerAddress);
+        ServerAddress = Base64Url.Decode(ServerAddress);
         try
         {
             Guid parseId = Guid.Parse(AlbumId);
