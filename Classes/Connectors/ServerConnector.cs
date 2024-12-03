@@ -14,11 +14,11 @@ namespace PortaJel_Blazor.Classes.Connectors;
 public class ServerConnector : IMediaServerConnector
 {
     private readonly List<IMediaServerConnector> _servers = [];
-    public IMediaDataConnector Album { get; set; }
-    public IMediaDataConnector Artist { get; set; }
-    public IMediaDataConnector Song { get; set; }
-    public IMediaDataConnector Playlist { get; set; }
-    public IMediaDataConnector Genre { get; set; }
+    public IMediaDataConnector Album { get; }
+    public IMediaDataConnector Artist { get;  }
+    public IMediaDataConnector Song { get; }
+    public IMediaDataConnector Playlist { get; }
+    public IMediaDataConnector Genre { get; }
     public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
     {
         { "Album", Album },

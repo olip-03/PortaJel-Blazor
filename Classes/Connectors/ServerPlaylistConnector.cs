@@ -1,11 +1,11 @@
+using System.Diagnostics;
 using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Data;
-using PortaJel_Blazor.Classes.Interfaces;
 using PortaJel_Blazor.Classes.Interfaces;
 
 namespace PortaJel_Blazor.Classes.Connectors;
 
-public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMediaDataConnector
+public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMediaDataConnector, IMediaPlaylistInterface
 {
     public SyncStatusInfo SyncStatusInfo { get; set; }
 
@@ -36,18 +36,7 @@ public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMed
     {
         throw new NotImplementedException();
     }
-
-    public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId,
-        CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
+    
     public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
@@ -59,6 +48,44 @@ public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMed
     }
 
     public Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        var srv = servers.FirstOrDefault(s => s.GetAddress() == serverUrl);
+        if (srv == null) return false;
+        try
+        {
+            if (srv.GetDataConnectors()["Playlist"] is IMediaPlaylistInterface srvPlaylistInterface)
+            {
+                await srvPlaylistInterface.AddAsync(playlistId, musicItem, serverUrl, cancellationToken);
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine(e);
+            return false;
+        }
+    }
+
+    public Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

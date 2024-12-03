@@ -25,28 +25,112 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         throw new NotImplementedException();
     }
 
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
-        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem[]> GetAllAsync(
+        int? limit = null,
+        int startIndex = 0,
+        bool? getFavourite = null,
+        ItemSortBy setSortTypes = ItemSortBy.Album,
+        SortOrder setSortOrder = SortOrder.Ascending,
+        Guid?[] includeIds = null,
+        Guid?[] excludeIds = null,
+        string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
-        limit ??= 50;
-        List<PlaylistData> filteredCache = [];
-        filteredCache.AddRange(await _database.Table<PlaylistData>()
-            .OrderByDescending(playlist => playlist.Name)
-            .Take(limit.Value).ToListAsync().ConfigureAwait(false));
+        // Initialize filtered cache
+        List<PlaylistData> filteredCache = new();
+
+        // Set default limit if not provided
+        limit ??= await _database.Table<PlaylistData>().CountAsync();
+
+        // Base query
+        var query = _database.Table<PlaylistData>();
+
+        // Apply includeIds and excludeIds filters
+        if (includeIds != null && includeIds.Any())
+        {
+            query = query.Where(playlist => includeIds.Contains(playlist.LocalId));
+        }
+
+        if (excludeIds != null && excludeIds.Any())
+        {
+            query = query.Where(playlist => !excludeIds.Contains(playlist.LocalId));
+        }
+
+        // Apply serverUrl filter
+        if (!string.IsNullOrWhiteSpace(serverUrl))
+        {
+            query = query.Where(playlist => playlist.ServerAddress == serverUrl);
+        }
+
+        // Sort and retrieve data based on sorting type
+        switch (setSortTypes)
+        {
+            // TODO: Reimplement commented filters. Currently playlist does not contain the data
+            // case ItemSortBy.DateCreated:
+            //     query = setSortOrder == SortOrder.Ascending
+            //         ? query.OrderBy(playlist => playlist.DateAdded)
+            //         : query.OrderByDescending(playlist => playlist.DateAdded);
+            //     break;
+            //
+            // case ItemSortBy.DatePlayed:
+            //     query = setSortOrder == SortOrder.Ascending
+            //         ? query.OrderBy(playlist => playlist.DatePlayed)
+            //         : query.OrderByDescending(playlist => playlist.DatePlayed);
+            //     break;
+
+            case ItemSortBy.Name:
+                query = setSortOrder == SortOrder.Ascending
+                    ? query.OrderBy(playlist => playlist.Name)
+                    : query.OrderByDescending(playlist => playlist.Name);
+                break;
+            //
+            // case ItemSortBy.PlayCount:
+            //     query = setSortOrder == SortOrder.Ascending
+            //         ? query.OrderBy(playlist => playlist.PlayCount)
+            //         : query.OrderByDescending(playlist => playlist.PlayCount);
+            //     break;
+
+            case ItemSortBy.Random:
+                // Random sorting has to be done in memory
+                var allItems = await query.ToListAsync().ConfigureAwait(false);
+                filteredCache = allItems
+                    .OrderBy(_ => Guid.NewGuid())
+                    .Skip(startIndex)
+                    .Take((int)limit)
+                    .ToList();
+                return filteredCache.Select(playlist => new Playlist(playlist)).ToArray();
+
+            default:
+                query = setSortOrder == SortOrder.Ascending
+                    ? query.OrderBy(playlist => playlist.Name)
+                    : query.OrderByDescending(playlist => playlist.Name);
+                break;
+        }
+
+        // Apply pagination and limit
+        filteredCache.AddRange(await query
+            .Skip(startIndex)
+            .Take((int)limit)
+            .ToListAsync()
+            .ConfigureAwait(false));
+
+        // Convert filtered data to the output type
         return filteredCache.Select(dbItem => new Playlist(dbItem)).ToArray();
     }
+
 
     public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
         PlaylistData playlistDbItem =
             await _database.Table<PlaylistData>().Where(p => p.Id == id).FirstOrDefaultAsync();
-        var songData = await _database.Table<SongData>().Where(song => playlistDbItem.GetSongIds().Contains(song.Id)).ToArrayAsync();
+        var songData = await _database.Table<SongData>().Where(song => playlistDbItem.GetSongIds().Contains(song.Id))
+            .ToArrayAsync();
         return new Playlist(playlistDbItem, songData);
     }
 
-    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -60,14 +144,15 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
 
         return await query.CountAsync();
     }
-    
+
     public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId,
         CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex, CancellationToken cancellationToken = default)
+    public Task<bool> MovePlaylistItem(Guid playlistId, Guid songId, int newIndex,
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -83,6 +168,7 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
                 await _database.DeleteAsync(playlist);
                 Trace.WriteLine($"Deleted playlist with ID {playlist.LocalId} associated with album ID {id}.");
             }
+
             return true;
         }
         catch (Exception ex)
@@ -92,7 +178,8 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -105,9 +192,11 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
                     Trace.WriteLine($"Playlist with ID {id} not found.");
                     return false; // Stop if any album is not found
                 }
+
                 await _database.DeleteAsync(playlist);
                 Trace.WriteLine($"Deleted playlist with ID {id}.");
             }
+
             return true; // All deletions succeeded
         }
         catch (Exception ex)
@@ -128,15 +217,18 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
                 return false;
             }
         }
+
         return true;
     }
 
-    public Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, CancellationToken cancellationToken = default)
+    public Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
+    public Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

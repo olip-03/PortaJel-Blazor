@@ -5,6 +5,7 @@
 @using PortaJel_Blazor.Classes
 @using PortaJel_Blazor.Classes.Data
 @using PortaJel_Blazor.Classes.EventArgs
+@using PortaJel_Blazor.Classes.Interfaces
 @inject IJSRuntime Js;
 
 @page "/AddToPlaylistView/{SongItemIds}"
@@ -13,12 +14,12 @@
 
 <div class="addPlaylistView">
     <h3 class="title">
-        @songIds.Count() Items
+        @songLocalIds.Count() Items
     </h3>
     
-    <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="20" ItemSize="100">
+    <Virtualize Context="musicItem" ItemsProvider="LoadListItems" OverscanCount="20" ItemSize="100" @ref="virtualList">
         <ItemContent>
-            <MusicLibraryItem MusicObject="musicItem" OnCheckChanged="SelectionChanged"/>
+            <MusicLibraryItem MusicObject="musicItem" OnCheckChanged="SelectionChanged" CheckModeOn="true"/>
         </ItemContent>
         <Placeholder>
             <MusicLibraryItem MusicObject="Album.Empty"/>
@@ -33,8 +34,11 @@
 
 @code {
     [Parameter] public string SongItemIds { get; set; } = string.Empty;
-    private Guid[] songIds = Array.Empty<Guid>();
-    
+    private Guid[] songLocalIds = Array.Empty<Guid>();
+    private BaseMusicItem[] songs = [];
+
+    private IDispatcherTimer _timer = null;
+    private Virtualize<BaseMusicItem> virtualList = null;
     private BaseMusicItem[] _playlistData = [];
     private int _totalRecordCount = 0;
     private bool _hasPlaylists = false;
@@ -50,27 +54,33 @@
     
     protected override async Task OnParametersSetAsync()
     {
-        songIds = JsonSerializer.Deserialize<Guid[]>(SongItemIds);
+        songLocalIds = JsonSerializer.Deserialize<Guid[]>(SongItemIds);
+        var nullableIds = songLocalIds.Select(id => (Guid?)id).ToArray();
+        songs = await MauiProgram.Database.Song.GetAllAsync(includeIds: nullableIds);
         
         _playlistData = await MauiProgram.Database.Playlist.GetAllAsync();
         _totalRecordCount = _playlistData.Length;
         _hasPlaylists = _totalRecordCount > 0;
+        
+        await virtualList.RefreshDataAsync();
+        StateHasChanged();
     }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_hasPlaylists)
-        {
-            MauiProgram.MainPage.ShowLoadingScreen(false);
-            await Js.InvokeAsync<string>("InitAllImages");
-        }
-
         if (firstRender)
         {
             MauiProgram.MainPage.ShowLoadingScreen(false);
+            if (Application.Current != null)
+            {
+                _timer = Application.Current.Dispatcher.CreateTimer();
+                _timer.Interval = TimeSpan.FromSeconds(1);
+                _timer.Tick += (_,_) => Task.Run(() => Js.InvokeAsync<string>("InitAllImages"));
+                _timer.Start();
+            }
         }
     }
-
+    
     private void SelectionChanged(CheckedItemEventArg eventArg)
     {
         if (eventArg.IsChecked)
@@ -86,6 +96,24 @@
     private async void AddToPlaylist()
     {
         // Add to playlist function here
+        if (MauiProgram.Server.Playlist is IMediaPlaylistInterface playlistInterface)
+        {
+            var pIds = _selectedPlaylistIds.Select(id => (Guid?)id).ToArray();
+            var playlists = await MauiProgram.Database.Playlist.GetAllAsync(includeIds: pIds);
+            foreach (var pl in playlists)
+            {
+                if (pl is not Playlist playlist) break;
+                foreach (var s in songs)
+                {
+                    if (s is not Song song) break;
+                    await playlistInterface.AddAsync(playlist.Id, song, song.ServerAddress);
+                }
+                // Parallel.ForEach(songs, song =>
+                // {
+                //     playlistInterface.AddAsync(playlist.Id, song, song.ServerAddress);
+                // });
+            }
+        }
         
         // This function just sends us back to the last page
         MauiProgram.WebView.IsLoading = true;

@@ -51,12 +51,14 @@ internal class DiscogsPlaylistConnector : IMediaDataConnector, IMediaPlaylistInt
         throw new NotImplementedException();
     }
 
-    public Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, CancellationToken cancellationToken = default)
+    public Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
+    public Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

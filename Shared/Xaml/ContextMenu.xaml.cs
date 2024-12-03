@@ -302,7 +302,7 @@ public partial class ContextMenu : ContentView
         {
             MauiProgram.MainPage.ShowLoadingScreen(true);
             await this.Close();
-            MauiProgram.WebView.NavigateToPlaylistAdd(songs.Select(s => s.Id).ToArray());
+            MauiProgram.WebView.NavigateToPlaylistAdd(songs.Select(s => s.LocalId).ToArray());
         })));
         ViewModel.ContextMenuItems.Add(new ContextMenuItem("Add To Queue", "light_queue.png", new Action(async () =>
         {

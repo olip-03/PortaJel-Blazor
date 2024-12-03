@@ -34,7 +34,6 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             { "Playlist", Playlist },
             { "Genre", Genre }
         };
-
         public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
             new()
             {
@@ -44,7 +43,6 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 { ConnectorDtoTypes.Playlist, true },
                 { ConnectorDtoTypes.Genre, true },
             };
-
         public Dictionary<string, ConnectorProperty> Properties { get; set; } =
             new()
             {
@@ -346,8 +344,6 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 return false;
             }
         }
-
-
         public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
         {
             await Task.Delay(10);

@@ -103,7 +103,7 @@
     [Parameter] public bool isGrid { get; set; } = false;
     [Parameter] public bool cacheAsRecentItem { get; set; } = false;
     [Parameter] public Action? OnViewAction { get; set; } = null;
-    [Parameter] public bool CheckModeOn { get; set; } = true;
+    [Parameter] public bool CheckModeOn { get; set; } = false;
     [Parameter] public bool IsChecked { get; set; } = false;
     [Parameter] public EventCallback<CheckedItemEventArg> OnCheckChanged { get; set; }
     
@@ -178,7 +178,22 @@
             IsChecked = !IsChecked;
             if (OnCheckChanged.HasDelegate)
             {
-                var eventArgs = new CheckedItemEventArg(MusicObject.Id, IsChecked);
+                CheckedItemEventArg eventArgs = null;
+                switch (MusicObject)
+                {
+                    case Album album:
+                        eventArgs = new CheckedItemEventArg(album.LocalId, IsChecked);
+                        break;
+                    case Song song:
+                        eventArgs = new CheckedItemEventArg(song.LocalId, IsChecked);
+                        break;
+                    case Artist artist:
+                        eventArgs = new CheckedItemEventArg(artist.LocalId, IsChecked); 
+                        break;
+                    case Playlist playlist:
+                        eventArgs = new CheckedItemEventArg(playlist.LocalId, IsChecked);
+                        break;
+                }
                 await OnCheckChanged.InvokeAsync(eventArgs);
             }
             StateHasChanged();

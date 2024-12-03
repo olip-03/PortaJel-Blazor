@@ -158,6 +158,31 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
         return true;
     }
 
+    public async Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await api.Playlists[playlistId].Items.PostAsync(c =>
+            {
+                c.QueryParameters.UserId = user.Id;
+                c.QueryParameters.Ids = [musicItem.Id];
+            }, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine($"{e.Message} {e.StackTrace}");
+            return false;
+        }
+        return true;
+    }
+
+    public Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, string serverUrl = "",
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<bool> RemovePlaylistItemAsync(Guid playlistId, Guid songId, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
