@@ -15,7 +15,8 @@ public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMed
     }
 
     public Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
+        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
+        Guid?[] includeIds = null,
         Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
@@ -26,7 +27,8 @@ public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMed
         throw new NotImplementedException();
     }
 
-    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
+    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -36,7 +38,7 @@ public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMed
     {
         throw new NotImplementedException();
     }
-    
+
     public Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
@@ -55,21 +57,47 @@ public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMed
     public async Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
-        var srv = servers.FirstOrDefault(s => s.GetAddress() == serverUrl);
-        if (srv == null) return false;
+        int failed = 0;
+        var tasks = servers.Select(server => Task.Run(() =>
+            {
+                try
+                {
+                    // Get album data 
+                    if (server.GetDataConnectors()["Playlist"] is IMediaPlaylistInterface srvPlaylistInterface)
+                    {
+                        var pTask = srvPlaylistInterface.AddAsync(playlistId, musicItem, serverUrl, cancellationToken);
+                        pTask.Wait(cancellationToken);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex.Message);
+                    Interlocked.Increment(ref failed);
+                    throw;
+                }
+            }, cancellationToken))
+            .ToList();
+
+        Task t = Task.WhenAll(tasks);
         try
         {
-            if (srv.GetDataConnectors()["Playlist"] is IMediaPlaylistInterface srvPlaylistInterface)
-            {
-                await srvPlaylistInterface.AddAsync(playlistId, musicItem, serverUrl, cancellationToken);
-            }
-            return true;
+            await t;
         }
-        catch (Exception e)
+        catch
         {
-            Trace.WriteLine(e);
-            return false;
+            // ignored
         }
+
+        switch (t.Status)
+        {
+            case TaskStatus.RanToCompletion:
+                Trace.WriteLine($"All connections successfully authenticated");
+                break;
+            case TaskStatus.Faulted:
+                Trace.WriteLine($"{failed} album request attempts failed!");
+                break;
+        }
+        return failed == 0;
     }
 
     public Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, string serverUrl = "",

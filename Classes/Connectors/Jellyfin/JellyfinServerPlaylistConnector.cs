@@ -122,51 +122,17 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
         return false;
     }
 
-    public async Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            await api.Playlists[playlistId].Items.PostAsync(c =>
-            {
-                c.QueryParameters.UserId = user.Id;
-                c.QueryParameters.Ids = [musicItem.Id];
-            }, cancellationToken);
-        }
-        catch (Exception e)
-        {
-            Trace.WriteLine($"{e.Message} {e.StackTrace}");
-            return false;
-        }
-        return true;
-    }
-
-    public async Task<bool> AddRangeAsync(Guid playlistId, BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            await api.Playlists[playlistId].Items.PostAsync(c =>
-            {
-                c.QueryParameters.UserId = user.Id;
-                c.QueryParameters.Ids = musicItems.Select(s => (Guid?)s.Id).ToArray();
-            }, cancellationToken);
-        }
-        catch (Exception e)
-        {
-            Trace.WriteLine($"{e.Message} {e.StackTrace}");
-            return false;
-        }
-        return true;
-    }
-
     public async Task<bool> AddAsync(Guid playlistId, BaseMusicItem musicItem, string serverUrl = "",
         CancellationToken cancellationToken = default)
     {
+        if (serverUrl != clientSettings.ServerUrl) return false;
+        if (musicItem is not Song song) return false;
         try
         {
             await api.Playlists[playlistId].Items.PostAsync(c =>
             {
                 c.QueryParameters.UserId = user.Id;
-                c.QueryParameters.Ids = [musicItem.Id];
+                c.QueryParameters.Ids = [song.Id];
             }, cancellationToken);
         }
         catch (Exception e)
