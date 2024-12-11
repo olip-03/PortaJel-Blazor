@@ -1,0 +1,35 @@
+.fab {
+    display: inline-flex;
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    min-width: 80px;
+    padding: 0 16px;
+    background-color: #6200ea; /* Example color, change as needed */
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.fab:hover {
+    background-color: #3700b3; /* Slightly darker shade on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.fab-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+    line-height: 24px;
+    pointer-events: none;
+}

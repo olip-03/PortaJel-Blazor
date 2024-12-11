@@ -74,11 +74,11 @@
     {
         <Virtualize Context="musicItem" ItemsProvider="LoadEmployees" OverscanCount="40" ItemSize="100" @ref="virtualizeComponent">
             <ItemContent>
-                <SearchResultItem musicObject="musicItem" />
+                <MusicLibraryItem MusicObject="musicItem" />
             </ItemContent>
         
             <Placeholder>
-                <SearchResultItem musicObject="Album.Empty" />
+                <MusicLibraryItem MusicObject="Album.Empty" />
             </Placeholder>
         
             <EmptyContent>

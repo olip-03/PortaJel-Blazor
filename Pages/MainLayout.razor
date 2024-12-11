@@ -10,7 +10,6 @@
 @namespace PortaJel_Blazor.Shared
 
 <AutoStyle/>
-<MatPortalHost></MatPortalHost>
 
 <div class="page PageBackgroundColor">
     <main>
@@ -25,7 +24,7 @@
 
                     <h2 class="PrimaryTextColor" style="margin: 0;">@pageTitle</h2>
                     <div>
-                        @if (MauiProgram.debugMode)
+                        @if (MauiProgram.DebugMode)
                         {
                         <a @onclick="(() => NavigateDebug())" style="margin-right: 0.2rem">
                             <!-- Download Image -->
@@ -141,6 +140,12 @@
         StateHasChanged();
     }
 
+    public string NavigateBack()
+    {
+        Js.InvokeAsync<string>("goBack", cancellationToken);
+        return "";
+    }
+    
     public string NavigateError(Exception ex)
     {
         if (MauiProgram.libraryDataCToken != null)
@@ -344,7 +349,7 @@
 
         MauiProgram.MainPage.DeselectMenuItems();
 
-        var urlEncode = HttpUtility.UrlEncode(album.ServerAddress);
+        var urlEncode = Base64Url.Encode(album.ServerAddress);
         if (currentUri != $"/AlbumView/{album.LocalId}/{urlEncode}")
         {
             showHeader = false;

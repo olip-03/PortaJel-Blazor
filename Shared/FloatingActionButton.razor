@@ -1,0 +1,21 @@
+<div class="fab" @onclick="HandleClick">
+    <span class="fab-icon">@Icon</span>
+    @if (!string.IsNullOrEmpty(Text))
+    {
+    <span class="fab-text">@Text</span>
+    }
+</div>
+
+@code {
+    [Parameter] public string Text { get; set; } = string.Empty;
+    [Parameter] public string Icon { get; set; } = "+";
+    [Parameter] public EventCallback OnClick { get; set; }
+    
+    private async Task HandleClick()
+    {
+        if (OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync();
+        }
+    }
+}
