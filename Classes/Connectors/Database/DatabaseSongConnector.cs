@@ -33,30 +33,35 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
         {
             var query = _database.Table<SongData>();
 
+            // Pre-optimize filters into hash sets if they exist
+            HashSet<Guid?> includeHash = includeIds != null ? new HashSet<Guid?>(includeIds) : null;
+            HashSet<Guid?> excludeHash = excludeIds != null ? new HashSet<Guid?>(excludeIds) : null;
+
             // Apply includeIds filter
-            if (includeIds != null && includeIds.Any())
+            if (includeHash != null && includeHash.Any())
             {
-                query = query.Where(song => includeIds.Contains(song.LocalId));
+                query = query.Where(song => includeHash.Contains(song.LocalId));
             }
-            else if(includeIds != null)
+            else if (includeHash != null)
             {
-                return [];
+                return Array.Empty<BaseMusicItem>();
             }
 
             // Apply excludeIds filter
-            if (excludeIds != null && excludeIds.Any())
+            if (excludeHash != null && excludeHash.Any())
             {
-                query = query.Where(song => !excludeIds.Contains(song.LocalId));
+                query = query.Where(song => !excludeHash.Contains(song.LocalId));
             }
-            else if(excludeIds != null)
+            else if (excludeHash != null)
             {
-                return [];
+                return Array.Empty<BaseMusicItem>();
             }
 
             // Apply getFavourite filter
             if (getFavourite.HasValue)
             {
-                query = query.Where(song => song.IsFavourite == getFavourite.Value);
+                bool fav = getFavourite.Value;
+                query = query.Where(song => song.IsFavourite == fav);
             }
 
             // Apply sorting
@@ -83,14 +88,41 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
                         : query.OrderByDescending(song => song.PlayCount);
                     break;
                 case ItemSortBy.Random:
-                    // For random sorting, fetch data first and then shuffle
                     var allSongs = await query.ToListAsync().ConfigureAwait(false);
                     allSongs = allSongs.OrderBy(song => Guid.NewGuid()).ToList();
                     if (limit.HasValue)
                     {
                         allSongs = allSongs.Take(limit.Value).ToList();
                     }
-                    return allSongs.Select(dbItem => new Song(dbItem)).ToArray();
+
+                    // Bulk-load related data here after filtering
+                    var albumIdsForRandom = allSongs.Select(s => (Guid?)s.LocalAlbumId).Distinct().ToArray();
+                    var albumsForRandom = await _databaseConnector.Album.GetAllAsync(includeIds: albumIdsForRandom,
+                        cancellationToken: cancellationToken);
+                    var albumDictForRandom =
+                        albumsForRandom.ToDictionary(a => a.LocalId, a => a.ToAlbum().GetBase);
+
+                    var allArtistIdsForRandom = allSongs.SelectMany(s => s.GetArtistIds()).Distinct()
+                        .Select(id => (Guid?)id).ToArray();
+                    var artistsForRandom =
+                        await _databaseConnector.Artist.GetAllAsync(includeIds: allArtistIdsForRandom,
+                            cancellationToken: cancellationToken);
+                    var artistDictForRandom =
+                        artistsForRandom.ToDictionary(a => a.LocalId, a => a.ToArtist().GetBase);
+
+                    List<BaseMusicItem> randomResults = new List<BaseMusicItem>(allSongs.Count);
+                    foreach (var song in allSongs)
+                    {
+                        var albumBase = albumDictForRandom.TryGetValue(song.LocalAlbumId, out var alb) ? alb : null;
+                        var artistBaseData = song.GetArtistIds()
+                            .Select(id => artistDictForRandom.TryGetValue(id, out var artBase) ? artBase : null)
+                            .Where(a => a != null)
+                            .ToArray();
+
+                        randomResults.Add(new Song(song, albumBase, artistBaseData));
+                    }
+
+                    return randomResults.ToArray();
                 default:
                     query = setSortOrder == SortOrder.Ascending
                         ? query.OrderBy(song => song.Name)
@@ -111,28 +143,42 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
 
             // Execute the query
             var filteredCache = await query.ToListAsync().ConfigureAwait(false);
-            List<BaseMusicItem> toReturn = [];
+
+            // Bulk-load albums and artists for all retrieved songs
+            var albumIds = filteredCache.Select(s => (Guid?)s.LocalAlbumId).Distinct().ToArray();
+            var albums =
+                await _databaseConnector.Album.GetAllAsync(includeIds: albumIds, cancellationToken: cancellationToken);
+            var albumDict = albums.ToDictionary(a => a.LocalId, a => a.ToAlbum().GetBase);
+
+            var allArtistIds = filteredCache.SelectMany(s => s.GetArtistIds()).Distinct().Select(id => (Guid?)id)
+                .ToArray();
+            var artists =
+                await _databaseConnector.Artist.GetAllAsync(includeIds: allArtistIds,
+                    cancellationToken: cancellationToken);
+            var artistDict = artists.ToDictionary(a => a.LocalId, a => a.ToArtist().GetBase);
+
+            List<BaseMusicItem> toReturn = new List<BaseMusicItem>(filteredCache.Count);
             foreach (var song in filteredCache)
             {
-                Guid?[] artistIds = song.GetArtistIds().Select(id => (Guid?)id).ToArray();
-                BaseMusicItem album = await _databaseConnector.Album.GetAsync(song.LocalAlbumId, cancellationToken: cancellationToken);
-                BaseMusicItem[] fullArtists = await _databaseConnector.Artist.GetAllAsync(includeIds: artistIds, cancellationToken: cancellationToken);
-                var artistBaseData = fullArtists.Select(a => a.ToArtist().GetBase).ToArray();
-                toReturn.Add(new Song(song, album.ToAlbum().GetBase, artistBaseData));
+                var albumBase = albumDict.TryGetValue(song.LocalAlbumId, out var alb) ? alb : null;
+                var artistBaseData = song.GetArtistIds()
+                    .Select(id => artistDict.TryGetValue(id, out var artBase) ? artBase : null)
+                    .Where(a => a != null)
+                    .ToArray();
+
+                toReturn.Add(new Song(song, albumBase, artistBaseData));
             }
-            // Item.AlbumId;
-            // Item.GetArtistIds();
-            
-            // Convert to BaseMusicItem[]
+
             return toReturn.ToArray();
         }
+
 
         public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
             CancellationToken cancellationToken = default)
         {
             var songData = await _database.Table<SongData>().Where(song => song.Id == id).FirstOrDefaultAsync();
             if (songData == null) return Song.Empty;
-            
+
             var albumData = await _database.Table<AlbumData>().Where(album => songData.AlbumId == album.Id)
                 .FirstOrDefaultAsync();
             var artistData = await _database.Table<ArtistData>()
@@ -159,9 +205,9 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             if (getFavourite == true)
                 query = query.Where(song => song.IsFavourite);
 
-            int total =  await query.CountAsync();
+            int total = await query.CountAsync();
             return total;
-        } 
+        }
 
         public async Task<bool> DeleteAsync(Guid id, string serverUrl = "",
             CancellationToken cancellationToken = default)
@@ -185,7 +231,8 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             }
         }
 
-        public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "",
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -198,9 +245,11 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
                         Trace.WriteLine($"Song with ID {id} not found.");
                         return false; // Stop if any album is not found
                     }
+
                     await _database.DeleteAsync(song);
                     Trace.WriteLine($"Deleted Song with ID {id}.");
                 }
+
                 return true; // All deletions succeeded
             }
             catch (Exception ex)
@@ -209,13 +258,17 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
                 return false; // Deletion failed for one or more
             }
         }
-        
+
         public async Task<bool> AddRange(BaseMusicItem[] songs, CancellationToken cancellationToken = default)
         {
-            foreach (var s in songs)
+            foreach (var baseMusicItem in songs)
             {
-                if (s is not Song song) continue;
-                await _database.InsertOrReplaceAsync(song.GetBase, song.GetBase.GetType());
+                if (baseMusicItem is Song { GetBase: not null } s)
+                {
+                    SongData song = s.GetBase;
+                    song.BlurhashBase64 = baseMusicItem.ImgBlurhashBase64;
+                    await _database.InsertOrReplaceAsync(song, s.GetBase.GetType());
+                }
                 
                 if (cancellationToken.IsCancellationRequested)
                 {

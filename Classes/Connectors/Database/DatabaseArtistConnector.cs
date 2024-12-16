@@ -187,10 +187,15 @@ public class DatabaseArtistConnector : IMediaDataConnector
 
     public async Task<bool> AddRange(BaseMusicItem[] artists, CancellationToken cancellationToken = default)
     {
-        foreach (var a in artists)
+        foreach (var baseMusicItem in artists)
         {
-            if (a is not Artist artist) continue;
-            await _database.InsertOrReplaceAsync(artist.GetBase, artist.GetBase.GetType());
+            if (baseMusicItem is Artist { GetBase: not null } a)
+            {
+                ArtistData artist = a.GetBase;
+                artist.BlurhashBase64 = baseMusicItem.ImgBlurhashBase64;
+                await _database.InsertOrReplaceAsync(artist, a.GetBase.GetType());
+            }
+
             if (cancellationToken.IsCancellationRequested)
             {
                 return false;

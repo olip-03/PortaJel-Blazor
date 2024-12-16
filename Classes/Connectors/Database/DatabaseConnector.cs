@@ -83,7 +83,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
             throw new NotImplementedException();
         }
 
-        public Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
+        public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

@@ -7,17 +7,6 @@ namespace PortaJel_Blazor.Classes.Data
     {
         private readonly AlbumData _albumData = new();
         public AlbumData GetBase => _albumData;
-        public new Guid LocalId => _albumData.LocalId;
-        public new Guid Id => _albumData.Id;
-        public new string Name => _albumData.Name;
-        public new bool IsFavourite => _albumData.IsFavourite;
-        public new int PlayCount => _albumData.PlayCount;
-        public new DateTimeOffset? DateAdded => _albumData.DateAdded;
-        public new DateTimeOffset? DatePlayed => _albumData.DatePlayed;
-        public new string ServerAddress => _albumData.ServerAddress;
-        public new string ImgSource =>   _albumData.ImgSource;
-        public new string ImgBlurhash => _albumData.ImgBlurhash;
-        public new string ImgBlurhashBase64 => _albumData.BlurhashBase64;
         public ArtistData[] Artists { get; }
         public string ArtistNames => _albumData.ArtistNames;
         public Guid[] ArtistIds => _albumData.GetArtistIds();
@@ -37,6 +26,18 @@ namespace PortaJel_Blazor.Classes.Data
             Artists = artistData ?? [];
             Songs = songData ?? [];
             _albumData = albumData ?? new();
+            
+            LocalId = _albumData.LocalId;
+            Id = _albumData.Id;
+            Name = _albumData.Name;
+            IsFavourite = _albumData.IsFavourite;
+            PlayCount = _albumData.PlayCount;
+            DateAdded = _albumData.DateAdded;
+            DatePlayed = _albumData.DatePlayed;
+            ServerAddress = _albumData.ServerAddress;
+            ImgSource =   _albumData.ImgSource;
+            ImgBlurhash = _albumData.ImgBlurhash;
+            ImgBlurhashBase64 = _albumData.BlurhashBase64;
         }
 
         public static readonly Album Empty = new();

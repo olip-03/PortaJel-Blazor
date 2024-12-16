@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
@@ -26,6 +27,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         public IMediaDataConnector Song { get; set; }
         public IMediaDataConnector Playlist { get; set; }
         public IMediaDataConnector Genre { get; set; }
+
         public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
         {
             { "Album", Album },
@@ -34,6 +36,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             { "Playlist", Playlist },
             { "Genre", Genre }
         };
+
         public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
             new()
             {
@@ -43,6 +46,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 { ConnectorDtoTypes.Playlist, true },
                 { ConnectorDtoTypes.Genre, true },
             };
+
         public Dictionary<string, ConnectorProperty> Properties { get; set; } =
             new()
             {
@@ -150,7 +154,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
             if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
             if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
-            
+
             int albumDbT = await albumDb.GetTotalCountAsync(cancellationToken: cancellationToken);
             int albumT = await Album.GetTotalCountAsync(cancellationToken: cancellationToken);
 
@@ -168,7 +172,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             if (artistDbT == artistT) passCount += 1;
             if (songDbT == songT) passCount += 1;
             if (playlistDbT == playlistT) passCount += 1;
-            
+
             // If sync date is less than 18hrs do not sync! 
             string oauthToken = await SecureStorage.Default.GetAsync("syncdate");
             if (oauthToken != null && passCount >= 2)
@@ -183,11 +187,12 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                         {
                             data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
                         }
+
                         return true;
                     }
                 }
             }
-            
+
             if (albumDbT != albumT) return false;
             if (artistDbT != artistT) return false;
             if (songDbT != songT) return false;
@@ -204,7 +209,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         // works. 
         public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
-            bool upToDate = await IsUpToDateAsync(cancellationToken);
+            bool upToDate = IsUpToDateAsync(cancellationToken).GetAwaiter().GetResult();
             if (upToDate) return true;
             try
             {
@@ -213,129 +218,140 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
                 if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
                 if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
-                // if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
-                var tasks = GetDataConnectors().Select(data => Task.Run(() =>
+
+                List<Thread> threads = new();
+                var exceptions = new ConcurrentQueue<Exception>();
+
+                foreach (var data in GetDataConnectors())
                 {
-                    IMediaDataConnector dbConnector = null;
-                    int batchSize = 100;
-                    int currentFetch = 0;
-                    int currentItem = 0;
-                    
-                    switch (data.Key)
+                    var t = new Thread(() =>
                     {
-                        case "Album":
-                            batchSize = 100;
-                            dbConnector = albumDb;
-                            break;
-                        case "Artist":
-                            batchSize = 10;
-                            dbConnector = artistDb;
-                            break;
-                        case "Song":
-                            batchSize = 100;
-                            dbConnector = songDb;
-                            break;
-                        case "Playlist":
-                            batchSize = 10;
-                            dbConnector = playlistDb;
-                            break;
-                        case "Genre":
-                            batchSize = 100;
-                            dbConnector = genreDb;
-                            break;
-                    }
+                        IMediaDataConnector dbConnector = null;
+                        int batchSize = 100;
+                        int currentFetch = 0;
+                        int currentItem = 0;
 
-                    if (dbConnector == null) return;
-                    
-                    // Start the stopwatch
-                    var stopwatch = Stopwatch.StartNew();
-                    Trace.WriteLine($"Jellyfin {data.Key} Sync Started");
-                    try
-                    {
-                        data.Value.SetSyncStatusInfo(TaskStatus.Running, 0);
-                        var totalTask = data.Value.GetTotalCountAsync(cancellationToken: cancellationToken);
-                        totalTask.Wait(cancellationToken);
-                        var albums = albumDb.GetAllAsync(cancellationToken: cancellationToken).Result.ToList();
-                        List<BaseMusicItem> serverItems = [];
-                        
-                        int totalItem = totalTask.Result;
-                        while (true)
+                        switch (data.Key)
                         {
-                            // Calculate and display progress
-                            int progress = (int)((double)currentFetch / totalItem * 100);
-                            data.Value.SetSyncStatusInfo(TaskStatus.Running, progress);
+                            case "Album":
+                                batchSize = 100;
+                                dbConnector = albumDb;
+                                break;
+                            case "Artist":
+                                batchSize = 10;
+                                dbConnector = artistDb;
+                                break;
+                            case "Song":
+                                batchSize = 100;
+                                dbConnector = songDb;
+                                break;
+                            case "Playlist":
+                                batchSize = 10;
+                                dbConnector = playlistDb;
+                                break;
+                            case "Genre":
+                                batchSize = 100;
+                                dbConnector = genreDb;
+                                break;
+                        }
 
-                            // Get items
-                            var itemTask = data.Value.GetAllAsync(limit: batchSize, startIndex: currentItem,
-                                setSortTypes: ItemSortBy.Name, setSortOrder: SortOrder.Ascending,
-                                cancellationToken: cancellationToken);
-                            itemTask.Wait(cancellationToken);
-                            
-                            currentFetch += itemTask.Result.Length;
-                            currentItem += batchSize;
-                            
-                            // Compile blurhash at sync 
-                            BaseMusicItem[] items = itemTask.Result.ToArray();
-                            Parallel.ForEach(items, item =>
-                            {
-                                string hash = item.GetBlurhash();
-                                item.ImgBlurhashBase64 = Blurhelper.BlurhashToBase64Async(hash, 10, 10, 1);
-                            });
+                        if (dbConnector == null) return;
 
-                            try
+                        var stopwatch = Stopwatch.StartNew();
+                        Trace.WriteLine($"Jellyfin {data.Key} Sync Started");
+                        try
+                        {
+                            data.Value.SetSyncStatusInfo(TaskStatus.Running, 0);
+
+                            var totalTask = data.Value.GetTotalCountAsync(cancellationToken: cancellationToken);
+                            totalTask.Wait(cancellationToken);
+                            int totalItem = totalTask.Result;
+
+                            var albums = albumDb.GetAllAsync(cancellationToken: cancellationToken).GetAwaiter()
+                                .GetResult().ToList();
+                            List<BaseMusicItem> serverItems = new();
+
+                            while (true)
                             {
+                                int progress = (int)((double)currentFetch / totalItem * 100);
+                                data.Value.SetSyncStatusInfo(TaskStatus.Running, progress);
+
+                                var itemTask = data.Value.GetAllAsync(
+                                    limit: batchSize,
+                                    startIndex: currentItem,
+                                    setSortTypes: ItemSortBy.DateCreated,
+                                    setSortOrder: SortOrder.Ascending,
+                                    cancellationToken: cancellationToken
+                                );
+                                itemTask.Wait(cancellationToken);
+
+                                currentFetch += itemTask.Result.Length;
+                                currentItem += batchSize;
+
+                                BaseMusicItem[] items = itemTask.Result.ToArray();
+                                Parallel.ForEach(items, item =>
+                                {
+                                    string hash = item.GetBlurhash();
+                                    item.ImgBlurhashBase64 = Blurhelper.BlurhashToBase64Async(hash, 10, 10, 1);
+                                });
+
                                 dbConnector.AddRange(items, cancellationToken).Wait(cancellationToken);
                                 serverItems.AddRange(items);
-                            
+
                                 if (itemTask.Result.Length < batchSize - 1)
                                 {
-                                    break; // Exit when no more data
+                                    break;
                                 }
                             }
-                            catch (Exception e)
+
+                            var albumsToDelete = albums
+                                .Where(existingAlbum => serverItems.All(newAlbum => newAlbum.Id != existingAlbum.Id))
+                                .ToList();
+
+                            foreach (var album in albumsToDelete)
                             {
-                                Trace.WriteLine(e);
+                                if (album is Album a)
+                                {
+                                    albumDb.DeleteAsync(a.Id, cancellationToken: cancellationToken)
+                                        .Wait(cancellationToken);
+                                }
+                            }
+
+                            if (albumsToDelete.Count > 0)
+                            {
+                                Trace.WriteLine(
+                                    $"Deleted {albumsToDelete.Count} {data.Key} that were not in the new {data.Key} list."
+                                );
                             }
                         }
-                        
-                        // Find albums that are not in newAlbums (itemTask.Result)
-                        var albumsToDelete = albums
-                            .Where(existingAlbum => serverItems.All(newAlbum => newAlbum.Id != existingAlbum.Id))
-                            .ToList();
-                        // Delete the albums not present in newAlbums
-                        foreach (var album in albumsToDelete)
+                        catch (Exception ex)
                         {
-                            if (album is Album a)
-                            {
-                                albumDb.DeleteAsync(a.Id, cancellationToken: cancellationToken)
-                                    .Wait(cancellationToken);
-                            }
+                            data.Value.SetSyncStatusInfo(TaskStatus.Faulted, 100);
+                            Trace.WriteLine($"Error during Jellyfin {data.Key} Sync: {ex.Message}");
+                            exceptions.Enqueue(ex);
                         }
-
-                        if (albumsToDelete.Count > 0)
+                        finally
                         {
-                            Trace.WriteLine(
-                                $"Deleted {albumsToDelete.Count} {data.Key} that were not in the new {data.Key} list.");
+                            data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
+                            stopwatch.Stop();
+                            Trace.WriteLine($"Jellyfin {data.Key} Sync finished in {stopwatch.ElapsedMilliseconds} ms");
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        data.Value.SetSyncStatusInfo(TaskStatus.Faulted, 100);
-                        Trace.WriteLine($"Error during Jellyfin {data.Key} Sync: {ex.Message}");
-                         throw;
-                    }
-                    finally
-                    {
-                        // Stop the stopwatch and log the elapsed time
-                        data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
-                        stopwatch.Stop();
-                        Trace.WriteLine($"Jellyfin {data.Key} Sync finished in {stopwatch.ElapsedMilliseconds} ms");
-                    }
-                }, cancellationToken));
+                    });
 
-                await Task.WhenAll(tasks);
+                    t.Start();
+                    threads.Add(t);
+                }
+
+                foreach (var thread in threads)
+                {
+                    thread.Join();
+                }
+
+                if (!exceptions.IsEmpty) return false;
+
                 Trace.WriteLine("Jellyfin Sync Finished! Saving last date!");
-                await SecureStorage.Default.SetAsync("syncdate", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+                SecureStorage.Default.SetAsync("syncdate", DateTime.Now.ToString(CultureInfo.InvariantCulture))
+                    .GetAwaiter().GetResult();
                 return true;
             }
             catch (Exception e)
@@ -344,6 +360,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 return false;
             }
         }
+
         public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
         {
             await Task.Delay(10);

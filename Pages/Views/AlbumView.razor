@@ -10,9 +10,9 @@
 
 @page "/AlbumView/{AlbumId}/{ServerAddress}"
 
-<ViewHeader backgroundImgUrl="@_album.ImgSource" backgroundImgUrlPlaceholder="@_album.ImgBlurhashBase64" BaseMusicItem=@_album ShowSelectionTools="@EngageSongCheckmode" SelectionCancelCallback="@GetCancelSelectionAction()" ContextMenuOpenCallback="GetOpenContextMenuAction()"/>
+<ViewHeader backgroundImgUrl="@_album.ImgSource" backgroundImgUrlPlaceholder="@BackgroundBlurHash" BaseMusicItem=@_album ShowSelectionTools="@EngageSongCheckmode" SelectionCancelCallback="@GetCancelSelectionAction()" ContextMenuOpenCallback="GetOpenContextMenuAction()"/>
 
-<img src="data:image/png;base64, @_album.ImgBlurhashBase64" class="background-blur" alt="background" style="top: @backgroundBlurHeight"/>
+<img src="data:image/png;base64, @BackgroundBlurHash" class="background-blur" alt="background" style="top: @backgroundBlurHeight"/>
 
 <div class="album" style="top: @headerHeight">
     <div class="album-data" >
@@ -84,7 +84,7 @@
                            OnQueueCallback="@GetQueueSongAction(index)"
                            OnSelectCallback="@GetSongSelectAction(index)"
                            location="@index"
-                           base64BlurHash="@base64BlurHash"
+                           base64BlurHash="@BackgroundBlurHash"
                            EngageCheckmode="EngageSongCheckmode"
                            ShowSongImageMode="false"
                            IsChecked="@SongCheckState[index]"/>
@@ -149,8 +149,7 @@
     private Album[] _similarAlbums = new Album[0];
 
     private Exception _errorMessage = null;
-    string base64BlurHash = String.Empty;
-    string backgroundBlurHash = String.Empty;
+    string BackgroundBlurHash => _album.ImgBlurhashBase64;
 
     private bool EngageSongCheckmode = false;
 
@@ -232,8 +231,8 @@
         {
             if (_album != null)
             {
-                Task<BaseMusicItem> getAlbum = MauiProgram.Server.Album.GetAsync(_album.Id, _album.ServerAddress);
-                Task<BaseMusicItem[]> getSimilarAlbum = MauiProgram.Server.Album.GetSimilarAsync(_album.Id, 50, _album.ServerAddress);
+                var getAlbum = MauiProgram.Server.Album.GetAsync(parseId, _album.ServerAddress);
+                var getSimilarAlbum = MauiProgram.Server.Album.GetSimilarAsync(parseId, 50, _album.ServerAddress);
                 await Task.WhenAll(getAlbum, getSimilarAlbum);
 
                 if (getAlbum.Result is Album album)
@@ -455,7 +454,7 @@
 
     private async void OpenContextMenu(BaseMusicItem musicItem)
     {
-        MauiProgram.MainPage.OpenContextMenu(musicItem, 250, base64BlurHash);
+        MauiProgram.MainPage.OpenContextMenu(musicItem, 250, BackgroundBlurHash);
         await Task.Run(() =>
         {
             // Literally just waiting for the fucking thing to close before we refresh

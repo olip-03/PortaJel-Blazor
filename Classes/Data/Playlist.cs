@@ -5,13 +5,6 @@ namespace PortaJel_Blazor.Classes.Data
     public class Playlist: BaseMusicItem
     {
         public PlaylistData GetBase => _playlistData;
-        public new Guid LocalId => _playlistData.LocalId;
-        public new Guid Id => _playlistData.Id;
-        public new string Name => _playlistData.Name;
-        public new bool IsFavourite => _playlistData.IsFavourite;
-        public new string ImgSource => _playlistData.ImgSource;
-        public new string ImgBlurhash => _playlistData.ImgBlurhash;
-        public new string ImgBlurhashBase64 => _playlistData.BlurhashBase64;
         public string Path => _playlistData.Path;
         public new string ServerAddress => _playlistData.ServerAddress;
         public bool IsPartial { get; set; } = true;
@@ -27,21 +20,35 @@ namespace PortaJel_Blazor.Classes.Data
         {
             _playlistData = new();
             _songData = [];
+            SetVars();
         }
         public Playlist(PlaylistData playlistData)
         {
             _playlistData = playlistData;
             _songData = [];
+            SetVars();
         }
         public Playlist(PlaylistData playlistData, SongData[] songData)
         {
             _playlistData = playlistData;
             _songData = songData;
             IsPartial = false;
+            SetVars();
         }
         public void SetIsFavourite(bool state)
         {
             _playlistData.IsFavourite = state;
+        }
+
+        public void SetVars()
+        {
+            LocalId = _playlistData.LocalId;
+            Id = _playlistData.Id;
+            Name = _playlistData.Name;
+            IsFavourite = _playlistData.IsFavourite;
+            ImgSource = _playlistData.ImgSource;
+            ImgBlurhash = _playlistData.ImgBlurhash;
+            ImgBlurhashBase64 = _playlistData.BlurhashBase64;
         }
 
         //public List<ContextMenuItem> GetContextMenuItems()

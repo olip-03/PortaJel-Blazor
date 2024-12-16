@@ -147,7 +147,6 @@ public class ServerConnector : IMediaServerConnector
                 {
                     // Get album data 
                     var status = server.BeginSyncAsync(cancellationToken);
-                    status.Wait(cancellationToken);
                 }
                 catch (Exception ex)
                 {

@@ -62,6 +62,11 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         {
             query = query.Where(album => album.ServerAddress == serverUrl);
         }
+
+        if (getFavourite.HasValue)
+        {
+            query = query.Where(album => album.IsFavourite == getFavourite.Value);
+        }
         
         // Sort and retrieve data based on sorting type
         switch (setSortTypes)

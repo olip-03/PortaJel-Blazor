@@ -8,20 +8,9 @@ namespace PortaJel_Blazor.Classes.Data
     public class Song : BaseMusicItem
     {
         public SongData GetBase => _songData;
-        public new Guid LocalId => _songData.LocalId;
-        public new Guid Id => _songData.Id;
         public Guid AlbumId => _songData.AlbumId;
         public Guid LocalAlbumId => _songData.LocalAlbumId;
-        public new string Name => _songData.Name;
-        public new bool IsFavourite => _songData.IsFavourite;
-        public new int PlayCount => _songData.PlayCount;
-        public new DateTimeOffset? DateAdded => _songData.DateAdded;
-        public new DateTimeOffset? DatePlayed => _songData.DatePlayed;
-        public new string ServerAddress => _songData.ServerAddress;
         public string? PlaylistId => _songData.PlaylistId;
-        public new string ImgSource => _songData.ImgSource;
-        public new string ImgBlurhash => _songData.ImgBlurhash;
-        public new string ImgBlurhashBase64 => _songData.BlurhashBase64;
         public ArtistData[] Artists => _artistData;
         public Guid[] ArtistIds => _songData.GetArtistIds();
         public string ArtistNames => _songData.ArtistNames;
@@ -34,9 +23,9 @@ namespace PortaJel_Blazor.Classes.Data
         public bool IsDownloaded => _songData.IsDownloaded;
         public bool IsPartial { get; private set; } = false;
 
-        private SongData _songData = new();
-        private AlbumData _albumData = new();
-        private ArtistData[] _artistData = [];
+        private readonly SongData _songData = new();
+        private readonly AlbumData _albumData = new();
+        private readonly ArtistData[] _artistData = [];
 
         #region Constructors
         public static readonly Song Empty = new();
@@ -44,16 +33,28 @@ namespace PortaJel_Blazor.Classes.Data
         {
             IsPartial = true;
         }
-        public Song(SongData songData, AlbumData? albumData = null, ArtistData[]? artistData = null)
+        public Song(SongData songData, AlbumData albumData = null, ArtistData[] artistData = null)
         {
             _songData = songData;
-            _albumData = albumData == null ? new() : albumData;
-            _artistData = artistData == null ? [] : artistData;
+            _albumData = albumData ?? new AlbumData();
+            _artistData = artistData ?? [];
 
             if(_albumData == null || _artistData.Length  == 0)
             {
                 IsPartial = true;
             }
+             
+            LocalId = _songData.LocalId;
+            Id = _songData.Id;
+            Name = _songData.Name;
+            IsFavourite = _songData.IsFavourite;
+            PlayCount = _songData.PlayCount;
+            DateAdded = _songData.DateAdded;
+            DatePlayed = _songData.DatePlayed;
+            ServerAddress = _songData.ServerAddress;
+            ImgSource = _songData.ImgSource;
+            ImgBlurhash = _songData.ImgBlurhash;
+            ImgBlurhashBase64 = _songData.BlurhashBase64;
         }
         #endregion
 
