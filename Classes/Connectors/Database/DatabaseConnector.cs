@@ -28,7 +28,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Database
         private const SQLiteOpenFlags DbFlags =
             SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache;
 
-        private readonly SQLiteAsyncConnection _database = new SQLiteAsyncConnection(MainDir, DbFlags);
+        private readonly SQLiteAsyncConnection _database = new(MainDir, DbFlags);
         public IMediaDataConnector Album { get; set; }
         public IMediaDataConnector Artist { get; set; }
         public IMediaDataConnector Song { get; set; }

@@ -19,6 +19,7 @@ namespace PortaJel_Blazor.Classes.Database
         public string SongIdsJson { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
         public string ServerAddress { get; set; } = string.Empty;
+        public DateTimeOffset? DateAdded { get; set; }
         public bool IsPartial { get; set; } = true;
         public Guid[] GetSongIds()
         {
@@ -51,6 +52,7 @@ namespace PortaJel_Blazor.Classes.Database
             newPlaylist.LocalId = GuidHelper.GenerateNewGuidFromHash(newPlaylist.Id, server);
             newPlaylist.IsFavourite = (bool)baseItem.UserData.IsFavorite;
             newPlaylist.Path = baseItem.Path;
+            newPlaylist.DateAdded = baseItem.DateCreated;
             newPlaylist.ServerAddress = server;
             newPlaylist.ImgSource = musicItemImage.Source;
             newPlaylist.ImgBlurhash = musicItemImage.Blurhash;

@@ -8,10 +8,6 @@ namespace PortaJel_Blazor.Classes.Data
     public class Artist : BaseMusicItem
     {
         public ArtistData GetBase => _artistData;
-        
-        
-        
-        
         public string Description => _artistData.Description;
         public string LogoImgSource => _artistData.LogoImgSource;
         public string BackgroundImgSource => _artistData.BackgroundImgSource;

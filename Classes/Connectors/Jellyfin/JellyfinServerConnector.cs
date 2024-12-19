@@ -275,12 +275,22 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                             {
                                 int progress = (int)((double)currentFetch / totalItem * 100);
                                 data.Value.SetSyncStatusInfo(TaskStatus.Running, progress);
-
-                                var itemTask = data.Value.GetAllAsync(
+                                
+                                var albumTask = data.Value.GetAllAsync(
                                     limit: batchSize,
                                     startIndex: currentItem,
                                     setSortTypes: ItemSortBy.DateCreated,
-                                    setSortOrder: SortOrder.Ascending,
+                                    setSortOrder: SortOrder.Descending,
+                                    cancellationToken: cancellationToken
+                                );
+                                albumTask.Wait(cancellationToken);
+                                var excludeCheck = albumTask.Result.Select(a => (Guid?)a.Id).ToArray();
+                                var itemTask = data.Value.GetAllAsync(
+                                    limit: batchSize,
+                                    excludeIds: excludeCheck,
+                                    startIndex: currentItem,
+                                    setSortTypes: ItemSortBy.DateCreated,
+                                    setSortOrder: SortOrder.Descending,
                                     cancellationToken: cancellationToken
                                 );
                                 itemTask.Wait(cancellationToken);

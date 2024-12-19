@@ -35,7 +35,7 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
             c.QueryParameters.Recursive = true;
             c.QueryParameters.EnableImages = true;
             c.QueryParameters.EnableTotalRecordCount = true;
-            c.QueryParameters.Fields = [ItemFields.Path];
+            c.QueryParameters.Fields = [ItemFields.Path, ItemFields.DateCreated];
         }, cancellationToken).ConfigureAwait(false);
         if (playlistResult == null || cancellationToken.IsCancellationRequested) return [];
         if (playlistResult.Items == null || cancellationToken.IsCancellationRequested) return [];
@@ -53,22 +53,22 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
             c.QueryParameters.Ids = [id];
             c.QueryParameters.Recursive = true;
             c.QueryParameters.EnableImages = true;
-            c.QueryParameters.Fields = [ItemFields.Path];
+            c.QueryParameters.Fields = [ItemFields.Path, ItemFields.DateCreated];
         }, cancellationToken);
         var playlistSongResult = api.Items.GetAsync(c =>
         {
             c.QueryParameters.UserId = user.Id;
             c.QueryParameters.ParentId = id;
-            c.QueryParameters.Fields =
-                [ItemFields.ParentId, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks];
+            c.QueryParameters.Fields = [ItemFields.ParentId, ItemFields.PlayAccess, ItemFields.Path, ItemFields.MediaStreams, ItemFields.CumulativeRunTimeTicks, ItemFields.DateCreated];
             c.QueryParameters.EnableImages = true;
         }, cancellationToken);
         await Task.WhenAll(playlistQueryResult, playlistSongResult);
         if (playlistQueryResult.Result?.Items == null) return Playlist.Empty;
         if (playlistSongResult.Result?.Items == null) return Playlist.Empty;
+        var playlistData = PlaylistData.Builder(playlistQueryResult.Result?.Items.First(), serverUrl);
         var songData = playlistSongResult.Result?.Items.Select(song => SongData.Builder(song, clientSettings.ServerUrl))
             .ToArray();
-        return await Task.FromResult(new Playlist());
+        return await Task.FromResult(new Playlist(playlistData, songData));
     }
 
     public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
