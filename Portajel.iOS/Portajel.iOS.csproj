@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0-ios</TargetFramework>
+		<SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>Portajel</RootNamespace>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseMaui>true</UseMaui>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Portajel\Portajel.csproj" />
+	</ItemGroup>
+
+</Project>

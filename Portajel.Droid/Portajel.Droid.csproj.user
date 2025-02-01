@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SelectedDevice>Google Pixel 8</SelectedDevice>
+    <SelectedPlatformGroup>PhysicalDevice</SelectedPlatformGroup>
+    <ActiveDebugProfile>Google Pixel 8 (Android 15.0 - API 35)</ActiveDebugProfile>
+  </PropertyGroup>
+</Project>
