@@ -18,7 +18,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         }
 
         public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0,  bool? getFavourite = null,
-            ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
+            ItemSortBy setSortTypes = ItemSortBy.DateCreated, SortOrder setSortOrder = SortOrder.Descending,
             Guid?[] includeIds = null,
             Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
         {

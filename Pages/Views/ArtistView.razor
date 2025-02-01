@@ -1,5 +1,6 @@
 ﻿@using PortaJel_Blazor.Shared;
 @using BlazorAnimate;
+@using PortaJel_Blazor.Classes
 @using PortaJel_Blazor.Classes.Data
 @using PortaJel_Blazor.Shared.Icons;
 
@@ -260,15 +261,15 @@
                 artistAlbums = artist.Albums.Select(album => new Album(album)).ToArray();
                 placeholderImages = await GenerateBlurHash(artistAlbums);
 
-                string? artistBlurhash = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 20, 20);
-                string? backgrounBlurhash = await MusicItemImage.BlurhashToBase64Async(artist.BackgroundImgBlurhash, 20, 20);
+                string? artistBlurhash = Blurhelper.BlurhashToBase64Async_OpenTK(artist.ImgBlurhash, 20, 20);
+                string? backgrounBlurhash = Blurhelper.BlurhashToBase64Async_OpenTK(artist.BackgroundImgBlurhash, 20, 20);
                 imgUrlPlaceholder = artistBlurhash == null ? string.Empty : artistBlurhash;
                 backgroundImgUrlPlaceholder = backgrounBlurhash == null ? string.Empty : backgrounBlurhash;
 
                 logoUrl = artist.LogoImgSource;
                 if (!String.IsNullOrWhiteSpace(logoUrl))
                 {
-                    string? getLogoblurhash = await MusicItemImage.BlurhashToBase64Async(artist.LogoImgSource, 20, 20);
+                    string? getLogoblurhash = Blurhelper.BlurhashToBase64Async_OpenTK(artist.LogoImgSource, 20, 20);
                     logoUrlPlaceholder = getLogoblurhash == null ? string.Empty : getLogoblurhash;
                     hasLogo = true;
                 }
@@ -352,8 +353,7 @@
         {
             try
             {
-                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
-                toReturn[i] = base64 == null ? string.Empty : base64;
+                toReturn[i] = Blurhelper.BlurhashToBase64Async_OpenTK(data[i].ImgBlurhash, 20, 20);
             }
             catch (Exception)
             {

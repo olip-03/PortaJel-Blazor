@@ -306,7 +306,7 @@ public partial class MediaController : ContentView
         {
             // Fuck yeah get the image to move based on gyro
             //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
-            string base64 = await MusicItemImage.BlurhashToBase64Async(currentSong.ImgBlurhash, 100, 100, 0.3f).ConfigureAwait(false);
+            string base64 = Blurhelper.BlurhashToBase64Async_OpenTK(currentSong.ImgBlurhash, 100, 100, 0.3f);
             if (base64 != null)
             {
                 var imageBytes = Convert.FromBase64String(base64);
@@ -370,7 +370,7 @@ public partial class MediaController : ContentView
 
         Song song = (Song)ImgCarousel.CurrentItem;
 
-        var base64Result = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 20, 20);
+        var base64Result = Blurhelper.BlurhashToBase64Async_OpenTK(song.ImgBlurhash, 20, 20);
         string base64 = base64Result == null ? string.Empty : base64Result;
 
         MauiProgram.MainPage.OpenContextMenu(song, 250, base64);

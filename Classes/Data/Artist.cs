@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Jellyfin.Sdk.Generated.Models;
 using PortaJel_Blazor.Classes.Database;
+using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes.Data
 {

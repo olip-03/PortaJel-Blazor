@@ -2,6 +2,7 @@
 using SQLite;
 using System.Text.Json;
 using PortaJel_Blazor.Classes.Data;
+using PortaJel_Blazor.Data;
 
 namespace PortaJel_Blazor.Classes.Database
 {
@@ -50,7 +51,9 @@ namespace PortaJel_Blazor.Classes.Database
             ArtistData toAdd = new();
             toAdd.Id = (Guid)baseItem.Id;
             toAdd.LocalId = GuidHelper.GenerateNewGuidFromHash(toAdd.Id, server);
+            toAdd.ServerAddress = server;
             toAdd.Name = baseItem.Name == null ? string.Empty : baseItem.Name;
+            toAdd.DateAdded = baseItem.DateCreated;
             toAdd.IsFavourite = baseItem.UserData.IsFavorite == null ? false : (bool)baseItem.UserData.IsFavorite;
             toAdd.Description = baseItem.Overview == null ? string.Empty : baseItem.Overview;
             toAdd.LogoImgSource = artistLogo.Source;

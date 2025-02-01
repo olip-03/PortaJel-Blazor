@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="checker-qual">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.nuget/packages/xamarin.checkerframework.checkerqual/3.22.1.1/jar/checker-qual.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -4,6 +4,7 @@
 @using PortaJel_Blazor.Shared.Icons;
 @using CommunityToolkit.Maui.Core;
 @using CommunityToolkit.Maui.Alerts;
+@using PortaJel_Blazor.Classes
 @using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime Js;
 
@@ -250,7 +251,7 @@
                         _album = await MauiProgram.Server.Album.GetAsync(parseId) as Album;
                         if (_album.Artists != null)
                         {
-                            _artistHash = await Task.WhenAll(_album.Artists.Select(a => MusicItemImage.BlurhashToBase64Async(a.ImgBlurhash)).ToArray());
+                            _artistHash = _album.Artists.Select(a => Blurhelper.BlurhashToBase64Async_OpenTK(a.ImgBlurhash)).ToArray();
                         }
                             
                         _songs = _album.GetSongs();
@@ -278,8 +279,8 @@
                 }
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
-                _album.ImgBlurhashBase64 = await MusicItemImage.BlurhashToBase64Async(_album.ImgBlurhash, 20, 20);
-                backgroundBlurHash = await MusicItemImage.BlurhashToBase64Async(_album.ImgBlurhash, 20, 20, 1f);
+                _album.ImgBlurhashBase64 = Blurhelper.BlurhashToBase64Async_OpenTK(_album.ImgBlurhash, 20, 20);
+                backgroundBlurHash = Blurhelper.BlurhashToBase64Async_OpenTK(_album.ImgBlurhash, 20, 20, 1f);
                 Task<string[]> runSimilarBlurhash = GenerateBlurHash(_similarAlbums);
                 _similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }
@@ -505,7 +506,7 @@
                     if (SongCheckState[i])
                     {
                         selected.Add(_songs[i]);
-                        string? blurhash = await MusicItemImage.BlurhashToBase64Async(_songs[i].ImgBlurhash, 20, 20);
+                        string? blurhash = Blurhelper.BlurhashToBase64Async_OpenTK(_songs[i].ImgBlurhash, 20, 20);
                         if (blurhash != null) selectedBase64.Add(blurhash);
                     }
                 }
@@ -557,8 +558,7 @@
         {
             try
             {
-                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20, brightness: 2);
-                toReturn[i] = base64 == null ? string.Empty : base64;
+                toReturn[i] = Blurhelper.BlurhashToBase64Async_OpenTK(data[i].ImgBlurhash, 20, 20, brightness: 2);
             }
             catch (Exception)
             {

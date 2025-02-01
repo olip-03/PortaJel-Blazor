@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="j2objc-annotations">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.nuget/packages/xamarin.google.j2objc.annotations/1.3.0.1/jar/j2objc-annotations.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

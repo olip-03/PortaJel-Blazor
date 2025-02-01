@@ -5,6 +5,7 @@
 @using Blurhash;
 @using CommunityToolkit.Maui.Core;
 @using CommunityToolkit.Maui.Alerts;
+@using PortaJel_Blazor.Classes
 @using PortaJel_Blazor.Classes.Data
 @inject IJSRuntime JS;
 
@@ -183,8 +184,8 @@
                 }
 
                 MauiProgram.UpdateDebugMessage("Decoding Blurhash.");
-                base64BlurHash = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20);
-                backgroundBlurHash = await MusicItemImage.BlurhashToBase64Async(playlist.ImgBlurhash, 20, 20, 0.3f);
+                base64BlurHash = Blurhelper.BlurhashToBase64Async_OpenTK(playlist.ImgBlurhash, 20, 20);
+                backgroundBlurHash = Blurhelper.BlurhashToBase64Async_OpenTK(playlist.ImgBlurhash, 20, 20, 0.3f);
                 Task<string[]> runSimilarBlurhash = GenerateBlurHash(similarAlbums);
                 similarAlbumsBase64BlurHash = await runSimilarBlurhash;
             }
@@ -381,8 +382,7 @@
         {
             try
             {
-                string? base64 = await MusicItemImage.BlurhashToBase64Async(data[i], 20, 20);
-                toReturn[i] = base64 == null ? string.Empty : base64;
+                toReturn[i] = Blurhelper.BlurhashToBase64Async_OpenTK(data[i].ImgBlurhash, 20, 20);
             }
             catch (Exception)
             {

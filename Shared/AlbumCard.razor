@@ -65,7 +65,7 @@
                     albumImg = album.ImgSource;
                     if (string.IsNullOrWhiteSpace(placeholderBase64))
                     {
-                        string base64 = await MusicItemImage.BlurhashToBase64Async(album.ImgBlurhash, 5, 5);
+                        string base64 = Blurhelper.BlurhashToBase64Async_OpenTK(album.ImgBlurhash, 5, 5);
                         placeholderBase64  = base64 == null ? string.Empty : base64;
                     }
 
@@ -79,7 +79,7 @@
                     albumImg = song.ImgSource;
                     if (string.IsNullOrWhiteSpace(placeholderBase64))
                     {
-                        string base64 = await MusicItemImage.BlurhashToBase64Async(song.ImgBlurhash, 5, 5);
+                        string base64 = Blurhelper.BlurhashToBase64Async_OpenTK(song.ImgBlurhash, 5, 5);
                         placeholderBase64 = base64 == null ? string.Empty : base64;
                     }
 
@@ -93,7 +93,7 @@
                     albumImg = artist.ImgSource;
                     if (string.IsNullOrWhiteSpace(placeholderBase64))
                     {
-                        string base64 = await MusicItemImage.BlurhashToBase64Async(artist.ImgBlurhash, 5, 5);
+                        string base64 = Blurhelper.BlurhashToBase64Async_OpenTK(artist.ImgBlurhash, 5, 5);
                         placeholderBase64 = base64 == null ? string.Empty : base64;
                     }
 

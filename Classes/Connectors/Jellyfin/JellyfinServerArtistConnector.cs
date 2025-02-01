@@ -28,6 +28,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 c.QueryParameters.SortBy = [ItemSortBy.Name];
                 c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicArtist];
                 c.QueryParameters.Limit = limit;
+                c.QueryParameters.Fields = [ItemFields.DateCreated];
                 c.QueryParameters.StartIndex = startIndex;
                 c.QueryParameters.Recursive = true;
                 c.QueryParameters.EnableImages = true;
@@ -50,7 +51,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                 c.QueryParameters.SortOrder = [SortOrder.Ascending];
                 c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicArtist];
                 c.QueryParameters.Recursive = true;
-                c.QueryParameters.Fields = [ItemFields.Overview];
+                c.QueryParameters.Fields = [ItemFields.DateCreated, ItemFields.Overview];
                 c.QueryParameters.EnableImages = true;
                 c.QueryParameters.EnableTotalRecordCount = true;
             }, cancellationToken);
@@ -58,11 +59,11 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
             {
                 c.QueryParameters.UserId = user.Id;
                 c.QueryParameters.ArtistIds = [id];
-                c.QueryParameters.SortBy = [ItemSortBy.Name];
-                c.QueryParameters.SortOrder = [SortOrder.Ascending];
+                c.QueryParameters.SortBy = [ItemSortBy.PremiereDate];
+                c.QueryParameters.SortOrder = [SortOrder.Descending];
                 c.QueryParameters.IncludeItemTypes = [BaseItemKind.MusicAlbum];
                 c.QueryParameters.Recursive = true;
-                c.QueryParameters.Fields = [ItemFields.Overview];
+                c.QueryParameters.Fields = [ItemFields.DateCreated, ItemFields.Overview];
                 c.QueryParameters.EnableImages = true;
                 c.QueryParameters.EnableTotalRecordCount = true;
             }, cancellationToken);

@@ -206,8 +206,6 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
         // works. 
         public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
-            bool upToDate = await IsUpToDateAsync(cancellationToken);
-            if (upToDate) return true;
             try
             {
                 if (MauiProgram.Database.Album is not DatabaseAlbumConnector albumDb) return false;
@@ -246,7 +244,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                             dbConnector = genreDb;
                             break;
                     }
-
+                    
                     if (dbConnector == null) return;
                     
                     // Start the stopwatch
@@ -267,23 +265,42 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                             int progress = (int)((double)currentFetch / totalItem * 100);
                             data.Value.SetSyncStatusInfo(TaskStatus.Running, progress);
 
-                            // Get items
-                            var itemTask = data.Value.GetAllAsync(limit: batchSize, startIndex: currentItem,
-                                setSortTypes: ItemSortBy.Name, setSortOrder: SortOrder.Ascending,
+                            var dbItemsTask = dbConnector.GetAllAsync(limit: batchSize, startIndex: currentItem,
+                                setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Descending,
                                 cancellationToken: cancellationToken);
-                            itemTask.Wait(cancellationToken);
+                            var srvItemsTask = data.Value.GetAllAsync(limit: batchSize, startIndex: currentItem,
+                                setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Descending,
+                                cancellationToken: cancellationToken);
+                            dbItemsTask.Wait(cancellationToken);
+                            srvItemsTask.Wait(cancellationToken);
+
+                            int breakout = 0;
+                            for (int i = 0; i < srvItemsTask.Result.Length; i++)
+                            {
+                                if(dbItemsTask.Result.Any(dbItem => dbItem.Id == srvItemsTask.Result[i].Id))
+                                {
+                                    breakout++;
+                                    continue;
+                                }
+                            }
+                            if(breakout > 10)
+                            {
+                                Trace.WriteLine("Too many items already in database. Cancelling sync.");
+                                break;
+                            }
                             
-                            currentFetch += itemTask.Result.Length;
+                            currentFetch += srvItemsTask.Result.Length;
                             currentItem += batchSize;
 
                             try
                             {
-                                dbConnector.AddRange(itemTask.Result, cancellationToken).Wait(cancellationToken);
-                                serverItems.AddRange(itemTask.Result);
+                                dbConnector.AddRange(srvItemsTask.Result, cancellationToken).Wait(cancellationToken);
+                                serverItems.AddRange(srvItemsTask.Result);
                             
-                                if (itemTask.Result.Length < batchSize - 1)
+                                if (srvItemsTask.Result.Length < batchSize - 1)
                                 {
-                                    break; // Exit when no more data
+                                    Trace.WriteLine("Database stopped recieving items. Cancelling sync.");
+                                    break; 
                                 }
                             }
                             catch (Exception e)
@@ -292,7 +309,7 @@ namespace PortaJel_Blazor.Classes.Connectors.Jellyfin
                             }
                         }
                         
-                        // Find albums that are not in newAlbums (itemTask.Result)
+                        // Find albums that are not in newAlbums (srvItemsTask.Result)
                         var albumsToDelete = albums
                             .Where(existingAlbum => serverItems.All(newAlbum => newAlbum.Id != existingAlbum.Id))
                             .ToList();

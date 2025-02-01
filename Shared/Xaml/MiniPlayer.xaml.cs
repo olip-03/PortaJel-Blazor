@@ -198,11 +198,11 @@ public partial class MiniPlayer : ContentView
         Song currentSong = MauiProgram.MediaService.GetCurrentlyPlaying();
         if (currentSong.ImgBlurhash == currentBlurhash) return false; // dont run if hash is the same
         currentBlurhash = currentSong.ImgBlurhash;
-        await Task.WhenAll(Task.Run(async () =>
+        await Task.WhenAll(Task.Run( () =>
         {
             // Fuck yeah get the image to move based on gyro
             //Microsoft.Maui.Devices.Sensors.Accelerometer.Start<
-            string? base64 = await MusicItemImage.BlurhashToBase64Async(currentSong.ImgBlurhash, 100, 100, 0.3f).ConfigureAwait(false);
+            string? base64 = Blurhelper.BlurhashToBase64Async_OpenTK(currentSong.ImgBlurhash, 100, 100, 0.3f);
             if (base64 != null)
             {
                 var imageBytes = Convert.FromBase64String(base64);
