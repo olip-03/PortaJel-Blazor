@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">შეყვანილია %2$d-დან %1$d სიმბოლო</string>
     <string name="character_counter_overflowed_content_description">გადაჭარბებულია სიმბოლოთა ლიმიტი (%2$d-დან %1$d)</string>
     <string name="clear_text_end_icon_content_description">ტექსტის გასუფთავება</string>
-    <string name="error_a11y_label">შეცდომა: არასწორი</string>
     <string name="error_icon_content_description">შეცდომა</string>
     <string name="exposed_dropdown_menu_content_description">ჩამოსაშლელი მენიუს ჩვენება</string>
     <string name="icon_content_description">დიალოგის ხატულა</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">აირჩიეთ დრო</string>
     <string name="material_timepicker_text_input_mode_description">დროის შეყვანისთვის ტექსტის შეყვანის რეჟიმზე გადართვა.</string>
     <string name="mtrl_badge_numberless_content_description">ახალი შეტყობინება</string>
-    <string name="mtrl_checkbox_state_description_checked">მონიშნულია</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">ნაწილობრივ შემოწმებულია</string>
-    <string name="mtrl_checkbox_state_description_unchecked">არ არის მონიშნული</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s-ის ამოშლა</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">%1$d-ზე მეტი ახალი შეტყობინება</string>
     <string name="mtrl_picker_a11y_next_month">შემდეგ თვეზე გადასვლა</string>
@@ -46,11 +42,11 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">აირჩიეთ თარიღი</string>
     <string name="mtrl_picker_date_header_unselected">არჩეული თარიღი</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">დღეების სვეტი: %1$s</string>
     <string name="mtrl_picker_end_date_description">დასრულების თარიღი %1$s</string>
     <string name="mtrl_picker_invalid_format">არასწორი ფორმატი.</string>
     <string name="mtrl_picker_invalid_format_example">მაგალითი: %1$s</string>
-    <string name="mtrl_picker_invalid_format_use">ფორმატი: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">%1$s-ის გამოყენება</string>
     <string name="mtrl_picker_invalid_range">დიაპაზონი არასწორია.</string>
     <string name="mtrl_picker_navigate_to_current_year_description">ნავიგაცია მიმდინარე წელზე (%1$d)</string>
     <string name="mtrl_picker_navigate_to_year_description">%1$d წელზე ნავიგაცია</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">გაუქმება</string>
     <string name="mtrl_timepicker_confirm">კარგი</string>
     <string name="password_toggle_content_description">პაროლის ჩვენება</string>
-    <string name="searchview_clear_text_content_description">ტექსტის გასუფთავება</string>
-    <string name="searchview_navigation_content_description">უკან</string>
-    <string name="side_sheet_accessibility_pane_title">გვერდითი ფურცელი</string>
 </resources>

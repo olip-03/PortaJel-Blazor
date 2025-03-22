@@ -9,8 +9,11 @@ namespace Portajel.Droid.Playback
 {
     public class MediaInterface : IMediaController
     {
-        public IPlaybackController Playback => new PlaybackController();
-        public IQueueController Queue => new QueueController();
+        public IPlaybackController Playback => _playbackController;
+        public IQueueController Queue => _queueController;
+
+        private PlaybackController _playbackController = new();
+        private QueueController _queueController = new();
 
         public void Destroy()
         {

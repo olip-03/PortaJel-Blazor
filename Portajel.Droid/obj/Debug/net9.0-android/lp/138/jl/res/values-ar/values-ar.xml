@@ -16,7 +16,6 @@
     <string name="character_counter_content_description">تمّ إدخال %1$d حرف من إجمالي %2$d.</string>
     <string name="character_counter_overflowed_content_description">تجاوز عدد الأحرف المسموح به %1$d من %2$d.</string>
     <string name="clear_text_end_icon_content_description">محو النص</string>
-    <string name="error_a11y_label">خطأ: غير صالح</string>
     <string name="error_icon_content_description">خطأ</string>
     <string name="exposed_dropdown_menu_content_description">عرض القائمة المنسدلة</string>
     <string name="icon_content_description">رمز مربع الحوار</string>
@@ -35,9 +34,6 @@
     <string name="material_timepicker_select_time">اختيار الوقت</string>
     <string name="material_timepicker_text_input_mode_description">يُرجى التبديل إلى وضع إدخال النص لإدخال الوقت.</string>
     <string name="mtrl_badge_numberless_content_description">إشعار جديد</string>
-    <string name="mtrl_checkbox_state_description_checked">تم وضع علامة في المربّع</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">يجوز أنه تم وضع علامة في المربّع</string>
-    <string name="mtrl_checkbox_state_description_unchecked">لم يتم وضع علامة في المربّع</string>
     <string name="mtrl_chip_close_icon_content_description">إزالة %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">يبلغ عدد الإشعارات الجديدة أكثر من %1$d.</string>
     <string name="mtrl_picker_a11y_next_month">التغيير إلى الشهر التالي</string>
@@ -50,7 +46,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">يُرجى اختيار تاريخ.</string>
     <string name="mtrl_picker_date_header_unselected">التاريخ المحدَّد</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">عمود الأيام: %1$s</string>
     <string name="mtrl_picker_end_date_description">تاريخ الانتهاء: %1$s</string>
     <string name="mtrl_picker_invalid_format">التنسيق غير صالح</string>
     <string name="mtrl_picker_invalid_format_example">مثال: %1$s</string>
@@ -80,7 +76,4 @@
     <string name="mtrl_timepicker_cancel">إلغاء</string>
     <string name="mtrl_timepicker_confirm">حسنًا</string>
     <string name="password_toggle_content_description">عرض كلمة المرور</string>
-    <string name="searchview_clear_text_content_description">محو النص</string>
-    <string name="searchview_navigation_content_description">رجوع</string>
-    <string name="side_sheet_accessibility_pane_title">ورقة جانبية</string>
 </resources>

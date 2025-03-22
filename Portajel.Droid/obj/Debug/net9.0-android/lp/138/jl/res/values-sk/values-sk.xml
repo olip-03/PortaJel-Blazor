@@ -14,7 +14,6 @@
     <string name="character_counter_content_description">Zadané znaky: %1$d z %2$d</string>
     <string name="character_counter_overflowed_content_description">Bol prekročený povolený počet znakov (%1$d z %2$d)</string>
     <string name="clear_text_end_icon_content_description">Vymazať text</string>
-    <string name="error_a11y_label">Chyba: neplatné</string>
     <string name="error_icon_content_description">Chyba</string>
     <string name="exposed_dropdown_menu_content_description">Zobraziť rozbaľovaciu ponuku</string>
     <string name="icon_content_description">Ikona dialógového okna</string>
@@ -33,9 +32,6 @@
     <string name="material_timepicker_select_time">Vyberte čas</string>
     <string name="material_timepicker_text_input_mode_description">Ak chcete zadať čas, prepnite na textový režim vstupu</string>
     <string name="mtrl_badge_numberless_content_description">Nové upozornenie</string>
-    <string name="mtrl_checkbox_state_description_checked">Začiarknuté</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Čiastočne začiarknuté</string>
-    <string name="mtrl_checkbox_state_description_unchecked">Nezačiarknuté</string>
     <string name="mtrl_chip_close_icon_content_description">Odstrániť položku %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">Viac než %1$d nových upozornení</string>
     <string name="mtrl_picker_a11y_next_month">Ďalší mesiac</string>
@@ -48,7 +44,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Vyberte dátum</string>
     <string name="mtrl_picker_date_header_unselected">Vybraný dátum</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Stĺpec dní: %1$s</string>
     <string name="mtrl_picker_end_date_description">Dátum ukončenia %1$s</string>
     <string name="mtrl_picker_invalid_format">Neplatný formát.</string>
     <string name="mtrl_picker_invalid_format_example">Príklad: %1$s</string>
@@ -78,7 +74,4 @@
     <string name="mtrl_timepicker_cancel">Zrušiť</string>
     <string name="mtrl_timepicker_confirm">OK</string>
     <string name="password_toggle_content_description">Zobraziť heslo</string>
-    <string name="searchview_clear_text_content_description">Vymazať text</string>
-    <string name="searchview_navigation_content_description">Späť</string>
-    <string name="side_sheet_accessibility_pane_title">Bočný hárok</string>
 </resources>

@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">ป้อนอักขระแล้ว %1$d จาก %2$d ตัว</string>
     <string name="character_counter_overflowed_content_description">เกินจำนวนอักขระสูงสุด %1$d จาก %2$d</string>
     <string name="clear_text_end_icon_content_description">ล้างข้อความ</string>
-    <string name="error_a11y_label">ข้อผิดพลาด: ไม่ถูกต้อง</string>
     <string name="error_icon_content_description">ข้อผิดพลาด</string>
     <string name="exposed_dropdown_menu_content_description">แสดงเมนูแบบเลื่อนลง</string>
     <string name="icon_content_description">ไอคอนกล่องโต้ตอบ</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">เลือกเวลา</string>
     <string name="material_timepicker_text_input_mode_description">สลับไปโหมดป้อนข้อความเพื่อป้อนเวลา</string>
     <string name="mtrl_badge_numberless_content_description">การแจ้งเตือนใหม่</string>
-    <string name="mtrl_checkbox_state_description_checked">เลือกไว้</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">เลือกบางส่วน</string>
-    <string name="mtrl_checkbox_state_description_unchecked">ไม่ได้เลือก</string>
     <string name="mtrl_chip_close_icon_content_description">นำ %1$s ออก</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">การแจ้งเตือนใหม่มากกว่า %1$d รายการ</string>
     <string name="mtrl_picker_a11y_next_month">เปลี่ยนไปที่เดือนถัดไป</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">เลือกวันที่</string>
     <string name="mtrl_picker_date_header_unselected">วันที่ที่เลือก</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">คอลัมน์ของวัน: %1$s</string>
     <string name="mtrl_picker_end_date_description">วันที่สิ้นสุด %1$s</string>
     <string name="mtrl_picker_invalid_format">รูปแบบไม่ถูกต้อง</string>
     <string name="mtrl_picker_invalid_format_example">ตัวอย่าง: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">ยกเลิก</string>
     <string name="mtrl_timepicker_confirm">ตกลง</string>
     <string name="password_toggle_content_description">แสดงรหัสผ่าน</string>
-    <string name="searchview_clear_text_content_description">ล้างข้อความ</string>
-    <string name="searchview_navigation_content_description">กลับ</string>
-    <string name="side_sheet_accessibility_pane_title">ชีตด้านข้าง</string>
 </resources>

@@ -251,7 +251,7 @@
     <attr name="layout_optimizationLevel">
         <flag name="none" value="0"/>
         <flag name="legacy" value="0"/>
-        <flag name="standard" value="257"/> 
+        <flag name="standard" value="257"/> <!-- direct, measure caches -->
         <flag name="direct" value="1"/>
         <flag name="barrier" value="2"/>
         <flag name="chains" value="4"/>
@@ -286,8 +286,6 @@
         <enum name="startVertical" value="1"/>
         <enum name="startHorizontal" value="2"/>
         <enum name="flip" value="3"/>
-        <enum name="below" value="4"/>
-        <enum name="above" value="5"/>
     </attr>
     <attr format="float" name="path_percent"/>
     <attr format="float" name="perpendicularPath_percent"/>
@@ -336,7 +334,7 @@
     <attr format="enum" name="viewTransitionMode">
         <enum name="currentState" value="0"/>
         <enum name="allStates" value="1"/>
-        
+        <!--        Operates independently of the rest of MotionLayout constraint set system -->
         <enum name="noState" value="2"/>
     </attr>
     <attr format="enum" name="visibilityMode">
@@ -384,29 +382,30 @@
         <attr name="android:orientation"/>
         <attr name="android:id"/>
 
-        
+        <!-- Controls the initial visibility of the view.  -->
         <attr name="android:visibility"/>
         <attr name="visibilityMode"/>
 
-        
+        <!-- alpha property of the view, as a value between 0 (completely transparent) and 1
+             (completely opaque). -->
         <attr name="android:alpha"/>
 
-        
+        <!-- base z depth of the view. -->
         <attr name="android:elevation"/>
 
-        
+        <!-- rotation of the view, in degrees. -->
         <attr name="android:rotation"/>
 
-        
+        <!-- rotation of the view around the x axis, in degrees. -->
         <attr name="android:rotationX"/>
 
-        
+        <!-- rotation of the view around the y axis, in degrees. -->
         <attr name="android:rotationY"/>
 
-        
+        <!-- scale of the view in the x direction. -->
         <attr name="android:scaleX"/>
 
-        
+        <!-- scale of the view in the y direction. -->
         <attr name="android:scaleY"/>
         <attr name="pivotAnchor"/>
 
@@ -414,29 +413,49 @@
         <attr name="android:transformPivotY"/>
         <attr name="transformPivotTarget"/>
 
-        
+        <!-- translation in x of the view. This value is added post-layout to the left
+             property of the view, which is set by its layout. -->
         <attr name="android:translationX"/>
-        
+        <!-- translation in y of the view. This value is added post-layout to the top
+             property of the view, which is set by its layout. -->
         <attr name="android:translationY"/>
-        
+        <!-- translation in z of the view. This value is added to its elevation. -->
         <attr name="android:translationZ"/>
-        
+        <!-- Specifies the basic width of the view.  This is a required attribute
+             for any view inside of a containing layout manager.  Its value may
+             be a dimension (such as "12dip") for a constant width or one of
+             the special constants. -->
         <attr name="android:layout_width"/>
-        
+        <!-- Specifies the basic height of the view.  This is a required attribute
+             for any view inside of a containing layout manager.  Its value may
+             be a dimension (such as "12dip") for a constant height or one of
+             the special constants. -->
         <attr name="android:layout_height"/>
-        
+        <!--  Specifies extra space on the start side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="layout_constraintWidth"/>
         <attr name="layout_constraintHeight"/>
         <attr name="android:layout_marginStart"/>
-        
+        <!--  Specifies extra space on the bottom side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="android:layout_marginBottom"/>
-        
+        <!--  Specifies extra space on the top side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="android:layout_marginTop"/>
-        
+        <!--  Specifies extra space on the end side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="android:layout_marginEnd"/>
-        
+        <!--  Specifies extra space on the left side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive. -->
         <attr name="android:layout_marginLeft"/>
-        
+        <!--  Specifies extra space on the right side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="android:layout_marginRight"/>
 
         <attr name="layout_constraintCircle"/>
@@ -518,8 +537,8 @@
         <attr name="flow_maxElementsWrap"/>
         <attr name="flow_horizontalGap"/>
         <attr name="flow_verticalGap"/>
-        
-        
+        <!--        <attr name="flow_horizontalSeparator" />-->
+        <!--        <attr name="flow_verticalSeparator" />-->
 
         <attr name="flow_firstHorizontalStyle"/>
         <attr name="flow_firstVerticalStyle"/>
@@ -582,8 +601,8 @@
         <attr name="flow_horizontalAlign"/>
         <attr name="flow_verticalBias"/>
         <attr name="flow_horizontalBias"/>
-        
-        
+        <!--        <attr name="flow_horizontalSeparator" />-->
+        <!--        <attr name="flow_verticalSeparator" />-->
 
         <attr name="flow_firstHorizontalStyle"/>
         <attr name="flow_firstVerticalStyle"/>
@@ -688,29 +707,30 @@
         <attr name="android:id"/>
         <attr name="motionTarget"/>
 
-        
+        <!-- Controls the initial visibility of the view.  -->
         <attr name="android:visibility"/>
         <attr name="visibilityMode"/>
 
-        
+        <!-- alpha property of the view, as a value between 0 (completely transparent) and 1
+             (completely opaque). -->
         <attr name="android:alpha"/>
 
-        
+        <!-- base z depth of the view. -->
         <attr name="android:elevation"/>
 
-        
+        <!-- rotation of the view, in degrees. -->
         <attr name="android:rotation"/>
 
-        
+        <!-- rotation of the view around the x axis, in degrees. -->
         <attr name="android:rotationX"/>
 
-        
+        <!-- rotation of the view around the y axis, in degrees. -->
         <attr name="android:rotationY"/>
 
-        
+        <!-- scale of the view in the x direction. -->
         <attr name="android:scaleX"/>
 
-        
+        <!-- scale of the view in the y direction. -->
         <attr name="android:scaleY"/>
         <attr name="pivotAnchor"/>
 
@@ -718,29 +738,49 @@
         <attr name="android:transformPivotY"/>
         <attr name="transformPivotTarget"/>
 
-        
+        <!-- translation in x of the view. This value is added post-layout to the left
+             property of the view, which is set by its layout. -->
         <attr name="android:translationX"/>
-        
+        <!-- translation in y of the view. This value is added post-layout to the top
+             property of the view, which is set by its layout. -->
         <attr name="android:translationY"/>
-        
+        <!-- translation in z of the view. This value is added to its elevation. -->
         <attr name="android:translationZ"/>
-        
+        <!-- Specifies the basic width of the view.  This is a required attribute
+             for any view inside of a containing layout manager.  Its value may
+             be a dimension (such as "12dip") for a constant width or one of
+             the special constants. -->
         <attr name="android:layout_width"/>
-        
+        <!-- Specifies the basic height of the view.  This is a required attribute
+             for any view inside of a containing layout manager.  Its value may
+             be a dimension (such as "12dip") for a constant height or one of
+             the special constants. -->
         <attr name="android:layout_height"/>
-        
+        <!--  Specifies extra space on the start side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="layout_constraintWidth"/>
         <attr name="layout_constraintHeight"/>
         <attr name="android:layout_marginStart"/>
-        
+        <!--  Specifies extra space on the bottom side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="android:layout_marginBottom"/>
-        
+        <!--  Specifies extra space on the top side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="android:layout_marginTop"/>
-        
+        <!--  Specifies extra space on the end side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="android:layout_marginEnd"/>
-        
+        <!--  Specifies extra space on the left side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive. -->
         <attr name="android:layout_marginLeft"/>
-        
+        <!--  Specifies extra space on the right side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="android:layout_marginRight"/>
 
         <attr name="layout_constraintCircleRadius"/>
@@ -805,8 +845,8 @@
         <attr name="flow_maxElementsWrap"/>
         <attr name="flow_horizontalGap"/>
         <attr name="flow_verticalGap"/>
-        
-        
+        <!--        <attr name="flow_horizontalSeparator" />-->
+        <!--        <attr name="flow_verticalSeparator" />-->
 
         <attr name="flow_firstHorizontalStyle"/>
         <attr name="flow_firstVerticalStyle"/>
@@ -834,7 +874,6 @@
     </declare-styleable>
     <declare-styleable name="ConstraintSet">
         <attr format="reference" name="deriveConstraintsFrom"/>
-        <attr format="string" name="stateLabels"/>
         <attr format="enum" name="constraintRotate">
             <enum name="none" value="0"/>
             <enum name="right" value="1"/>
@@ -861,11 +900,18 @@
         <attr name="android:translationY"/>
         <attr name="android:translationZ"/>
         <attr name="android:layout_width"/>
-        
+        <!-- Specifies the basic height of the view.  This is a required attribute
+     for any view inside of a containing layout manager.  Its value may
+     be a dimension (such as "12dip") for a constant height or one of
+     the special constants. -->
         <attr name="android:layout_height"/>
-        
+        <!--  Specifies extra space on the start side of this view.
+      This space is outside this view's bounds.
+      Margin values should be positive.-->
         <attr name="android:layout_marginStart"/>
-        
+        <!--  Specifies extra space on the bottom side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
         <attr name="android:layout_marginBottom"/>
         <attr name="android:layout_marginTop"/>
         <attr name="android:layout_marginEnd"/>
@@ -951,8 +997,8 @@
         <attr name="flow_maxElementsWrap"/>
         <attr name="flow_horizontalGap"/>
         <attr name="flow_verticalGap"/>
-        
-        
+        <!--        <attr name="flow_horizontalSeparator" />-->
+        <!--        <attr name="flow_verticalSeparator" />-->
 
         <attr name="flow_firstHorizontalStyle"/>
         <attr name="flow_firstVerticalStyle"/>
@@ -991,22 +1037,6 @@
         <attr format="boolean" name="customBoolean"/>
         <attr format="reference" name="customReference"/>
     </declare-styleable>
-    <declare-styleable name="Grid">
-        <attr format="integer" name="grid_rows"/>
-        <attr format="integer" name="grid_columns"/>
-        <attr format="string" name="grid_spans"/>
-        <attr format="string" name="grid_skips"/>
-        <attr format="string" name="grid_rowWeights"/>
-        <attr format="string" name="grid_columnWeights"/>
-        <attr format="enum" name="grid_orientation">
-            <enum name="horizontal" value="0"/>
-            <enum name="vertical" value="1"/>
-        </attr>
-        <attr format="dimension" name="grid_horizontalGaps"/>
-        <attr format="dimension" name="grid_verticalGaps"/>
-        <attr format="boolean" name="grid_validateInputs"/>
-        <attr format="boolean" name="grid_useRtl"/>
-    </declare-styleable>
     <declare-styleable name="ImageFilterView">
         <attr format="reference" name="blendSrc"/>
         <attr format="reference" name="altSrc"/>
@@ -1031,7 +1061,7 @@
 
         <attr name="motionProgress"/>
 
-        
+        <!-- interpolated -->
         <attr name="android:alpha"/>
         <attr name="android:elevation"/>
         <attr name="android:rotation"/>
@@ -1081,24 +1111,25 @@
 
     </declare-styleable>
     <declare-styleable name="KeyPosition">
-        
+        <!-- How this keyframe's deviation for linear path is calculated. -->
         <attr format="enum" name="keyPositionType">
             <enum name="deltaRelative" value="0"/>
             <enum name="pathRelative" value="1"/>
             <enum name="parentRelative" value="2"/>
-            <enum name="axisRelative" value="3"/>
         </attr>
 
-        
+        <!--  Percent distance from start to end along X axis (deltaRelative)
+              or along the path in pathRelative. -->
         <attr format="float" name="percentX"/>
 
-        
+        <!-- Percent distance from start to end along Y axis (deltaRelative)
+             or perpendicular to the path in pathRelative. -->
         <attr format="float" name="percentY"/>
 
-        
+        <!-- Percent of change in the width. Note if the width does not change this has no effect.This overrides sizePercent. -->
         <attr format="float" name="percentWidth"/>
 
-        
+        <!-- Percent of change in the width. Note if the width does not change this has no effect.This overrides sizePercent. -->
         <attr format="float" name="percentHeight"/>
         <attr name="framePosition"/>
         <attr name="motionTarget"/>
@@ -1119,10 +1150,10 @@
         <attr name="waveOffset"/>
         <attr name="wavePhase"/>
 
-        
+        <!--  The time in milliseconds before the wave decays to less than 1/256-->
         <attr name="waveDecay"/>
 
-        
+        <!-- interpolated -->
         <attr name="android:alpha"/>
         <attr name="android:elevation"/>
         <attr name="android:rotation"/>
@@ -1146,10 +1177,10 @@
         <attr format="reference" name="viewTransitionOnPositiveCross"/>
         <attr format="reference" name="viewTransitionOnCross"/>
         <attr format="float" name="triggerSlack"/>
-        
+        <!-- The id of this trigger use when a callback listens for triggers -->
         <attr format="reference" name="triggerId"/>
         <attr format="boolean" name="motion_postLayoutCollision"/>
-        
+        <!-- Trigger if the motionTarget collides with the other motionTarget-->
         <attr format="reference" name="motion_triggerOnCollision"/>
     </declare-styleable>
     <declare-styleable name="Layout">
@@ -1391,14 +1422,15 @@
 
     </declare-styleable>
     <declare-styleable name="PropertySet">
-        
+        <!-- Controls the initial visibility of the view.  -->
         <attr name="android:visibility"/>
         <attr name="visibilityMode"/>
 
-        
+        <!-- alpha property of the view, as a value between 0 (completely transparent) and 1
+             (completely opaque). -->
         <attr name="android:alpha"/>
 
-        
+        <!-- calls setProgress(float) on the view if the method exist -->
         <attr name="motionProgress"/>
         <attr name="layout_constraintTag"/>
     </declare-styleable>
@@ -1426,39 +1458,43 @@
         <attr name="borderRoundPercent"/>
     </declare-styleable>
     <declare-styleable name="Transform">
-        
+        <!-- base z depth of the view. -->
         <attr name="android:elevation"/>
 
-        
+        <!-- rotation of the view, in degrees. -->
         <attr name="android:rotation"/>
 
-        
+        <!-- rotation of the view around the x axis, in degrees. -->
         <attr name="android:rotationX"/>
 
-        
+        <!-- rotation of the view around the y axis, in degrees. -->
         <attr name="android:rotationY"/>
 
-        
+        <!-- scale of the view in the x direction. -->
         <attr name="android:scaleX"/>
 
-        
+        <!-- scale of the view in the y direction. -->
         <attr name="android:scaleY"/>
 
-        
+        <!--  x location of the pivot point around which the view will rotate and scale.
+     This xml attribute sets the pivotX property of the View. -->
         <attr name="android:transformPivotX"/>
 
-        
+        <!--   y location of the pivot point around which the view will rotate and scale.
+             This xml attribute sets the pivotY property of the View. -->
         <attr name="android:transformPivotY"/>
 
         <attr name="transformPivotTarget"/>
 
-        
+        <!-- translation in x of the view. This value is added post-layout to the left
+           property of the view, which is set by its layout. -->
         <attr format="dimension" name="android:translationX"/>
 
-        
+        <!-- translation in y of the view. This value is added post-layout to the top
+       property of the view, which is set by its layout. -->
         <attr format="dimension" name="android:translationY"/>
 
-        
+        <!-- translation in z of the view. This value is added to its elevation. -->
         <attr format="dimension" name="android:translationZ"/>
 
     </declare-styleable>

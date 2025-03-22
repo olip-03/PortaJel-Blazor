@@ -103,11 +103,8 @@ style Theme_Material3_DayNight_DialogWhenLarge
 style Theme_Material3_DayNight_NoActionBar
 style Theme_Material3_DayNight_SideSheetDialog
 style Theme_Material3_DynamicColors_Dark
-style Theme_Material3_DynamicColors_Dark_NoActionBar
 style Theme_Material3_DynamicColors_DayNight
-style Theme_Material3_DynamicColors_DayNight_NoActionBar
 style Theme_Material3_DynamicColors_Light
-style Theme_Material3_DynamicColors_Light_NoActionBar
 style Theme_Material3_Light
 style Theme_Material3_Light_BottomSheetDialog
 style Theme_Material3_Light_Dialog
@@ -749,7 +746,6 @@ attr indicatorDirectionCircular
 attr indicatorDirectionLinear
 attr indicatorInset
 attr indicatorSize
-attr indicatorTrackGapSize
 attr insetForeground
 attr itemActiveIndicatorStyle
 attr itemBackground
@@ -988,7 +984,6 @@ attr rippleColor
 attr scrimAnimationDuration
 attr scrimBackground
 attr scrimVisibleHeightTrigger
-string searchbar_scrolling_view_behavior
 attr selectionRequired
 attr shapeAppearance
 attr shapeAppearanceCornerExtraLarge
@@ -1109,7 +1104,6 @@ attr textInputStyle
 attr textStartPadding
 attr thumbColor
 attr thumbElevation
-attr thumbHeight
 attr thumbIcon
 attr thumbIconSize
 attr thumbIconTint
@@ -1117,8 +1111,6 @@ attr thumbIconTintMode
 attr thumbRadius
 attr thumbStrokeColor
 attr thumbStrokeWidth
-attr thumbTrackGapSize
-attr thumbWidth
 attr tickColor
 attr tickColorActive
 attr tickColorInactive
@@ -1143,8 +1135,6 @@ attr trackDecoration
 attr trackDecorationTint
 attr trackDecorationTintMode
 attr trackHeight
-attr trackInsideCornerSize
-attr trackStopIndicatorSize
 attr trackThickness
 attr transitionShapeAppearance
 attr useCompatPadding

@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">入力済み文字数: %1$d/%2$d</string>
     <string name="character_counter_overflowed_content_description">文字数制限を超えています（%1$d/%2$d 文字）</string>
     <string name="clear_text_end_icon_content_description">テキストを消去</string>
-    <string name="error_a11y_label">エラー: 無効</string>
     <string name="error_icon_content_description">エラー</string>
     <string name="exposed_dropdown_menu_content_description">プルダウン メニューを表示</string>
     <string name="icon_content_description">ダイアログ アイコン</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">時間を選択</string>
     <string name="material_timepicker_text_input_mode_description">時刻をテキストで入力するモードに切り替えます。</string>
     <string name="mtrl_badge_numberless_content_description">新しい通知</string>
-    <string name="mtrl_checkbox_state_description_checked">オン</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">一部オン</string>
-    <string name="mtrl_checkbox_state_description_unchecked">オフ</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s を削除します</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">%1$d 件以上の新しい通知</string>
     <string name="mtrl_picker_a11y_next_month">翌月に変更</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">日付を選択してください</string>
     <string name="mtrl_picker_date_header_unselected">選択した日付</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">曜日の列: %1$s</string>
     <string name="mtrl_picker_end_date_description">終了日 %1$s</string>
     <string name="mtrl_picker_invalid_format">形式が無効です。</string>
     <string name="mtrl_picker_invalid_format_example">例: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">キャンセル</string>
     <string name="mtrl_timepicker_confirm">OK</string>
     <string name="password_toggle_content_description">パスワードを表示</string>
-    <string name="searchview_clear_text_content_description">テキストを消去</string>
-    <string name="searchview_navigation_content_description">戻る</string>
-    <string name="side_sheet_accessibility_pane_title">サイドシート</string>
 </resources>

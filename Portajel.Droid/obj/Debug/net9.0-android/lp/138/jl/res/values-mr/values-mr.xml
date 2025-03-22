@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">%2$d पैकी %1$d वर्ण एंटर केले आहे</string>
     <string name="character_counter_overflowed_content_description">%2$d पैकी %1$d वर्णमर्यादा ओलांडली आहे</string>
     <string name="clear_text_end_icon_content_description">मजकूर साफ करा</string>
-    <string name="error_a11y_label">एरर: चुकीचा</string>
     <string name="error_icon_content_description">एरर</string>
     <string name="exposed_dropdown_menu_content_description">ड्रॉपडाउन मेनू दाखवा</string>
     <string name="icon_content_description">डायलॉग आयकन</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">वेळ निवडा</string>
     <string name="material_timepicker_text_input_mode_description">वेळ इनपुटसाठी मजकूर इनपुट मोडवर स्विच करा.</string>
     <string name="mtrl_badge_numberless_content_description">नवीन सूचना</string>
-    <string name="mtrl_checkbox_state_description_checked">निवडलेले</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">अंशतः निवडलेले</string>
-    <string name="mtrl_checkbox_state_description_unchecked">निवडले नाही</string>
     <string name="mtrl_chip_close_icon_content_description">काढून टाका %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">%1$d पेक्षा अधिक नवीन सूचना</string>
     <string name="mtrl_picker_a11y_next_month">पुढील महिन्यावर बदला</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">तारीख निवडा</string>
     <string name="mtrl_picker_date_header_unselected">निवडलेली तारीख</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">दिवसांचा स्तंभ: %1$s</string>
     <string name="mtrl_picker_end_date_description">संपण्याची तारीख %1$s</string>
     <string name="mtrl_picker_invalid_format">चुकीचा फॉरमॅट.</string>
     <string name="mtrl_picker_invalid_format_example">उदाहरण: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">रद्द करा</string>
     <string name="mtrl_timepicker_confirm">ओके</string>
     <string name="password_toggle_content_description">पासवर्ड दाखवा</string>
-    <string name="searchview_clear_text_content_description">मजकूर साफ करा</string>
-    <string name="searchview_navigation_content_description">मागे जा</string>
-    <string name="side_sheet_accessibility_pane_title">साइड शीट</string>
 </resources>

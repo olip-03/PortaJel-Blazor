@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">%2$d இல் %1$d எழுத்துகள் உள்ளிடப்பட்டுள்ளன</string>
     <string name="character_counter_overflowed_content_description">%2$d இல் %1$d எழுத்து வரம்பு மீறப்பட்டது</string>
     <string name="clear_text_end_icon_content_description">உரையை அழிக்கும்</string>
-    <string name="error_a11y_label">பிழை: தவறானது</string>
     <string name="error_icon_content_description">பிழை</string>
     <string name="exposed_dropdown_menu_content_description">கீழ் தோன்றல் மெனுவைக் காட்டும் பட்டன்</string>
     <string name="icon_content_description">உரையாடல் ஐகான்</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">நேரத்தைத் தேர்ந்தெடுக்கவும்</string>
     <string name="material_timepicker_text_input_mode_description">உரை உள்ளீட்டிற்காக, கடிகாரப் பயன்முறைக்கு மாற்றும்.</string>
     <string name="mtrl_badge_numberless_content_description">புதிய அறிவிப்பு</string>
-    <string name="mtrl_checkbox_state_description_checked">தேர்வுசெய்யப்பட்டுள்ளது</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">பாதி தேர்வுசெய்யப்பட்டுள்ளது</string>
-    <string name="mtrl_checkbox_state_description_unchecked">தேர்வுசெய்யப்படவில்லை</string>
     <string name="mtrl_chip_close_icon_content_description">%1$sஐ அகற்று</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">%1$d+ புதிய அறிவிப்புகள்</string>
     <string name="mtrl_picker_a11y_next_month">அடுத்த மாதத்தைக் காட்டு</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">தேதியைத் தேர்ந்தெடுக்கவும்</string>
     <string name="mtrl_picker_date_header_unselected">தேர்ந்தெடுக்கப்பட்ட தேதி</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">நாட்களின் நெடுவரிசை: %1$s</string>
     <string name="mtrl_picker_end_date_description">முடியும் தேதி %1$s</string>
     <string name="mtrl_picker_invalid_format">தவறான வடிவம்.</string>
     <string name="mtrl_picker_invalid_format_example">உதாரணம்: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">ரத்துசெய்</string>
     <string name="mtrl_timepicker_confirm">சரி</string>
     <string name="password_toggle_content_description">கடவுச்சொல்லைக் காட்டு</string>
-    <string name="searchview_clear_text_content_description">வார்த்தைகளை அழிக்கும்</string>
-    <string name="searchview_navigation_content_description">பின்செல்லும்</string>
-    <string name="side_sheet_accessibility_pane_title">பக்கவாட்டுத் தாள்</string>
 </resources>

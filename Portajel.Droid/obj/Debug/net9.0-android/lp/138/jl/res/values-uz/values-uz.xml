@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">%1$d/%2$d ta belgi kiritildi</string>
     <string name="character_counter_overflowed_content_description">Harflar soni (%1$d) cheklovdan (%2$d) oshib ketdi</string>
     <string name="clear_text_end_icon_content_description">Matnni tozalash</string>
-    <string name="error_a11y_label">Xato: yaroqsiz</string>
     <string name="error_icon_content_description">Xato</string>
     <string name="exposed_dropdown_menu_content_description">Pastga ochiluvchi menyuni ochish</string>
     <string name="icon_content_description">Muloqot ikonkasi</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">Vaqtni tanlang</string>
     <string name="material_timepicker_text_input_mode_description">Vaqtni kiritish uchun matn kiritish rejimiga o‘ting.</string>
     <string name="mtrl_badge_numberless_content_description">Yangi bildirishnoma</string>
-    <string name="mtrl_checkbox_state_description_checked">Belgilangan</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Qisman belgilangan</string>
-    <string name="mtrl_checkbox_state_description_unchecked">Belgilanmagan</string>
     <string name="mtrl_chip_close_icon_content_description">Olib tashlash: %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">Yana %1$d dan ortiq bildirishnoma</string>
     <string name="mtrl_picker_a11y_next_month">Keyingi oyga oʻzgartirish</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Sanani tanlang</string>
     <string name="mtrl_picker_date_header_unselected">Tanlangan sana</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Kunlar ustuni: %1$s</string>
     <string name="mtrl_picker_end_date_description">Tugash sanasi: %1$s</string>
     <string name="mtrl_picker_invalid_format">Yaroqsiz format.</string>
     <string name="mtrl_picker_invalid_format_example">Masalan: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">Bekor qilish</string>
     <string name="mtrl_timepicker_confirm">OK</string>
     <string name="password_toggle_content_description">Parol ochiq tursin</string>
-    <string name="searchview_clear_text_content_description">Matnni tozalash</string>
-    <string name="searchview_navigation_content_description">Orqaga</string>
-    <string name="side_sheet_accessibility_pane_title">Yon varaq</string>
 </resources>

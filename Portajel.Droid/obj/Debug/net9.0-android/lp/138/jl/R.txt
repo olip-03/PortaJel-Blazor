@@ -615,7 +615,6 @@ int attr indicatorDirectionCircular 0x0
 int attr indicatorDirectionLinear 0x0
 int attr indicatorInset 0x0
 int attr indicatorSize 0x0
-int attr indicatorTrackGapSize 0x0
 int attr initialActivityCount 0x0
 int attr insetForeground 0x0
 int attr isLightTheme 0x0
@@ -977,7 +976,6 @@ int attr showAnimationBehavior 0x0
 int attr showAsAction 0x0
 int attr showDelay 0x0
 int attr showDividers 0x0
-int attr showMarker 0x0
 int attr showMotionSpec 0x0
 int attr showPaths 0x0
 int attr showText 0x0
@@ -1133,7 +1131,6 @@ int attr theme 0x0
 int attr thickness 0x0
 int attr thumbColor 0x0
 int attr thumbElevation 0x0
-int attr thumbHeight 0x0
 int attr thumbIcon 0x0
 int attr thumbIconSize 0x0
 int attr thumbIconTint 0x0
@@ -1144,8 +1141,6 @@ int attr thumbStrokeWidth 0x0
 int attr thumbTextPadding 0x0
 int attr thumbTint 0x0
 int attr thumbTintMode 0x0
-int attr thumbTrackGapSize 0x0
-int attr thumbWidth 0x0
 int attr tickColor 0x0
 int attr tickColorActive 0x0
 int attr tickColorInactive 0x0
@@ -1195,8 +1190,6 @@ int attr trackDecoration 0x0
 int attr trackDecorationTint 0x0
 int attr trackDecorationTintMode 0x0
 int attr trackHeight 0x0
-int attr trackInsideCornerSize 0x0
-int attr trackStopIndicatorSize 0x0
 int attr trackThickness 0x0
 int attr trackTint 0x0
 int attr trackTintMode 0x0
@@ -1282,8 +1275,6 @@ int color bright_foreground_material_dark 0x0
 int color bright_foreground_material_light 0x0
 int color button_material_dark 0x0
 int color button_material_light 0x0
-int color call_notification_answer_color 0x0
-int color call_notification_decline_color 0x0
 int color cardview_dark_background 0x0
 int color cardview_light_background 0x0
 int color cardview_shadow_end_color 0x0
@@ -1578,12 +1569,9 @@ int color m3_ref_palette_white 0x0
 int color m3_selection_control_ripple_color_selector 0x0
 int color m3_simple_item_ripple_color 0x0
 int color m3_slider_active_track_color 0x0
-int color m3_slider_active_track_color_legacy 0x0
-int color m3_slider_halo_color_legacy 0x0
+int color m3_slider_halo_color 0x0
 int color m3_slider_inactive_track_color 0x0
-int color m3_slider_inactive_track_color_legacy 0x0
 int color m3_slider_thumb_color 0x0
-int color m3_slider_thumb_color_legacy 0x0
 int color m3_switch_thumb_tint 0x0
 int color m3_switch_track_tint 0x0
 int color m3_sys_color_dark_background 0x0
@@ -2274,6 +2262,7 @@ int dimen m3_comp_badge_size 0x0
 int dimen m3_comp_bottom_app_bar_container_elevation 0x0
 int dimen m3_comp_bottom_app_bar_container_height 0x0
 int dimen m3_comp_checkbox_selected_disabled_container_opacity 0x0
+int dimen m3_comp_circular_progress_indicator_active_indicator_width 0x0
 int dimen m3_comp_date_picker_modal_date_today_container_outline_width 0x0
 int dimen m3_comp_date_picker_modal_header_container_height 0x0
 int dimen m3_comp_date_picker_modal_range_selection_header_container_height 0x0
@@ -2323,6 +2312,7 @@ int dimen m3_comp_input_chip_container_height 0x0
 int dimen m3_comp_input_chip_unselected_outline_width 0x0
 int dimen m3_comp_input_chip_with_avatar_avatar_size 0x0
 int dimen m3_comp_input_chip_with_leading_icon_leading_icon_size 0x0
+int dimen m3_comp_linear_progress_indicator_active_indicator_height 0x0
 int dimen m3_comp_menu_container_elevation 0x0
 int dimen m3_comp_navigation_bar_active_indicator_height 0x0
 int dimen m3_comp_navigation_bar_active_indicator_width 0x0
@@ -2368,9 +2358,6 @@ int dimen m3_comp_primary_navigation_tab_inactive_focus_state_layer_opacity 0x0
 int dimen m3_comp_primary_navigation_tab_inactive_hover_state_layer_opacity 0x0
 int dimen m3_comp_primary_navigation_tab_inactive_pressed_state_layer_opacity 0x0
 int dimen m3_comp_primary_navigation_tab_with_icon_icon_size 0x0
-int dimen m3_comp_progress_indicator_active_indicator_track_space 0x0
-int dimen m3_comp_progress_indicator_stop_indicator_size 0x0
-int dimen m3_comp_progress_indicator_track_thickness 0x0
 int dimen m3_comp_radio_button_disabled_selected_icon_opacity 0x0
 int dimen m3_comp_radio_button_disabled_unselected_icon_opacity 0x0
 int dimen m3_comp_radio_button_selected_focus_state_layer_opacity 0x0
@@ -2379,7 +2366,6 @@ int dimen m3_comp_radio_button_selected_pressed_state_layer_opacity 0x0
 int dimen m3_comp_radio_button_unselected_focus_state_layer_opacity 0x0
 int dimen m3_comp_radio_button_unselected_hover_state_layer_opacity 0x0
 int dimen m3_comp_radio_button_unselected_pressed_state_layer_opacity 0x0
-int dimen m3_comp_scrim_container_opacity 0x0
 int dimen m3_comp_search_bar_avatar_size 0x0
 int dimen m3_comp_search_bar_container_elevation 0x0
 int dimen m3_comp_search_bar_container_height 0x0
@@ -2399,14 +2385,10 @@ int dimen m3_comp_sheet_bottom_docked_standard_container_elevation 0x0
 int dimen m3_comp_sheet_side_docked_container_width 0x0
 int dimen m3_comp_sheet_side_docked_modal_container_elevation 0x0
 int dimen m3_comp_sheet_side_docked_standard_container_elevation 0x0
-int dimen m3_comp_slider_active_handle_height 0x0
-int dimen m3_comp_slider_active_handle_leading_space 0x0
-int dimen m3_comp_slider_active_handle_width 0x0
 int dimen m3_comp_slider_disabled_active_track_opacity 0x0
 int dimen m3_comp_slider_disabled_handle_opacity 0x0
 int dimen m3_comp_slider_disabled_inactive_track_opacity 0x0
 int dimen m3_comp_slider_inactive_track_height 0x0
-int dimen m3_comp_slider_stop_indicator_size 0x0
 int dimen m3_comp_snackbar_container_elevation 0x0
 int dimen m3_comp_suggestion_chip_container_height 0x0
 int dimen m3_comp_suggestion_chip_elevated_container_elevation 0x0
@@ -2482,7 +2464,6 @@ int dimen m3_navigation_rail_item_padding_bottom 0x0
 int dimen m3_navigation_rail_item_padding_bottom_with_large_font 0x0
 int dimen m3_navigation_rail_item_padding_top 0x0
 int dimen m3_navigation_rail_item_padding_top_with_large_font 0x0
-int dimen m3_navigation_rail_label_padding_horizontal 0x0
 int dimen m3_ripple_default_alpha 0x0
 int dimen m3_ripple_focused_alpha 0x0
 int dimen m3_ripple_hovered_alpha 0x0
@@ -2505,6 +2486,7 @@ int dimen m3_side_sheet_standard_elevation 0x0
 int dimen m3_side_sheet_width 0x0
 int dimen m3_simple_item_color_hovered_alpha 0x0
 int dimen m3_simple_item_color_selected_alpha 0x0
+int dimen m3_slider_inactive_track_height 0x0
 int dimen m3_slider_thumb_elevation 0x0
 int dimen m3_small_fab_max_image_size 0x0
 int dimen m3_small_fab_size 0x0
@@ -2761,7 +2743,6 @@ int dimen mtrl_slider_label_radius 0x0
 int dimen mtrl_slider_label_square_side 0x0
 int dimen mtrl_slider_thumb_elevation 0x0
 int dimen mtrl_slider_thumb_radius 0x0
-int dimen mtrl_slider_tick_min_spacing 0x0
 int dimen mtrl_slider_tick_radius 0x0
 int dimen mtrl_slider_track_height 0x0
 int dimen mtrl_slider_track_side_padding 0x0
@@ -2924,12 +2905,6 @@ int drawable design_ic_visibility_off 0x0
 int drawable design_password_eye 0x0
 int drawable design_snackbar_background 0x0
 int drawable ic_arrow_back_black_24 0x0
-int drawable ic_call_answer 0x0
-int drawable ic_call_answer_low 0x0
-int drawable ic_call_answer_video 0x0
-int drawable ic_call_answer_video_low 0x0
-int drawable ic_call_decline 0x0
-int drawable ic_call_decline_low 0x0
 int drawable ic_clear_black_24 0x0
 int drawable ic_clock_black_24dp 0x0
 int drawable ic_keyboard_black_24dp 0x0
@@ -2941,7 +2916,6 @@ int drawable ic_mtrl_chip_checked_black 0x0
 int drawable ic_mtrl_chip_checked_circle 0x0
 int drawable ic_mtrl_chip_close_circle 0x0
 int drawable ic_search_black_24 0x0
-int drawable indeterminate_static 0x0
 int drawable m3_avd_hide_password 0x0
 int drawable m3_avd_show_password 0x0
 int drawable m3_bottom_sheet_drag_handle 0x0
@@ -3009,7 +2983,6 @@ int drawable notification_bg_low_pressed 0x0
 int drawable notification_bg_normal 0x0
 int drawable notification_bg_normal_pressed 0x0
 int drawable notification_icon_background 0x0
-int drawable notification_oversize_large_icon_bg 0x0
 int drawable notification_template_icon_bg 0x0
 int drawable notification_template_icon_low_bg 0x0
 int drawable notification_tile_bg 0x0
@@ -3144,12 +3117,10 @@ int id easeInOut 0x0
 int id easeOut 0x0
 int id edge 0x0
 int id edit_query 0x0
-int id edit_text_id 0x0
 int id elastic 0x0
 int id embed 0x0
 int id end 0x0
 int id endToStart 0x0
-int id escape 0x0
 int id expand_activities_button 0x0
 int id expanded_menu 0x0
 int id fade 0x0
@@ -3170,7 +3141,6 @@ int id ghost_view_holder 0x0
 int id gone 0x0
 int id group_divider 0x0
 int id header_title 0x0
-int id hide_ime_id 0x0
 int id home 0x0
 int id honorRequest 0x0
 int id icon 0x0
@@ -3393,11 +3363,8 @@ int id title_template 0x0
 int id top 0x0
 int id topPanel 0x0
 int id touch_outside 0x0
-int id transition_clip 0x0
 int id transition_current_scene 0x0
-int id transition_image_transform 0x0
 int id transition_layout_save 0x0
-int id transition_pause_alpha 0x0
 int id transition_position 0x0
 int id transition_scene_layoutid_cache 0x0
 int id transition_transform 0x0
@@ -3547,8 +3514,6 @@ int layout design_navigation_menu 0x0
 int layout design_navigation_menu_item 0x0
 int layout design_text_input_end_icon 0x0
 int layout design_text_input_start_icon 0x0
-int layout ime_base_split_test_activity 0x0
-int layout ime_secondary_split_test_activity 0x0
 int layout m3_alert_dialog 0x0
 int layout m3_alert_dialog_actions 0x0
 int layout m3_alert_dialog_title 0x0
@@ -3645,13 +3610,6 @@ int string bottomsheet_action_expand 0x0
 int string bottomsheet_action_expand_halfway 0x0
 int string bottomsheet_drag_handle_clicked 0x0
 int string bottomsheet_drag_handle_content_description 0x0
-int string call_notification_answer_action 0x0
-int string call_notification_answer_video_action 0x0
-int string call_notification_decline_action 0x0
-int string call_notification_hang_up_action 0x0
-int string call_notification_incoming_text 0x0
-int string call_notification_ongoing_text 0x0
-int string call_notification_screening_text 0x0
 int string character_counter_content_description 0x0
 int string character_counter_overflowed_content_description 0x0
 int string character_counter_pattern 0x0
@@ -4458,11 +4416,8 @@ int style Theme_Material3_DayNight_Dialog_MinWidth 0x0
 int style Theme_Material3_DayNight_NoActionBar 0x0
 int style Theme_Material3_DayNight_SideSheetDialog 0x0
 int style Theme_Material3_DynamicColors_Dark 0x0
-int style Theme_Material3_DynamicColors_Dark_NoActionBar 0x0
 int style Theme_Material3_DynamicColors_DayNight 0x0
-int style Theme_Material3_DynamicColors_DayNight_NoActionBar 0x0
 int style Theme_Material3_DynamicColors_Light 0x0
-int style Theme_Material3_DynamicColors_Light_NoActionBar 0x0
 int style Theme_Material3_Light 0x0
 int style Theme_Material3_Light_BottomSheetDialog 0x0
 int style Theme_Material3_Light_Dialog 0x0
@@ -4658,10 +4613,6 @@ int style Widget_Material3_Chip_Suggestion 0x0
 int style Widget_Material3_Chip_Suggestion_Elevated 0x0
 int style Widget_Material3_CircularProgressIndicator 0x0
 int style Widget_Material3_CircularProgressIndicator_ExtraSmall 0x0
-int style Widget_Material3_CircularProgressIndicator_Legacy 0x0
-int style Widget_Material3_CircularProgressIndicator_Legacy_ExtraSmall 0x0
-int style Widget_Material3_CircularProgressIndicator_Legacy_Medium 0x0
-int style Widget_Material3_CircularProgressIndicator_Legacy_Small 0x0
 int style Widget_Material3_CircularProgressIndicator_Medium 0x0
 int style Widget_Material3_CircularProgressIndicator_Small 0x0
 int style Widget_Material3_CollapsingToolbar 0x0
@@ -4694,7 +4645,6 @@ int style Widget_Material3_FloatingActionButton_Surface 0x0
 int style Widget_Material3_FloatingActionButton_Tertiary 0x0
 int style Widget_Material3_Light_ActionBar_Solid 0x0
 int style Widget_Material3_LinearProgressIndicator 0x0
-int style Widget_Material3_LinearProgressIndicator_Legacy 0x0
 int style Widget_Material3_MaterialButtonToggleGroup 0x0
 int style Widget_Material3_MaterialCalendar 0x0
 int style Widget_Material3_MaterialCalendar_Day 0x0
@@ -4751,8 +4701,6 @@ int style Widget_Material3_SideSheet_Modal 0x0
 int style Widget_Material3_SideSheet_Modal_Detached 0x0
 int style Widget_Material3_Slider 0x0
 int style Widget_Material3_Slider_Label 0x0
-int style Widget_Material3_Slider_Legacy 0x0
-int style Widget_Material3_Slider_Legacy_Label 0x0
 int style Widget_Material3_Snackbar 0x0
 int style Widget_Material3_Snackbar_FullWidth 0x0
 int style Widget_Material3_Snackbar_TextView 0x0
@@ -5188,17 +5136,16 @@ int styleable Badge_number 23
 int styleable Badge_offsetAlignmentMode 24
 int styleable Badge_verticalOffset 25
 int styleable Badge_verticalOffsetWithText 26
-int[] styleable BaseProgressIndicator { 0x1010139, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
+int[] styleable BaseProgressIndicator { 0x1010139, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable BaseProgressIndicator_android_indeterminate 0
 int styleable BaseProgressIndicator_hideAnimationBehavior 1
 int styleable BaseProgressIndicator_indicatorColor 2
-int styleable BaseProgressIndicator_indicatorTrackGapSize 3
-int styleable BaseProgressIndicator_minHideDelay 4
-int styleable BaseProgressIndicator_showAnimationBehavior 5
-int styleable BaseProgressIndicator_showDelay 6
-int styleable BaseProgressIndicator_trackColor 7
-int styleable BaseProgressIndicator_trackCornerRadius 8
-int styleable BaseProgressIndicator_trackThickness 9
+int styleable BaseProgressIndicator_minHideDelay 3
+int styleable BaseProgressIndicator_showAnimationBehavior 4
+int styleable BaseProgressIndicator_showDelay 5
+int styleable BaseProgressIndicator_trackColor 6
+int styleable BaseProgressIndicator_trackCornerRadius 7
+int styleable BaseProgressIndicator_trackThickness 8
 int[] styleable BottomAppBar { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable BottomAppBar_addElevationShadow 0
 int styleable BottomAppBar_backgroundTint 1
@@ -5990,10 +5937,9 @@ int styleable LinearLayoutCompat_Layout_android_layout_gravity 0
 int styleable LinearLayoutCompat_Layout_android_layout_height 1
 int styleable LinearLayoutCompat_Layout_android_layout_weight 2
 int styleable LinearLayoutCompat_Layout_android_layout_width 3
-int[] styleable LinearProgressIndicator { 0x0, 0x0, 0x0 }
+int[] styleable LinearProgressIndicator { 0x0, 0x0 }
 int styleable LinearProgressIndicator_indeterminateAnimationType 0
 int styleable LinearProgressIndicator_indicatorDirectionLinear 1
-int styleable LinearProgressIndicator_trackStopIndicatorSize 2
 int[] styleable ListPopupWindow { 0x10102ac, 0x10102ad }
 int styleable ListPopupWindow_android_dropDownHorizontalOffset 0
 int styleable ListPopupWindow_android_dropDownVerticalOffset 1
@@ -6406,7 +6352,7 @@ int styleable SideSheetBehavior_Layout_behavior_draggable 4
 int styleable SideSheetBehavior_Layout_coplanarSiblingViewId 5
 int styleable SideSheetBehavior_Layout_shapeAppearance 6
 int styleable SideSheetBehavior_Layout_shapeAppearanceOverlay 7
-int[] styleable Slider { 0x101000e, 0x1010146, 0x1010024, 0x10102de, 0x10102df, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
+int[] styleable Slider { 0x101000e, 0x1010146, 0x1010024, 0x10102de, 0x10102df, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable Slider_android_enabled 0
 int styleable Slider_android_stepSize 1
 int styleable Slider_android_value 2
@@ -6419,24 +6365,19 @@ int styleable Slider_labelStyle 8
 int styleable Slider_minTouchTargetSize 9
 int styleable Slider_thumbColor 10
 int styleable Slider_thumbElevation 11
-int styleable Slider_thumbHeight 12
-int styleable Slider_thumbRadius 13
-int styleable Slider_thumbStrokeColor 14
-int styleable Slider_thumbStrokeWidth 15
-int styleable Slider_thumbTrackGapSize 16
-int styleable Slider_thumbWidth 17
-int styleable Slider_tickColor 18
-int styleable Slider_tickColorActive 19
-int styleable Slider_tickColorInactive 20
-int styleable Slider_tickRadiusActive 21
-int styleable Slider_tickRadiusInactive 22
-int styleable Slider_tickVisible 23
-int styleable Slider_trackColor 24
-int styleable Slider_trackColorActive 25
-int styleable Slider_trackColorInactive 26
-int styleable Slider_trackHeight 27
-int styleable Slider_trackInsideCornerSize 28
-int styleable Slider_trackStopIndicatorSize 29
+int styleable Slider_thumbRadius 12
+int styleable Slider_thumbStrokeColor 13
+int styleable Slider_thumbStrokeWidth 14
+int styleable Slider_tickColor 15
+int styleable Slider_tickColorActive 16
+int styleable Slider_tickColorInactive 17
+int styleable Slider_tickRadiusActive 18
+int styleable Slider_tickRadiusInactive 19
+int styleable Slider_tickVisible 20
+int styleable Slider_trackColor 21
+int styleable Slider_trackColorActive 22
+int styleable Slider_trackColorInactive 23
+int styleable Slider_trackHeight 24
 int[] styleable Snackbar { 0x0, 0x0, 0x0 }
 int styleable Snackbar_snackbarButtonStyle 0
 int styleable Snackbar_snackbarStyle 1
@@ -6650,7 +6591,7 @@ int styleable Toolbar_titleMarginTop 26
 int styleable Toolbar_titleMargins 27
 int styleable Toolbar_titleTextAppearance 28
 int styleable Toolbar_titleTextColor 29
-int[] styleable Tooltip { 0x10100f6, 0x1010140, 0x101013f, 0x10100d5, 0x101014f, 0x1010034, 0x1010098, 0x0, 0x0 }
+int[] styleable Tooltip { 0x10100f6, 0x1010140, 0x101013f, 0x10100d5, 0x101014f, 0x1010034, 0x1010098, 0x0 }
 int styleable Tooltip_android_layout_margin 0
 int styleable Tooltip_android_minHeight 1
 int styleable Tooltip_android_minWidth 2
@@ -6659,7 +6600,6 @@ int styleable Tooltip_android_text 4
 int styleable Tooltip_android_textAppearance 5
 int styleable Tooltip_android_textColor 6
 int styleable Tooltip_backgroundTint 7
-int styleable Tooltip_showMarker 8
 int[] styleable Transform { 0x1010440, 0x1010326, 0x1010327, 0x1010328, 0x1010324, 0x1010325, 0x1010320, 0x1010321, 0x1010322, 0x1010323, 0x10103fa }
 int styleable Transform_android_elevation 0
 int styleable Transform_android_rotation 1

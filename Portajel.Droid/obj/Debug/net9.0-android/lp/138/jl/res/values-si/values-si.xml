@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">අනුලකුණු %2$dන් %1$dක් ඇතුළු කෙරිණි</string>
     <string name="character_counter_overflowed_content_description">අනුලකුණු සීමාව %2$dකින් %1$d ඉක්ම විය</string>
     <string name="clear_text_end_icon_content_description">පෙළ හිස් කරන්න</string>
-    <string name="error_a11y_label">දෝෂය: වලංගු නැත</string>
     <string name="error_icon_content_description">දෝෂය</string>
     <string name="exposed_dropdown_menu_content_description">පතන මෙනුව පෙන්වන්න</string>
     <string name="icon_content_description">සංවාද නිරූපකය</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">වේලාව තෝරන්න</string>
     <string name="material_timepicker_text_input_mode_description">වේලා ආදානය සඳහා ආදාන ප්‍රකාරය වෙත මාරු වෙන්න.</string>
     <string name="mtrl_badge_numberless_content_description">නව දැනුම්දීම</string>
-    <string name="mtrl_checkbox_state_description_checked">සලකුණු කරන ලදි</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">අඩ වශයෙන් ලකුණු කළ</string>
-    <string name="mtrl_checkbox_state_description_unchecked">හරි ලකුණ නොයෙදූ</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s ඉවත් කරන්න</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">නව දැනුම්දීම් %1$dකට වඩා</string>
     <string name="mtrl_picker_a11y_next_month">ලබන මාසයට වෙනස් කරන්න</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">දිනය තෝරන්න</string>
     <string name="mtrl_picker_date_header_unselected">තේරූ දිනය</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">දින තීරුව: %1$s</string>
     <string name="mtrl_picker_end_date_description">අවසාන දිනය %1$s</string>
     <string name="mtrl_picker_invalid_format">අවලංගු ආකෘතියකි.</string>
     <string name="mtrl_picker_invalid_format_example">උදාහරණය: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">අවලංගු කරන්න</string>
     <string name="mtrl_timepicker_confirm">හරි</string>
     <string name="password_toggle_content_description">මුරපදය පෙන්වන්න</string>
-    <string name="searchview_clear_text_content_description">පෙළ හිස් කරන්න</string>
-    <string name="searchview_navigation_content_description">ආපසු</string>
-    <string name="side_sheet_accessibility_pane_title">පැති පත්‍රය</string>
 </resources>

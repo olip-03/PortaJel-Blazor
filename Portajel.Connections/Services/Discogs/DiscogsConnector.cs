@@ -23,7 +23,7 @@ public class DiscogsConnector : IMediaServerConnector
         { "Genre", Genre }
     };
 
-    public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; }
+    public Dictionary<MediaTypes, bool> SupportedReturnTypes { get; set; }
     public Dictionary<string, ConnectorProperty> Properties { get; set; }
     public SyncStatusInfo SyncStatus { get; set; } = new();
     public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)

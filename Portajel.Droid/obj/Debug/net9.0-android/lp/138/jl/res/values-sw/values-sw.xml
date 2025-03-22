@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">Umeweka herufi %1$d kati ya %2$d</string>
     <string name="character_counter_overflowed_content_description">Umepitisha idadi ya juu ya herufi %1$d kati ya %2$d</string>
     <string name="clear_text_end_icon_content_description">Futa maandishi</string>
-    <string name="error_a11y_label">Hitilafu: si sahihi</string>
     <string name="error_icon_content_description">Hitilafu</string>
     <string name="exposed_dropdown_menu_content_description">Onyesha menyu kunjuzi</string>
     <string name="icon_content_description">Aikoni ya Kidirisha</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">Chagua wakati</string>
     <string name="material_timepicker_text_input_mode_description">Badilisha iwe katika hali ya maandishi wakati wa kuweka muda.</string>
     <string name="mtrl_badge_numberless_content_description">Arifa mpya</string>
-    <string name="mtrl_checkbox_state_description_checked">Kimeteuliwa</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Kimeteuliwa kwa kiasi fulani</string>
-    <string name="mtrl_checkbox_state_description_unchecked">Hakijateuliwa</string>
     <string name="mtrl_chip_close_icon_content_description">Ondoa %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">Zaidi ya arifa %1$d mpya</string>
     <string name="mtrl_picker_a11y_next_month">Nenda kwenye mwezi unaofuata</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Chagua Tarehe</string>
     <string name="mtrl_picker_date_header_unselected">Tarehe uliyochagua</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Safu wima ya siku: %1$s</string>
     <string name="mtrl_picker_end_date_description">Tarehe ya kumaliza %1$s</string>
     <string name="mtrl_picker_invalid_format">Muundo si sahihi</string>
     <string name="mtrl_picker_invalid_format_example">Mfano: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">Ghairi</string>
     <string name="mtrl_timepicker_confirm">Sawa</string>
     <string name="password_toggle_content_description">Onyesha nenosiri</string>
-    <string name="searchview_clear_text_content_description">Futa maandishi</string>
-    <string name="searchview_navigation_content_description">Rudi nyuma</string>
-    <string name="side_sheet_accessibility_pane_title">Laha ya Pembeni</string>
 </resources>

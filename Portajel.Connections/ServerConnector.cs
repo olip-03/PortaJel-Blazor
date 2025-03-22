@@ -29,14 +29,14 @@ public class ServerConnector : IMediaServerConnector
         { "Genre", Genre }
     };
 
-    public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
+    public Dictionary<MediaTypes, bool> SupportedReturnTypes { get; set; } =
         new()
         {
-            { ConnectorDtoTypes.Album, true },
-            { ConnectorDtoTypes.Artist, true },
-            { ConnectorDtoTypes.Song, true },
-            { ConnectorDtoTypes.Playlist, true },
-            { ConnectorDtoTypes.Genre, false }
+            { MediaTypes.Album, true },
+            { MediaTypes.Artist, true },
+            { MediaTypes.Song, true },
+            { MediaTypes.Playlist, true },
+            { MediaTypes.Genre, false }
         };
     public Dictionary<string, ConnectorProperty> Properties { get; set; }
     public SyncStatusInfo SyncStatus { get; set; } = new();

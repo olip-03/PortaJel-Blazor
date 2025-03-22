@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">Въведени знаци: %1$d от %2$d</string>
     <string name="character_counter_overflowed_content_description">Максималният брой знаци е надхвърлен с(ъс) %1$d от %2$d</string>
     <string name="clear_text_end_icon_content_description">Изчистване на текста</string>
-    <string name="error_a11y_label">Грешка: невалидно</string>
     <string name="error_icon_content_description">Грешка</string>
     <string name="exposed_dropdown_menu_content_description">Показване на падащото меню</string>
     <string name="icon_content_description">Икона за диалогов прозорец</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">Избор на час</string>
     <string name="material_timepicker_text_input_mode_description">Превключете към режима за въвеждане на текст, за да въведете часа.</string>
     <string name="mtrl_badge_numberless_content_description">Ново известие</string>
-    <string name="mtrl_checkbox_state_description_checked">С отметка</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Частично отметнато</string>
-    <string name="mtrl_checkbox_state_description_unchecked">Без отметка</string>
     <string name="mtrl_chip_close_icon_content_description">Премахване на %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">Повече от %1$d нови известия</string>
     <string name="mtrl_picker_a11y_next_month">Преминаване към следващия месец</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Избиране на дата</string>
     <string name="mtrl_picker_date_header_unselected">Избрана дата</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Колона за дни: %1$s</string>
     <string name="mtrl_picker_end_date_description">Крайна дата: %1$s</string>
     <string name="mtrl_picker_invalid_format">Форматът е невалиден.</string>
     <string name="mtrl_picker_invalid_format_example">Пример: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">Отказ</string>
     <string name="mtrl_timepicker_confirm">OK</string>
     <string name="password_toggle_content_description">Показване на паролата</string>
-    <string name="searchview_clear_text_content_description">Изчистване на текста</string>
-    <string name="searchview_navigation_content_description">Назад</string>
-    <string name="side_sheet_accessibility_pane_title">Страничен лист</string>
 </resources>

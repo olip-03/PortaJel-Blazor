@@ -12,9 +12,8 @@
     <string name="character_counter_content_description">%2$d میں سے %1$d حروف درج کیے گئے</string>
     <string name="character_counter_overflowed_content_description">حروف کی تعداد کی حد %2$d سے %1$d پہنچ گئی</string>
     <string name="clear_text_end_icon_content_description">ٹیکسٹ صاف کریں</string>
-    <string name="error_a11y_label">خرابی: غلط</string>
     <string name="error_icon_content_description">خرابی</string>
-    <string name="exposed_dropdown_menu_content_description">ڈراپ ڈاؤن مینیو دکھائیں</string>
+    <string name="exposed_dropdown_menu_content_description">ڈراپ ڈاؤن مینو دکھائیں</string>
     <string name="icon_content_description">ڈائیلاگ کا آئیکن</string>
     <string name="item_view_role_description">ٹیب</string>
     <string name="material_clock_toggle_content_description">AM یا PM منتخب کریں</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">وقت منتخب کریں</string>
     <string name="material_timepicker_text_input_mode_description">وقت ان پٹ کے لیے ٹیکسٹ ان پٹ وضع پر سوئچ کریں۔</string>
     <string name="mtrl_badge_numberless_content_description">نئی اطلاع</string>
-    <string name="mtrl_checkbox_state_description_checked">نشان زد ہو گیا</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">جزوی طور پر نشان زد</string>
-    <string name="mtrl_checkbox_state_description_unchecked">نشان زد نہیں ہوا</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s کو ہٹائیں</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">%1$d سے زیادہ نئی اطلاعات</string>
     <string name="mtrl_picker_a11y_next_month">اگلے مہینہ میں منتقل کریں</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">تاریخ منتخب کریں</string>
     <string name="mtrl_picker_date_header_unselected">منتخب کردہ تاریخ</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">دنوں کا کالم: %1$s</string>
     <string name="mtrl_picker_end_date_description">تاریخ اختتام %1$s</string>
     <string name="mtrl_picker_invalid_format">غلط فارمیٹ۔</string>
     <string name="mtrl_picker_invalid_format_example">مثال: %1$s۔</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">منسوخ کریں</string>
     <string name="mtrl_timepicker_confirm">ٹھیک ہے</string>
     <string name="password_toggle_content_description">پاس ورڈ دکھائیں</string>
-    <string name="searchview_clear_text_content_description">ٹیکسٹ صاف کریں</string>
-    <string name="searchview_navigation_content_description">واپس جائیں</string>
-    <string name="side_sheet_accessibility_pane_title">سائیڈ شیٹ</string>
 </resources>

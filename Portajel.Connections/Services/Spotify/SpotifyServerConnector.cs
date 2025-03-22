@@ -22,9 +22,9 @@ namespace Portajel.Connections.Services.Spotify
             { "Genre", Genre }
         };
 
-        public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } = new Dictionary<ConnectorDtoTypes, bool>
+        public Dictionary<MediaTypes, bool> SupportedReturnTypes { get; set; } = new Dictionary<MediaTypes, bool>
         {
-            { ConnectorDtoTypes.Playlist, true }
+            { MediaTypes.Playlist, true }
         };
 
         public Dictionary<string, ConnectorProperty> Properties { get; set; } =new Dictionary<string, ConnectorProperty>

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Portajel.Connections")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d89f3e08b9a2e04c7fd672e2ecd48f66c39afa19")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+12fbfe9af234756019152d0110606e8ada172633")]
 [assembly: System.Reflection.AssemblyProductAttribute("Portajel.Connections")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Portajel.Connections")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

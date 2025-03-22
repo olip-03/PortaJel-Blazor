@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">Внесени се %1$d од %2$d знаци</string>
     <string name="character_counter_overflowed_content_description">Ограничувањето на знаците надмина %1$d од %2$d</string>
     <string name="clear_text_end_icon_content_description">Избриши го текстот</string>
-    <string name="error_a11y_label">Грешка: неважечко</string>
     <string name="error_icon_content_description">Грешка</string>
     <string name="exposed_dropdown_menu_content_description">Прикажи паѓачко мени</string>
     <string name="icon_content_description">Икона за дијалог</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">Изберете време</string>
     <string name="material_timepicker_text_input_mode_description">Префрлете се на режимот за внесување текст за да внесете време.</string>
     <string name="mtrl_badge_numberless_content_description">Ново известување</string>
-    <string name="mtrl_checkbox_state_description_checked">Штиклирано</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Делумно штиклирано</string>
-    <string name="mtrl_checkbox_state_description_unchecked">Не е штиклирано</string>
     <string name="mtrl_chip_close_icon_content_description">Отстрани %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">Над %1$d нови известувања</string>
     <string name="mtrl_picker_a11y_next_month">Промени на следниот месец</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Изберете датум</string>
     <string name="mtrl_picker_date_header_unselected">Избран датум</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Колона со денови: %1$s</string>
     <string name="mtrl_picker_end_date_description">Краен датум %1$s</string>
     <string name="mtrl_picker_invalid_format">Неважечки формат.</string>
     <string name="mtrl_picker_invalid_format_example">Пример: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">Откажи</string>
     <string name="mtrl_timepicker_confirm">Во ред</string>
     <string name="password_toggle_content_description">Прикажи ја лозинката</string>
-    <string name="searchview_clear_text_content_description">Бришење на текстот</string>
-    <string name="searchview_navigation_content_description">Враќање назад</string>
-    <string name="side_sheet_accessibility_pane_title">Страничен лист</string>
 </resources>

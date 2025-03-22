@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">စာလုံးရေ %2$d တွင် %1$d ထည့်သွင်းထားသည်</string>
     <string name="character_counter_overflowed_content_description">စာလုံးရေအကန့်အသတ် %2$d လုံးတွင် %1$d လုံးကျော်နေသည်</string>
     <string name="clear_text_end_icon_content_description">စာသား ဖယ်ရှားရန်</string>
-    <string name="error_a11y_label">အမှား- မမှန်ကန်ပါ</string>
     <string name="error_icon_content_description">အမှား</string>
     <string name="exposed_dropdown_menu_content_description">ဆွဲချမီနူးကို ပြရန်</string>
     <string name="icon_content_description">ဒိုင်ယာလော့ခ် သင်္ကေတ</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">အချိန်ရွေးပါ</string>
     <string name="material_timepicker_text_input_mode_description">အချိန်ထည့်သွင်းရန် စာသားထည့်သွင်းမှုမုဒ်သို့ ပြောင်းပါ။</string>
     <string name="mtrl_badge_numberless_content_description">အကြောင်းကြားချက်အသစ်</string>
-    <string name="mtrl_checkbox_state_description_checked">အမှန်ခြစ်ထားသည်</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">တချို့ကို အမှန်ခြစ်ထားသည်</string>
-    <string name="mtrl_checkbox_state_description_unchecked">အမှန်ခြစ်မထားပါ</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s ကို ဖယ်ရှားရန်</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">အကြောင်းကြားချက်အသစ် %1$d ခု အထက်</string>
     <string name="mtrl_picker_a11y_next_month">နောက်လသို့ ပြောင်းရန်</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">ရက်စွဲ ရွေးပါ</string>
     <string name="mtrl_picker_date_header_unselected">ရွေးထားသည့် ရက်စွဲ</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">ရက်ကော်လံ- %1$s</string>
     <string name="mtrl_picker_end_date_description">ပြီးဆုံးရက် %1$s</string>
     <string name="mtrl_picker_invalid_format">ဖော်မက် မမှန်ကန်ပါ။</string>
     <string name="mtrl_picker_invalid_format_example">ဥပမာ− %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">မလုပ်တော့</string>
     <string name="mtrl_timepicker_confirm">OK</string>
     <string name="password_toggle_content_description">စကားဝှက်ကို ပြရန်</string>
-    <string name="searchview_clear_text_content_description">စာသား ဖယ်ရှားရန်</string>
-    <string name="searchview_navigation_content_description">နောက်သို့</string>
-    <string name="side_sheet_accessibility_pane_title">အရန်စာမျက်နှာ</string>
 </resources>

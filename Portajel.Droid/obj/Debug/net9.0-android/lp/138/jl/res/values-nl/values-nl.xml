@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">%1$d van %2$d tekens opgegeven</string>
     <string name="character_counter_overflowed_content_description">Tekenlimiet heeft %1$d van %2$d overschreden</string>
     <string name="clear_text_end_icon_content_description">Tekst wissen</string>
-    <string name="error_a11y_label">Fout: ongeldig</string>
     <string name="error_icon_content_description">Fout</string>
     <string name="exposed_dropdown_menu_content_description">Dropdownmenu tonen</string>
     <string name="icon_content_description">Icoon voor dialoogvenster</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">Tijd selecteren</string>
     <string name="material_timepicker_text_input_mode_description">Schakel naar de tekstinvoermodus om de tijd in te voeren.</string>
     <string name="mtrl_badge_numberless_content_description">Nieuwe melding</string>
-    <string name="mtrl_checkbox_state_description_checked">Aangevinkt</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Gedeeltelijk aangevinkt</string>
-    <string name="mtrl_checkbox_state_description_unchecked">Niet aangevinkt</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s verwijderen</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">Meer dan %1$d nieuwe meldingen</string>
     <string name="mtrl_picker_a11y_next_month">Naar volgende maand gaan</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Selecteer een datum</string>
     <string name="mtrl_picker_date_header_unselected">Geselecteerde datum</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Kolom met dagen: %1$s</string>
     <string name="mtrl_picker_end_date_description">Einddatum %1$s</string>
     <string name="mtrl_picker_invalid_format">Ongeldige indeling.</string>
     <string name="mtrl_picker_invalid_format_example">Voorbeeld: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">Annuleren</string>
     <string name="mtrl_timepicker_confirm">OK</string>
     <string name="password_toggle_content_description">Wachtwoord tonen</string>
-    <string name="searchview_clear_text_content_description">Tekst wissen</string>
-    <string name="searchview_navigation_content_description">Terug</string>
-    <string name="side_sheet_accessibility_pane_title">Zijblad</string>
 </resources>

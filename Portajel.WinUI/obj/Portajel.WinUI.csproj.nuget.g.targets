@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)sqlitepclraw.lib.e_sqlite3\2.1.2\buildTransitive\net7.0\SQLitePCLRaw.lib.e_sqlite3.targets" Condition="Exists('$(NuGetPackageRoot)sqlitepclraw.lib.e_sqlite3\2.1.2\buildTransitive\net7.0\SQLitePCLRaw.lib.e_sqlite3.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.22621.756\buildTransitive\Microsoft.Windows.SDK.BuildTools.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.22621.756\buildTransitive\Microsoft.Windows.SDK.BuildTools.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.web.webview2\1.0.2792.45\buildTransitive\Microsoft.Web.WebView2.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.web.webview2\1.0.2792.45\buildTransitive\Microsoft.Web.WebView2.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.windowsappsdk\1.6.240923002\buildTransitive\Microsoft.WindowsAppSDK.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.windowsappsdk\1.6.240923002\buildTransitive\Microsoft.WindowsAppSDK.targets')" />

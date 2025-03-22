@@ -35,14 +35,14 @@ namespace Portajel.Connections.Services.Jellyfin
             { "Genre", Genre }
         };
 
-        public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; } =
+        public Dictionary<MediaTypes, bool> SupportedReturnTypes { get; set; } =
             new()
             {
-                { ConnectorDtoTypes.Album, true },
-                { ConnectorDtoTypes.Artist, true },
-                { ConnectorDtoTypes.Song, true },
-                { ConnectorDtoTypes.Playlist, true },
-                { ConnectorDtoTypes.Genre, true },
+                { MediaTypes.Album, true },
+                { MediaTypes.Artist, true },
+                { MediaTypes.Song, true },
+                { MediaTypes.Playlist, true },
+                { MediaTypes.Genre, true },
             };
 
         public Dictionary<string, ConnectorProperty> Properties { get; set; } =

@@ -26,6 +26,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Portajel.Connections\Portajel.Connections.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Pages\HomePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

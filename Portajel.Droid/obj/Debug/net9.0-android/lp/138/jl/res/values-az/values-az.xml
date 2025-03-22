@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">%1$d/%2$d simvol daxil edilib</string>
     <string name="character_counter_overflowed_content_description">Simvol limiti %1$d/%2$d dəyərini keçdi</string>
     <string name="clear_text_end_icon_content_description">Mətni silin</string>
-    <string name="error_a11y_label">Xəta: yanlışdır</string>
     <string name="error_icon_content_description">Xəta</string>
     <string name="exposed_dropdown_menu_content_description">Açılan menyunu göstərin</string>
     <string name="icon_content_description">Dialoq ikonası</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">Vaxt seçin</string>
     <string name="material_timepicker_text_input_mode_description">Zamanı daxil etmək üçün mətnlə daxiletmə rejiminə keçin</string>
     <string name="mtrl_badge_numberless_content_description">Yeni bildiriş</string>
-    <string name="mtrl_checkbox_state_description_checked">İşarələnib</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Qismən işarələnib</string>
-    <string name="mtrl_checkbox_state_description_unchecked">İşarələnməyib</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s silin</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">Minimum %1$d yeni bildiriş</string>
     <string name="mtrl_picker_a11y_next_month">Növbəti aya dəyişin</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Tarix seçin</string>
     <string name="mtrl_picker_date_header_unselected">Seçilmiş tarix</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Gün sütunu: %1$s</string>
     <string name="mtrl_picker_end_date_description">Bitmə tarixi: %1$s</string>
     <string name="mtrl_picker_invalid_format">Yanlış format.</string>
     <string name="mtrl_picker_invalid_format_example">Nümunə: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">Ləğv edin</string>
     <string name="mtrl_timepicker_confirm">OK</string>
     <string name="password_toggle_content_description">Parolu göstərin</string>
-    <string name="searchview_clear_text_content_description">Mətni təmizləyin</string>
-    <string name="searchview_navigation_content_description">Geri</string>
-    <string name="side_sheet_accessibility_pane_title">Yan Vərəq</string>
 </resources>

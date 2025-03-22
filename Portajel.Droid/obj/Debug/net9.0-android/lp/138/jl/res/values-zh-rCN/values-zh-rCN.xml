@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">输入了 %1$d 个字符（上限为 %2$d 个）</string>
     <string name="character_counter_overflowed_content_description">超出字符数限制（共 %1$d 个，上限为 %2$d 个）</string>
     <string name="clear_text_end_icon_content_description">清除文字</string>
-    <string name="error_a11y_label">错误：无效</string>
     <string name="error_icon_content_description">错误</string>
     <string name="exposed_dropdown_menu_content_description">显示下拉菜单</string>
     <string name="icon_content_description">对话框图标</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">选择时间</string>
     <string name="material_timepicker_text_input_mode_description">切换到文字输入模式来输入时间。</string>
     <string name="mtrl_badge_numberless_content_description">新通知</string>
-    <string name="mtrl_checkbox_state_description_checked">已选中</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">部分选中</string>
-    <string name="mtrl_checkbox_state_description_unchecked">未选中</string>
     <string name="mtrl_chip_close_icon_content_description">移除%1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">有 %1$d 条以上的新通知</string>
     <string name="mtrl_picker_a11y_next_month">转到下个月</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">请选择日期</string>
     <string name="mtrl_picker_date_header_unselected">选定的日期</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">表示周几的列：%1$s</string>
     <string name="mtrl_picker_end_date_description">结束日期 %1$s</string>
     <string name="mtrl_picker_invalid_format">格式无效。</string>
     <string name="mtrl_picker_invalid_format_example">示例：%1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">取消</string>
     <string name="mtrl_timepicker_confirm">确定</string>
     <string name="password_toggle_content_description">显示密码</string>
-    <string name="searchview_clear_text_content_description">清除文字</string>
-    <string name="searchview_navigation_content_description">返回</string>
-    <string name="side_sheet_accessibility_pane_title">侧边动作条</string>
 </resources>

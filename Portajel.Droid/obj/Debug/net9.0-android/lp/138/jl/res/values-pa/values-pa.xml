@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">%2$d ਵਿੱਚੋਂ %1$d ਅੱਖਰ-ਚਿੰਨ੍ਹ ਦਾਖਲ ਕੀਤੇ ਗਏ</string>
     <string name="character_counter_overflowed_content_description">ਅੱਖਰ-ਚਿੰਨ੍ਹ ਸੀਮਾ %2$d ਤੋਂ %1$d ਵਧੀ</string>
     <string name="clear_text_end_icon_content_description">ਲਿਖਤ ਕਲੀਅਰ ਕਰੋ</string>
-    <string name="error_a11y_label">ਗੜਬੜ: ਅਵੈਧ</string>
     <string name="error_icon_content_description">ਗੜਬੜ</string>
     <string name="exposed_dropdown_menu_content_description">ਡ੍ਰੌਪ-ਡਾਊਨ ਮੀਨੂ ਦਿਖਾਓ</string>
     <string name="icon_content_description">ਵਿੰਡੋ ਦਾ ਪ੍ਰਤੀਕ</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">ਸਮਾਂ ਚੁਣੋ</string>
     <string name="material_timepicker_text_input_mode_description">ਸਮਾਂ ਇਨਪੁੱਟ ਕਰਨ ਲਈ ਲਿਖਤ ਇਨਪੁੱਟ ਮੋਡ \'ਤੇ ਸਵਿੱਚ ਕਰੋ।</string>
     <string name="mtrl_badge_numberless_content_description">ਨਵੀਂ ਸੂਚਨਾ</string>
-    <string name="mtrl_checkbox_state_description_checked">ਸਹੀ ਦਾ ਨਿਸ਼ਾਨ ਲਾਇਆ ਗਿਆ</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">ਅੰਸ਼ਕ ਤੌਰ ਤੇ ਜਾਂਚ ਕੀਤੀ ਗਈ</string>
-    <string name="mtrl_checkbox_state_description_unchecked">ਸਹੀ ਦਾ ਨਿਸ਼ਾਨ ਨਹੀਂ ਲਾਇਆ ਗਿਆ</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s ਹਟਾਓ</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">%1$d ਤੋਂ ਵੱਧ ਨਵੀਆਂ ਸੂਚਨਾਵਾਂ</string>
     <string name="mtrl_picker_a11y_next_month">ਅਗਲੇ ਮਹੀਨੇ \'ਤੇ ਜਾਓ</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">ਤਾਰੀਖ ਚੁਣੋ</string>
     <string name="mtrl_picker_date_header_unselected">ਚੁਣੀ ਗਈ ਤਾਰੀਖ</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">ਦਿਨਾਂ ਦਾ ਕਾਲਮ: %1$s</string>
     <string name="mtrl_picker_end_date_description">ਸਮਾਪਤੀ ਤਾਰੀਖ %1$s</string>
     <string name="mtrl_picker_invalid_format">ਅਵੈਧ ਫਾਰਮੈਟ।</string>
     <string name="mtrl_picker_invalid_format_example">ਉਦਾਹਰਨ: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">ਰੱਦ ਕਰੋ</string>
     <string name="mtrl_timepicker_confirm">ਠੀਕ ਹੈ</string>
     <string name="password_toggle_content_description">ਪਾਸਵਰਡ ਦਿਖਾਓ</string>
-    <string name="searchview_clear_text_content_description">ਲਿਖਤ ਕਲੀਅਰ ਕਰੋ</string>
-    <string name="searchview_navigation_content_description">ਪਿੱਛੇ</string>
-    <string name="side_sheet_accessibility_pane_title">ਸਾਈਡ ਸ਼ੀਟ</string>
 </resources>

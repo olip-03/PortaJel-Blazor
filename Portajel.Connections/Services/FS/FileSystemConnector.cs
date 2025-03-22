@@ -26,7 +26,7 @@ public class FileSystemConnector  : IMediaServerConnector
         { "Genre", Genre }
     };
 
-    public Dictionary<ConnectorDtoTypes, bool> SupportedReturnTypes { get; set; }
+    public Dictionary<MediaTypes, bool> SupportedReturnTypes { get; set; }
     
     public Dictionary<string, ConnectorProperty> Properties { get; set; } =new Dictionary<string, ConnectorProperty>
     {

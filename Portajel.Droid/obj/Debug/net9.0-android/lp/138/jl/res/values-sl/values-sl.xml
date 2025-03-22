@@ -14,7 +14,6 @@
     <string name="character_counter_content_description">Število vnesenih znakov je %1$d od %2$d</string>
     <string name="character_counter_overflowed_content_description">Omejitev števila znakov je presegla %1$d od %2$d</string>
     <string name="clear_text_end_icon_content_description">Izbris besedila</string>
-    <string name="error_a11y_label">Napaka: Neveljavno</string>
     <string name="error_icon_content_description">Napaka</string>
     <string name="exposed_dropdown_menu_content_description">Prikaz spustnega menija</string>
     <string name="icon_content_description">Ikona pogovornega okna</string>
@@ -33,9 +32,6 @@
     <string name="material_timepicker_select_time">Izberite uro</string>
     <string name="material_timepicker_text_input_mode_description">Preklopite na način za vnašanje besedila, da vnesete čas.</string>
     <string name="mtrl_badge_numberless_content_description">Novo obvestilo</string>
-    <string name="mtrl_checkbox_state_description_checked">Potrjeno</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Delno potrjeno</string>
-    <string name="mtrl_checkbox_state_description_unchecked">Nepotrjeno</string>
     <string name="mtrl_chip_close_icon_content_description">Odstranite %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">Več kot toliko novih obvestil: %1$d</string>
     <string name="mtrl_picker_a11y_next_month">Spremeni na naslednji mesec</string>
@@ -48,7 +44,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Izberite datum</string>
     <string name="mtrl_picker_date_header_unselected">Izbrani datum</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Stolpec dni: %1$s</string>
     <string name="mtrl_picker_end_date_description">Končni datum %1$s</string>
     <string name="mtrl_picker_invalid_format">Neveljavna oblika.</string>
     <string name="mtrl_picker_invalid_format_example">Primer: %1$s</string>
@@ -78,7 +74,4 @@
     <string name="mtrl_timepicker_cancel">Prekliči</string>
     <string name="mtrl_timepicker_confirm">V redu</string>
     <string name="password_toggle_content_description">Prikaz gesla</string>
-    <string name="searchview_clear_text_content_description">Počisti besedilo</string>
-    <string name="searchview_navigation_content_description">Nazaj</string>
-    <string name="side_sheet_accessibility_pane_title">Stranski list</string>
 </resources>

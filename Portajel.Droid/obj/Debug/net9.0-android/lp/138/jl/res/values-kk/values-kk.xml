@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">%1$d/%2$d таңба енгізілді</string>
     <string name="character_counter_overflowed_content_description">Таңба саны шегінен асты: %1$d/%2$d</string>
     <string name="clear_text_end_icon_content_description">Мәтінді өшіру</string>
-    <string name="error_a11y_label">Қате: жарамсыз</string>
     <string name="error_icon_content_description">Қате</string>
     <string name="exposed_dropdown_menu_content_description">Ашылмалы мәзірді көрсету</string>
     <string name="icon_content_description">Диалог белгішесі</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">Уақытты таңдау</string>
     <string name="material_timepicker_text_input_mode_description">Уақытты енгізу үшін мәтін енгізу режиміне өтіңіз.</string>
     <string name="mtrl_badge_numberless_content_description">Жаңа хабарландыру</string>
-    <string name="mtrl_checkbox_state_description_checked">Құсбелгі қойылды.</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Құсбелгі жартылай қойылды.</string>
-    <string name="mtrl_checkbox_state_description_unchecked">Құсбелгі қойылмады.</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s контентін өшіру</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">%1$d санынан көп жаңа хабарландыру</string>
     <string name="mtrl_picker_a11y_next_month">Келесі айға өту</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Күнді таңдау</string>
     <string name="mtrl_picker_date_header_unselected">Таңдалған күн</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Күндер бағаны: %1$s</string>
     <string name="mtrl_picker_end_date_description">Аяқталу күні: %1$s</string>
     <string name="mtrl_picker_invalid_format">Формат жарамсыз.</string>
     <string name="mtrl_picker_invalid_format_example">Мысал: %1$s.</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">Бас тарту</string>
     <string name="mtrl_timepicker_confirm">Жарайды</string>
     <string name="password_toggle_content_description">Құпия сөзді көрсету</string>
-    <string name="searchview_clear_text_content_description">Мәтінді өшіру</string>
-    <string name="searchview_navigation_content_description">Артқа</string>
-    <string name="side_sheet_accessibility_pane_title">Бүйірлік парақ</string>
 </resources>

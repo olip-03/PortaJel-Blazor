@@ -176,3 +176,8 @@ Xamarin.KotlinX.Coroutines.Core.aar
 Xamarin.KotlinX.Coroutines.Core.Jvm.aar
 Xamarin.KotlinX.Serialization.Core.aar
 Xamarin.KotlinX.Serialization.Core.Jvm.aar
+SkiaSharp.dll
+SQLitePCLRaw.batteries_v2.dll
+SQLitePCLRaw.lib.e_sqlite3.android.dll
+SQLitePCLRaw.lib.e_sqlite3.android.aar
+Xamarin.Kotlin.StdLib.Common.dll

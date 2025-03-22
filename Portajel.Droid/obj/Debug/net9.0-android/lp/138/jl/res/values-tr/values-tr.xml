@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">Girilen karakter: %1$d / %2$d</string>
     <string name="character_counter_overflowed_content_description">Karakter sınırı aşıldı %1$d / %2$d</string>
     <string name="clear_text_end_icon_content_description">Metni temizle</string>
-    <string name="error_a11y_label">Hata: geçersiz</string>
     <string name="error_icon_content_description">Hata</string>
     <string name="exposed_dropdown_menu_content_description">Açılır menüyü göster</string>
     <string name="icon_content_description">İletişim kutusu simgesi</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">Zamanı seçin</string>
     <string name="material_timepicker_text_input_mode_description">Zaman girişi için metin girişi moduna geçin.</string>
     <string name="mtrl_badge_numberless_content_description">Yeni bildirim</string>
-    <string name="mtrl_checkbox_state_description_checked">İşaretlendi</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Kısmi olarak işaretlendi</string>
-    <string name="mtrl_checkbox_state_description_unchecked">İşaretlenmedi</string>
     <string name="mtrl_chip_close_icon_content_description">%1$s içeriğini kaldır</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">%1$d adetten fazla yeni bildirim</string>
     <string name="mtrl_picker_a11y_next_month">Sonraki aya değiştir</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Tarih Seçin</string>
     <string name="mtrl_picker_date_header_unselected">Seçilen tarih</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Gün sütunu: %1$s</string>
     <string name="mtrl_picker_end_date_description">Bitiş tarihi: %1$s</string>
     <string name="mtrl_picker_invalid_format">Geçersiz biçim.</string>
     <string name="mtrl_picker_invalid_format_example">Örnek: %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">İptal</string>
     <string name="mtrl_timepicker_confirm">Tamam</string>
     <string name="password_toggle_content_description">Şifreyi göster</string>
-    <string name="searchview_clear_text_content_description">Metni temizle</string>
-    <string name="searchview_navigation_content_description">Geri</string>
-    <string name="side_sheet_accessibility_pane_title">Yan Sayfa</string>
 </resources>

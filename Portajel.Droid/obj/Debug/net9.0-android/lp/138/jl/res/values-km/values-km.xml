@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">តួ​អក្សរ​បាន​បញ្ចូល​ %1$d នៃ %2$d</string>
     <string name="character_counter_overflowed_content_description">ដែនកំណត់តួអក្សរបានលើស %1$d នៃ %2$d</string>
     <string name="clear_text_end_icon_content_description">សម្អាតអក្សរ</string>
-    <string name="error_a11y_label">បញ្ហា៖ មិនត្រឹមត្រូវ</string>
     <string name="error_icon_content_description">បញ្ហា</string>
     <string name="exposed_dropdown_menu_content_description">បង្ហាញ​ម៉ឺនុយ​ធ្លាក់ចុះ</string>
     <string name="icon_content_description">រូប​ប្រអប់បញ្ចូល</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">ជ្រើស​ម៉ោង</string>
     <string name="material_timepicker_text_input_mode_description">ប្តូរ​ទៅ​មុខងារ​បញ្ចូល​អក្សរ​សម្រាប់​ការ​បញ្ចូល​ម៉ោង។</string>
     <string name="mtrl_badge_numberless_content_description">ការជូនដំណឹងថ្មី</string>
-    <string name="mtrl_checkbox_state_description_checked">បាន​ធីក</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">បានធីកខ្លះ</string>
-    <string name="mtrl_checkbox_state_description_unchecked">មិន​បាន​ធីក</string>
     <string name="mtrl_chip_close_icon_content_description">លុប %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">ការជូនដំណឹង​ថ្មីៗ​លើស %1$d ហើយ</string>
     <string name="mtrl_picker_a11y_next_month">ប្ដូរ​ទៅ​ខែបន្ទាប់</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">ជ្រើសរើស​កាល​បរិច្ឆេទ</string>
     <string name="mtrl_picker_date_header_unselected">កាលបរិច្ឆេទដែលបាន​ជ្រើសរើស</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">ជួរឈរ​នៃ​ថ្ងៃ៖ %1$s</string>
     <string name="mtrl_picker_end_date_description">កាលបរិច្ឆេទ​បញ្ចប់ %1$s</string>
     <string name="mtrl_picker_invalid_format">ទម្រង់មិន​ត្រឹមត្រូវទេ។</string>
     <string name="mtrl_picker_invalid_format_example">ឧទាហរណ៍៖ %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">បោះបង់</string>
     <string name="mtrl_timepicker_confirm">យល់ព្រម</string>
     <string name="password_toggle_content_description">បង្ហាញពាក្យសម្ងាត់</string>
-    <string name="searchview_clear_text_content_description">សម្អាតអក្សរ</string>
-    <string name="searchview_navigation_content_description">ថយក្រោយ</string>
-    <string name="side_sheet_accessibility_pane_title">សន្លឹកចំហៀង</string>
 </resources>

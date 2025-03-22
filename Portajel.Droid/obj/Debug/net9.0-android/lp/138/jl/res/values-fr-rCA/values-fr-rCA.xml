@@ -12,7 +12,6 @@
     <string name="character_counter_content_description">Caractères entrés : %1$d sur %2$d</string>
     <string name="character_counter_overflowed_content_description">Limite de caractère dépassée : %1$d sur %2$d</string>
     <string name="clear_text_end_icon_content_description">Effacer le texte</string>
-    <string name="error_a11y_label">Erreur : incorrecte</string>
     <string name="error_icon_content_description">Erreur</string>
     <string name="exposed_dropdown_menu_content_description">Afficher le menu déroulant</string>
     <string name="icon_content_description">Icône de boîte de dialogue</string>
@@ -31,9 +30,6 @@
     <string name="material_timepicker_select_time">Sélectionner l\'heure</string>
     <string name="material_timepicker_text_input_mode_description">Passer au mode Entrée de texte pour entrer l\'heure.</string>
     <string name="mtrl_badge_numberless_content_description">Nouvelle notification</string>
-    <string name="mtrl_checkbox_state_description_checked">Cochée</string>
-    <string name="mtrl_checkbox_state_description_indeterminate">Partiellement cochée</string>
-    <string name="mtrl_checkbox_state_description_unchecked">Non cochée</string>
     <string name="mtrl_chip_close_icon_content_description">Supprimer %1$s</string>
     <string name="mtrl_exceed_max_badge_number_content_description" ns1:ignore="PluralsCandidate">Plus de %1$d nouvelles notifications</string>
     <string name="mtrl_picker_a11y_next_month">Passer au mois suivant</string>
@@ -46,7 +42,7 @@
     <string name="mtrl_picker_date_header_selected">%1$s</string>
     <string name="mtrl_picker_date_header_title">Sélectionnez la date</string>
     <string name="mtrl_picker_date_header_unselected">Date sélectionnée</string>
-    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_day_of_week_column_header">Colonne des jours : %1$s</string>
     <string name="mtrl_picker_end_date_description">Date de fin : %1$s</string>
     <string name="mtrl_picker_invalid_format">Format incorrect</string>
     <string name="mtrl_picker_invalid_format_example">Exemple : %1$s</string>
@@ -76,7 +72,4 @@
     <string name="mtrl_timepicker_cancel">Annuler</string>
     <string name="mtrl_timepicker_confirm">OK</string>
     <string name="password_toggle_content_description">Afficher le mot de passe</string>
-    <string name="searchview_clear_text_content_description">Effacez le texte</string>
-    <string name="searchview_navigation_content_description">Retour</string>
-    <string name="side_sheet_accessibility_pane_title">Feuille latérale</string>
 </resources>
