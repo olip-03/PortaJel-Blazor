@@ -1,0 +1,89 @@
+is_global = true
+build_property.TargetFramework = net9.0-windows10.0.26100.0
+build_property.TargetPlatformMinVersion = 10.0.26100.0
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = Portajel
+build_property.ProjectDir = C:\Users\OliverPosa\Projects\Dotnet\Portajel\Portajel\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTAotOptimizerEnabled = true
+build_property.CsWinRTAotExportsEnabled = 
+build_property.CsWinRTRcwFactoryFallbackGeneratorForceOptIn = 
+build_property.CsWinRTRcwFactoryFallbackGeneratorForceOptOut = 
+build_property.CsWinRTCcwLookupTableGeneratorEnabled = true
+build_property.CsWinRTMergeReferencedActivationFactories = 
+build_property.CsWinRTAotWarningLevel = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/App.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.App.xaml
+build_metadata.AdditionalFiles.TargetPath = App.xaml
+build_metadata.AdditionalFiles.RelativePath = App.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Pages/HomePage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Pages.HomePage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\HomePage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\HomePage.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Pages/LibraryPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Pages.LibraryPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\LibraryPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\LibraryPage.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Pages/Library/AlbumListPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Pages.Library.AlbumListPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\Library\AlbumListPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\Library\AlbumListPage.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Pages/Library/ArtistListPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Pages.Library.ArtistListPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\Library\ArtistListPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\Library\ArtistListPage.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Pages/Library/GenreListPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Pages.Library.GenreListPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\Library\GenreListPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\Library\GenreListPage.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Pages/Library/PlaylistListPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Pages.Library.PlaylistListPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\Library\PlaylistListPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\Library\PlaylistListPage.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Pages/Library/SongListPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Pages.Library.SongListPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\Library\SongListPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\Library\SongListPage.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Pages/SearchPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Pages.SearchPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\SearchPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\SearchPage.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Resources/Styles/Colors.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Resources.Styles.Colors.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
+
+[C:/Users/OliverPosa/Projects/Dotnet/Portajel/Portajel/Resources/Styles/Styles.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = Portajel.Resources.Styles.Styles.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Styles.xaml

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Portajel.Pages.HomePage"
+             Title="Home">
+    <ScrollView x:Name="ScrollViewMain" Orientation="Vertical">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <!-- Recent Listens -->
+
+            <!-- Album Items -->
+            <ScrollView 
+                Orientation="Horizontal" 
+                VerticalScrollBarVisibility="Never"
+                HorizontalScrollBarVisibility="Never"
+                InputTransparent="True"
+                Grid.Row="0">
+                <HorizontalStackLayout>
+                    <CollectionView ItemsSource="{Binding Sample}" >
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout 
+                            Orientation="Horizontal"
+                            HorizontalItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout CascadeInputTransparent="False">
+                                    <Image 
+                                    Source="{Binding Source_}"
+                                    BackgroundColor="Pink"
+                                    WidthRequest="200"
+                                    HeightRequest="200"/>
+                                    <Label Margin="0, 10">Album Name</Label>
+                                    <Label Margin="0, 10">Artist Name</Label>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </HorizontalStackLayout>
+            </ScrollView>
+            <!-- Album Items -->
+            <ScrollView 
+                Orientation="Horizontal" 
+                VerticalScrollBarVisibility="Never"
+                HorizontalScrollBarVisibility="Never"
+                InputTransparent="True"
+                Grid.Row="1">
+                <HorizontalStackLayout>
+                    <CollectionView ItemsSource="{Binding Sample}" >
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout 
+                Orientation="Horizontal"
+                HorizontalItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout CascadeInputTransparent="False">
+                                    <Image 
+                        Source="{Binding Source_}"
+                        BackgroundColor="Pink"
+                        WidthRequest="200"
+                        HeightRequest="200"/>
+                                    <Label Margin="0, 10">Album Name</Label>
+                                    <Label Margin="0, 10">Artist Name</Label>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </HorizontalStackLayout>
+            </ScrollView>
+            <!-- Album Items -->
+            <ScrollView 
+                Orientation="Horizontal" 
+                VerticalScrollBarVisibility="Never"
+                HorizontalScrollBarVisibility="Never"
+                InputTransparent="True"
+                Grid.Row="2">
+                <HorizontalStackLayout>
+                    <CollectionView ItemsSource="{Binding Sample}" >
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout 
+                Orientation="Horizontal"
+                HorizontalItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout CascadeInputTransparent="False">
+                                    <Image 
+                        Source="{Binding Source_}"
+                        BackgroundColor="Pink"
+                        WidthRequest="200"
+                        HeightRequest="200"/>
+                                    <Label Margin="0, 10">Album Name</Label>
+                                    <Label Margin="0, 10">Artist Name</Label>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </HorizontalStackLayout>
+            </ScrollView>
+            <!-- Album Items -->
+            <ScrollView 
+                Orientation="Horizontal" 
+                VerticalScrollBarVisibility="Never"
+                HorizontalScrollBarVisibility="Never"
+                InputTransparent="True"
+                Grid.Row="3">
+                <HorizontalStackLayout>
+                    <CollectionView ItemsSource="{Binding Sample}" >
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout 
+                Orientation="Horizontal"
+                HorizontalItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout CascadeInputTransparent="False">
+                                    <Image 
+                        Source="{Binding Source_}"
+                        BackgroundColor="Pink"
+                        WidthRequest="200"
+                        HeightRequest="200"/>
+                                    <Label Margin="0, 10">Album Name</Label>
+                                    <Label Margin="0, 10">Artist Name</Label>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </HorizontalStackLayout>
+            </ScrollView>
+            <!-- Album Items -->
+            <ScrollView 
+                Orientation="Horizontal" 
+                VerticalScrollBarVisibility="Never"
+                HorizontalScrollBarVisibility="Never"
+                InputTransparent="True"
+                Grid.Row="4">
+                <HorizontalStackLayout>
+                    <CollectionView ItemsSource="{Binding Sample}" >
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout 
+                Orientation="Horizontal"
+                HorizontalItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout CascadeInputTransparent="False">
+                                    <Image 
+                        Source="{Binding Source_}"
+                        BackgroundColor="Pink"
+                        WidthRequest="200"
+                        HeightRequest="200"/>
+                                    <Label Margin="0, 10">Album Name</Label>
+                                    <Label Margin="0, 10">Artist Name</Label>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </HorizontalStackLayout>
+            </ScrollView>
+            <!-- Album Items -->
+            <ScrollView 
+                Orientation="Horizontal" 
+                VerticalScrollBarVisibility="Never"
+                HorizontalScrollBarVisibility="Never"
+                InputTransparent="True"
+                Grid.Row="5">
+                <HorizontalStackLayout>
+                    <CollectionView ItemsSource="{Binding Sample}" >
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout 
+                Orientation="Horizontal"
+                HorizontalItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout CascadeInputTransparent="False">
+                                    <Image 
+                        Source="{Binding Source_}"
+                        BackgroundColor="Pink"
+                        WidthRequest="200"
+                        HeightRequest="200"/>
+                                    <Label Margin="0, 10">Album Name</Label>
+                                    <Label Margin="0, 10">Artist Name</Label>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </HorizontalStackLayout>
+            </ScrollView>
+        </Grid>
+    </ScrollView>
+</ContentPage>

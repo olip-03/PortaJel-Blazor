@@ -1,0 +1,18 @@
+{
+  "Task": "FastDeploy",
+  "Properties": {
+    "target.prop.ro.product.build.version.sdk": "35",
+    "target.prop.ro.product.cpu.abilist": "arm64-v8a",
+    "target.prop.ro.product.manufacturer": "Google",
+    "target.prop.ro.product.model": "Pixel 8",
+    "target.prop.ro.product.cpu.abi": "arm64-v8a",
+    "deploy.error.code": "",
+    "deploy.tool": "xamarin.sync",
+    "deploy.result": "Success",
+    "deploy.supports.fastdev": "True",
+    "deploy.systemapp": "False",
+    "deploy.duration.ms": "333",
+    "pii.deploy.error": "",
+    "pii.deploy.file": ""
+  }
+}
