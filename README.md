@@ -1,4 +1,4 @@
-## Ghetto spotify for Jellyfin. Written with .net MAUI and Blazor pages. 
+## Ghetto spotify for Jellyfin. Written with .net MAUI.
 
 ![portajel-demo](https://github.com/user-attachments/assets/74edaf76-2225-4fe0-820f-4a2c22022337)
 
