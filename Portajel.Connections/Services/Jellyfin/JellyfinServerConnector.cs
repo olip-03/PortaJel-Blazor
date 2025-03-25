@@ -10,22 +10,28 @@ using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
-using Portajel.Connections.Services.Database;
+using Portajel.Connections.Services;
 using Portajel.Connections.Data;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http;
+using PortaJel_Blazor.Classes;
+using Portajel.Connections.Services.Database;
+using System.Runtime.CompilerServices;
 
 namespace Portajel.Connections.Services.Jellyfin
 {
     public class JellyfinServerConnector : IMediaServerConnector
     {
-        private UserDto _userDto;
-        private SessionInfoDto _sessionInfo;
-        private JellyfinSdkSettings _sdkClientSettings;
-        private JellyfinApiClient _jellyfinApiClient;
-        public IMediaDataConnector Album { get; set; }
-        public IMediaDataConnector Artist { get; set; }
-        public IMediaDataConnector Song { get; set; }
-        public IMediaDataConnector Playlist { get; set; }
-        public IMediaDataConnector Genre { get; set; }
+        private DatabaseConnector _database;
+        private UserDto? _userDto;
+        private SessionInfoDto? _sessionInfo;
+        private JellyfinSdkSettings? _sdkClientSettings;
+        private JellyfinApiClient? _jellyfinApiClient;
+        public IMediaDataConnector Album { get; set; } = null!;
+        public IMediaDataConnector Artist { get; set; } = null!;
+        public IMediaDataConnector Song { get; set; } = null!;
+        public IMediaDataConnector Playlist { get; set; } = null!;
+        public IMediaDataConnector Genre { get; set; } = null!;
         public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
         {
             { "Album", Album },
@@ -34,7 +40,6 @@ namespace Portajel.Connections.Services.Jellyfin
             { "Playlist", Playlist },
             { "Genre", Genre }
         };
-
         public Dictionary<MediaTypes, bool> SupportedReturnTypes { get; set; } =
             new()
             {
@@ -44,114 +49,197 @@ namespace Portajel.Connections.Services.Jellyfin
                 { MediaTypes.Playlist, true },
                 { MediaTypes.Genre, true },
             };
-
-        public Dictionary<string, ConnectorProperty> Properties { get; set; } =
-            new()
-            {
-                {
-                    "URL", new ConnectorProperty(
-                        label: "Url",
-                        description: "The URL of the Jellyfin Server",
-                        value: "",
-                        protectValue: false)
-                },
-                {
-                    "Username", new ConnectorProperty(
-                        label: "Username",
-                        description: "Username for server at Url.",
-                        value: "",
-                        protectValue: false)
-                },
-                {
-                    "Password", new ConnectorProperty(
-                        label: "Password",
-                        description: "User password for server at Url.",
-                        value: "",
-                        protectValue: true)
-                }
-            };
-
+        public string Name { get; } = "JellyFin";
+        public string Description { get; } = "Enables connections to the Jellyfin Media Server.";
+        public string Image { get; } = "icon_jellyfin.png";
+        public Dictionary<string, ConnectorProperty> Properties { get; set; } = new();
         public SyncStatusInfo SyncStatus { get; set; } = new();
-
-        public JellyfinServerConnector(string url = "", string username = "", string password = "")
+        public JellyfinServerConnector(
+            DatabaseConnector database,
+            string url = "", 
+            string username = "", 
+            string password = "",
+            string appName = "",
+            string appVerison = "",
+            string deviceName = "",
+            string deviceId = "")
         {
-            Properties["URL"].Value = url;
-            Properties["Username"].Value = username;
-            Properties["Password"].Value = password;
+            _database = database;
+            Properties =
+                new()
+                {
+                    {
+                        "AppName", new ConnectorProperty(
+                            label: "App Name",
+                            description: "The name of the Jellyfin Client Application.",
+                            value: appName,
+                            protectValue: false,
+                            userVisible: true
+                            )
+                    },
+                    {
+                        "URL", new ConnectorProperty(
+                            label: "Url",
+                            description: "The URL of the Jellyfin Server",
+                            value: url,
+                            protectValue: false,
+                            userVisible: true)
+                    },
+                    {
+                        "Username", new ConnectorProperty(
+                            label: "Username",
+                            description: "Username for server at Url.",
+                            value: username,
+                            protectValue: false,
+                            userVisible: true)
+                    },
+                    {
+                        "Password", new ConnectorProperty(
+                            label: "Password",
+                            description: "User password for server at Url.",
+                            value: password,
+                            protectValue: true,
+                            userVisible: true)
+                    },
+
+                    {
+                        "AppVersion", new ConnectorProperty(
+                            label: "App Version",
+                            description: "The version of the Jellyfin Client Application.",
+                            value: appVerison,
+                            protectValue: true,
+                            userVisible: false)
+                    },
+                    {
+                        "DeviceName", new ConnectorProperty(
+                            label: "Device Name",
+                            description: "The name of the device running this Jellyfin Client Application.",
+                            value: deviceName,
+                            protectValue: true,
+                            userVisible: false)
+                    },
+                    {
+                        "DeviceID", new ConnectorProperty(
+                            label: "Device Name",
+                            description: "The name of the device running this Jellyfin Client Application.",
+                            value: deviceId,
+                            protectValue: true,
+                            userVisible: false)
+                    }
+                };
         }
 
-        public async Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
+        public async Task<AuthResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
         {
-            ServiceCollection serviceCollection = new ServiceCollection();
-
-            serviceCollection.AddHttpClient("Default", c =>
+            // At the beginning of AuthenticateAsync method, add validation
+            if (Properties["AppName"].Value == null ||
+                Properties["AppVersion"].Value == null ||
+                Properties["DeviceName"].Value == null ||
+                Properties["DeviceID"].Value == null ||
+                Properties["URL"].Value == null ||
+                Properties["Username"].Value == null ||
+                Properties["Password"].Value == null)
+            {
+                return new AuthResponse()
+                {
+                    IsSuccess = false,
+                    Message = "Missing required properties for authentication"
+                };
+            }
+            try
+            {
+                ServiceCollection serviceCollection = new ServiceCollection();
+                serviceCollection.AddHttpClient("Default", c =>
                 {
                     c.DefaultRequestHeaders.UserAgent.Add(
                         new ProductInfoHeaderValue(
-                            MauiProgram.ApplicationName,
-                            MauiProgram.ApplicationClientVersion));
+                            (string)Properties["AppName"].Value,
+                            (string)Properties["AppVersion"].Value));
                     c.DefaultRequestHeaders.Accept.Add(
                         new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json, 1.0));
                     c.DefaultRequestHeaders.Accept.Add(
                         new MediaTypeWithQualityHeaderValue("*/*", 0.8));
                 })
-                .ConfigurePrimaryHttpMessageHandler(_ => new SocketsHttpHandler
+                    .ConfigurePrimaryHttpMessageHandler(_ => new SocketsHttpHandler
+                    {
+                        AutomaticDecompression = DecompressionMethods.All,
+                        RequestHeaderEncodingSelector = (_, _) => Encoding.UTF8
+                    });
+
+                // Add Jellyfin SDK services.
+                // include support for session.SupportsRemoteControl
+                // See lines 326 for what Jellyfin-Web wants from clients, for remote functionality https://github.com/jellyfin/jellyfin-web/blob/e5df4dd56bc180dfa24a52a99c718459a4074d56/src/controllers/dashboard/dashboard.js#L324 
+                serviceCollection.AddSingleton<JellyfinSdkSettings>();
+                serviceCollection.AddSingleton<IAuthenticationProvider, JellyfinAuthenticationProvider>();
+                serviceCollection.AddScoped<IRequestAdapter, JellyfinRequestAdapter>(s => new JellyfinRequestAdapter(
+                    s.GetRequiredService<IAuthenticationProvider>(),
+                    s.GetRequiredService<JellyfinSdkSettings>(),
+                    s.GetRequiredService<IHttpClientFactory>().CreateClient("Default")));
+                serviceCollection.AddScoped<JellyfinApiClient>();
+
+                ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
+
+                _jellyfinApiClient = serviceProvider.GetRequiredService<JellyfinApiClient>();
+                _sdkClientSettings = serviceProvider.GetRequiredService<JellyfinSdkSettings>();
+                _sdkClientSettings.SetServerUrl(Properties["URL"].Value.ToString());
+                _sdkClientSettings.Initialize(
+                    (string)Properties["AppName"].Value,
+                    (string)Properties["AppVersion"].Value,
+                    (string)Properties["DeviceName"].Value,
+                    (string)Properties["DeviceID"].Value);
+
+                var authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(
+                    new AuthenticateUserByName
+                    {
+                        Username = Properties["Username"].Value.ToString(),
+                        Pw = Properties["Password"].Value.ToString()
+                    }, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+                if (authenticationResult != null)
                 {
-                    AutomaticDecompression = DecompressionMethods.All,
-                    RequestHeaderEncodingSelector = (_, _) => Encoding.UTF8
-                });
+                    _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
+                    _userDto = authenticationResult.User;
+                    _sessionInfo = authenticationResult.SessionInfo;
+                }
 
-            // Add Jellyfin SDK services.
-            // include support for session.SupportsRemoteControl
-            // See lines 326 for what Jellyfin-Web wants from clients, for remote functionality https://github.com/jellyfin/jellyfin-web/blob/e5df4dd56bc180dfa24a52a99c718459a4074d56/src/controllers/dashboard/dashboard.js#L324 
-            serviceCollection.AddSingleton<JellyfinSdkSettings>();
-            serviceCollection.AddSingleton<IAuthenticationProvider, JellyfinAuthenticationProvider>();
-            serviceCollection.AddScoped<IRequestAdapter, JellyfinRequestAdapter>(s => new JellyfinRequestAdapter(
-                s.GetRequiredService<IAuthenticationProvider>(),
-                s.GetRequiredService<JellyfinSdkSettings>(),
-                s.GetRequiredService<IHttpClientFactory>().CreateClient("Default")));
-            serviceCollection.AddScoped<JellyfinApiClient>();
-
-            ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
-
-            _jellyfinApiClient = serviceProvider.GetRequiredService<JellyfinApiClient>();
-            _sdkClientSettings = serviceProvider.GetRequiredService<JellyfinSdkSettings>();
-            _sdkClientSettings.SetServerUrl(Properties["URL"].Value.ToString());
-            _sdkClientSettings.Initialize(
-                MauiProgram.ApplicationName,
-                MauiProgram.ApplicationClientVersion,
-                DeviceInfo.Current.Name,
-                DeviceInfo.Current.Idiom.ToString());
-
-            var authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(
-                new AuthenticateUserByName
-                {
-                    Username = Properties["Username"].Value.ToString(),
-                    Pw = Properties["Password"].Value.ToString()
-                }, cancellationToken: cancellationToken).ConfigureAwait(false);
-
-            if (authenticationResult != null)
+                Album = new JellyfinServerAlbumConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+                Artist = new JellyfinServerArtistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+                Song = new JellyfinServerSongConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+                Playlist = new JellyfinServerPlaylistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+                Genre = new JellyfinServerGenreConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
+            }
+            catch (ApiException apiEx)
             {
-                _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
-                _userDto = authenticationResult.User;
-                _sessionInfo = authenticationResult.SessionInfo;
+                // More detailed API exception handling
+                Trace.WriteLine($"Error: {apiEx.Message}");
+                Trace.WriteLine($"Status code: {apiEx.ResponseStatusCode}");
+                Trace.WriteLine($"Source: {apiEx.Source}");
+
+                return new AuthResponse()
+                {
+                    IsSuccess = false,
+                    Message = $"API Error: {apiEx.Message} (Status: {apiEx.ResponseStatusCode})"
+                };
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.StackTrace);
+                return new AuthResponse()
+                {
+                    IsSuccess = false,
+                    Message = $"{ex.Message}"
+                };
             }
 
-            Album = new JellyfinServerAlbumConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-            Artist = new JellyfinServerArtistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-            Song = new JellyfinServerSongConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-            Playlist = new JellyfinServerPlaylistConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-            Genre = new JellyfinServerGenreConnector(_jellyfinApiClient, _sdkClientSettings, _userDto);
-
-            return AuthenticationResponse.Ok();
+            return AuthResponse.Ok();
         }
 
         public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
         {
-            if (MauiProgram.Database.Album is not DatabaseAlbumConnector albumDb) return false;
-            if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
-            if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
-            if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
+            if (_database.Album is not DatabaseAlbumConnector albumDb) return false;
+            if (_database.Artist is not DatabaseArtistConnector artistDb) return false;
+            if (_database.Song is not DatabaseSongConnector songDb) return false;
+            if (_database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
             
             int albumDbT = await albumDb.GetTotalCountAsync(cancellationToken: cancellationToken);
             int albumT = await Album.GetTotalCountAsync(cancellationToken: cancellationToken);
@@ -171,25 +259,6 @@ namespace Portajel.Connections.Services.Jellyfin
             if (songDbT == songT) passCount += 1;
             if (playlistDbT == playlistT) passCount += 1;
             
-            // If sync date is less than 18hrs do not sync! 
-            string oauthToken = await SecureStorage.Default.GetAsync("syncdate");
-            if (oauthToken != null && passCount >= 2)
-            {
-                if (DateTime.TryParse(oauthToken, out var lastSyncDate))
-                {
-                    TimeSpan timeSinceLastSync = DateTime.Now - lastSyncDate;
-                    if (timeSinceLastSync.TotalHours < 18)
-                    {
-                        Trace.Write("Last sync occured too recently. Cancelling sync.");
-                        foreach (var data in GetDataConnectors())
-                        {
-                            data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
-                        }
-                        return true;
-                    }
-                }
-            }
-            
             if (albumDbT != albumT) return false;
             if (artistDbT != artistT) return false;
             if (songDbT != songT) return false;
@@ -198,25 +267,20 @@ namespace Portajel.Connections.Services.Jellyfin
             return true;
         }
         
-        // Todo: Stupid as fuck idea, but, I think I should try it anyway...
-        // Say we want to get all the items on the server? Fortunately, the JellyFin api allows us to specify IDs we 
-        // want to collect, and IDs we want to exclude... What if we sent a request excluding EVERY ID we already have 
-        // on file. If we're still calling get-all, technically that should return us with all the items that... we 
-        // don't already have !!!! Excellent! Give that a shot tonight, see if you can come up with something that 
-        // works. 
+        // TODO: Check this logic, I Know there were some pretty bih changes to be made with logic ...
         public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
         {
             try
             {
-                if (MauiProgram.Database.Album is not DatabaseAlbumConnector albumDb) return false;
-                if (MauiProgram.Database.Artist is not DatabaseArtistConnector artistDb) return false;
-                if (MauiProgram.Database.Song is not DatabaseSongConnector songDb) return false;
-                if (MauiProgram.Database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
-                if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
+                if (_database.Album is not DatabaseAlbumConnector albumDb) return false;
+                if (_database.Artist is not DatabaseArtistConnector artistDb) return false;
+                if (_database.Song is not DatabaseSongConnector songDb) return false;
+                if (_database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
+                if (_database.Genre is not DatabaseGenreConnector genreDb) return false;
                 // if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
                 var tasks = GetDataConnectors().Select(data => Task.Run(() =>
                 {
-                    IMediaDataConnector dbConnector = null;
+                    IDbItemConnector dbConnector = null;
                     int batchSize = 100;
                     int currentFetch = 0;
                     int currentItem = 0;
@@ -294,7 +358,7 @@ namespace Portajel.Connections.Services.Jellyfin
 
                             try
                             {
-                                dbConnector.AddRange(srvItemsTask.Result, cancellationToken).Wait(cancellationToken);
+                                dbConnector.InsertRangeAsync(srvItemsTask.Result, cancellationToken).Wait(cancellationToken);
                                 serverItems.AddRange(srvItemsTask.Result);
                             
                                 if (srvItemsTask.Result.Length < batchSize - 1)
@@ -346,7 +410,6 @@ namespace Portajel.Connections.Services.Jellyfin
 
                 await Task.WhenAll(tasks);
                 Trace.WriteLine("Jellyfin Sync Finished! Saving last date!");
-                await SecureStorage.Default.SetAsync("syncdate", DateTime.Now.ToString(CultureInfo.InvariantCulture));
                 return true;
             }
             catch (Exception e)

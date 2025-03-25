@@ -1,6 +1,7 @@
 using Jellyfin.Sdk.Generated.Models;
 using Portajel.Connections.Data;
 using Portajel.Connections.Interfaces;
+using Portajel.Connections.Services;
 
 namespace Portajel.Connections;
 

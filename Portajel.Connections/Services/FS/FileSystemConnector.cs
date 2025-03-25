@@ -4,11 +4,10 @@ using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Portajel.Connections.Data;
 using SQLite;
-using FileSystem = Microsoft.VisualBasic.FileSystem;
 
 namespace Portajel.Connections.Services.FS;
 
-public class FileSystemConnector  : IMediaServerConnector
+public class FileSystemConnector : IMediaServerConnector
 {
     private SQLiteAsyncConnection _database = null;
 
@@ -27,7 +26,9 @@ public class FileSystemConnector  : IMediaServerConnector
     };
 
     public Dictionary<MediaTypes, bool> SupportedReturnTypes { get; set; }
-    
+    public string Name { get; } = "File System";
+    public string Description { get; } = "Enables connections to a local file system.";
+    public string Image { get; } = "icon-spotify.png"; 
     public Dictionary<string, ConnectorProperty> Properties { get; set; } =new Dictionary<string, ConnectorProperty>
     {
         {
@@ -35,7 +36,8 @@ public class FileSystemConnector  : IMediaServerConnector
                 label: "Music Directories",
                 description: "The directories of music files in your file system.",
                 value: new List<string>(),
-                protectValue: false)
+                protectValue: false,
+                userVisible: true)
         }
     };
 
@@ -58,9 +60,9 @@ public class FileSystemConnector  : IMediaServerConnector
         Genre = new FileSystemGenreConnector(_database);
     }
     
-    public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
+    public Task<AuthResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(AuthenticationResponse.Unneccesary());
+        return Task.FromResult(AuthResponse.Unneccesary());
     }
     
     public Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)

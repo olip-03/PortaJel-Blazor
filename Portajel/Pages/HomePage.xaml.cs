@@ -1,3 +1,4 @@
+using Portajel.Pages.Settings;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,14 +11,23 @@ public partial class HomePage : ContentPage
 	public HomePage()
 	{
 		InitializeComponent();
-        BindingContext = new MainViewModel();
-        ScrollViewMain.Scrolled += ScrollViewMain_Scrolled;
+        MainViewModel viewModel = new();
+        if (OperatingSystem.IsWindows())
+        {
+            viewModel.PageMargin = 0;
+        }
+        BindingContext = viewModel;
     }
 
     private void ScrollViewMain_Scrolled(object? sender, ScrolledEventArgs e)
     {
         
         Trace.WriteLine($"ScrollX: {e.ScrollX}, ScrollY: {e.ScrollY}");
+    }
+
+    private async void NavigateSettings(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("settings");
     }
 }
 
@@ -31,6 +41,7 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private ObservableCollection<ImageItem> _sample;
 
+    public int PageMargin = 10;
     public ObservableCollection<ImageItem> Sample
     {
         get => _sample;
@@ -59,6 +70,7 @@ public class MainViewModel : INotifyPropertyChanged
             new ImageItem { Source_ = "cat3.png" },
             new ImageItem { Source_ = "cat4.png" }
         };
+        PageMargin = 10;
     }
 
     // INotifyPropertyChanged implementation

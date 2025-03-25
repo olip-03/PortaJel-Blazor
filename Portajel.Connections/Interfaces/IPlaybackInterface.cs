@@ -7,7 +7,7 @@ using Portajel.Connections.Data;
 
 namespace Portajel.Connections.Interfaces
 {
-    public interface IMediaInterface
+    public interface IPlaybackInterface
     {
         Task<bool> Initalize();
         void Destroy();
@@ -26,9 +26,9 @@ namespace Portajel.Connections.Interfaces
         void AddSong(Song song);
         void AddSongs(Song[] songs);
         void RemoveSong(int index);
-        SongGroupCollection GetQueue();
+        // SongGroupCollection GetQueue();
         Song GetCurrentlyPlaying();
-        public PlaybackInfo GetPlaybackTimeInfo();
+        // public PlaybackInfo GetPlaybackTimeInfo();
         int GetQueueIndex();
         bool GetIsPlaying();
         bool GetIsShuffling();

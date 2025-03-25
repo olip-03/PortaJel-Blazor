@@ -1,24 +1,27 @@
 using System.Text.Json;
 using Portajel.Connections.Services;
-using Portajel.Connections.Services.Database;
 using Portajel.Connections.Services.Discogs;
 using Portajel.Connections.Services.FS;
 using Portajel.Connections.Services.Jellyfin;
 using Portajel.Connections.Services.Spotify;
 using Portajel.Connections.Enum;
 using Portajel.Connections.Interfaces;
-using SystemEnum = System.Enum;
+using Portajel.Connections.Services.Database;
+using Portajel.Connections;
 
-namespace Portajel.Connections.Data;
+namespace Portajel.Services;
 
 public class ServerConnectorSettings
 {
     public ServerConnector ServerConnector { get; private init; } = new();
 
-    public ServerConnectorSettings(string json)
+    public ServerConnectorSettings(string json, DatabaseConnector database, string appDataDirectory)
     {
-        // Deserialize the JSON string to populate properties
-        var settings = JsonSerializer.Deserialize<List<Dictionary<string,ConnectorProperty>>>(json);
+        var options = new JsonSerializerOptions
+        {
+            IncludeFields = true
+        };
+        var settings = JsonSerializer.Deserialize<List<Dictionary<string, ConnectorProperty>>>(json, options);
         if (settings == null) return;
         foreach (var setting in settings)
         {
@@ -50,22 +53,16 @@ public class ServerConnectorSettings
                 }
             }
             
-            if (SystemEnum.TryParse(setting["ConnectorType"].Value.ToString(), out MediaServerConnection parsedType))
+            if (Enum.TryParse(setting["ConnectorType"].Value.ToString(), out MediaServerConnection parsedType))
             {
                 type = parsedType;
             }
 
-            if(type == null) continue; 
+            if (type == null) continue; 
             switch (type)
             {
                 case MediaServerConnection.ServerConnector:
                     connector = new ServerConnector()
-                    {
-                        Properties = setting
-                    };
-                    break;
-                case MediaServerConnection.Database:
-                    connector = new DatabaseConnector()
                     {
                         Properties = setting
                     };
@@ -77,7 +74,7 @@ public class ServerConnectorSettings
                     };
                     break;
                 case MediaServerConnection.Jellyfin:
-                    connector = new JellyfinServerConnector()
+                    connector = new JellyfinServerConnector(database)
                     {
                         Properties = setting
                     };
@@ -123,7 +120,8 @@ public class ServerConnectorSettings
                     label: "ConnectorType",
                     description: "The Connection Type of this server.",
                     value: server.GetConnectionType(),
-                    protectValue: false)
+                    protectValue: false,
+                    userVisible: false)
                 ))
             {
                 server.Properties["ConnectorType"].Value = server.GetConnectionType();

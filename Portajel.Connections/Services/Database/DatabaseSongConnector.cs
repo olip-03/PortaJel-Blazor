@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Portajel.Connections.Services.Database
 {
-    public class DatabaseSongConnector : IMediaDataConnector
+    public class DatabaseSongConnector : IDbItemConnector
     {
         private readonly SQLiteAsyncConnection _database;
 
@@ -17,17 +17,15 @@ namespace Portajel.Connections.Services.Database
             _database = database;
         }
 
-        public SyncStatusInfo SyncStatusInfo { get; set; }
-
-        public void SetSyncStatusInfo(TaskStatus status, int percentage)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
-            ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
-            Guid?[] includeIds = null,
-            Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
+        public async Task<BaseMusicItem[]> GetAllAsync(
+            int? limit = null,
+            int startIndex = 0,
+            bool? getFavourite = null,
+            ItemSortBy setSortTypes = ItemSortBy.Album,
+            SortOrder setSortOrder = SortOrder.Ascending,
+            Guid?[]? includeIds = null,
+            Guid?[]? excludeIds = null,
+            CancellationToken cancellationToken = default)
         {
             var query = _database.Table<SongData>();
 
@@ -115,7 +113,8 @@ namespace Portajel.Connections.Services.Database
             return filteredCache.Select(dbItem => new Song(dbItem)).ToArray();
         }
 
-        public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
+        public async Task<BaseMusicItem> GetAsync(
+            Guid id,
             CancellationToken cancellationToken = default)
         {
             var songData = await _database.Table<SongData>().Where(song => song.Id == id).FirstOrDefaultAsync();
@@ -128,19 +127,8 @@ namespace Portajel.Connections.Services.Database
             return new Song(songData, albumData, [artistData]);
         }
 
-        public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
-            CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<BaseMusicItem[]>([]);
-        }
-
-        public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, string serverUrl = "",
-            CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<BaseMusicItem[]>([]);
-        }
-
-        public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
+        public async Task<int> GetTotalCountAsync(
+            bool? getFavourite = null,
             CancellationToken cancellationToken = default)
         {
             var query = _database.Table<SongData>();
@@ -150,7 +138,8 @@ namespace Portajel.Connections.Services.Database
             return await query.CountAsync();
         }
 
-        public async Task<bool> DeleteAsync(Guid id, string serverUrl = "",
+        public async Task<bool> DeleteAsync(
+            Guid id,
             CancellationToken cancellationToken = default)
         {
             try
@@ -172,7 +161,9 @@ namespace Portajel.Connections.Services.Database
             }
         }
 
-        public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteRangeAsync(
+            Guid[] ids,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -197,9 +188,20 @@ namespace Portajel.Connections.Services.Database
             }
         }
 
-        public async Task<bool> AddRange(BaseMusicItem[] songs, CancellationToken cancellationToken = default)
+        public async Task<bool> InsertAsync(
+            BaseMusicItem musicItem,
+            CancellationToken cancellationToken = default)
         {
-            foreach (var s in songs)
+            if (musicItem is not Song song) return false;
+            await _database.InsertOrReplaceAsync(song.GetBase, song.GetBase.GetType());
+            return true;
+        }
+
+        public async Task<bool> InsertRangeAsync(
+            BaseMusicItem[] musicItems,
+            CancellationToken cancellationToken = default)
+        {
+            foreach (var s in musicItems)
             {
                 if (s is not Song song) continue;
                 await _database.InsertOrReplaceAsync(song.GetBase, song.GetBase.GetType());

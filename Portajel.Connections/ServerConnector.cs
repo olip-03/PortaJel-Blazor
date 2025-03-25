@@ -1,12 +1,10 @@
 using System.Diagnostics;
 using Jellyfin.Sdk.Generated.Models;
-using Portajel.Connections.Services.Database;
-using Portajel.Connections.Services.FS;
-using Portajel.Connections.Services.Jellyfin;
-using Portajel.Connections.Services.Spotify;
 using Portajel.Connections.Data;
 using Portajel.Connections.Enum;
 using Portajel.Connections.Interfaces;
+using Portajel.Connections.Services;
+using Portajel.Services;
 
 namespace Portajel.Connections;
 
@@ -19,7 +17,6 @@ public class ServerConnector : IMediaServerConnector
     public IMediaDataConnector Song { get; set; }
     public IMediaDataConnector Playlist { get; set; }
     public IMediaDataConnector Genre { get; set; }
-
     public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
     {
         { "Album", Album },
@@ -38,8 +35,12 @@ public class ServerConnector : IMediaServerConnector
             { MediaTypes.Playlist, true },
             { MediaTypes.Genre, false }
         };
-    public Dictionary<string, ConnectorProperty> Properties { get; set; }
+    public string Name { get; } = "Server Connector";
+    public string Description { get; } = "Base Server Connector. Contains the rest of them.";
+    public string Image { get; } = "hub.png";
+    public Dictionary<string, ConnectorProperty> Properties { get; set; } = [];
     public SyncStatusInfo SyncStatus { get; set; } = new();
+
     public ServerConnector()
     {
         Album = new ServerAlbumConnector(_servers);
@@ -48,7 +49,8 @@ public class ServerConnector : IMediaServerConnector
         Playlist = new ServerPlaylistConnector(_servers);
         Genre = new ServerGenreConnector(_servers);
     }
-    public async Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
+
+    public async Task<AuthResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
     {
         int failed = 0;
         var tasks = _servers.Select(server => Task.Run(() =>
@@ -87,7 +89,7 @@ public class ServerConnector : IMediaServerConnector
                 break;
         }
         
-        return AuthenticationResponse.Ok();
+        return AuthResponse.Ok();
     }
     public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
     {
@@ -217,7 +219,7 @@ public class ServerConnector : IMediaServerConnector
     {
         return _servers.FirstOrDefault(s => s.GetAddress() == server)?.GetPassword();
     }
-    
+
     [Obsolete("This method will throw an Error! Please call GetUsername(string server)!")]
     public string GetAddress()
     {
@@ -263,10 +265,12 @@ public class ServerConnector : IMediaServerConnector
     {
         return _servers.ToArray();
     }
+
     public ServerConnectorSettings GetSettings()
     {
         return new ServerConnectorSettings(this, _servers.ToArray());
     }
+
     public UserCredentials[] GetAllUserCredentials()
     {
         return _servers.Select(s => s.GetUserCredentials()).ToArray();

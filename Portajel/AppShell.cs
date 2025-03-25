@@ -1,4 +1,10 @@
-﻿using ShellItem = Microsoft.Maui.Controls.ShellItem;
+﻿using Microsoft.Maui.Controls;
+using Portajel.Pages.Settings;
+using Portajel.Pages.Settings.Debug;
+using Portajel.Services;
+using PortaJel_Blazor.Classes;
+using System.Diagnostics;
+using ShellItem = Microsoft.Maui.Controls.ShellItem;
 
 namespace Portajel
 {
@@ -7,6 +13,13 @@ namespace Portajel
         public AppShell()
         {
             Title = "Portajel";
+
+            Routing.RegisterRoute("settings", typeof(SettingsPage));
+            Routing.RegisterRoute("settings/connections", typeof(ConnectionsPage));
+            Routing.RegisterRoute("settings/debug", typeof(DebugPage));
+            Routing.RegisterRoute("settings/debug/radio", typeof(DebugRadio));
+            Routing.RegisterRoute("settings/debug/map", typeof(DebugMap));
+
             if (DeviceInfo.Platform == DevicePlatform.WinUI)
             {
                 FlyoutBehavior = FlyoutBehavior.Locked;
@@ -136,7 +149,6 @@ namespace Portajel
             };
             return [homeItem, playlistItem, albumItem, artistItems, songsItems, genreItems];
         }
-
         private ShellItem[] MobileTargetUI()
         {
             var tabBar = new TabBar();
@@ -153,7 +165,7 @@ namespace Portajel
             var searchTab = new Tab
             {
                 Title = "Search",
-                Icon = "library.png"
+                Icon = "search.png"
             };
             searchTab.Items.Add(new ShellContent
             {
@@ -163,7 +175,7 @@ namespace Portajel
             var libraryTab = new Tab
             {
                 Title = "Library",
-                Icon = "search.png"
+                Icon = "library.png"
             };
             libraryTab.Items.Add(new ShellContent
             {

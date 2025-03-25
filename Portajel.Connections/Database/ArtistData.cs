@@ -2,7 +2,7 @@
 using SQLite;
 using System.Text.Json;
 using Portajel.Connections.Data;
-using PortaJel_Blazor.Data;
+using PortaJel_Blazor.Classes;
 
 namespace Portajel.Connections.Database
 {

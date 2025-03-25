@@ -22,11 +22,13 @@ public class DiscogsConnector : IMediaServerConnector
         { "Playlist", Playlist },
         { "Genre", Genre }
     };
-
     public Dictionary<MediaTypes, bool> SupportedReturnTypes { get; set; }
+    public string Name { get; } = "Discogs";
+    public string Description { get; } = "Enables connections to a Discogs.";
+    public string Image { get; } = "icon-spotify.png";
     public Dictionary<string, ConnectorProperty> Properties { get; set; }
     public SyncStatusInfo SyncStatus { get; set; } = new();
-    public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
+    public Task<AuthResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

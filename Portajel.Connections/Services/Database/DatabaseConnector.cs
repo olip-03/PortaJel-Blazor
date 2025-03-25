@@ -1,41 +1,27 @@
-﻿using Jellyfin.Sdk;
-using Jellyfin.Sdk.Generated.Models;
-using Microsoft.Kiota.Abstractions.Authentication;
-using Microsoft.Kiota.Abstractions;
+﻿using Jellyfin.Sdk.Generated.Models;
 using Portajel.Connections.Interfaces;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Text;
 using Portajel.Connections.Database;
 using SQLite;
-using System.Security.Cryptography;
 using System.Diagnostics;
-using Microsoft.Maui.Controls.PlatformConfiguration;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Portajel.Connections.Services.Database;
 using Portajel.Connections.Data;
-using Portajel.Connections.Interfaces;
 using Portajel.Connections.Enum;
 
 namespace Portajel.Connections.Services.Database
 {
-    public class DatabaseConnector : IMediaServerConnector
+    public class DatabaseConnector : IDbConnector
     {
-        private static readonly string MainDir = Path.Combine(FileSystem.Current.AppDataDirectory, "Database.sqlite");
-
+        private readonly SQLiteAsyncConnection _database;
         private const SQLiteOpenFlags DbFlags =
             SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache;
-
-        private readonly SQLiteAsyncConnection _database = new SQLiteAsyncConnection(MainDir, DbFlags);
-        public IMediaDataConnector Album { get; set; }
-        public IMediaDataConnector Artist { get; set; }
-        public IMediaDataConnector Song { get; set; }
-        public IMediaDataConnector Playlist { get; set; }
-        public IMediaDataConnector Genre { get; set; }
-
-        public Dictionary<string, IMediaDataConnector> GetDataConnectors() => new()
+        public IDbItemConnector Album { get; set; }
+        public IDbItemConnector Artist { get; set; }
+        public IDbItemConnector Song { get; set; }
+        public IDbItemConnector Playlist { get; set; }
+        public IDbItemConnector Genre { get; set; }
+        // TODO: Storing Radio Stations in Db
+        // First we need to implement the API functions 
+        public Dictionary<string, IDbItemConnector> GetDataConnectors() => new()
         {
             { "Album", Album },
             { "Artist", Artist },
@@ -44,22 +30,9 @@ namespace Portajel.Connections.Services.Database
             { "Genre", Genre }
         };
 
-        public Dictionary<MediaTypes, bool> SupportedReturnTypes { get; set; } =
-            new()
-            {
-                { MediaTypes.Album, true },
-                { MediaTypes.Artist, true },
-                { MediaTypes.Song, true },
-                { MediaTypes.Playlist, true },
-                { MediaTypes.Genre, false },
-            };
-
-        public Dictionary<string, ConnectorProperty> Properties { get; set; } = new();
-        public SyncStatusInfo SyncStatus { get; set; } = new();
-
-        public DatabaseConnector()
+        public DatabaseConnector(string appDataDirectory)
         {
-            Trace.WriteLine($"Database created at {MainDir}");
+            _database = new SQLiteAsyncConnection(appDataDirectory, DbFlags);
 
             _database.CreateTableAsync<AlbumData>().Wait();
             _database.CreateTableAsync<SongData>().Wait();
@@ -73,28 +46,12 @@ namespace Portajel.Connections.Services.Database
             Genre = new DatabaseGenreConnector(_database);
         }
 
-        public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(AuthenticationResponse.Unneccesary());
-        }
-
-        public Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<BaseMusicItem[]> SearchAsync(string searchTerm = "", int? limit = null, int startIndex = 0,
-            ItemSortBy setSortTypes = ItemSortBy.Name, SortOrder setSortOrder = SortOrder.Ascending,
+        public async Task<BaseMusicItem[]> SearchAsync(
+            string searchTerm = "", 
+            int? limit = null, 
+            int startIndex = 0,
+            ItemSortBy setSortTypes = ItemSortBy.Name, 
+            SortOrder setSortOrder = SortOrder.Ascending,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
@@ -145,7 +102,7 @@ namespace Portajel.Connections.Services.Database
                         // var matchingItems = (await _database.Table<GenreData>().ToListAsync().ConfigureAwait(false))
                         //     .Where(item => FormatString(item.Name).Contains(searchTerm))
                         //     .ToList();
-                        // resultList.AddRange(matchingItems.Select(item => new Genre(item)));
+                        // resultList.InsertRange(matchingItems.Select(item => new Genre(item)));
                         break;
                 }
             }
@@ -193,43 +150,6 @@ namespace Portajel.Connections.Services.Database
             return sortedResult.ToArray();
         }
 
-
-        public string GetUsername()
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetPassword()
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetAddress()
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetProfileImageUrl()
-        {
-            throw new NotImplementedException();
-        }
-
-        public UserCredentials GetUserCredentials()
-        {
-            return new UserCredentials(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
-                string.Empty);
-        }
-
-        public MediaServerConnection GetConnectionType()
-        {
-            return MediaServerConnection.Database;
-        }
-
-        public SQLiteAsyncConnection GetDatabaseConnection()
-        {
-            return _database;
-        }
-        
         private string FormatString(string toFormat)
         {
             if (string.IsNullOrEmpty(toFormat))

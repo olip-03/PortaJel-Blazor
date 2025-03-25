@@ -8,26 +8,23 @@ using SQLite;
 namespace Portajel.Connections.Services.Database;
 
 // ReSharper disable once CoVariantArrayConversion
-public class DatabaseAlbumConnector : IMediaDataConnector
+public class DatabaseAlbumConnector : IDbItemConnector
 {
-    private readonly SQLiteAsyncConnection _database = null;
-
+    private readonly SQLiteAsyncConnection _database;
     public DatabaseAlbumConnector(SQLiteAsyncConnection database)
     {
         _database = database;
     }
 
-    public SyncStatusInfo SyncStatusInfo { get; set; }
-
-    public void SetSyncStatusInfo(TaskStatus status, int percentage)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
-        Guid?[] includeIds = null,
-        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem[]> GetAllAsync(
+        int? limit = null, 
+        int startIndex = 0,
+        bool? getFavourite = null, 
+        ItemSortBy setSortTypes = ItemSortBy.Album, 
+        SortOrder setSortOrder = SortOrder.Ascending, 
+        Guid?[]? includeIds = null, 
+        Guid?[]? excludeIds = null, 
+        CancellationToken cancellationToken = default)
     {
         List<AlbumData> filteredCache = [];
         limit ??= await _database.Table<AlbumData>().CountAsync();
@@ -66,11 +63,11 @@ public class DatabaseAlbumConnector : IMediaDataConnector
                     .Take((int)limit).ToListAsync().ConfigureAwait(false));
                 break;
         }
-
         return filteredCache.Select(dbItem => new Album(dbItem)).ToArray();
     }
 
-    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
+    public async Task<BaseMusicItem> GetAsync(
+        Guid id, 
         CancellationToken cancellationToken = default)
     {
         // Filter the cache based on the provided parameters
@@ -96,18 +93,8 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         return new Album(albumFromDb, songFromDb, artistsFromDb);
     }
 
-    public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
-        CancellationToken cancellationToken = default)
-    {
-        AlbumData albumFromDb = await _database.Table<AlbumData>().Where(album => album.Id == id).FirstOrDefaultAsync()
-            .ConfigureAwait(false);
-        if (albumFromDb == null) return [];
-        var artistsFromDb = await _database.Table<AlbumData>()
-            .Where(album => albumFromDb.GetSimilarIds().Contains(album.Id)).ToArrayAsync();
-        return artistsFromDb.Select(a => new Album(a)).ToArray<BaseMusicItem>();
-    }
-
-    public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
+    public async Task<int> GetTotalCountAsync(
+        bool? getFavourite = null, 
         CancellationToken cancellationToken = default)
     {
         // Return the total count after removing duplicates
@@ -118,7 +105,8 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         return await query.CountAsync();
     }
 
-    public async Task<bool> DeleteAsync(Guid id, string serverUrl = "",
+    public async Task<bool> DeleteAsync(
+        Guid id, 
         CancellationToken cancellationToken = default)
     {
         try
@@ -137,7 +125,9 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteRangeAsync(
+        Guid[] ids, 
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -162,7 +152,20 @@ public class DatabaseAlbumConnector : IMediaDataConnector
         }
     }
 
-    public async Task<bool> AddRange(BaseMusicItem[] albums, CancellationToken cancellationToken = default)
+    public async Task<bool> InsertAsync(
+        BaseMusicItem album,
+        CancellationToken cancellationToken = default)
+    {
+        if (album is Album a && a.GetBase != null)
+        {
+            await _database.InsertOrReplaceAsync(a.GetBase, a.GetBase.GetType());
+        }
+        return true;
+    }
+
+    public async Task<bool> InsertRangeAsync(
+        BaseMusicItem[] albums, 
+        CancellationToken cancellationToken = default)
     {
         foreach (var baseMusicItem in albums)
         {

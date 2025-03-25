@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using Jellyfin.Sdk.Generated.Models;
-//using Portajel.Connections.Data;
+using Portajel.Connections.Data;
+using Portajel.Connections.Services;
 using Portajel.Connections.Interfaces;
- 
 
 namespace Portajel.Connections;
 
@@ -12,17 +12,27 @@ namespace Portajel.Connections;
 /// </summary>
 public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaDataConnector
 {
-    public SyncStatusInfo SyncStatusInfo { get; set; }
+    public SyncStatusInfo SyncStatusInfo { get; set; } = new()
+    {
+        TaskStatus = TaskStatus.RanToCompletion,
+        StatusPercentage = 100
+    };
 
     public void SetSyncStatusInfo(TaskStatus status, int percentage)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending,
-        Guid?[] includeIds = null,
-        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem[]> GetAllAsync(
+        int? limit = null, 
+        int startIndex = 0, 
+        bool? getFavourite = null,
+        ItemSortBy setSortTypes = ItemSortBy.Album, 
+        SortOrder setSortOrder = SortOrder.Ascending,
+        Guid?[]? includeIds = null,
+        Guid?[]? excludeIds = null, 
+        string serverUrl = "", 
+        CancellationToken cancellationToken = default)
     {
         var albums = new ConcurrentBag<Album>();
         int failed = 0;

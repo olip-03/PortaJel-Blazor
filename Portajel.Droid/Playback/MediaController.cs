@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Portajel.Droid.Playback
 {
-    public class MediaInterface : IMediaController
+    public class MediaController : IMediaController
     {
         public IPlaybackController Playback => _playbackController;
         public IQueueController Queue => _queueController;

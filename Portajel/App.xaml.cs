@@ -1,8 +1,10 @@
-﻿namespace Portajel
+﻿using Portajel.Connections.Interfaces;
+
+namespace Portajel
 {
     public partial class App : Application
     {
-        public App()
+        public App(IMediaServerConnector serverConnector, IDbConnector dbConnector)
         {
             InitializeComponent();
         }

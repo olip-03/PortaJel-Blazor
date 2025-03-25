@@ -5,29 +5,25 @@ using Portajel.Connections.Database;
 using Portajel.Connections.Interfaces;
 using SQLite;
 
-
 namespace Portajel.Connections.Services.Database;
 
 // ReSharper disable once CoVariantArrayConversion
-public class DatabaseArtistConnector : IMediaDataConnector
+public class DatabaseArtistConnector : IDbItemConnector
 {
-    private readonly SQLiteAsyncConnection _database = null;
-    
+    private readonly SQLiteAsyncConnection _database;
     public DatabaseArtistConnector(SQLiteAsyncConnection database)
     {
         _database = database;
     }
-
-    public SyncStatusInfo SyncStatusInfo { get; set; }
-
-    public void SetSyncStatusInfo(TaskStatus status, int percentage)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Descending, Guid?[] includeIds = null,
-        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem[]> GetAllAsync(
+            int? limit = null,
+            int startIndex = 0,
+            bool? getFavourite = null,
+            ItemSortBy setSortTypes = ItemSortBy.Album,
+            SortOrder setSortOrder = SortOrder.Ascending,
+            Guid?[]? includeIds = null,
+            Guid?[]? excludeIds = null,
+            CancellationToken cancellationToken = default)
     {
         List<ArtistData> filteredCache = [];
         limit ??= await _database.Table<ArtistData>().CountAsync();
@@ -60,7 +56,9 @@ public class DatabaseArtistConnector : IMediaDataConnector
         return filteredCache.Select(dbItem => new Artist(dbItem)).ToArray();
     }
     
-    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl, CancellationToken cancellationToken)
+    public async Task<BaseMusicItem> GetAsync(
+            Guid id,
+            CancellationToken cancellationToken = default)
     {
         ArtistData artistDbItem =
             await _database.Table<ArtistData>().Where(artist => artist.Id == id).FirstOrDefaultAsync();
@@ -69,19 +67,9 @@ public class DatabaseArtistConnector : IMediaDataConnector
         return new Artist(artistDbItem, albumData);
     }
     
-    public async Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "",
-        CancellationToken cancellationToken = default)
-    {
-        ArtistData artistFromDb = await _database.Table<ArtistData>().Where(artist => artist.Id == id).FirstOrDefaultAsync()
-            .ConfigureAwait(false);
-        if (artistFromDb == null) return [];
-        var artistsFromDb = await _database.Table<ArtistData>().Where(artist => artistFromDb.GetSimilarIds()
-            .Contains(artist.Id)).ToArrayAsync();
-        return artistsFromDb.Select(a => new Artist(a)).ToArray(); 
-    }
-    
-    public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public async Task<int> GetTotalCountAsync(
+            bool? getFavourite = null,
+            CancellationToken cancellationToken = default)
     {
         var query = _database.Table<ArtistData>();
         if (getFavourite == true)
@@ -90,7 +78,9 @@ public class DatabaseArtistConnector : IMediaDataConnector
         return await query.CountAsync();
     }
 
-    public async Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(
+            Guid id,
+            CancellationToken cancellationToken = default)
     {
         try
         {
@@ -110,7 +100,9 @@ public class DatabaseArtistConnector : IMediaDataConnector
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteRangeAsync(
+            Guid[] ids,
+            CancellationToken cancellationToken = default)
     {
         try
         {
@@ -135,9 +127,19 @@ public class DatabaseArtistConnector : IMediaDataConnector
         }
     }
 
-    public async Task<bool> AddRange(BaseMusicItem[] artists, CancellationToken cancellationToken = default)
+    public async Task<bool> InsertAsync(
+            BaseMusicItem musicItem,
+            CancellationToken cancellationToken = default)
     {
-        foreach (var a in artists)
+        await _database.InsertOrReplaceAsync(musicItem, musicItem.GetType());
+        return true;
+    }
+
+    public async Task<bool> InsertRangeAsync(
+            BaseMusicItem[] musicItems,
+            CancellationToken cancellationToken = default)
+    {
+        foreach (var a in musicItems)
         {
             if (a is not Artist artist) continue;
             await _database.InsertOrReplaceAsync(artist.GetBase, artist.GetBase.GetType());

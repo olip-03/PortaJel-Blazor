@@ -7,7 +7,7 @@ using SQLite;
 
 namespace Portajel.Connections.Services.Database;
 
-public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInterface
+public class DatabasePlaylistConnector : IDbItemConnector, IMediaPlaylistInterface
 {
     private readonly SQLiteAsyncConnection _database = null;
 
@@ -16,16 +16,15 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         _database = database;
     }
 
-    public SyncStatusInfo SyncStatusInfo { get; set; }
-
-    public void SetSyncStatusInfo(TaskStatus status, int percentage)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<BaseMusicItem[]> GetAllAsync(int? limit = null, int startIndex = 0, bool? getFavourite = null,
-        ItemSortBy setSortTypes = ItemSortBy.Album, SortOrder setSortOrder = SortOrder.Ascending, Guid?[] includeIds = null,
-        Guid?[] excludeIds = null, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem[]> GetAllAsync(
+            int? limit = null,
+            int startIndex = 0,
+            bool? getFavourite = null,
+            ItemSortBy setSortTypes = ItemSortBy.Album,
+            SortOrder setSortOrder = SortOrder.Ascending,
+            Guid?[]? includeIds = null,
+            Guid?[]? excludeIds = null,
+            CancellationToken cancellationToken = default)
     {
         limit ??= 50;
         List<PlaylistData> filteredCache = [];
@@ -35,8 +34,9 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         return filteredCache.Select(dbItem => new Playlist(dbItem)).ToArray();
     }
 
-    public async Task<BaseMusicItem> GetAsync(Guid id, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public async Task<BaseMusicItem> GetAsync(
+            Guid id,
+            CancellationToken cancellationToken = default)
     {
         PlaylistData playlistDbItem =
             await _database.Table<PlaylistData>().Where(p => p.Id == id).FirstOrDefaultAsync();
@@ -44,13 +44,9 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         return new Playlist(playlistDbItem, songData);
     }
 
-    public Task<BaseMusicItem[]> GetSimilarAsync(Guid id, int setLimit, string serverUrl = "", CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<int> GetTotalCountAsync(bool? getFavourite = null, string serverUrl = "",
-        CancellationToken cancellationToken = default)
+    public async Task<int> GetTotalCountAsync(
+            bool? getFavourite = null,
+            CancellationToken cancellationToken = default)
     {
         var query = _database.Table<PlaylistData>();
         if (getFavourite == true)
@@ -70,7 +66,9 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         throw new NotImplementedException();
     }
 
-    public async Task<bool> DeleteAsync(Guid id, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(
+            Guid id,
+            CancellationToken cancellationToken = default)
     {
         try
         {
@@ -90,7 +88,9 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid[] ids, string serverUrl = "", CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteRangeAsync(
+            Guid[] ids,
+            CancellationToken cancellationToken = default)
     {
         try
         {
@@ -115,7 +115,18 @@ public class DatabasePlaylistConnector : IMediaDataConnector, IMediaPlaylistInte
         }
     }
 
-    public async Task<bool> AddRange(BaseMusicItem[] musicItems, CancellationToken cancellationToken = default)
+    public async Task<bool> InsertAsync(
+            BaseMusicItem musicItem,
+            CancellationToken cancellationToken = default)
+    {
+        if (musicItem is not Playlist playlist) return false;
+        await _database.InsertOrReplaceAsync(playlist.GetBase, playlist.GetBase.GetType());
+        return true;
+    }
+
+    public async Task<bool> InsertRangeAsync(
+            BaseMusicItem[] musicItems,
+            CancellationToken cancellationToken = default)
     {
         foreach (var p in musicItems)
         {

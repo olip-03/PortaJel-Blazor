@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Portajel.Structures.ViewModels.Settings.Debug"
+             xmlns:radiomodels="clr-namespace:Portajel.Connections.Data.Radio.Search;assembly=Portajel.Connections"
+             x:Class="Portajel.Pages.Settings.Debug.DebugRadio"
+             x:DataType="vm:DebugRadioViewModel"
+             Title="DebugRadio">
+    <ScrollView Orientation="Vertical">
+        <VerticalStackLayout Padding="10">
+            <Label>Search for countries, places, and radio stations</Label>
+            <SearchBar 
+        Margin="0, 10"
+        SearchButtonPressed="SearchBar_SearchButtonPressed"/>
+            <CollectionView 
+        ItemsSource="{Binding SearchResults}" 
+        SelectionMode="Single">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="radiomodels:RadioSearchHit">
+                        <Grid Padding="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label 
+                        Grid.Column="1"
+                        Text="{Binding Source.Title}"
+                        FontAttributes="Bold" />
+                            <Label 
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Text="{Binding Source.Subtitle}"
+                        VerticalOptions="End" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

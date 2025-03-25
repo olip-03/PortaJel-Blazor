@@ -26,7 +26,9 @@ namespace Portajel.Connections.Services.Spotify
         {
             { MediaTypes.Playlist, true }
         };
-
+        public string Name { get; } = "Spotify";
+        public string Description { get; } = "Enables connections to Spotify.";
+        public string Image { get; } = "icon_spotify.png"; 
         public Dictionary<string, ConnectorProperty> Properties { get; set; } =new Dictionary<string, ConnectorProperty>
         {
             {
@@ -34,19 +36,21 @@ namespace Portajel.Connections.Services.Spotify
                     label: "Username",
                     description: "The username of the Spotify User",
                     value: "",
-                    protectValue: false)
+                    protectValue: false,
+                    userVisible: true)
             },
             {
                 "Password", new ConnectorProperty(
                     label: "Password",
                     description: "The Password of the Spotify User",
                     value: "",
-                    protectValue: false)
+                    protectValue: false,
+                    userVisible: true)
             }
         };
 
         public SyncStatusInfo SyncStatus { get; set; } = new();
-        public Task<AuthenticationResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
+        public Task<AuthResponse> AuthenticateAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
