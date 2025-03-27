@@ -11,6 +11,21 @@ namespace Portajel.Structures.ViewModels.Settings
 {
     public class ConnectionsPageViewModel
     {
-        public ObservableCollection<IMediaServerConnector> Connectors { get; set; } = [];
+        public ObservableCollection<ServerBindingContext> Connectors { get; set; } = [];
+    }
+
+    public class ServerBindingContext
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public string NavigationUrl { get; set; } = "";
+        public ObservableCollection<SyncStatusInfoCollection> Syncs { get; set; } = new();
+    }
+
+    public class SyncStatusInfoCollection
+    {
+        public string Name { get; set; } = "";
+        public SyncStatusInfo Status { get; set; } = new();
     }
 }

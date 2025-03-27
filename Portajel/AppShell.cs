@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Controls;
 using Portajel.Pages.Settings;
+using Portajel.Pages.Settings.Connections;
 using Portajel.Pages.Settings.Debug;
 using Portajel.Services;
 using PortaJel_Blazor.Classes;
@@ -16,10 +17,12 @@ namespace Portajel
 
             Routing.RegisterRoute("settings", typeof(SettingsPage));
             Routing.RegisterRoute("settings/connections", typeof(ConnectionsPage));
+            Routing.RegisterRoute("settings/connections/view", typeof(ViewConnectionPage));
             Routing.RegisterRoute("settings/debug", typeof(DebugPage));
             Routing.RegisterRoute("settings/debug/radio", typeof(DebugRadio));
             Routing.RegisterRoute("settings/debug/map", typeof(DebugMap));
-
+            Routing.RegisterRoute("settings/debug/database", typeof(DebugDatabase));
+            
             if (DeviceInfo.Platform == DevicePlatform.WinUI)
             {
                 FlyoutBehavior = FlyoutBehavior.Locked;

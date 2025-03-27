@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Portajel.Pages.Settings.Connections.ViewConnectionPage"
+             xmlns:local="clr-namespace:Portajel.Connections.Services;assembly=Portajel.Connections"
+             xmlns:vm="clr-namespace:Portajel.Structures.ViewModels.Settings.Connections"
+             x:DataType="vm:ViewConnectionViewModel"
+             Title="ViewConnectionPage">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Save"
+                     Clicked="ToolbarItem_Clicked"
+                     IconImageSource="save.png" />
+    </ContentPage.ToolbarItems>
+    <VerticalStackLayout Margin="10">
+        <CollectionView 
+            IsEnabled="True"
+            x:Name="ViewCollections" 
+            ItemsSource="{Binding ConnectionItems}" >
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="local:ConnectorProperty" >
+                    <VerticalStackLayout>
+                        <Label Margin="0, 0, 10, 5" AutomationId="Login" Text="{Binding Label}" />
+                        <Entry Margin="0, 0, 0, 10" AutomationId="Password" Text="{Binding Value}" Placeholder="{Binding Description}" IsPassword="{Binding ProtectValue}" TextChanged="Entry_TextChanged"/>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <Button Text="Delete Connection" Clicked="Button_Clicked"></Button>
+    </VerticalStackLayout>
+</ContentPage>

@@ -9,6 +9,7 @@ namespace Portajel.Connections.Services.Jellyfin;
 public class JellyfinServerGenreConnector(JellyfinApiClient api, JellyfinSdkSettings clientSettings, UserDto user) : IMediaDataConnector
 {
     public SyncStatusInfo SyncStatusInfo { get; set; } = new();
+    public MediaTypes MediaType => MediaTypes.Genre;
 
     public void SetSyncStatusInfo(TaskStatus status, int percentage)
     {

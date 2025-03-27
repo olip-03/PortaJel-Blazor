@@ -1,5 +1,6 @@
 using Jellyfin.Sdk.Generated.Models;
 using Portajel.Connections.Data;
+using Portajel.Connections.Enum;
 using Portajel.Connections.Interfaces;
 using Portajel.Connections.Services;
 
@@ -7,6 +8,7 @@ namespace Portajel.Connections;
 
 public class ServerPlaylistConnector(List<IMediaServerConnector> servers) : IMediaDataConnector
 {
+    public MediaTypes MediaType { get; set; } = MediaTypes.Playlist;
     public SyncStatusInfo SyncStatusInfo { get; set; }
 
     public void SetSyncStatusInfo(TaskStatus status, int percentage)

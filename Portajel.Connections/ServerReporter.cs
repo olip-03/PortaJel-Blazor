@@ -147,8 +147,8 @@ namespace Portajel.Connections
     //                {
     //                    try
     //                    {
-    //                        var song = await _database.Table<SongData>().Where(a => a.Id == itemId).FirstOrDefaultAsync();
-    //                        var album = await _database.Table<AlbumData>().Where(a => a.Id == song.AlbumId).FirstOrDefaultAsync();
+    //                        var song = await _database.Table<SongData>().Where(a => a.ServerId == itemId).FirstOrDefaultAsync();
+    //                        var album = await _database.Table<AlbumData>().Where(a => a.ServerId == song.AlbumId).FirstOrDefaultAsync();
 
     //                        song.DatePlayed = DateTimeOffset.Now;
     //                        album.DatePlayed = DateTimeOffset.Now;

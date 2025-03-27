@@ -15,7 +15,6 @@ public partial class ModalAddServer : ContentPage
     private IMediaServerConnector _server;
     private ObservableCollection<ConnectorProperty> ConnectionItems { get; set; } = new();
     public Action<IMediaServerConnector> OnLoginSuccess { get; set; }
-
     public ModalAddServer(IMediaServerConnector primaryConnector, IMediaServerConnector server)
     {
         _serverConnector  = (ServerConnector)primaryConnector;

@@ -5,7 +5,7 @@ namespace Portajel.Connections.Data
     public class Genre : BaseMusicItem
     {
         public GenreData GetBase => _genreData;
-        // public new Guid LocalId => _genreData.LocalId;
+        // public new Guid Id => _genreData.Id;
         public new Guid Id => _genreData.Id;
         public string ServerAddress => _genreData.ServerAddress;
         public new string Name => _genreData.Name;

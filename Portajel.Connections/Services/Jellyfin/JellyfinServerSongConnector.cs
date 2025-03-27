@@ -11,7 +11,7 @@ namespace Portajel.Connections.Services.Jellyfin
         : IMediaDataConnector
     {
         public SyncStatusInfo SyncStatusInfo { get; set; } = new();
-
+        public MediaTypes MediaType => MediaTypes.Song;
         public void SetSyncStatusInfo(TaskStatus status, int percentage)
         {
             SyncStatusInfo.TaskStatus = status;
@@ -68,7 +68,7 @@ namespace Portajel.Connections.Services.Jellyfin
             await Task.Delay(10, cancellationToken).ConfigureAwait(false);
             // BaseItemDtoQueryResult result = await api.Songs[id].Similar.GetAsync(c =>
             // {
-            //     c.QueryParameters.UserId = user.Id;
+            //     c.QueryParameters.UserId = user.ServerId;
             //     c.QueryParameters.Limit = 10; // Example limit, adjust as necessary
             // }, cancellationToken).ConfigureAwait(false);
             //

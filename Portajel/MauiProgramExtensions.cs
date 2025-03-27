@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Maui;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Portajel.Connections;
 using Portajel.Connections.Interfaces;
 using Portajel.Connections.Services.Database;
@@ -8,6 +7,8 @@ using Portajel.Structures.Functional;
 using Portajel.Structures.Interfaces;
 using Portajel.Structures.ViewModels.Settings;
 using SkiaSharp.Views.Maui.Controls.Hosting;
+using CommunityToolkit.Maui;
+using Portajel.Pages.Settings.Debug;
 
 namespace Portajel
 {
@@ -15,7 +16,7 @@ namespace Portajel
     {
         public static MauiAppBuilder UseSharedMauiApp(this MauiAppBuilder builder)
         {
-            // Todo: Update minimum version requirements so this messaage goes away
+            // Todo: UpdateDb minimum version requirements so this messaage goes away
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
@@ -50,8 +51,7 @@ namespace Portajel
         public static MauiAppBuilder RegisterViews(this MauiAppBuilder mauiAppBuilder)
         {
             mauiAppBuilder.Services.AddSingleton<ConnectionsPage>();
-            // More views registered here.
-
+            mauiAppBuilder.Services.AddSingleton<DebugDatabase>();
             return mauiAppBuilder;
         }
     }

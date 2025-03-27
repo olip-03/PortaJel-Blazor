@@ -4,6 +4,7 @@ using Jellyfin.Sdk.Generated.Models;
 using Portajel.Connections.Data;
 using Portajel.Connections.Services;
 using Portajel.Connections.Interfaces;
+using Portajel.Connections.Enum;
 
 namespace Portajel.Connections;
 
@@ -12,6 +13,7 @@ namespace Portajel.Connections;
 /// </summary>
 public class ServerAlbumConnector(List<IMediaServerConnector> servers) : IMediaDataConnector
 {
+    public MediaTypes MediaType { get; set; } = MediaTypes.Album;
     public SyncStatusInfo SyncStatusInfo { get; set; } = new()
     {
         TaskStatus = TaskStatus.RanToCompletion,

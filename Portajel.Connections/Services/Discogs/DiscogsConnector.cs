@@ -33,12 +33,12 @@ public class DiscogsConnector : IMediaServerConnector
         throw new NotImplementedException();
     }
 
-    public Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
+    public Task<bool> UpdateDb(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
+    public Task<bool> StartSyncAsync(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

@@ -3,11 +3,14 @@ using Portajel.Connections.Data;
 using Portajel.Connections;
 using Portajel.Connections.Interfaces;
 using Portajel.Connections.Services;
+using Portajel.Connections.Enum;
 
 namespace Portajel.Connections;
 
 public class ServerSongConnector : IMediaDataConnector
 {
+    public MediaTypes MediaType { get; set; } = MediaTypes.Song;
+
     public ServerSongConnector(List<IMediaServerConnector> servers)
     {
         

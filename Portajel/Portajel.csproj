@@ -22,9 +22,9 @@
 
 	<ItemGroup>
 		<!--  -->
+		<PackageReference Include="CommunityToolkit.Maui" Version="11.1.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.50" />
 		<PackageReference Include="Mapsui.Maui" Version="4.1.8" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="11.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.3" />
 		<PackageReference Include="SkiaSharp" Version="3.116.1" />
 	</ItemGroup>
@@ -37,11 +37,11 @@
 	  <Compile Update="Pages\Settings\DebugPage.xaml.cs">
 	    <DependentUpon>DebugPage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Pages\Settings\Debug\DebugDatabase.xaml.cs">
+	    <DependentUpon>DebugDatabase.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Pages\Settings\Debug\DebugRadio.xaml.cs">
 	    <DependentUpon>DebugRadio.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Settings\ConnectionsPage.xaml.cs">
-	    <DependentUpon>ConnectionsPage.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\Settings\Debug\DebugMap.xaml.cs">
 	    <DependentUpon>DebugMap.xaml</DependentUpon>
@@ -76,16 +76,13 @@
 	  <MauiXaml Update="Pages\SearchPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Pages\Settings\Connections\ViewConnectionPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\Settings\DebugPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Settings\Debug\DebugRadio.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Settings\ConnectionsPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Settings\ConnectionsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Views\AlbumPage.xaml">
@@ -131,6 +128,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </None>
 	  <None Update="Pages\Settings\ConnectionsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Pages\Settings\Debug\DebugConnections.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </None>
 	</ItemGroup>

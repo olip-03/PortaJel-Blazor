@@ -12,6 +12,8 @@ public class JellyfinServerPlaylistConnector(JellyfinApiClient api, JellyfinSdkS
 {
     public SyncStatusInfo SyncStatusInfo { get; set; } = new();
 
+    public MediaTypes MediaType => MediaTypes.Playlist;
+
     public void SetSyncStatusInfo(TaskStatus status, int percentage)
     {
         SyncStatusInfo.TaskStatus = status;

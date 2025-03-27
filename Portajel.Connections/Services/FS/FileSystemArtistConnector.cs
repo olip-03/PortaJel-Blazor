@@ -1,5 +1,6 @@
 using Jellyfin.Sdk.Generated.Models;
 using Portajel.Connections.Data;
+using Portajel.Connections.Enum;
 using Portajel.Connections.Interfaces;
 using SQLite;
 
@@ -8,7 +9,8 @@ namespace Portajel.Connections.Services.FS
     public class FileSystemArtistConnector : IMediaDataConnector
     {
         private SQLiteAsyncConnection _database = null;
-    
+        public MediaTypes MediaType => MediaTypes.Artist;
+
         public FileSystemArtistConnector(SQLiteAsyncConnection database)
         {
             _database = database;

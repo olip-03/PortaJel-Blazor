@@ -9,6 +9,7 @@ namespace Portajel.Connections.Services.FS;
 public class FileSystemPlaylistConnector : IMediaDataConnector, IMediaPlaylistInterface
 {
     private SQLiteAsyncConnection _database = null;
+    public MediaTypes MediaType => MediaTypes.Playlist;
     public FileSystemPlaylistConnector(SQLiteAsyncConnection database)
     {
         _database = database;

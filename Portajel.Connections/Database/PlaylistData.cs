@@ -29,7 +29,7 @@ namespace Portajel.Connections.Database
         {
             if (baseItem.Id == null)
             {
-                throw new ArgumentException("Cannot create Playlist without Id! Please fix server call flags!");
+                throw new ArgumentException("Cannot create Playlist without ServerId! Please fix server call flags!");
             }
             if (baseItem.Name == null)
             {

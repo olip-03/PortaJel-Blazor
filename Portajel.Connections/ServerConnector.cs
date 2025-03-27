@@ -35,6 +35,7 @@ public class ServerConnector : IMediaServerConnector
             { MediaTypes.Playlist, true },
             { MediaTypes.Genre, false }
         };
+
     public string Name { get; } = "Server Connector";
     public string Description { get; } = "Base Server Connector. Contains the rest of them.";
     public string Image { get; } = "hub.png";
@@ -91,98 +92,52 @@ public class ServerConnector : IMediaServerConnector
         
         return AuthResponse.Ok();
     }
-    public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
+
+    public Task<bool> UpdateDb(CancellationToken cancellationToken = default)
     {
-        int isUpToDate = 0;
-        int failed = 0;
-        var tasks = _servers.Select(server => Task.Run(() =>
-            {
-                try
-                {
-                    // Get album data 
-                    var status = server.IsUpToDateAsync(cancellationToken);
-                    status.Wait(cancellationToken);
-                    if (status.Result)
-                    {
-                        Interlocked.CompareExchange(ref isUpToDate, 1, 0);
-                    }
-                    else
-                    {
-                        Interlocked.CompareExchange(ref isUpToDate, 0, 1);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(ex.Message);
-                    Interlocked.Increment(ref failed);
-                    throw;
-                }
-            }, cancellationToken))
-            .ToList();
-        
-        Task t = Task.WhenAll(tasks);
-        try
-        {
-            await t;
-        }
-        catch 
-        { 
-            // ignored
-        }
-        
-        switch (t.Status)
-        {
-            case TaskStatus.RanToCompletion:
-                Trace.WriteLine($"All connections successfully authenticated");
-                break;
-            case TaskStatus.Faulted:
-                Trace.WriteLine($"{failed} album request attempts failed!");
-                break;
-        }
-        
-        return isUpToDate == 1 ? true : false;
+        throw new NotImplementedException("Cant update the main server hub. Please call StartSyncAsync.");
     }
-    public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
+
+    public async Task<bool> StartSyncAsync(CancellationToken cancellationToken = default)
     {
         int failed = 0;
+        List<Task> syncJobs = new();
         var tasks = _servers.Select(server => Task.Run(() =>
+        {
+            try
             {
-                try
+                if (server.Properties.TryGetValue("LastSyncDate", out ConnectorProperty? value))
                 {
-                    // Get album data 
-                    var status = server.BeginSyncAsync(cancellationToken);
-                    status.Wait(cancellationToken);
+                    DateTime lastSyncDate = DateTime.Parse((string)value.Value);
+                    if ((DateTime.Now - lastSyncDate).TotalDays >= 90) // 3 months ~= 90 days
+                    {
+                        server.UpdateDb();
+                        return;
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Trace.TraceError(ex.Message);
-                    Interlocked.Increment(ref failed);
-                    throw;
-                }
-            }, cancellationToken))
+                syncJobs.Add(server.StartSyncAsync(cancellationToken));
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Interlocked.Increment(ref failed);
+                throw;
+            }
+        }, cancellationToken))
             .ToList();
         Task t = Task.WhenAll(tasks);
         try
         {
             await t;
         }
-        catch 
-        { 
-            // ignored
-        }
-        
-        switch (t.Status)
+        catch { }
+
+        foreach (Task sj in syncJobs)
         {
-            case TaskStatus.RanToCompletion:
-                Trace.WriteLine($"All connections successfully synced");
-                break;
-            case TaskStatus.Faulted:
-                char e = failed > 1 ? 's' : '\0';
-                Trace.TraceError($"{failed} album sync{e} failed!");
-                break;
+            await sj;
         }
-        
-        return failed > 0;
+
+        return true;
     }
     
     public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)

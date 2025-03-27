@@ -3,8 +3,8 @@
     public abstract class BaseMusicItem
     {
         public string ServerAddress { get; set; }
-        public Guid LocalId { get; set; }
         public Guid Id { get; set; }
+        public Guid ServerId { get; set; }
         public string ImgSource { get; set; }
         public string ImgBlurhash { get; set; }
         public string ImgBlurhashBase64 { get; set; }

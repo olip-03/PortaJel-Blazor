@@ -9,6 +9,7 @@ namespace Portajel.Connections.Services.FS;
 public class FileSystemGenreConnector : IMediaDataConnector
 {
     private SQLiteAsyncConnection _database = null;
+    public MediaTypes MediaType => MediaTypes.Genre;
 
     public FileSystemGenreConnector(SQLiteAsyncConnection database)
     {

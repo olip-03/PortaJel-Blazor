@@ -37,7 +37,7 @@ namespace Portajel.Connections.Database
         {
             if (baseItem.Id == null)
             {
-                throw new ArgumentException("Cannot create Artist without Artist Id! Please fix server call flags!");
+                throw new ArgumentException("Cannot create Artist without Artist ServerId! Please fix server call flags!");
             }
             if (baseItem.UserData == null)
             {

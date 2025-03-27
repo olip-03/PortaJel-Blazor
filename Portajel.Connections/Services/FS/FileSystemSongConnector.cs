@@ -10,6 +10,7 @@ public class FileSystemSongConnector : IMediaDataConnector
 {
     private SQLiteAsyncConnection _database = null;
     private IMediaDataConnector _mediaDataConnectorImplementation;
+    public MediaTypes MediaType => MediaTypes.Song;
 
     public FileSystemSongConnector(SQLiteAsyncConnection database)
     {

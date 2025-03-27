@@ -15,6 +15,7 @@ namespace Portajel.Connections.Services.Spotify
         private IMediaDataConnector _mediaDataConnectorImplementation;
 
         public SyncStatusInfo SyncStatusInfo { get; set; }
+        public MediaTypes MediaType { get; set; } = MediaTypes.Playlist;
 
         public void SetSyncStatusInfo(TaskStatus status, int percentage)
         {

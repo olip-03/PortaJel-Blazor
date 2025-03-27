@@ -17,6 +17,8 @@ using Microsoft.Extensions.Http;
 using PortaJel_Blazor.Classes;
 using Portajel.Connections.Services.Database;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Xml.Linq;
 
 namespace Portajel.Connections.Services.Jellyfin
 {
@@ -88,7 +90,7 @@ namespace Portajel.Connections.Services.Jellyfin
                     {
                         "Username", new ConnectorProperty(
                             label: "Username",
-                            description: "Username for server at Url.",
+                            description: "Username for data at Url.",
                             value: username,
                             protectValue: false,
                             userVisible: true)
@@ -96,7 +98,7 @@ namespace Portajel.Connections.Services.Jellyfin
                     {
                         "Password", new ConnectorProperty(
                             label: "Password",
-                            description: "User password for server at Url.",
+                            description: "User password for data at Url.",
                             value: password,
                             protectValue: true,
                             userVisible: true)
@@ -125,7 +127,15 @@ namespace Portajel.Connections.Services.Jellyfin
                             value: deviceId,
                             protectValue: true,
                             userVisible: false)
-                    }
+                    },
+                    {
+                        "LastSync", new ConnectorProperty(
+                            label: "Last Sync",
+                            description: "The last time a full sync ran for this data.",
+                            value: url,
+                            protectValue: false,
+                            userVisible: false)
+                    },
                 };
         }
 
@@ -234,235 +244,185 @@ namespace Portajel.Connections.Services.Jellyfin
             return AuthResponse.Ok();
         }
 
-        public async Task<bool> IsUpToDateAsync(CancellationToken cancellationToken = default)
+        public async Task<bool> UpdateDb(CancellationToken cancellationToken = default)
         {
-            if (_database.Album is not DatabaseAlbumConnector albumDb) return false;
-            if (_database.Artist is not DatabaseArtistConnector artistDb) return false;
-            if (_database.Song is not DatabaseSongConnector songDb) return false;
-            if (_database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
-            
-            int albumDbT = await albumDb.GetTotalCountAsync(cancellationToken: cancellationToken);
-            int albumT = await Album.GetTotalCountAsync(cancellationToken: cancellationToken);
+            await UpdateSyncStatus(cancellationToken);
+            var tasks = GetDataConnectors().Values.Select(data => Task.Run(async () =>
+            {
+                int retrieve = 50;
+                int checkCount = 3;
+                var dbItems = await GetDb(data).Value.GetAllAsync(
+                    limit: retrieve * checkCount, 
+                    setSortTypes: ItemSortBy.DateCreated);
+                var dbIds = dbItems.Select(item => item.Id).ToArray();
 
-            int artistDbT = await artistDb.GetTotalCountAsync(cancellationToken: cancellationToken);
-            int artistT = await Artist.GetTotalCountAsync(cancellationToken: cancellationToken);
+                data.SyncStatusInfo.TaskStatus = TaskStatus.Running;
+                while (data.SyncStatusInfo.TaskStatus is TaskStatus.Running)
+                {
+                    var items = await data.GetAllAsync(
+                            limit: retrieve,
+                            startIndex: data.SyncStatusInfo.ServerItemCount,
+                            setSortOrder: SortOrder.Descending,
+                            setSortTypes: ItemSortBy.DateCreated,
+                            cancellationToken: cancellationToken
+                        );
 
-            int songDbT = await songDb.GetTotalCountAsync(cancellationToken: cancellationToken);
-            int songT = await Song.GetTotalCountAsync(cancellationToken: cancellationToken);
+                    foreach (var item in items)
+                    {
+                        if (dbIds.Contains(item.Id))
+                        {
+                            data.SetSyncStatusInfo(DbFoundTotal: data.SyncStatusInfo.DbFoundTotal + 1);
+                        }
+                    }
 
-            int playlistDbT = await playlistDb.GetTotalCountAsync(cancellationToken: cancellationToken);
-            int playlistT = await Playlist.GetTotalCountAsync(cancellationToken: cancellationToken);
-
-            int passCount = 0;
-            if (albumDbT == albumT) passCount += 1;
-            if (artistDbT == artistT) passCount += 1;
-            if (songDbT == songT) passCount += 1;
-            if (playlistDbT == playlistT) passCount += 1;
-            
-            if (albumDbT != albumT) return false;
-            if (artistDbT != artistT) return false;
-            if (songDbT != songT) return false;
-            if (playlistDbT != playlistT) return false;
-
-            return true;
-        }
-        
-        // TODO: Check this logic, I Know there were some pretty bih changes to be made with logic ...
-        public async Task<bool> BeginSyncAsync(CancellationToken cancellationToken = default)
-        {
+                    data.SetSyncStatusInfo(serverItemCount: items.Length);
+                    if (data.SyncStatusInfo.ServerItemCount < retrieve || 
+                        data.SyncStatusInfo.DbFoundTotal > retrieve * checkCount)
+                    {
+                        data.SetSyncStatusInfo(status: TaskStatus.RanToCompletion);
+                    }
+                }
+            }, cancellationToken)).ToList();
+            Task t = Task.WhenAll(tasks);
             try
             {
-                if (_database.Album is not DatabaseAlbumConnector albumDb) return false;
-                if (_database.Artist is not DatabaseArtistConnector artistDb) return false;
-                if (_database.Song is not DatabaseSongConnector songDb) return false;
-                if (_database.Playlist is not DatabasePlaylistConnector playlistDb) return false;
-                if (_database.Genre is not DatabaseGenreConnector genreDb) return false;
-                // if (MauiProgram.Database.Genre is not DatabaseGenreConnector genreDb) return false;
-                var tasks = GetDataConnectors().Select(data => Task.Run(() =>
-                {
-                    IDbItemConnector dbConnector = null;
-                    int batchSize = 100;
-                    int currentFetch = 0;
-                    int currentItem = 0;
-                    
-                    switch (data.Key)
-                    {
-                        case "Album":
-                            batchSize = 100;
-                            dbConnector = albumDb;
-                            break;
-                        case "Artist":
-                            batchSize = 10;
-                            dbConnector = artistDb;
-                            break;
-                        case "Song":
-                            batchSize = 1000;
-                            dbConnector = songDb;
-                            break;
-                        case "Playlist":
-                            batchSize = 10;
-                            dbConnector = playlistDb;
-                            break;
-                        case "Genre":
-                            batchSize = 100;
-                            dbConnector = genreDb;
-                            break;
-                    }
-                    
-                    if (dbConnector == null) return;
-                    
-                    // Start the stopwatch
-                    var stopwatch = Stopwatch.StartNew();
-                    Trace.WriteLine($"Jellyfin {data.Key} Sync Started");
-                    try
-                    {
-                        data.Value.SetSyncStatusInfo(TaskStatus.Running, 0);
-                        var totalTask = data.Value.GetTotalCountAsync(cancellationToken: cancellationToken);
-                        totalTask.Wait(cancellationToken);
-                        var albums = albumDb.GetAllAsync(cancellationToken: cancellationToken).Result.ToList();
-                        List<BaseMusicItem> serverItems = [];
-                        
-                        int totalItem = totalTask.Result;
-                        while (true)
-                        {
-                            // Calculate and display progress
-                            int progress = (int)((double)currentFetch / totalItem * 100);
-                            data.Value.SetSyncStatusInfo(TaskStatus.Running, progress);
-
-                            var dbItemsTask = dbConnector.GetAllAsync(limit: batchSize, startIndex: currentItem,
-                                setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Descending,
-                                cancellationToken: cancellationToken);
-                            var srvItemsTask = data.Value.GetAllAsync(limit: batchSize, startIndex: currentItem,
-                                setSortTypes: ItemSortBy.DateCreated, setSortOrder: SortOrder.Descending,
-                                cancellationToken: cancellationToken);
-                            dbItemsTask.Wait(cancellationToken);
-                            srvItemsTask.Wait(cancellationToken);
-
-                            int breakout = 0;
-                            for (int i = 0; i < srvItemsTask.Result.Length; i++)
-                            {
-                                if(dbItemsTask.Result.Any(dbItem => dbItem.Id == srvItemsTask.Result[i].Id))
-                                {
-                                    breakout++;
-                                    continue;
-                                }
-                            }
-                            if(breakout > 10)
-                            {
-                                Trace.WriteLine("Too many items already in database. Cancelling sync.");
-                                break;
-                            }
-                            
-                            currentFetch += srvItemsTask.Result.Length;
-                            currentItem += batchSize;
-
-                            try
-                            {
-                                dbConnector.InsertRangeAsync(srvItemsTask.Result, cancellationToken).Wait(cancellationToken);
-                                serverItems.AddRange(srvItemsTask.Result);
-                            
-                                if (srvItemsTask.Result.Length < batchSize - 1)
-                                {
-                                    Trace.WriteLine("Database stopped recieving items. Cancelling sync.");
-                                    break; 
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Trace.WriteLine(e);
-                            }
-                        }
-                        
-                        // Find albums that are not in newAlbums (srvItemsTask.Result)
-                        var albumsToDelete = albums
-                            .Where(existingAlbum => serverItems.All(newAlbum => newAlbum.Id != existingAlbum.Id))
-                            .ToList();
-                        // Delete the albums not present in newAlbums
-                        foreach (var album in albumsToDelete)
-                        {
-                            if (album is Album a)
-                            {
-                                albumDb.DeleteAsync(a.Id, cancellationToken: cancellationToken)
-                                    .Wait(cancellationToken);
-                            }
-                        }
-
-                        if (albumsToDelete.Count > 0)
-                        {
-                            Trace.WriteLine(
-                                $"Deleted {albumsToDelete.Count} {data.Key} that were not in the new {data.Key} list.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        data.Value.SetSyncStatusInfo(TaskStatus.Faulted, 100);
-                        Trace.WriteLine($"Error during Jellyfin {data.Key} Sync: {ex.Message}");
-                         throw;
-                    }
-                    finally
-                    {
-                        // Stop the stopwatch and log the elapsed time
-                        data.Value.SetSyncStatusInfo(TaskStatus.RanToCompletion, 100);
-                        stopwatch.Stop();
-                        Trace.WriteLine($"Jellyfin {data.Key} Sync finished in {stopwatch.ElapsedMilliseconds} ms");
-                    }
-                }, cancellationToken));
-
-                await Task.WhenAll(tasks);
-                Trace.WriteLine("Jellyfin Sync Finished! Saving last date!");
-                return true;
+                await t;
             }
-            catch (Exception e)
+            catch
             {
-                Trace.TraceError(e.Message);
-                return false;
+                // ignored
             }
+            return true;
         }
+        public async Task<bool> StartSyncAsync(CancellationToken cancellationToken = default)
+        {
+            int maxTasks = 500;
+            await UpdateSyncStatus(cancellationToken);
+            var tasks = GetDataConnectors().Values.Select(data => Task.Run(async () =>
+            {
+                int workers = GetDataConnectors().Values.Where(d => d.SyncStatusInfo.TaskStatus == TaskStatus.Running).Count();
+                int retrieve = maxTasks / workers;
+                int checkCount = 3;
+                var dbItems = await GetDb(data).Value.GetAllAsync(
+                    limit: retrieve * checkCount,
+                    setSortTypes: ItemSortBy.DateCreated);
+                var dbIds = dbItems.Select(item => item.Id).ToArray();
 
+                data.SyncStatusInfo.TaskStatus = TaskStatus.Running;
+                while (data.SyncStatusInfo.TaskStatus is TaskStatus.Running)
+                {
+                    var items = await data.GetAllAsync(
+                            limit: retrieve,
+                            startIndex: data.SyncStatusInfo.ServerItemCount,
+                            setSortOrder: SortOrder.Descending,
+                            setSortTypes: ItemSortBy.DateCreated,
+                            cancellationToken: cancellationToken
+                        );
 
+                    int newTotal = data.SyncStatusInfo.ServerItemCount + items.Length;
+                    double newPercent = ((double)newTotal / data.SyncStatusInfo.ServerItemTotal) * 100;
+
+                    data.SetSyncStatusInfo(serverItemCount: newTotal, percentage: (int)newPercent);
+                    if (items.Length < retrieve ||
+                        data.SyncStatusInfo.DbFoundTotal > retrieve * checkCount)
+                    {
+                        data.SetSyncStatusInfo(status: TaskStatus.RanToCompletion);
+                    }
+                    GetDb(data).Value.InsertRangeAsync(items, cancellationToken).Wait(cancellationToken);
+                    workers = GetDataConnectors().Values.Where(d => d.SyncStatusInfo.TaskStatus == TaskStatus.Running).Count();
+                    retrieve = maxTasks / workers;
+                }
+            }, cancellationToken)).ToList();
+            Task t = Task.WhenAll(tasks);
+            try
+            {
+                await t;
+                Properties["LastSync"].Value = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+            }
+            catch
+            {
+                // ignored
+            }
+            return true;
+        }
         public async Task<bool> SetIsFavourite(Guid id, bool isFavourite, string serverUrl)
         {
             await Task.Delay(10);
             return false;
         }
-
         public Task<BaseMusicItem[]> SearchAsync(string searchTerm = "", int? limit = null, int startIndex = 0,
             ItemSortBy setSortTypes = ItemSortBy.Name, SortOrder setSortOrder = SortOrder.Ascending,
             CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Array.Empty<BaseMusicItem>());
         }
-
         public string GetUsername()
         {
             return (string)Properties["Username"].Value;
         }
-
         public string GetPassword()
         {
             return (string)Properties["Password"].Value;
         }
-
         public string GetAddress()
         {
             return (string)Properties["URL"].Value;
         }
-
         public string GetProfileImageUrl()
         {
             return "";
         }
-
         public UserCredentials GetUserCredentials()
         {
             return new UserCredentials(_sdkClientSettings.ServerUrl, (string)Properties["Username"].Value,
                 _userDto.Id.ToString(), (string)Properties["Password"].Value, _sessionInfo.Id,
                 _sdkClientSettings.AccessToken);
         }
-
         public MediaServerConnection GetConnectionType()
         {
             return MediaServerConnection.Jellyfin;
+        }
+        private async Task<bool> UpdateSyncStatus(CancellationToken cancellationToken = default)
+        {
+            var tasks = GetDataConnectors().Values.Select(data => Task.Run(async () =>
+            {
+                data.SetSyncStatusInfo(
+                    TaskStatus.Running,
+                    0,
+                    await data.GetTotalCountAsync(),
+                    0,
+                    0);
+                data.GetTotalCountAsync(cancellationToken: cancellationToken).Wait(cancellationToken);
+            }, cancellationToken))
+            .ToList();
+            Task t = Task.WhenAll(tasks);
+            try
+            {
+                await t;
+            }
+            catch
+            {
+                // ignored
+            }
+            return true;
+        }
+        private KeyValuePair<string, IDbItemConnector> GetDb(IMediaDataConnector mediaDataConnector)
+        {
+            switch (mediaDataConnector.MediaType)
+            {
+                case MediaTypes.Album:
+                    return new KeyValuePair<string, IDbItemConnector>("Album", _database.Album);
+                case MediaTypes.Artist:
+                    return new KeyValuePair<string, IDbItemConnector>("Artist", _database.Artist);
+                case MediaTypes.Song:
+                    return new KeyValuePair<string, IDbItemConnector>("Song", _database.Song);
+                case MediaTypes.Playlist:
+                    return new KeyValuePair<string, IDbItemConnector>("Playlist", _database.Playlist);
+                case MediaTypes.Genre:
+                    return new KeyValuePair<string, IDbItemConnector>("Genre", _database.Genre);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

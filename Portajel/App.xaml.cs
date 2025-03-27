@@ -1,4 +1,5 @@
-﻿using Portajel.Connections.Interfaces;
+﻿using Portajel.Connections;
+using Portajel.Connections.Interfaces;
 
 namespace Portajel
 {
@@ -7,6 +8,13 @@ namespace Portajel
         public App(IMediaServerConnector serverConnector, IDbConnector dbConnector)
         {
             InitializeComponent();
+            Startup(serverConnector, dbConnector);
+        }
+
+        private async void Startup(IMediaServerConnector serverConnector, IDbConnector dbConnector)
+        {
+            var auth = await serverConnector.AuthenticateAsync();
+            await serverConnector.StartSyncAsync();
         }
 
         protected override Window CreateWindow(IActivationState? activationState)

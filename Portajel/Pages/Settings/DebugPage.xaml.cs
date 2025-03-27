@@ -22,8 +22,15 @@ public partial class DebugPage : ContentPage
             {
                 Title = "Debug Map",
                 Description = "Test and configure map features.",
-                Icon = "radio.png",
+                Icon = "map.png",
                 NavigationLocation = "/settings/debug/map"
+            },
+            new()
+            {
+                Title = "Debug Database",
+                Description = "Test and configure the database.",
+                Icon = "database.png",
+                NavigationLocation = "/settings/debug/database"
             }
         };
         BindingContext = _viewModel;

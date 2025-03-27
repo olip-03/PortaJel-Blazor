@@ -17,9 +17,9 @@ namespace Portajel.Connections.Interfaces
         public SyncStatusInfo SyncStatus { get; set; }
         Task<AuthResponse> AuthenticateAsync(
             CancellationToken cancellationToken = default);
-        Task<bool> IsUpToDateAsync(
+        Task<bool> UpdateDb(
             CancellationToken cancellationToken = default);
-        Task<bool> BeginSyncAsync(
+        Task<bool> StartSyncAsync(
             CancellationToken cancellationToken = default);
         Task<bool> SetIsFavourite(
             Guid id, 
