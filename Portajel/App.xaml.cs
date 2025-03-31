@@ -5,13 +5,13 @@ namespace Portajel
 {
     public partial class App : Application
     {
-        public App(IMediaServerConnector serverConnector, IDbConnector dbConnector)
+        public App(IServerConnector serverConnector, IDbConnector dbConnector)
         {
             InitializeComponent();
-            Startup(serverConnector, dbConnector);
+            // Startup(serverConnector, dbConnector);
         }
 
-        private async void Startup(IMediaServerConnector serverConnector, IDbConnector dbConnector)
+        private async void Startup(IServerConnector serverConnector, IDbConnector dbConnector)
         {
             var auth = await serverConnector.AuthenticateAsync();
             await serverConnector.StartSyncAsync();

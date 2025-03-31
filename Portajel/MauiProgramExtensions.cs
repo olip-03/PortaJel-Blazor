@@ -37,14 +37,7 @@ namespace Portajel
         public static MauiAppBuilder RegisterViewModels(this MauiAppBuilder mauiAppBuilder)
         {
             mauiAppBuilder.Services.AddSingleton<DatabaseConnector>(serviceProvider =>
-                new DatabaseConnector(Path.Combine(FileSystem.Current.AppDataDirectory, "portajeldb.sql")));
-            mauiAppBuilder.Services.AddSingleton<IDbConnector>(serviceProvider =>
-                serviceProvider.GetRequiredService<DatabaseConnector>()); 
-            mauiAppBuilder.Services.AddSingleton<IMediaServerConnector>(serviceProvider => {
-                var database = serviceProvider.GetRequiredService<DatabaseConnector>();
-                var appDataDirectory = Path.Combine(FileSystem.AppDataDirectory, "MediaData");
-                return SaveHelper.LoadData(database, appDataDirectory);
-            }); 
+                new DatabaseConnector(Path.Combine(FileSystem.Current.AppDataDirectory, "portajeldb.sql")));               
             return mauiAppBuilder;
         }
 

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Jellyfin.Sdk.Generated.Models;
 using Portajel.Connections.Data;
 using Portajel.Connections.Database;
+using Portajel.Connections.Enum;
 using Portajel.Connections.Interfaces;
 using SQLite;
 
@@ -10,7 +11,7 @@ namespace Portajel.Connections.Services.Database;
 public class DatabasePlaylistConnector : IDbItemConnector, IMediaPlaylistInterface
 {
     private readonly SQLiteAsyncConnection _database = null;
-
+    public MediaTypes MediaType { get; set; } = MediaTypes.Playlist;
     public DatabasePlaylistConnector(SQLiteAsyncConnection database)
     {
         _database = database;

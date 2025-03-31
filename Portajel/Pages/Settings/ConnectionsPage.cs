@@ -17,15 +17,13 @@ public class ConnectionsPage : ContentPage
 {
     private Color _primaryDark = Color.FromRgba(0, 0, 0, 255);
 
-    private ServerConnector _server = default!;
-    private DatabaseConnector _database = default!;
-    public ConnectionsPage(IMediaServerConnector serverConnector, IDbConnector dbConnector)
+    private IServerConnector _server = default!;
+    private IDbConnector _database = default!;
+    public ConnectionsPage(IServerConnector server, IDbConnector dbConnector)
     {
         if (Application.Current is null) return;
-        if (serverConnector is not ServerConnector server) return;
-        if (dbConnector is not DatabaseConnector database) return;
         _server = server;
-        _database = database;
+        _database = dbConnector;
 
         var imageColor = Application.Current.Resources.TryGetValue("PrimaryDark", out object primaryColor);
         if (imageColor)
@@ -43,12 +41,10 @@ public class ConnectionsPage : ContentPage
 
     private void BuildUI()
     {
-        var connections = _server.GetServers();
-
         Title = "Connections";
 
         var mainLayout = new VerticalStackLayout();
-        mainLayout.Children.Add(GetConnectionsGrid(connections));
+        mainLayout.Children.Add(GetConnectionsGrid(_server.Servers.ToArray()));
 
         mainLayout.Children.Add(new Button
         {

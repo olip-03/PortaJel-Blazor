@@ -17,6 +17,12 @@ public class ServerConnectorSettings
 
     public ServerConnectorSettings(string json, DatabaseConnector database, string appDataDirectory)
     {
+        if (string.IsNullOrWhiteSpace(json) || json == "{}")
+        {
+            // Return empty list
+            return;
+        }
+
         var options = new JsonSerializerOptions
         {
             IncludeFields = true
@@ -61,12 +67,6 @@ public class ServerConnectorSettings
             if (type == null) continue; 
             switch (type)
             {
-                case MediaServerConnection.ServerConnector:
-                    connector = new ServerConnector()
-                    {
-                        Properties = setting
-                    };
-                    break;
                 case MediaServerConnection.Filesystem:
                     connector = new FileSystemConnector()
                     {
@@ -93,18 +93,18 @@ public class ServerConnectorSettings
                     break; 
             }
             if(connector == null) continue; 
-            ServerConnector.AddServer(connector);
+            ServerConnector.Servers.Add(connector);
         }
     }
 
     public ServerConnectorSettings(ServerConnector serverConnector, IMediaServerConnector[] servers)
     {
         ServerConnector = serverConnector;
-        if(ServerConnector.GetServers().Length > 0) return;
+        if(ServerConnector.Servers.Count > 0) return;
         if(servers == null) return;
         foreach (var srv in servers)
         {
-            ServerConnector.AddServer(srv);
+            ServerConnector.Servers.Add(srv);
         }
     }
 
@@ -114,7 +114,7 @@ public class ServerConnectorSettings
         {
             WriteIndented = true
         };
-        foreach (var server in ServerConnector.GetServers())
+        foreach (var server in ServerConnector.Servers)
         {
             if (!server.Properties.TryAdd("ConnectorType", new ConnectorProperty(
                     label: "ConnectorType",
@@ -127,6 +127,6 @@ public class ServerConnectorSettings
                 server.Properties["ConnectorType"].Value = server.GetConnectionType();
             }
         }
-        return JsonSerializer.Serialize(ServerConnector.GetServers().Select(s => s.Properties), options);
+        return JsonSerializer.Serialize(ServerConnector.Servers.Select(s => s.Properties), options);
     }
 }

@@ -1,10 +1,12 @@
 ﻿using Portajel.Connections.Data;
 using Jellyfin.Sdk.Generated.Models;
+using Portajel.Connections.Enum;
 
 namespace Portajel.Connections.Interfaces
 {
     public interface IDbItemConnector
     {
+        public MediaTypes MediaType { get; set; }
         Task<BaseMusicItem[]> GetAllAsync(
             int? limit = null,
             int startIndex = 0,

@@ -24,7 +24,7 @@ namespace Portajel.Connections.Services.Jellyfin
 {
     public class JellyfinServerConnector : IMediaServerConnector
     {
-        private DatabaseConnector _database;
+        private IDbConnector _database;
         private UserDto? _userDto;
         private SessionInfoDto? _sessionInfo;
         private JellyfinSdkSettings? _sdkClientSettings;
@@ -57,7 +57,7 @@ namespace Portajel.Connections.Services.Jellyfin
         public Dictionary<string, ConnectorProperty> Properties { get; set; } = new();
         public SyncStatusInfo SyncStatus { get; set; } = new();
         public JellyfinServerConnector(
-            DatabaseConnector database,
+            IDbConnector database,
             string url = "", 
             string username = "", 
             string password = "",
@@ -408,20 +408,14 @@ namespace Portajel.Connections.Services.Jellyfin
         }
         private KeyValuePair<string, IDbItemConnector> GetDb(IMediaDataConnector mediaDataConnector)
         {
-            switch (mediaDataConnector.MediaType)
+            try
             {
-                case MediaTypes.Album:
-                    return new KeyValuePair<string, IDbItemConnector>("Album", _database.Album);
-                case MediaTypes.Artist:
-                    return new KeyValuePair<string, IDbItemConnector>("Artist", _database.Artist);
-                case MediaTypes.Song:
-                    return new KeyValuePair<string, IDbItemConnector>("Song", _database.Song);
-                case MediaTypes.Playlist:
-                    return new KeyValuePair<string, IDbItemConnector>("Playlist", _database.Playlist);
-                case MediaTypes.Genre:
-                    return new KeyValuePair<string, IDbItemConnector>("Genre", _database.Genre);
-                default:
-                    throw new ArgumentOutOfRangeException();
+                var returnVal = _database.GetDataConnectors().First(d => d.Value.MediaType == mediaDataConnector.MediaType);
+                return returnVal;
+            }
+            catch (Exception)
+            {
+                throw new ArgumentOutOfRangeException();
             }
         }
     }

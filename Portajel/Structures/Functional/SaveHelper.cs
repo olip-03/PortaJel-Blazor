@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Controls;
 using Portajel.Connections;
+using Portajel.Connections.Interfaces;
 using Portajel.Connections.Services.Database;
 using Portajel.Services;
 using PortaJel_Blazor.Classes;
@@ -32,11 +33,11 @@ namespace Portajel.Structures.Functional
             ServerConnectorSettings settings = new(result, database, appDataDirectory);
             return settings.ServerConnector;
         }
-        public static async Task<bool> SaveData(ServerConnector server)
+        public static async Task<bool> SaveData(IServerConnector server)
         {
             try
             {
-                string toSave = server.GetSettings().ToJson();
+                string toSave = System.Text.Json.JsonSerializer.Serialize(server.Properties);
                 await SecureStorage.Default.SetAsync(GuidHelper.GetDeviceHash(model, manufacturer, deviceName), toSave);
             }
             catch (Exception e)

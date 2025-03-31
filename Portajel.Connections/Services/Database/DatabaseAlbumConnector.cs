@@ -1,8 +1,9 @@
 using System.Diagnostics;
-using Jellyfin.Sdk.Generated.Models;
+using Portajel.Connections.Enum;
 using Portajel.Connections.Data;
 using Portajel.Connections.Database;
 using Portajel.Connections.Interfaces;
+using Jellyfin.Sdk.Generated.Models;
 using SQLite;
 
 namespace Portajel.Connections.Services.Database;
@@ -11,6 +12,9 @@ namespace Portajel.Connections.Services.Database;
 public class DatabaseAlbumConnector : IDbItemConnector
 {
     private readonly SQLiteAsyncConnection _database;
+
+    public MediaTypes MediaType { get; set; } = MediaTypes.Album;
+
     public DatabaseAlbumConnector(SQLiteAsyncConnection database)
     {
         _database = database;

@@ -67,7 +67,7 @@ public partial class DebugDatabase : ContentPage, IDisposable
         {
             string combination = "";
 
-            foreach (var server in _server.GetServers())
+            foreach (var server in _server.Servers)
             {
                 
                 string srvjson = JsonSerializer.Serialize(server.Properties, new JsonSerializerOptions { WriteIndented = true });

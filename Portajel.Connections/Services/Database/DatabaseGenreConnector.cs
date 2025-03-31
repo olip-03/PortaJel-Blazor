@@ -1,6 +1,7 @@
 using Jellyfin.Sdk.Generated.Models;
 using Portajel.Connections.Data;
 using Portajel.Connections.Database;
+using Portajel.Connections.Enum;
 using Portajel.Connections.Interfaces;
 using SQLite;
 
@@ -9,7 +10,7 @@ namespace Portajel.Connections.Services.Database;
 public class DatabaseGenreConnector : IDbItemConnector
 {
     private readonly SQLiteAsyncConnection _database = null;
-
+    public MediaTypes MediaType { get; set; } = MediaTypes.Genre;
     public DatabaseGenreConnector(SQLiteAsyncConnection database)
     {
         _database = database;

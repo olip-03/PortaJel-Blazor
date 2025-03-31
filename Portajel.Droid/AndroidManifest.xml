@@ -1,12 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="fm.oli.portajel" android:versionCode="1" android:versionName="1.0">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:label="PortaJel" android:supportsRtl="true" android:usesCleartextTraffic="true"></application>
+	<application
+		android:allowBackup="true"
+		android:icon="@mipmap/appicon"
+		android:label="PortaJel"
+		android:supportsRtl="true"
+		android:usesCleartextTraffic="true"
+		android:debuggable="true">
+		<service android:name="PortaJel.Droid.ServiceController" android:enabled="true"></service>
+	</application>
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-	<service
-        android:name="PortaJel.Droid.ServiceController"
-        android:foregroundServiceType="mediaPlayback"
-        android:exported="false">
-	</service>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
 </manifest>

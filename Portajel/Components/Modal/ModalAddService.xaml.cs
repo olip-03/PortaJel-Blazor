@@ -11,13 +11,13 @@ namespace Portajel.Components.Modal;
 
 public partial class ModalAddServer : ContentPage
 {
-    private ServerConnector _serverConnector;
+    private IServerConnector _serverConnector;
     private IMediaServerConnector _server;
     private ObservableCollection<ConnectorProperty> ConnectionItems { get; set; } = new();
     public Action<IMediaServerConnector> OnLoginSuccess { get; set; }
-    public ModalAddServer(IMediaServerConnector primaryConnector, IMediaServerConnector server)
+    public ModalAddServer(IServerConnector primaryConnector, IMediaServerConnector server)
     {
-        _serverConnector  = (ServerConnector)primaryConnector;
+        _serverConnector  = primaryConnector;
         _server = server;
         InitializeComponent();
         foreach (var item in server.Properties)

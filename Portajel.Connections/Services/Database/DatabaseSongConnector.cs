@@ -5,13 +5,14 @@ using Portajel.Connections.Database;
 using Portajel.Connections.Interfaces;
 using SQLite;
 using System.Linq;
+using Portajel.Connections.Enum;
 
 namespace Portajel.Connections.Services.Database
 {
     public class DatabaseSongConnector : IDbItemConnector
     {
         private readonly SQLiteAsyncConnection _database;
-
+        public MediaTypes MediaType { get; set; } = MediaTypes.Song;
         public DatabaseSongConnector(SQLiteAsyncConnection database)
         {
             _database = database;

@@ -16,13 +16,13 @@ public partial class ViewConnectionPage : ContentPage, IQueryAttributable
     private Dictionary<string, ConnectorProperty> _connectionProperties = default!;
     private ViewConnectionViewModel _viewModel = new();
 
-    private ServerConnector _server = default!;
-    private DatabaseConnector _database = default!;
+    private IServerConnector _server = default!;
+    private IDbConnector _database = default!;
 
-    public ViewConnectionPage(IMediaServerConnector serverConnector, IDbConnector dbConnector)
+    public ViewConnectionPage(IServerConnector serverConnector, IDbConnector dbConnector)
     {
-        _server = (ServerConnector)serverConnector;
-        _database = (DatabaseConnector)dbConnector;
+        _server =  serverConnector;
+        _database = dbConnector;
         InitializeComponent();
         BindingContext = _viewModel;
     }
@@ -52,7 +52,8 @@ public partial class ViewConnectionPage : ContentPage, IQueryAttributable
 
     private async void Button_Clicked(object sender, EventArgs e)
     {
-        _server.RemoveServer(url);
+        var srv = _server.Servers.First(s => s.GetAddress() == url);
+        _server.Servers.Remove(srv);
         await SaveHelper.SaveData(_server);
         await Shell.Current.GoToAsync("..");
     }
@@ -60,7 +61,7 @@ public partial class ViewConnectionPage : ContentPage, IQueryAttributable
     private async void ToolbarItem_Clicked(object sender, EventArgs e)
     {
         var toast = Toast.Make("Saving...", ToastDuration.Short, 14);
-        var server = _server.GetServers().First(s => s.GetAddress() == url);
+        var server = _server.Servers.First(s => s.GetAddress() == url);
 
         AuthResponse checkSrv = await server.AuthenticateAsync();
 
