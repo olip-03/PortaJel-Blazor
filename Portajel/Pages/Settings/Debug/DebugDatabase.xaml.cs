@@ -12,12 +12,12 @@ public partial class DebugDatabase : ContentPage, IDisposable
 {
     private PeriodicTimer _timer;
     private CancellationTokenSource _cancellationTokenSource;
-    private ServerConnector _server = default!;
-    private DatabaseConnector _database = default!;
-    public DebugDatabase(IMediaServerConnector serverConnector, IDbConnector dbConnector)
+    private IServerConnector _server = default!;
+    private IDbConnector _database = default!;
+    public DebugDatabase(IServerConnector serverConnector, IDbConnector dbConnector)
     {
-        _server = (ServerConnector)serverConnector;
-        _database = (DatabaseConnector)dbConnector;
+        _server = serverConnector;
+        _database = dbConnector;
 
         InitializeComponent();
     }
