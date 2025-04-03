@@ -20,11 +20,16 @@ namespace Portajel.Droid
             string? mainDir = System.AppContext.BaseDirectory;
             if (mainDir == null) throw new SystemException("Could not find the main directory of the application.");
             var builder = MauiApp.CreateBuilder();
-            // Create Foreground Service
+
             builder.Services.AddSingleton(serviceProvider => {
-                var database = serviceProvider.GetRequiredService<DatabaseConnector>();
+                var database = new DatabaseConnector(Path.Combine(mainDir, "portajeldb.sql"));
                 DroidServiceController droidServiceController = new DroidServiceController(database);
                 return droidServiceController;
+            });
+            builder.Services.AddSingleton<IDbConnector, DroidDbConnector>(serviceProvider => {
+                var service = serviceProvider.GetRequiredService<DroidServiceController>();
+                DroidDbConnector droidServer = new DroidDbConnector(service);
+                return droidServer;
             });
             // Add Foreground Service Connector
             builder.Services.AddSingleton<IServerConnector, DroidServerConnector>(serviceProvider => {
@@ -32,11 +37,9 @@ namespace Portajel.Droid
                 DroidServerConnector droidServer = new DroidServerConnector(service);
                 return droidServer;
             });
-            builder.Services.AddSingleton<IDbConnector, DroidDbConnector>(serviceProvider => {
-                var service = serviceProvider.GetRequiredService<DroidServiceController>();
-                DroidDbConnector droidServer = new DroidDbConnector(service);
-                return droidServer;
-            });
+
+
+
             builder.Services.AddSingleton<IMediaController, MediaController>();
             builder.Services.AddSingleton<DroidServiceBinder>();
             builder.UseSharedMauiApp();

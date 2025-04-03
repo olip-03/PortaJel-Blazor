@@ -17,9 +17,10 @@ namespace Portajel.WinUI
             if(mainDir == null) throw new SystemException("Could not find the main directory of the application.");
             var builder = MauiApp.CreateBuilder();
             builder.Services.AddSingleton<IMediaController, MediaController>();
-
-            builder.Services.AddSingleton<IMediaServerConnector>(serviceProvider => {
-                var database = serviceProvider.GetRequiredService<DatabaseConnector>();
+            builder.Services.AddSingleton<IDbConnector>(serviceProvider =>
+                new DatabaseConnector(Path.Combine(FileSystem.Current.AppDataDirectory, "portajeldb.sql")));
+            builder.Services.AddSingleton<IServerConnector>(serviceProvider => {
+                var database = serviceProvider.GetRequiredService<IDbConnector>();
                 var appDataDirectory = Path.Combine(FileSystem.AppDataDirectory, "MediaData");
                 return SaveHelper.LoadData(database, appDataDirectory);
             });

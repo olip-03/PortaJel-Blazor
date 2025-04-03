@@ -19,7 +19,7 @@ namespace Portajel.Structures.Functional
         private static string model = DeviceInfo.Current.Model;
         private static string manufacturer = DeviceInfo.Current.Manufacturer;
         private static string deviceName = DeviceInfo.Current.Name;
-        public static ServerConnector LoadData(DatabaseConnector database, string appDataDirectory)
+        public static ServerConnector LoadData(IDbConnector database, string appDataDirectory)
         {
             Task<string?> r = SecureStorage.Default.GetAsync(GuidHelper.GetDeviceHash(model, manufacturer, deviceName));
             r.Wait();

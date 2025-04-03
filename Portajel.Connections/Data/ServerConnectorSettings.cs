@@ -15,7 +15,7 @@ public class ServerConnectorSettings
 {
     public ServerConnector ServerConnector { get; private init; } = new();
 
-    public ServerConnectorSettings(string json, DatabaseConnector database, string appDataDirectory)
+    public ServerConnectorSettings(string json, IDbConnector database, string appDataDirectory)
     {
         if (string.IsNullOrWhiteSpace(json) || json == "{}")
         {

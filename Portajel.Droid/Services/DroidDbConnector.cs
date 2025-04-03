@@ -13,7 +13,6 @@ namespace Portajel.Services
     public class DroidDbConnector: IDbConnector
     {
         private DroidServiceController _serviceConnection = null!;
-
         public Dictionary<string, IDbItemConnector> GetDataConnectors() => 
             _serviceConnection.AppServiceConnection.Binder?.Database != null ? 
             _serviceConnection.AppServiceConnection.Binder.Database.GetDataConnectors() : 
